@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ULTIMATE GALAXY ENGINE - 8K VISUALS</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #000000;
+      font-family: 'Rajdhani', sans-serif;
+    }
+
+    @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;500;700&display=swap');
+
+    #canvas-container {
+      width: 100vw;
+      height: 100vh;
+      display: block;
+    }
+
+    .input_video {
+      display: none;
+    }
+
+    /* HUD */
+    #ui-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .title-box {
+      position: absolute;
+      bottom: 50px;
+      left: 50px;
+      color: #fff;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+    }
+
+    h1 {
+      font-size: 4rem;
+      margin: 0;
+      letter-spacing: 8px;
+      font-weight: 700;
+      background: linear-gradient(to right, #fff, #88ccff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      font-size: 1.2rem;
+      letter-spacing: 4px;
+      color: #6688aa;
+      margin-top: 5px;
+      text-transform: uppercase;
+    }
+
+    /* 侧边控制器 */
+    #controls {
+      position: absolute;
+      top: 50%;
+      right: 40px;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      pointer-events: auto;
+    }
+
+    .btn {
+      background: rgba(10, 20, 30, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: rgba(255, 255, 255, 0.5);
+      padding: 12px 20px;
+      text-align: right;
+      cursor: pointer;
+      font-family: 'Rajdhani';
+      font-size: 0.9rem;
+      letter-spacing: 2px;
+      transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+      backdrop-filter: blur(10px);
+      border-radius: 4px;
+      text-transform: uppercase;
+      width: 180px;
+    }
+
+    .btn:hover {
+      border-color: rgba(255, 255, 255, 0.5);
+      color: #fff;
+      transform: translateX(-10px);
+    }
+
+    .btn.active {
+      background: rgba(255, 255, 255, 0.05);
+      border-right: 4px solid #00f3ff;
+      color: #fff;
+      text-shadow: 0 0 10px #00f3ff;
+      transform: translateX(-10px);
+      box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+    }
+
+    /* 状态指示 */
+    #status-indicator {
+      position: absolute;
+      top: 40px;
+      right: 40px;
+      text-align: right;
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+    }
+
+    #fps {
+      color: #00f3ff;
+      font-weight: bold;
+    }
+
+    /* 加载全屏 */
+    #loader {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #00f3ff;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid rgba(0, 243, 255, 0.3);
+      border-top: 3px solid #00f3ff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+</head>
+
+<body>
+
+  <div id="loader">
+    <div class="spinner"></div>
+    <div style="letter-spacing: 5px;">GENERATING HIGH-DENSITY CLUSTERS</div>
+    <div style="font-size: 0.7rem; margin-top: 10px; opacity: 0.5; max-width: 300px; text-align: center;">WARNING: GPU
+      INTENSIVE</div>
+  </div>
+
+  <div id="ui-layer">
+    <div class="title-box">
+      <h1 id="galaxy-name">MILKY WAY</h1>
+      <div class="subtitle" id="galaxy-detail">160,000 PARTICLES RENDERED</div>
+    </div>
+
+    <div id="status-indicator">
+      HAND TRACKING: <span id="tracking-status">INITIALIZING</span><br>
+      RENDER: <span id="fps">60</span> FPS
+    </div>
+  </div>
+
+  <div id="controls">
+    <div class="btn active" onclick="loadGalaxy('milkyway')">Milky Way</div>
+    <div class="btn" onclick="loadGalaxy('andromeda')">Andromeda</div>
+    <div class="btn" onclick="loadGalaxy('whirlpool')">Whirlpool (M51)</div>
+    <div class="btn" onclick="loadGalaxy('sombrero')">Sombrero</div>
+    <div class="btn" onclick="loadGalaxy('nebula')">Cosmic Nebula</div>
+  </div>
+
+  <div id="canvas-container"></div>
+  <video class="input_video"></video>
+
+  <script>
+    // --- 1. 高级配色方案 ---
+    // 为了实现细腻，我们不再是简单的A->B，而是定义 核心颜色、旋臂主色、旋臂辅色、尘埃色
+    const GALAXIES = {
+      'milkyway': {
+        name: "MILKY WAY",
+        particles: 160000,
+        arms: 2,
+        radius: 50,
+        spin: 3,
+        randomness: 0.5,
+        coreColor: 0xffaa66,  // 暖橙色核心
+        armColor1: 0xaaccff,  // 蓝色旋臂
+        armColor2: 0x4422aa,  // 深紫色尘埃带
+        outerColor: 0x112233, // 边缘暗色
+        coreSize: 0.15
+      },
+      'andromeda': {
+        name: "ANDROMEDA",
+        particles: 180000,
+        arms: 4,
+        radius: 60,
+        spin: 5,
+        randomness: 0.8,
+        coreColor: 0xffffee,  // 亮白核心
+        armColor1: 0x88ccff,  // 青色旋臂
+        armColor2: 0xddddff,  // 泛白
+        outerColor: 0x334455,
+        coreSize: 0.25
+      },
+      'whirlpool': {
+        name: "WHIRLPOOL M51",
+        particles: 150000,
+        arms: 2,
+        radius: 45,
+        spin: 6,
+        randomness: 0.3,
+        coreColor: 0xffffff,
+        armColor1: 0xff0066,  // 强烈的粉红色（恒星形成区）
+        armColor2: 0x4400cc,  // 深紫
+        outerColor: 0x000000,
+        coreSize: 0.1
+      },
+      'sombrero': {
+        name: "SOMBRERO M104",
+        particles: 140000,
+        arms: 0, // 圆盘
+        radius: 40,
+        spin: 10,
+        randomness: 0.2,
+        coreColor: 0xffdd44,  // 金色核心
+        armColor1: 0xff5522,  // 红色圆盘
+        armColor2: 0x220000,  // 黑色尘埃带（通过深红模拟）
+        outerColor: 0x110000,
+        coreSize: 0.5
+      },
+      'nebula': {
+        name: "COSMIC NEBULA",
+        particles: 200000, // 爆量
+        arms: 3,
+        radius: 70,
+        spin: 1,
+        randomness: 2.0, // 极度离散
+        coreColor: 0x00ffcc, // 青色核心
+        armColor1: 0xff00ff, // 紫红
+        armColor2: 0x0044ff, // 蓝
+        outerColor: 0x000000,
+        coreSize: 0.05
+      }
+    };
+
+    let scene, camera, renderer;
+    let particleSystem;
+    let currentConfig = GALAXIES['milkyway'];
+    let time = 0;
+
+    // 交互状态
+    const state = {
+      targetZ: 40,
+      currentZ: 40,
+      energy: 0,
+      tiltX: 0.5, // 默认倾斜角度
+      tiltY: 0
+    };
+
+    // --- 2. 核心引擎初始化 ---
+    function initThree() {
+      scene = new THREE.Scene();
+      scene.fog = new THREE.FogExp2(0x000000, 0.002); // 极淡的雾，增加深邃感
+
+      camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.set(0, 30, 40);
+      camera.lookAt(0, 0, 0);
+
+      renderer = new THREE.WebGLRenderer({
+        antialias: false, // 关闭AA换取更多粒子性能
+        powerPreference: "high-performance",
+        alpha: false
+      });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); // 限制DPR防止4K屏卡顿
+      document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+      // 背景
+      createBackground();
+
+      // 初始星系
+      generateGalaxy(currentConfig);
+
+      animate();
+      window.addEventListener('resize', onResize);
+    }
+
+    // --- 3. 高级纹理生成 (High-Res Glow) ---
+    function createGalaxyTexture() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 128; canvas.height = 128; // 更高的分辨率
+      const ctx = canvas.getContext('2d');
+
+      // 双层光晕，内亮外柔
+      const grad = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+      grad.addColorStop(0, 'rgba(255,255,255,1)');
+      grad.addColorStop(0.1, 'rgba(255,255,255,0.9)');
+      grad.addColorStop(0.3, 'rgba(255,255,255,0.3)');
+      grad.addColorStop(0.5, 'rgba(255,255,255,0.05)');
+      grad.addColorStop(1, 'rgba(0,0,0,0)');
+
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 128, 128);
+      return new THREE.CanvasTexture(canvas);
+    }
+    const sprite = createGalaxyTexture();
+
+    // 背景繁星
+    function createBackground() {
+      const geom = new THREE.BufferGeometry();
+      const pos = [];
+      for (let i = 0; i < 10000; i++) {
+        pos.push((Math.random() - 0.5) * 1000, (Math.random() - 0.5) * 1000, (Math.random() - 0.5) * 1000);
+      }
+      geom.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+      const mat = new THREE.PointsMaterial({ color: 0x666666, size: 0.5, transparent: true, opacity: 0.6 });
+      scene.add(new THREE.Points(geom, mat));
+    }
+
+    // --- 4. 极致细腻的星系生成算法 ---
+    function generateGalaxy(params) {
+      if (particleSystem) {
+        scene.remove(particleSystem);
+        particleSystem.geometry.dispose();
+      }
+
+      const geometry = new THREE.BufferGeometry();
+      const positions = new Float32Array(params.particles * 3);
+      const colors = new Float32Array(params.particles * 3);
+      const sizes = new Float32Array(params.particles);
+
+      const colorCore = new THREE.Color(params.coreColor);
+      const colorArm1 = new THREE.Color(params.armColor1);
+      const colorArm2 = new THREE.Color(params.armColor2);
+      const colorOuter = new THREE.Color(params.outerColor);
+      const tempColor = new THREE.Color();
+
+      for (let i = 0; i < params.particles; i++) {
+        // 1. 距离分布 (使用三次方分布，让核心极其密集)
+        const r = Math.random();
+        const radius = r * params.radius;
+
+        // 2. 角度计算 (核心旋转 + 旋臂逻辑)
+        // 旋臂基础角度
+        const spinAngle = radius * params.spin;
+
+        // 分支角度 (Arms)
+        let branchAngle = 0;
+        if (params.arms > 0) {
+          const branchIdx = i % params.arms;
+          branchAngle = (branchIdx / params.arms) * Math.PI * 2;
+        }
+
+        // 3. 随机偏移 (Randomness) - 制造“尘埃带”和“离散恒星”
+        // 核心附近随机性小，外部随机性大
+        // 使用正态分布近似，让粒子集中在旋臂中心
+        const randomX = Math.pow(Math.random(), params.randomness) * (Math.random() < 0.5 ? 1 : -1) * (params.radius / 2) * (r + 0.1);
+        const randomY = Math.pow(Math.random(), params.randomness) * (Math.random() < 0.5 ? 1 : -1) * (params.radius / 2) * (r + 0.1);
+        const randomZ = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * (params.radius * 0.2) * (1 - r); // 核心厚，边缘薄
+
+        const finalAngle = branchAngle + spinAngle;
+
+        const x = Math.cos(finalAngle) * radius + randomX;
+        const z = Math.sin(finalAngle) * radius + randomY;
+        const y = randomZ; // 垂直分布
+
+        positions[i * 3] = x;
+        positions[i * 3 + 1] = y;
+        positions[i * 3 + 2] = z;
+
+        // 4. 复杂的颜色混合逻辑
+        // 距离权重
+        const distRatio = Math.sqrt(x * x + z * z) / params.radius;
+
+        // 旋臂权重 (计算当前点偏离理想旋臂中心的程度)
+        // 如果点在旋臂线上，它是亮的/蓝的；如果偏离远，它是暗的/紫红的
+        // 这是一个近似算法，判断点是否在“结构”上
+
+        let colorMixed;
+
+        if (distRatio < params.coreSize) {
+          // 核心区域
+          colorMixed = colorCore;
+        } else {
+          // 旋臂区域混合
+          // 基础颜色随距离变暗
+          const baseMix = colorArm1.clone().lerp(colorOuter, distRatio);
+
+          // 随机杂色 (模拟不同的恒星类型)
+          const noise = Math.random();
+          if (noise > 0.9) {
+            // 10% 的概率是高亮的新生恒星 (亮白/青)
+            tempColor.setHex(0xffffff).lerp(colorArm1, 0.5);
+          } else if (noise < 0.3) {
+            // 30% 的概率是尘埃 (暗红/紫)
+            tempColor.copy(colorArm2).lerp(colorOuter, 0.5);
+          } else {
+            // 主体恒星
+            tempColor.copy(baseMix);
+          }
+          colorMixed = tempColor;
+        }
+
+        colors[i * 3] = colorMixed.r;
+        colors[i * 3 + 1] = colorMixed.g;
+        colors[i * 3 + 2] = colorMixed.b;
+
+        // 5. 粒子大小逻辑
+        // 核心粒子小而密，外部有些大而亮
+        // 增加一些极大的“前景星”
+        let pSize = Math.random() * 0.3 + 0.05;
+        if (Math.random() > 0.995) pSize += 0.8; // 稀有的超亮星
+        sizes[i] = pSize;
+      }
+
+      geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+      geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+      // 存储原始位置用于动态效果
+      geometry.userData = { originalPos: Float32Array.from(positions) };
+
+      // 材质
+      const material = new THREE.PointsMaterial({
+        size: 0.5, // 基础大小
+        vertexColors: true,
+        map: sprite,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        transparent: true,
+        opacity: 0.8,
+        sizeAttenuation: true // 关键：近大远小
+      });
+
+      particleSystem = new THREE.Points(geometry, material);
+      // 初始倾斜
+      particleSystem.rotation.x = 0.5;
+      scene.add(particleSystem);
+
+      // 更新UI
+      document.getElementById('galaxy-name').innerText = params.name;
+      document.getElementById('galaxy-detail').innerText = `${(params.particles / 1000).toFixed(0)}K PARTICLES | HIGH DENSITY`;
+    }
+
+    function loadGalaxy(key) {
+      currentConfig = GALAXIES[key];
+      document.querySelectorAll('.btn').forEach(b => {
+        b.classList.remove('active');
+        if (b.innerText.toLowerCase().includes(key)) b.classList.add('active');
+      });
+
+      // 简单的过渡效果：先缩小再放大
+      const oldSystem = particleSystem;
+      let s = 1;
+      const fadeOut = setInterval(() => {
+        s -= 0.1;
+        oldSystem.scale.setScalar(s);
+        if (s <= 0) {
+          clearInterval(fadeOut);
+          generateGalaxy(currentConfig);
+          particleSystem.scale.setScalar(0);
+        }
+      }, 20);
+    }
+
+    // --- 5. 渲染循环 ---
+    let lastTime = 0;
+    function animate() {
+      const now = performance.now();
+      const delta = now - lastTime;
+      lastTime = now;
+
+      // FPS显示 (简易)
+      if (Math.random() > 0.95) document.getElementById('fps').innerText = Math.round(1000 / delta);
+
+      requestAnimationFrame(animate);
+      time += 0.002;
+
+      if (particleSystem) {
+        // 1. 自转 (基础 + 能量爆发)
+        const rotSpeed = 0.0003 + state.energy * 0.005;
+        particleSystem.rotation.y -= rotSpeed;
+
+        // 2. 入场与手势缩放平滑过渡
+        if (particleSystem.scale.x < 1) particleSystem.scale.addScalar(0.05);
+
+        // 3. 粒子动态 (Flow)
+        // 如果能量高，粒子不仅旋转，还会沿着原点脉冲
+        if (state.energy > 0.01) {
+          const positions = particleSystem.geometry.attributes.position.array;
+          const orig = particleSystem.geometry.userData.originalPos;
+          const pulse = 1.0 + Math.sin(time * 20) * state.energy * 0.05; // 震动幅度
+
+          for (let i = 0; i < positions.length; i += 3) {
+            positions[i] = orig[i] * pulse + (Math.random() - 0.5) * state.energy;
+            positions[i + 1] = orig[i + 1] * pulse + (Math.random() - 0.5) * state.energy;
+            positions[i + 2] = orig[i + 2] * pulse + (Math.random() - 0.5) * state.energy;
+          }
+          particleSystem.geometry.attributes.position.needsUpdate = true;
+        }
+      }
+
+      // 摄像机平滑控制
+      // 距离控制 (Zoom)
+      state.currentZ = THREE.MathUtils.lerp(state.currentZ, state.targetZ, 0.05);
+
+      // 视角倾斜控制 (根据手的位置)
+      const radius = state.currentZ;
+      const theta = state.tiltX * Math.PI; // 垂直角度
+      const phi = state.tiltY * Math.PI;   // 水平角度偏移
+
+      // 简单的轨道相机逻辑
+      camera.position.x = radius * Math.sin(theta) * Math.sin(phi);
+      camera.position.y = radius * Math.cos(theta);
+      camera.position.z = radius * Math.sin(theta) * Math.cos(phi);
+      camera.lookAt(0, 0, 0);
+
+      renderer.render(scene, camera);
+    }
+
+    function onResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    // --- 6. 手势识别 ---
+    function initMediaPipe() {
+      const videoElement = document.getElementsByClassName('input_video')[0];
+      const statusSpan = document.getElementById('tracking-status');
+
+      const hands = new Hands({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}` });
+
+      hands.setOptions({
+        maxNumHands: 2,
+        modelComplexity: 1, // 高精度模式
+        minDetectionConfidence: 0.7,
+        minTrackingConfidence: 0.7
+      });
+
+      hands.onResults((results) => {
+        const handsData = results.multiHandLandmarks;
+
+        if (handsData && handsData.length > 0) {
+          statusSpan.innerText = "ACTIVE";
+          statusSpan.style.color = "#00f3ff";
+
+          // 手势 1: 视角旋转 (根据单手的位置)
+          // 取第一只手掌心位置 (0-1)
+          const h1 = handsData[0][9]; // 中指根部
+          // 映射 x(0-1) 到 角度 (-0.5 PI 到 0.5 PI)
+          state.tiltY = (h1.x - 0.5) * 2;
+          state.tiltX = 0.5 + (h1.y - 0.5); // 俯仰
+
+          // 手势 2: 握拳 (Fist) -> 能量爆发
+          let isFist = false;
+          let totalOpenness = 0;
+          handsData.forEach(h => {
+            const w = h[0];
+            let d = 0;
+            [8, 12, 16, 20].forEach(t => d += Math.sqrt(Math.pow(h[t].x - w.x, 2) + Math.pow(h[t].y - w.y, 2)));
+            totalOpenness += d;
+          });
+
+          // 阈值判断
+          if (totalOpenness / handsData.length < 0.35) isFist = true;
+
+          if (isFist) {
+            state.energy = THREE.MathUtils.lerp(state.energy, 1.0, 0.1);
+          } else {
+            state.energy = THREE.MathUtils.lerp(state.energy, 0.0, 0.1);
+          }
+
+          // 手势 3: 双手缩放 (Zoom)
+          if (handsData.length === 2) {
+            const p1 = handsData[0][0];
+            const p2 = handsData[1][0];
+            const dist = Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
+            // 距离越大，zoom越小(拉近)
+            // dist ~0.1 -> Z=80, dist ~0.6 -> Z=10
+            const target = 90 - (dist * 120);
+            state.targetZ = Math.max(10, Math.min(100, target));
+          }
+
+          document.getElementById('loader').style.display = 'none';
+        } else {
+          statusSpan.innerText = "SEARCHING...";
+          statusSpan.style.color = "#aaa";
+          state.energy = 0;
+          // 自动缓慢旋转视角
+          state.tiltY += 0.001;
+        }
+      });
+
+      const cameraFeed = new Camera(videoElement, {
+        onFrame: async () => { await hands.send({ image: videoElement }); },
+        width: 640, height: 480
+      });
+      cameraFeed.start();
+    }
+
+    initThree();
+    initMediaPipe();
+
+  </script>
+</body>
+
+</html>

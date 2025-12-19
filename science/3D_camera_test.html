@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Random Color Hand Particles</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #000;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    #container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    #input_video {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1);
+      z-index: 0;
+    }
+
+    #overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(5, 5, 12, 0.95);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    #output_canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+    }
+
+    #ui-layer {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 85%;
+      max-width: 700px;
+      background: rgba(20, 20, 20, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      padding: 20px;
+      color: #fff;
+      z-index: 3;
+      backdrop-filter: blur(10px);
+      display: flex;
+      gap: 20px;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .hand-status {
+      flex: 1;
+    }
+
+    .hand-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #444;
+      padding-bottom: 5px;
+      margin-bottom: 8px;
+    }
+
+    .hand-title {
+      font-weight: 700;
+      font-size: 14px;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .hand-state {
+      font-size: 12px;
+      font-weight: bold;
+      color: #555;
+      background: #111;
+      padding: 2px 8px;
+      border-radius: 4px;
+      transition: all 0.3s;
+    }
+
+    .meter-container {
+      display: flex;
+      align-items: center;
+      font-size: 11px;
+      color: #888;
+      gap: 10px;
+    }
+
+    .progress-bg {
+      flex: 1;
+      height: 4px;
+      background: #333;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: #fff;
+      transition: width 0.1s, background-color 0.3s;
+    }
+
+    #loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #fff;
+      font-size: 18px;
+      z-index: 10;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <div id="container">
+    <video id="input_video" playsinline></video>
+    <div id="overlay"></div>
+    <canvas id="output_canvas"></canvas>
+    <div id="loading">SYSTEM INITIALIZING...</div>
+
+    <div id="ui-layer">
+      <div class="hand-status" id="ui-left">
+        <div class="hand-header">
+          <span class="hand-title">Left Hand</span>
+          <span class="hand-state" id="state-left">WAITING</span>
+        </div>
+        <div class="meter-container">
+          <span>ENERGY</span>
+          <div class="progress-bg">
+            <div class="progress-fill" id="tension-left"></div>
+          </div>
+        </div>
+      </div>
+      <div class="hand-status" id="ui-right">
+        <div class="hand-header">
+          <span class="hand-title">Right Hand</span>
+          <span class="hand-state" id="state-right">WAITING</span>
+        </div>
+        <div class="meter-container">
+          <span>ENERGY</span>
+          <div class="progress-bg">
+            <div class="progress-fill" id="tension-right"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+  <script type="module">
+    import * as THREE from 'https://cdn.skypack.dev/three@0.136.0';
+
+    // --- 1. Color Palettes (颜色主题库) ---
+    // 格式: { name: 描述, base: 初始亮色, explode: 爆炸/释放深色 }
+    const COLOR_THEMES = [
+      { name: "Orange-Red", base: 0xffaa00, explode: 0xff0000 }, // 亮橙 -> 深红
+      { name: "Yellow-Green", base: 0xffeb3b, explode: 0x2e7d32 }, // 柠檬黄 -> 草绿
+      { name: "Teal-Blue", base: 0x00e5ff, explode: 0x0d47a1 }, // 青绿 -> 深蓝
+      { name: "Lavender-Pink", base: 0xe1bee7, explode: 0xf06292 }, // 浅紫 -> 柔和粉
+      { name: "Beige-Brown", base: 0xffecb3, explode: 0x5d4037 }, // 米黄 -> 暖棕
+      { name: "Sky-Indigo", base: 0x81d4fa, explode: 0x1a237e }, // 浅蓝 -> 深靛蓝
+      { name: "Gold-Orange", base: 0xffd700, explode: 0xe65100 }, // 金色 -> 暖橘
+      { name: "Emerald-Olive", base: 0x69f0ae, explode: 0x33691e }, // 墨绿 -> 深橄榄
+      { name: "Rose-Burgundy", base: 0xffcdd2, explode: 0x880e4f }  // 浅玫红 -> 勃艮第
+    ];
+
+    // --- Configuration ---
+    const CONFIG = {
+      particleCount: 18000,
+
+      // Physics
+      stiffness: 0.06,
+      damping: 0.88,
+      dragStrength: -1.8,
+
+      // Size
+      baseRadius: 4.0,
+      maxScale: 2.0,
+
+      // Logic
+      triggerFrames: 10,
+      lossThreshold: 35,
+      flySpeed: 0.9
+    };
+
+    // --- Texture ---
+    function createParticleTexture() {
+      const size = 256;
+      const canvas = document.createElement('canvas');
+      canvas.width = size; canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      const center = size / 2;
+      const grad = ctx.createRadialGradient(center, center, 0, center, center, center);
+
+      grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
+      grad.addColorStop(0.25, 'rgba(255, 255, 255, 0.5)');
+      grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, size, size);
+      return new THREE.CanvasTexture(canvas);
+    }
+
+    // --- Scene Setup ---
+    const canvas = document.getElementById('output_canvas');
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x05050a, 0.015);
+
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 30;
+
+    const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // --- Particle System Class ---
+    class HandParticleSystem {
+      constructor(uiId) {
+        this.uiId = uiId;
+        this.state = 'IDLE';
+
+        this.targetPos = new THREE.Vector3();
+        this.currentPos = new THREE.Vector3();
+        this.meshVelocity = new THREE.Vector3();
+
+        this.fistCounter = 0;
+        this.tension = 0;
+        this.baseScale = 0;
+        this.lossCounter = 0;
+
+        // Colors Storage
+        this.lastThemeIndex = -1; // 记录上一次颜色的索引，用于去重
+        this.currBaseColor = new THREE.Color();
+        this.currDarkColor = new THREE.Color();
+        this.currExplodeColor = new THREE.Color();
+
+        this.initMesh();
+        this.pickRandomTheme(); // Init with a random theme
+      }
+
+      initMesh() {
+        this.geometry = new THREE.BufferGeometry();
+        const pos = [];
+        const orig = [];
+        const vel = [];
+        const colors = [];
+
+        for (let i = 0; i < CONFIG.particleCount; i++) {
+          const phi = Math.acos(-1 + (2 * i) / CONFIG.particleCount);
+          const theta = Math.sqrt(CONFIG.particleCount * Math.PI) * phi;
+
+          const r = CONFIG.baseRadius + Math.random() * 0.5;
+
+          const x = r * Math.cos(theta) * Math.sin(phi);
+          const y = r * Math.sin(theta) * Math.sin(phi);
+          const z = r * Math.cos(phi);
+
+          pos.push(x, y, z);
+          orig.push(x, y, z);
+          vel.push(0, 0, 0);
+          colors.push(1, 1, 1);
+        }
+
+        this.geometry.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+        this.geometry.setAttribute('original', new THREE.Float32BufferAttribute(orig, 3));
+        this.geometry.setAttribute('velocity', new THREE.Float32BufferAttribute(vel, 3));
+        this.geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+        this.material = new THREE.PointsMaterial({
+          size: 0.5,
+          map: createParticleTexture(),
+          transparent: true,
+          opacity: 1,
+          vertexColors: true,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false
+        });
+
+        this.mesh = new THREE.Points(this.geometry, this.material);
+        this.mesh.visible = false;
+        scene.add(this.mesh);
+      }
+
+      // --- 核心优化：确保每次颜色都不一样 ---
+      pickRandomTheme() {
+        let newIndex;
+        // 强制循环，直到随机到一个和上次不一样的索引
+        do {
+          newIndex = Math.floor(Math.random() * COLOR_THEMES.length);
+        } while (newIndex === this.lastThemeIndex && COLOR_THEMES.length > 1);
+
+        this.lastThemeIndex = newIndex; // 更新记忆
+        const theme = COLOR_THEMES[newIndex];
+
+        this.currBaseColor.setHex(theme.base);
+        this.currExplodeColor.setHex(theme.explode);
+
+        // 自动计算深色内核 (亮度降低 40%)
+        this.currDarkColor.copy(this.currBaseColor).offsetHSL(0, 0, -0.4);
+
+        // console.log(`${this.uiId} switched color to: ${theme.name}`);
+      }
+
+      detectGesture(landmarks) {
+        if (!landmarks) return { tension: 0, isFist: false };
+
+        const fingers = [{ t: 8, b: 5 }, { t: 12, b: 9 }, { t: 16, b: 13 }, { t: 20, b: 17 }];
+        const wrist = landmarks[0];
+        let curled = 0;
+        const dist = (a, b) => Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2 + (a.z - b.z) ** 2);
+
+        fingers.forEach(f => {
+          if (dist(landmarks[f.t], wrist) < dist(landmarks[f.b], wrist) * 1.1) curled++;
+        });
+        if (dist(landmarks[4], landmarks[17]) < dist(landmarks[4], landmarks[2])) curled++;
+
+        return { tension: curled / 5, isFist: curled >= 4 };
+      }
+
+      update(landmarks) {
+        const positions = this.geometry.attributes.position.array;
+        const originals = this.geometry.attributes.original.array;
+        const colors = this.geometry.attributes.color.array;
+        const vels = this.geometry.attributes.velocity.array;
+
+        let targetWorldPos = new THREE.Vector3();
+
+        // --- Logic ---
+        if (landmarks) {
+          this.lossCounter = 0;
+          const wrist = landmarks[0];
+          const middle = landmarks[9];
+          const z = -wrist.z * 15;
+          const x = (1 - middle.x) * 2 - 1;
+          const y = -(middle.y * 2 - 1);
+
+          const vec = new THREE.Vector3(x, y, 0.5);
+          vec.unproject(camera);
+          const dir = vec.sub(camera.position).normalize();
+          const distToCam = Math.max(5, Math.min((z - camera.position.z) / dir.z, 50));
+
+          targetWorldPos = camera.position.clone().add(dir.multiplyScalar(distToCam));
+          targetWorldPos.y += 2.5;
+
+          const { tension, isFist } = this.detectGesture(landmarks);
+          this.tension = THREE.MathUtils.lerp(this.tension, tension, 0.2);
+
+          // --- 关键修改：状态切换时触发变色 ---
+          if (this.state === 'IDLE' || this.state === 'SHRINKING') {
+            this.state = 'TRACKING';
+
+            // 每次重新生成 Sphere 时，强制切换颜色
+            this.pickRandomTheme();
+
+            this.mesh.visible = true;
+            this.baseScale = 0.1;
+            this.resetShape();
+            this.currentPos.copy(targetWorldPos);
+            this.meshVelocity.set(0, 0, 0);
+          }
+
+          if (this.state === 'TRACKING') {
+            if (this.baseScale < CONFIG.maxScale) this.baseScale += 0.05;
+
+            if (isFist) this.fistCounter++;
+            else this.fistCounter = Math.max(0, this.fistCounter - 2);
+
+            if (this.fistCounter > CONFIG.triggerFrames) {
+              this.state = 'FLYING';
+              this.fistCounter = 0;
+            }
+          }
+        } else {
+          if (this.state === 'TRACKING') {
+            this.lossCounter++;
+            if (this.lossCounter > CONFIG.lossThreshold) {
+              this.state = 'SHRINKING';
+            } else {
+              targetWorldPos.copy(this.currentPos);
+            }
+          }
+        }
+
+        // --- Animation ---
+        if (this.state === 'TRACKING' || this.state === 'SHRINKING') {
+          // Physics
+          const force = new THREE.Vector3().subVectors(targetWorldPos, this.currentPos);
+          const accel = force.multiplyScalar(CONFIG.stiffness);
+          this.meshVelocity.add(accel);
+          this.meshVelocity.multiplyScalar(CONFIG.damping);
+          this.currentPos.add(this.meshVelocity);
+          this.mesh.position.copy(this.currentPos);
+
+          const scale = this.baseScale * (1 + this.tension * 0.5);
+          this.mesh.scale.setScalar(scale);
+          this.mesh.rotation.y += 0.03 + this.tension * 0.1;
+
+          // Rendering (Color + Rim Light)
+          this.mesh.updateMatrixWorld();
+          const worldRot = this.mesh.quaternion;
+
+          const dragVector = this.meshVelocity.clone().multiplyScalar(CONFIG.dragStrength);
+          dragVector.clampLength(0, 3.0);
+
+          for (let i = 0; i < CONFIG.particleCount; i++) {
+            const nx = originals[i * 3];
+            const ny = originals[i * 3 + 1];
+            const nz = originals[i * 3 + 2];
+            const len = Math.sqrt(nx * nx + ny * ny + nz * nz);
+            const normal = new THREE.Vector3(nx / len, ny / len, nz / len);
+            normal.applyQuaternion(worldRot);
+
+            const dot = Math.abs(normal.z);
+            const rim = Math.pow(1.0 - dot, 1.8);
+
+            // 使用当前随机到的颜色
+            const r = THREE.MathUtils.lerp(this.currDarkColor.r, this.currBaseColor.r, rim);
+            const g = THREE.MathUtils.lerp(this.currDarkColor.g, this.currBaseColor.g, rim);
+            const b = THREE.MathUtils.lerp(this.currDarkColor.b, this.currBaseColor.b, rim);
+
+            const jitter = (Math.random() - 0.5) * this.tension * 0.3;
+
+            positions[i * 3] = originals[i * 3] + jitter + dragVector.x;
+            positions[i * 3 + 1] = originals[i * 3 + 1] + jitter + dragVector.y;
+            positions[i * 3 + 2] = originals[i * 3 + 2] + jitter + dragVector.z;
+
+            colors[i * 3] = r; colors[i * 3 + 1] = g; colors[i * 3 + 2] = b;
+          }
+          this.geometry.attributes.position.needsUpdate = true;
+          this.geometry.attributes.color.needsUpdate = true;
+
+          if (this.state === 'SHRINKING') {
+            this.baseScale *= 0.85;
+            if (this.baseScale < 0.05) { this.state = 'IDLE'; this.mesh.visible = false; }
+          }
+
+        } else if (this.state === 'FLYING') {
+          const flyTarget = new THREE.Vector3(-0.9, 0.9, 0.5);
+          flyTarget.unproject(camera);
+
+          const dir = new THREE.Vector3().subVectors(flyTarget, this.mesh.position).normalize();
+          this.mesh.position.add(dir.multiplyScalar(CONFIG.flySpeed));
+          this.mesh.rotation.z += 0.3;
+          this.mesh.scale.multiplyScalar(0.96);
+
+          // Transition to Explode Color
+          const currR = colors[0];
+          const mixR = THREE.MathUtils.lerp(currR, this.currExplodeColor.r, 0.15);
+          const mixG = THREE.MathUtils.lerp(colors[1], this.currExplodeColor.g, 0.15);
+          const mixB = THREE.MathUtils.lerp(colors[2], this.currExplodeColor.b, 0.15);
+
+          for (let i = 0; i < CONFIG.particleCount; i++) {
+            colors[i * 3] = mixR; colors[i * 3 + 1] = mixG; colors[i * 3 + 2] = mixB;
+          }
+          this.geometry.attributes.color.needsUpdate = true;
+
+          if (this.mesh.position.distanceTo(flyTarget) < 4) {
+            this.state = 'EXPLODING';
+            this.initExplosion();
+          }
+
+        } else if (this.state === 'EXPLODING') {
+          this.mesh.scale.setScalar(1);
+          const exR = this.currExplodeColor.r;
+          const exG = this.currExplodeColor.g;
+          const exB = this.currExplodeColor.b;
+
+          for (let i = 0; i < CONFIG.particleCount; i++) {
+            positions[i * 3] += vels[i * 3];
+            positions[i * 3 + 1] += vels[i * 3 + 1];
+            positions[i * 3 + 2] += vels[i * 3 + 2];
+            vels[i * 3] *= 0.95; vels[i * 3 + 1] *= 0.95; vels[i * 3 + 2] *= 0.95;
+
+            colors[i * 3] = exR; colors[i * 3 + 1] = exG; colors[i * 3 + 2] = exB;
+          }
+          this.geometry.attributes.position.needsUpdate = true;
+          this.geometry.attributes.color.needsUpdate = true;
+          this.material.opacity *= 0.9;
+
+          if (this.material.opacity < 0.01) {
+            this.state = 'IDLE';
+            this.mesh.visible = false;
+          }
+        }
+
+        this.updateUI();
+      }
+
+      initExplosion() {
+        const vels = this.geometry.attributes.velocity.array;
+        const positions = this.geometry.attributes.position.array;
+        for (let i = 0; i < CONFIG.particleCount; i++) {
+          vels[i * 3] = (Math.random() - 0.5) * 2.5;
+          vels[i * 3 + 1] = (Math.random() - 0.5) * 2.5;
+          vels[i * 3 + 2] = (Math.random() - 0.5) * 2.5;
+          positions[i * 3] *= 0.1; positions[i * 3 + 1] *= 0.1; positions[i * 3 + 2] *= 0.1;
+        }
+        this.geometry.attributes.velocity.needsUpdate = true;
+      }
+
+      resetShape() {
+        const pos = this.geometry.attributes.position.array;
+        const orig = this.geometry.attributes.original.array;
+        for (let i = 0; i < pos.length; i++) pos[i] = orig[i];
+        this.geometry.attributes.position.needsUpdate = true;
+        this.material.opacity = 1;
+      }
+
+      updateUI() {
+        const elStatus = document.getElementById(`state-${this.uiId}`);
+        const elBar = document.getElementById(`tension-${this.uiId}`);
+        const elTitle = document.getElementById(`ui-${this.uiId}`).querySelector('.hand-title');
+
+        if (this.state === 'TRACKING') {
+          elStatus.innerText = "ACTIVE";
+          elStatus.className = "hand-state";
+          elStatus.style.color = `#${this.currBaseColor.getHexString()}`;
+          elStatus.style.borderColor = `#${this.currBaseColor.getHexString()}`;
+
+          elBar.style.width = `${this.tension * 100}%`;
+          elBar.style.backgroundColor = `#${this.currBaseColor.getHexString()}`;
+
+          elTitle.style.color = `#${this.currBaseColor.getHexString()}`;
+        } else if (this.state === 'FLYING') {
+          elStatus.innerText = "RELEASED";
+          elStatus.className = "hand-state";
+          elBar.style.backgroundColor = `#${this.currExplodeColor.getHexString()}`;
+          elStatus.style.color = `#${this.currExplodeColor.getHexString()}`;
+        } else {
+          elStatus.innerText = "WAITING";
+          elStatus.className = "hand-state";
+          elStatus.style.color = "#555";
+          elStatus.style.borderColor = "transparent";
+          elBar.style.width = '0%';
+          elTitle.style.color = "#fff";
+        }
+      }
+    }
+
+    const systems = {
+      'left': new HandParticleSystem('left'),
+      'right': new HandParticleSystem('right')
+    };
+
+    const videoElement = document.getElementById('input_video');
+    const hands = new Hands({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}` });
+
+    hands.setOptions({
+      maxNumHands: 2,
+      modelComplexity: 1,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5
+    });
+
+    const uiMap = { 'Left': 'right', 'Right': 'left' };
+
+    hands.onResults(results => {
+      const detected = { 'left': false, 'right': false };
+      if (results.multiHandLandmarks) {
+        for (let i = 0; i < results.multiHandLandmarks.length; i++) {
+          const landmarks = results.multiHandLandmarks[i];
+          const label = results.multiHandedness[i].label;
+          const uiId = uiMap[label];
+          if (systems[uiId]) {
+            systems[uiId].update(landmarks);
+            detected[uiId] = true;
+          }
+        }
+      }
+      if (!detected['left']) systems['left'].update(null);
+      if (!detected['right']) systems['right'].update(null);
+    });
+
+    const cameraUtils = new Camera(videoElement, {
+      onFrame: async () => { await hands.send({ image: videoElement }); },
+      width: 1280, height: 720
+    });
+    cameraUtils.start().then(() => document.getElementById('loading').style.display = 'none');
+
+    function animate() {
+      requestAnimationFrame(animate);
+      renderer.render(scene, camera);
+    }
+    animate();
+
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Three.js 太阳系动画</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #000;
+      color: #fff;
+      font-family: sans-serif;
+    }
+
+    canvas {
+      display: block;
+    }
+
+    #controls {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 100;
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 10px;
+      border-radius: 8px;
+      max-height: calc(100vh - 20px);
+      overflow-y: auto;
+    }
+
+    #controls button {
+      display: block;
+      background-color: #444;
+      color: #fff;
+      border: none;
+      padding: 8px 12px;
+      margin: 5px 0;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      width: 100%;
+      text-align: left;
+    }
+
+    #controls button:hover {
+      background-color: #666;
+    }
+
+    #controls button.active {
+      background-color: #007bff;
+    }
+
+    #info {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 8px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    /* 添加加载提示 */
+    #loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 1.5em;
+      z-index: 200;
+      background-color: rgba(0, 0, 0, 0.8);
+      padding: 15px;
+      border-radius: 10px;
+    }
+
+  </style>
+</head>
+
+<body>
+  <div id="loading">正在加载资源...</div>
+  <div id="controls">
+    <button id="btn-overview" class="active">全局视角</button>
+  </div>
+  <div id="info">使用鼠标滚轮缩放，按住左键拖动旋转视角。</div>
+  <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.163.0/examples/jsm/"
+            }
+        }
+    </script>
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    // --- 常量和配置 ---
+    const AU = 50;
+    const SIZES = { /* ... (保持不变) ... */
+      sun: 5, mercury: 0.4, venus: 0.8, earth: 1, mars: 0.7,
+      jupiter: 3.5, saturn: 3, uranus: 2, neptune: 1.9,
+      moon: 0.2, phobos: 0.1, deimos: 0.08,
+      io: 0.3, europa: 0.25, ganymede: 0.4, callisto: 0.38,
+      titan: 0.4, rhea: 0.2,
+      titania: 0.2, oberon: 0.18,
+      triton: 0.25
+    };
+    const ORBITS = { /* ... (保持不变) ... */
+      mercury: 0.39 * AU, venus: 0.72 * AU, earth: 1 * AU, mars: 1.52 * AU,
+      jupiter: 3.2 * AU, saturn: 5.5 * AU, uranus: 8 * AU, neptune: 12 * AU,
+      moon: SIZES.earth + 1.5, phobos: SIZES.mars + 0.8, deimos: SIZES.mars + 1.2,
+      io: SIZES.jupiter + 2, europa: SIZES.jupiter + 2.5, ganymede: SIZES.jupiter + 3, callisto: SIZES.jupiter + 3.5,
+      titan: SIZES.saturn + 2.5, rhea: SIZES.saturn + 3,
+      titania: SIZES.uranus + 1.5, oberon: SIZES.uranus + 2,
+      triton: SIZES.neptune + 1.8
+    };
+    const SPEEDS = { /* ... (保持不变) ... */
+      mercury: 0.02, venus: 0.015, earth: 0.01, mars: 0.008,
+      jupiter: 0.004, saturn: 0.003, uranus: 0.002, neptune: 0.001,
+      moon: 0.1, phobos: 0.2, deimos: 0.15,
+      io: 0.1, europa: 0.08, ganymede: 0.06, callisto: 0.05,
+      titan: 0.07, rhea: 0.06,
+      titania: 0.05, oberon: 0.04,
+      triton: 0.06
+    };
+    const COLORS = { /* ... (保持不变, 作为纹理加载失败时的后备) ... */
+      // sun: 0xffff00, mercury: 0xaaaaaa, venus: 0xffd700, earth: 0x0077ff, mars: 0xff4500,
+      // jupiter: 0xffa500, saturn: 0xf4a460, uranus: 0xadd8e6, neptune: 0x4682b4,
+      // moon: 0xcccccc, phobos: 0xaaaaaa, deimos: 0xcccccc,
+      // io: 0xffff99, europa: 0xaaaaff, ganymede: 0xcccccc, callisto: 0x888888,
+      // titan: 0xffdead, rhea: 0xcccccc,
+      // titania: 0xcccccc, oberon: 0xaaaaaa,
+      // triton: 0xaaaaff,
+      // orbit: 0xcccccc, ring: 0x8c7853
+      sun: 0xffff33, // 太阳更亮
+      mercury: 0xcccccc, // 水星更亮
+      venus: 0xffe033, // 金星更亮
+      earth: 0x33aaff, // 地球更亮
+      mars: 0xff6633, // 火星更亮
+      jupiter: 0xffb333, // 木星更亮
+      saturn: 0xffc266, // 土星更亮
+      uranus: 0xbbeeff, // 天王星更亮
+      neptune: 0x6699cc, // 海王星更亮
+      moon: 0xdddddd, // 月球更亮
+      phobos: 0xcccccc, // 火卫一更亮
+      deimos: 0xdddddd, // 火卫二更亮
+      io: 0xffffcc, // 木卫一更亮
+      europa: 0xccccff, // 木卫二更亮
+      ganymede: 0xdddddd, // 木卫三更亮
+      callisto: 0x999999, // 木卫四更亮
+      titan: 0xffe6b3, // 土卫六更亮
+      rhea: 0xdddddd, // 土卫五更亮
+      titania: 0xdddddd, // 天卫三更亮
+      oberon: 0xcccccc, // 天卫四更亮
+      triton: 0xccccff, // 海卫一更亮
+      orbit: 0xcccccc,
+      ring: 0x8c7853
+    };
+    // *** 添加纹理 URL 映射 ***
+    const TEXTURES = {
+      // 使用 three.js 示例库中的纹理
+      // *** 使用更小的星空背景图 ***
+      background: 'https://cdn.jsdelivr.net/gh/mrdoob/three.js/examples/textures/starmap_g4k.jpg', // Smaller star map
+      // Sun: 使用 MeshBasicMaterial 颜色，不使用纹理
+      Earth: 'https://cdn.jsdelivr.net/gh/mrdoob/three.js/examples/textures/planets/earth_atmos_2048.jpg',
+      Moon: 'https://cdn.jsdelivr.net/gh/mrdoob/three.js/examples/textures/planets/moon_1024.jpg',
+      Mars: 'https://cdn.jsdelivr.net/gh/mrdoob/three.js/examples/textures/planets/mars_1k_color.jpg',
+      Jupiter: 'https://cdn.jsdelivr.net/gh/mrdoob/three.js/examples/textures/planets/jupiter.jpg',
+      Saturn: 'https://cdn.jsdelivr.net/gh/mrdoob/three.js/examples/textures/planets/saturn.jpg',
+      SaturnRing: 'https://cdn.jsdelivr.net/gh/mrdoob/three.js/examples/textures/planets/saturn_ring.png', // PNG with alpha
+      Uranus: 'https://cdn.jsdelivr.net/gh/mrdoob/three.js/examples/textures/planets/uranus.jpg',
+      Neptune: 'https://cdn.jsdelivr.net/gh/mrdoob/three.js/examples/textures/planets/neptune.jpg',
+      // Mercury, Venus, Moons other than Earth's Moon will use colors
+    };
+
+
+    // --- 场景设置 ---
+    let scene, camera, renderer, controls;
+    let clock = new THREE.Clock();
+    let celestialBodies = [];
+    let focusedObject = null;
+    let overviewPosition = new THREE.Vector3(0, AU * 1.5, AU * 5);
+    // *** 添加 TextureLoader ***
+    const textureLoader = new THREE.TextureLoader();
+    const loadingManager = new THREE.LoadingManager(); // 管理加载过程
+    const loadingEl = document.getElementById('loading');
+
+    // --- 加载管理器 ---
+    loadingManager.onStart = function (url, itemsLoaded, itemsTotal) {
+      loadingEl.style.display = 'block'; // 显示加载提示
+      console.log('Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.');
+    };
+    loadingManager.onLoad = function () {
+      loadingEl.style.display = 'none'; // 隐藏加载提示
+      console.log('Loading complete!');
+      // 确保在所有资源加载完毕后进行初始聚焦
+      const sunBody = celestialBodies.find(b => b.data.name === 'Sun');
+      if (sunBody) {
+        focusOnObject(sunBody);
+        setActiveButton(document.getElementById('btn-sun')); // 设置太阳按钮为激活
+      } else {
+        focusedObject = null; // Fallback
+        setActiveButton(document.getElementById('btn-overview')); // 激活全局视角按钮
+      }
+    };
+    loadingManager.onError = function (url) {
+      console.error('There was an error loading ' + url);
+      // 即使出错也隐藏加载提示
+      loadingEl.style.display = 'none';
+    };
+    // 将 textureLoader 关联到 manager
+    textureLoader.manager = loadingManager;
+
+
+    // --- 初始化 ---
+    function init() {
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, AU * 50);
+      camera.position.copy(overviewPosition);
+      camera.lookAt(scene.position);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      document.body.appendChild(renderer.domElement);
+
+      // 光照 (保持不变)
+      const ambientLight = new THREE.AmbientLight(0x404040);
+      scene.add(ambientLight);
+      const sunLight = new THREE.PointLight(0xffffff, 4, AU * 50);
+      sunLight.castShadow = true;
+      sunLight.shadow.mapSize.width = 1024;
+      sunLight.shadow.mapSize.height = 1024;
+      sunLight.shadow.camera.near = 10;
+      sunLight.shadow.camera.far = AU * 20;
+      scene.add(sunLight);
+
+      controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.screenSpacePanning = false;
+      controls.minDistance = 1;
+      controls.maxDistance = AU * 20;
+
+      // *** 添加背景 (使用更新后的 URL) ***
+      textureLoader.load(TEXTURES.background, (texture) => {
+        // 仍然使用等距柱状投影映射
+        texture.mapping = THREE.EquirectangularReflectionMapping;
+        scene.background = texture;
+        console.log("Background loaded.");
+      }, undefined, (err) => {
+        console.error('Error loading background texture:', err);
+        scene.background = new THREE.Color(0x000000); // 加载失败则用黑色背景
+      });
+
+
+      createSolarSystem();
+      createControlButtons();
+      window.addEventListener('resize', onWindowResize, false);
+      animate();
+    }
+
+    // --- 创建太阳系 --- (保持不变)
+    function createSolarSystem() {
+      // 太阳 (保持 BasicMaterial)
+      const sunData = { name: 'Sun', radius: SIZES.sun, color: COLORS.sun, isLightSource: true };
+      const sun = createCelestialBody(sunData);
+      sun.mesh.castShadow = false;
+      sun.mesh.receiveShadow = false;
+      scene.add(sun.mesh);
+      celestialBodies.push(sun);
+
+      // 行星数据 (保持不变)
+      const planetsData = [ /* ... (保持不变) ... */
+        { name: 'Mercury', radius: SIZES.mercury, color: COLORS.mercury, orbitRadius: ORBITS.mercury, speed: SPEEDS.mercury, moons: [] },
+        { name: 'Venus', radius: SIZES.venus, color: COLORS.venus, orbitRadius: ORBITS.venus, speed: SPEEDS.venus, moons: [] },
+        {
+          name: 'Earth', radius: SIZES.earth, color: COLORS.earth, orbitRadius: ORBITS.earth, speed: SPEEDS.earth, moons: [
+            { name: 'Moon', radius: SIZES.moon, color: COLORS.moon, orbitRadius: ORBITS.moon, speed: SPEEDS.moon }
+          ]
+        },
+        {
+          name: 'Mars', radius: SIZES.mars, color: COLORS.mars, orbitRadius: ORBITS.mars, speed: SPEEDS.mars, moons: [
+            { name: 'Phobos', radius: SIZES.phobos, color: COLORS.phobos, orbitRadius: ORBITS.phobos, speed: SPEEDS.phobos },
+            { name: 'Deimos', radius: SIZES.deimos, color: COLORS.deimos, orbitRadius: ORBITS.deimos, speed: SPEEDS.deimos }
+          ]
+        },
+        {
+          name: 'Jupiter', radius: SIZES.jupiter, color: COLORS.jupiter, orbitRadius: ORBITS.jupiter, speed: SPEEDS.jupiter, moons: [
+            { name: 'Io', radius: SIZES.io, color: COLORS.io, orbitRadius: ORBITS.io, speed: SPEEDS.io },
+            { name: 'Europa', radius: SIZES.europa, color: COLORS.europa, orbitRadius: ORBITS.europa, speed: SPEEDS.europa },
+            { name: 'Ganymede', radius: SIZES.ganymede, color: COLORS.ganymede, orbitRadius: ORBITS.ganymede, speed: SPEEDS.ganymede },
+            { name: 'Callisto', radius: SIZES.callisto, color: COLORS.callisto, orbitRadius: ORBITS.callisto, speed: SPEEDS.callisto }
+          ]
+        },
+        {
+          name: 'Saturn', radius: SIZES.saturn, color: COLORS.saturn, orbitRadius: ORBITS.saturn, speed: SPEEDS.saturn, hasRing: true, moons: [
+            { name: 'Titan', radius: SIZES.titan, color: COLORS.titan, orbitRadius: ORBITS.titan, speed: SPEEDS.titan },
+            { name: 'Rhea', radius: SIZES.rhea, color: COLORS.rhea, orbitRadius: ORBITS.rhea, speed: SPEEDS.rhea }
+          ]
+        },
+        {
+          name: 'Uranus', radius: SIZES.uranus, color: COLORS.uranus, orbitRadius: ORBITS.uranus, speed: SPEEDS.uranus, moons: [
+            { name: 'Titania', radius: SIZES.titania, color: COLORS.titania, orbitRadius: ORBITS.titania, speed: SPEEDS.titania },
+            { name: 'Oberon', radius: SIZES.oberon, color: COLORS.oberon, orbitRadius: ORBITS.oberon, speed: SPEEDS.oberon }
+          ]
+        },
+        {
+          name: 'Neptune', radius: SIZES.neptune, color: COLORS.neptune, orbitRadius: ORBITS.neptune, speed: SPEEDS.neptune, moons: [
+            { name: 'Triton', radius: SIZES.triton, color: COLORS.triton, orbitRadius: ORBITS.triton, speed: SPEEDS.triton }
+          ]
+        }
+      ];
+
+      // 创建行星及其卫星 (保持不变)
+      planetsData.forEach(planetData => {
+        const planetSystem = new THREE.Group();
+        scene.add(planetSystem);
+
+        const planet = createCelestialBody(planetData, planetSystem);
+        planetSystem.add(planet.mesh);
+        celestialBodies.push(planet);
+        planet.systemGroup = planetSystem;
+
+        createOrbitLine(planetData.orbitRadius, scene);
+
+        if (planetData.moons && planetData.moons.length > 0) {
+          planet.moons = [];
+          planetData.moons.forEach(moonData => {
+            const moon = createCelestialBody(moonData, planetSystem, planet.mesh);
+            planetSystem.add(moon.mesh);
+            celestialBodies.push(moon);
+            planet.moons.push(moon);
+            createOrbitLine(moonData.orbitRadius, planet.mesh, true);
+          });
+        }
+
+        // 土星环纹理逻辑 (保持不变)
+        if (planetData.hasRing && TEXTURES.SaturnRing) {
+          const ringGeometry = new THREE.RingGeometry(planetData.radius * 1.2, planetData.radius * 2, 64);
+          const ringTexture = textureLoader.load(TEXTURES.SaturnRing);
+          const pos = ringGeometry.attributes.position;
+          const v3 = new THREE.Vector3();
+          const uv = ringGeometry.attributes.uv;
+          for (let i = 0; i < pos.count; i++) {
+            v3.fromBufferAttribute(pos, i);
+            uv.setXY(i, (v3.length() - planetData.radius * 1.2) / (planetData.radius * 0.8), v3.angleTo(new THREE.Vector3(1, 0, 0)) / (Math.PI * 2));
+          }
+          const ringMaterial = new THREE.MeshStandardMaterial({
+            map: ringTexture, side: THREE.DoubleSide, color: 0xffffff, transparent: true, alphaTest: 0.1, opacity: 0.8, roughness: 0.9, metalness: 0.1
+          });
+          const ringMesh = new THREE.Mesh(ringGeometry, ringMaterial);
+          ringMesh.rotation.x = Math.PI / 2;
+          ringMesh.receiveShadow = true;
+          ringMesh.castShadow = false;
+          planet.mesh.add(ringMesh);
+          planet.ring = ringMesh;
+        } else if (planetData.hasRing) { // Fallback
+          const ringGeometry = new THREE.RingGeometry(planetData.radius * 1.2, planetData.radius * 2, 64);
+          const ringMaterial = new THREE.MeshStandardMaterial({
+            color: COLORS.ring, side: THREE.DoubleSide, transparent: true, opacity: 0.6, roughness: 0.9, metalness: 0.1
+          });
+          const ringMesh = new THREE.Mesh(ringGeometry, ringMaterial);
+          ringMesh.rotation.x = Math.PI / 2;
+          ringMesh.receiveShadow = true;
+          planet.mesh.add(ringMesh);
+          planet.ring = ringMesh;
+        }
+      });
+      // 注意：初始聚焦移到 loadingManager.onLoad 中
+    }
+
+    // --- 创建单个天体 --- (保持不变)
+    function createCelestialBody(data, parentGroup = scene, orbitCenter = null) {
+      const geometry = new THREE.SphereGeometry(data.radius, 32, 32);
+      let material;
+      const textureUrl = TEXTURES[data.name];
+
+      if (data.isLightSource) {
+        material = new THREE.MeshBasicMaterial({ color: data.color });
+      } else if (textureUrl) {
+        const texture = textureLoader.load(textureUrl, undefined, undefined, (err) => {
+          console.error(`Error loading texture for ${data.name}:`, err);
+          mesh.material = new THREE.MeshStandardMaterial({
+            color: data.color || 0xffffff, roughness: 0.7, metalness: 0.1
+          });
+        });
+        material = new THREE.MeshStandardMaterial({
+          map: texture, color: 0xffffff, roughness: 0.8, metalness: 0.1
+        });
+      } else {
+        material = new THREE.MeshStandardMaterial({
+          color: data.color, roughness: 0.7, metalness: 0.1,
+          emissive: new THREE.Color(data.color).multiplyScalar(0.05)
+        });
+      }
+
+      const mesh = new THREE.Mesh(geometry, material);
+      mesh.name = data.name;
+
+      if (!data.isLightSource) {
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+      }
+
+      const body = {
+        mesh: mesh, data: data, orbitCenter: orbitCenter,
+        angle: Math.random() * Math.PI * 2, systemGroup: parentGroup
+      };
+
+      // 定位逻辑 (保持不变)
+      if (data.orbitRadius && !orbitCenter) {
+        body.systemGroup.position.x = data.orbitRadius * Math.cos(body.angle);
+        body.systemGroup.position.z = data.orbitRadius * Math.sin(body.angle);
+      }
+      else if (data.orbitRadius && orbitCenter) {
+        mesh.position.x = data.orbitRadius * Math.cos(body.angle);
+        mesh.position.z = data.orbitRadius * Math.sin(body.angle);
+      }
+
+      return body;
+    }
+
+    // --- 创建轨道线 --- (保持不变)
+    function createOrbitLine(radius, parent = scene, isMoonOrbit = false) {
+      const points = [];
+      const divisions = 128;
+      for (let i = 0; i <= divisions; i++) {
+        const angle = (i / divisions) * Math.PI * 2;
+        points.push(new THREE.Vector3(Math.cos(angle) * radius, 0, Math.sin(angle) * radius));
+      }
+      const geometry = new THREE.BufferGeometry().setFromPoints(points);
+      const material = new THREE.LineBasicMaterial({ color: COLORS.orbit, transparent: true, opacity: 0.5 });
+      const line = new THREE.Line(geometry, material);
+      line.castShadow = false;
+      line.receiveShadow = false;
+      parent.add(line);
+    }
+
+
+    // --- 创建控制按钮 --- (保持不变)
+    function createControlButtons() {
+      const controlsDiv = document.getElementById('controls');
+      const overviewBtn = document.getElementById('btn-overview');
+
+      overviewBtn.addEventListener('click', () => {
+        focusedObject = null;
+        controls.target.set(0, 0, 0);
+        smoothCameraTransition(overviewPosition, new THREE.Vector3(0, 0, 0));
+        setActiveButton(overviewBtn);
+      });
+
+      celestialBodies.forEach(body => {
+        if (!body.orbitCenter || body.data.name === 'Sun') {
+          const button = document.createElement('button');
+          button.textContent = body.data.name;
+          button.id = `btn-${body.data.name.toLowerCase()}`;
+          button.addEventListener('click', () => {
+            focusOnObject(body);
+            setActiveButton(button);
+          });
+          controlsDiv.appendChild(button);
+        }
+      });
+    }
+
+    // --- 设置激活按钮样式 --- (保持不变)
+    function setActiveButton(activeBtn) {
+      const buttons = document.querySelectorAll('#controls button');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      if (activeBtn) {
+        activeBtn.classList.add('active');
+      } else {
+        const overviewBtn = document.getElementById('btn-overview');
+        if (overviewBtn) overviewBtn.classList.add('active');
+      }
+    }
+
+
+    // --- 聚焦到天体 --- (保持不变)
+    function focusOnObject(targetBody) {
+      if (!targetBody || !targetBody.mesh) {
+        console.warn("Attempted to focus on invalid targetBody:", targetBody);
+        return;
+      }
+      focusedObject = targetBody.mesh;
+      const offsetDistance = targetBody.data.radius * 5 + 10;
+      const targetPosition = new THREE.Vector3();
+      targetBody.mesh.getWorldPosition(targetPosition);
+
+      const cameraPosition = targetPosition.clone().add(new THREE.Vector3(0, offsetDistance * 0.5, offsetDistance));
+
+      smoothCameraTransition(cameraPosition, targetPosition);
+      controls.target.copy(targetPosition);
+    }
+
+    // --- 平滑相机过渡 --- (保持不变)
+    let transitionStartTime = -1;
+    const transitionDuration = 1.0;
+    let startPosition = new THREE.Vector3();
+    let endPosition = new THREE.Vector3();
+    let startTarget = new THREE.Vector3();
+    let endTarget = new THREE.Vector3();
+
+    function smoothCameraTransition(targetCamPos, targetLookAt) {
+      transitionStartTime = clock.getElapsedTime();
+      startPosition.copy(camera.position);
+      endPosition.copy(targetCamPos);
+      startTarget.copy(controls.target);
+      endTarget.copy(targetLookAt);
+    }
+
+    // --- 窗口大小调整 --- (保持不变)
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    // --- 动画循环 --- (保持不变)
+    function animate() {
+      requestAnimationFrame(animate);
+
+      const delta = clock.getDelta();
+      const elapsed = clock.getElapsedTime();
+
+      celestialBodies.forEach(body => {
+        body.mesh.rotation.y += 0.05 * delta;
+
+        if (body.data.orbitRadius && body.data.speed) {
+          body.angle += body.data.speed * delta * 50;
+          const radius = body.data.orbitRadius;
+          const x = radius * Math.cos(body.angle);
+          const z = radius * Math.sin(body.angle);
+
+          if (body.orbitCenter) {
+            body.mesh.position.set(x, 0, z);
+          } else if (body.systemGroup) {
+            body.systemGroup.position.set(x, 0, z);
+          }
+        }
+      });
+
+      if (transitionStartTime > 0) {
+        const t = Math.min((clock.getElapsedTime() - transitionStartTime) / transitionDuration, 1.0);
+        camera.position.lerpVectors(startPosition, endPosition, easeInOutCubic(t));
+        controls.target.lerpVectors(startTarget, endTarget, easeInOutCubic(t));
+        camera.lookAt(controls.target);
+        if (t >= 1.0) {
+          transitionStartTime = -1;
+          controls.target.copy(endTarget);
+        }
+        controls.update();
+      } else if (focusedObject) {
+        const targetPosition = new THREE.Vector3();
+        focusedObject.getWorldPosition(targetPosition);
+        controls.target.lerp(targetPosition, 0.1);
+
+      } else {
+        controls.target.lerp(new THREE.Vector3(0, 0, 0), 0.05);
+      }
+
+
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    // 缓动函数 (保持不变)
+    function easeInOutCubic(t) {
+      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    }
+
+
+    // --- 启动 ---
+    init();
+
+  </script>
+</body>
+
+</html>

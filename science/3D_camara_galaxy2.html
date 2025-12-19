@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRYSTAL GALAXY - HIGH DEFINITION</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #000;
+      font-family: 'Rajdhani', sans-serif;
+    }
+
+    @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600&display=swap');
+
+    #canvas-container {
+      width: 100vw;
+      height: 100vh;
+      display: block;
+    }
+
+    .input_video {
+      display: none;
+    }
+
+    /* UI Overlay */
+    #hud {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .title-block {
+      position: absolute;
+      bottom: 50px;
+      left: 50px;
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin: 0;
+      color: #fff;
+      font-weight: 300;
+      letter-spacing: 6px;
+    }
+
+    h1 span {
+      color: #00d2ff;
+      font-weight: 600;
+    }
+
+    .subtitle {
+      color: #556677;
+      letter-spacing: 3px;
+      font-size: 0.8rem;
+      margin-top: 5px;
+    }
+
+    /* Buttons */
+    #controls {
+      position: absolute;
+      top: 50%;
+      right: 30px;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: auto;
+    }
+
+    .btn {
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #8899aa;
+      padding: 10px 20px;
+      cursor: pointer;
+      text-align: right;
+      font-size: 0.8rem;
+      letter-spacing: 2px;
+      transition: 0.2s;
+      border-radius: 2px;
+      width: 140px;
+    }
+
+    .btn:hover {
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .btn.active {
+      border-right: 3px solid #00d2ff;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.8);
+    }
+
+    /* Loading */
+    #loader {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #00d2ff;
+      letter-spacing: 4px;
+      font-size: 0.9rem;
+    }
+
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+</head>
+
+<body>
+
+  <div id="loader">INITIALIZING OPTICS ENGINE...</div>
+
+  <div id="hud">
+    <div class="title-block">
+      <h1 id="ui-title">MILKY <span>WAY</span></h1>
+      <div class="subtitle" id="ui-sub">200,000 DISCRETE PARTICLES</div>
+    </div>
+  </div>
+
+  <div id="controls">
+    <div class="btn active" onclick="loadGalaxy('milkyway')">MILKY WAY</div>
+    <div class="btn" onclick="loadGalaxy('andromeda')">ANDROMEDA</div>
+    <div class="btn" onclick="loadGalaxy('whirlpool')">WHIRLPOOL</div>
+    <div class="btn" onclick="loadGalaxy('sombrero')">SOMBRERO</div>
+  </div>
+
+  <div id="canvas-container"></div>
+  <video class="input_video"></video>
+
+  <script>
+    // --- 1. 配置数据 (颜色调暗，防止过曝) ---
+    const GALAXIES = {
+      'milkyway': {
+        name: "MILKY", span: "WAY", type: "Barred Spiral",
+        count: 200000,
+        // 注意：核心颜色故意调得很暗 (0.5, 0.3, 0.1)，这样叠加100层才变白
+        colors: { core: [0.5, 0.35, 0.15], arm: [0.2, 0.4, 0.9], dust: [0.1, 0.05, 0.2] },
+        params: { r: 50, spin: 3, arms: 2, bar: 12 }
+      },
+      'andromeda': {
+        name: "ANDRO", span: "MEDA", type: "Spiral SA(s)b",
+        count: 220000,
+        colors: { core: [0.6, 0.6, 0.55], arm: [0.3, 0.5, 0.7], dust: [0.1, 0.15, 0.2] },
+        params: { r: 60, spin: 5, arms: 4 }
+      },
+      'whirlpool': {
+        name: "WHIRL", span: "POOL", type: "M51 Grand Design",
+        count: 180000,
+        colors: { core: [0.6, 0.6, 0.6], arm: [0.5, 0.3, 0.6], dust: [0.2, 0.0, 0.05] },
+        params: { r: 45, spin: 4, arms: 2 }
+      },
+      'sombrero': {
+        name: "SOMB", span: "RERO", type: "M104 Lenticular",
+        count: 160000,
+        colors: { core: [0.6, 0.3, 0.05], arm: [0.4, 0.15, 0.05], dust: [0.0, 0.0, 0.0] },
+        params: { r: 50, bulge: 10 }
+      }
+    };
+
+    let scene, camera, renderer, system;
+    let currentKey = 'milkyway';
+
+    // 交互
+    const state = { zoom: 60, tiltX: 0.4, tiltY: 0, energy: 0 };
+
+    function init() {
+      scene = new THREE.Scene();
+      scene.fog = new THREE.FogExp2(0x000000, 0.002);
+
+      camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.set(0, 30, 60);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true }); // 开启抗锯齿，保证点清晰
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+      createBackground();
+      loadGalaxy('milkyway');
+      animate();
+      window.addEventListener('resize', onResize);
+    }
+
+    // --- 2. 锐利纹理 (Sharp Texture) ---
+    // 不再使用高斯模糊的大光斑，而是用较实心的点，减少光晕扩散
+    function createSharpTexture() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 64; canvas.height = 64;
+      const ctx = canvas.getContext('2d');
+      // 核心实心，边缘快速衰减
+      const g = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+      g.addColorStop(0, 'rgba(255,255,255,1)');
+      g.addColorStop(0.3, 'rgba(255,255,255,0.8)');
+      g.addColorStop(0.5, 'rgba(255,255,255,0.2)');
+      g.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, 64, 64);
+      return new THREE.CanvasTexture(canvas);
+    }
+    const dotTexture = createSharpTexture();
+
+    // --- 3. 星系生成 (Shader Material 是关键) ---
+    function generateGalaxy(cfg) {
+      if (system) { scene.remove(system); system.geometry.dispose(); }
+
+      const count = cfg.count;
+      const positions = new Float32Array(count * 3);
+      const colors = new Float32Array(count * 3);
+      const sizes = new Float32Array(count); // 个体大小差异
+
+      // 颜色转换辅助
+      const colCore = { r: cfg.colors.core[0], g: cfg.colors.core[1], b: cfg.colors.core[2] };
+      const colArm = { r: cfg.colors.arm[0], g: cfg.colors.arm[1], b: cfg.colors.arm[2] };
+      const colDust = { r: cfg.colors.dust[0], g: cfg.colors.dust[1], b: cfg.colors.dust[2] };
+
+      for (let i = 0; i < count; i++) {
+        let x, y, z, r, angle;
+        let c = { r: 0, g: 0, b: 0 };
+        let size = Math.random();
+
+        // 粒子大小分布：大部分很小(0.5)，少数大(2.0)
+        if (size > 0.98) size = 2.5;
+        else if (size > 0.9) size = 1.2;
+        else size = 0.5;
+
+        // --- 结构生成 (保持之前的逻辑，微调密度) ---
+        if (cfg.type.includes("Barred")) {
+          // 棒旋
+          const barL = cfg.params.bar;
+          if (i < count * 0.2) { // 核心棒
+            const t = Math.random();
+            const lx = (Math.random() - 0.5) * barL * 2;
+            const lz = (Math.random() - 0.5) * 2 * (1 - Math.abs(lx) / barL);
+            const rot = 0.8;
+            x = lx * Math.cos(rot) - lz * Math.sin(rot);
+            z = lx * Math.sin(rot) + lz * Math.cos(rot);
+            y = (Math.random() - 0.5) * 1.5 * Math.exp(-Math.abs(lx) / 8);
+            c = colCore;
+            size *= 1.2;
+          } else {
+            const dist = Math.random() * (cfg.params.r - barL);
+            r = barL + dist;
+            const spin = (dist / cfg.params.r) * cfg.params.spin;
+            const arm = (Math.random() < 0.5 ? 0 : Math.PI);
+            const spread = (Math.random() - 0.5) * (0.5 + dist / 20);
+            angle = arm + spin + spread + 0.8;
+            x = Math.cos(angle) * r;
+            z = Math.sin(angle) * r;
+            y = (Math.random() - 0.5) * (r * 0.04);
+
+            if (Math.abs(spread) > 0.35) c = colDust;
+            else c = colArm;
+          }
+        }
+        else if (cfg.type.includes("Lenticular")) {
+          // 草帽
+          if (i < count * 0.3) {
+            // 核心球 (分布更松散一点，防止中心过亮)
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos(2 * Math.random() - 1);
+            const rad = Math.pow(Math.random(), 0.6) * cfg.params.bulge; // power 0.6 让核心不那么致密
+            x = rad * Math.sin(phi) * Math.cos(theta);
+            y = rad * Math.sin(phi) * Math.sin(theta) * 0.7;
+            z = rad * Math.cos(phi);
+            c = colCore;
+          } else {
+            const minR = cfg.params.bulge * 0.9;
+            r = minR + Math.random() * (cfg.params.r - minR);
+            angle = Math.random() * Math.PI * 2;
+            x = Math.cos(angle) * r;
+            z = Math.sin(angle) * r;
+            y = (Math.random() - 0.5) * 0.5;
+            if (r > cfg.params.r * 0.9) c = colDust;
+            else c = colArm;
+          }
+        } else {
+          // 螺旋
+          r = Math.pow(Math.random(), 1.2) * cfg.params.r; // 稍微均匀一点
+          const spin = (r / cfg.params.r) * cfg.params.spin;
+          const arms = cfg.params.arms;
+          const branch = (Math.floor(Math.random() * arms) / arms) * Math.PI * 2;
+          const spread = (Math.random() - 0.5) * 0.6 * (r / 10 + 0.5);
+          angle = spin + branch + spread;
+          x = Math.cos(angle) * r;
+          z = Math.sin(angle) * r;
+          y = (Math.random() - 0.5) * (8 / (r * 0.2 + 1));
+
+          if (r / cfg.params.r < 0.15) c = colCore;
+          else if (Math.abs(spread) > 0.3) c = colDust;
+          else c = colArm;
+        }
+
+        positions[i * 3] = x;
+        positions[i * 3 + 1] = y;
+        positions[i * 3 + 2] = z;
+
+        // 颜色噪点
+        const noise = (Math.random() - 0.5) * 0.1;
+        colors[i * 3] = Math.max(0, Math.min(1, c.r + noise));
+        colors[i * 3 + 1] = Math.max(0, Math.min(1, c.g + noise));
+        colors[i * 3 + 2] = Math.max(0, Math.min(1, c.b + noise));
+
+        sizes[i] = size;
+      }
+
+      const geom = new THREE.BufferGeometry();
+      geom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      geom.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+      geom.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+      geom.userData = { orig: Float32Array.from(positions) };
+
+      // ★★★ 核心 Shader 优化 ★★★
+      const shaderMat = new THREE.ShaderMaterial({
+        uniforms: {
+          tex: { value: dotTexture },
+          scale: { value: window.innerHeight * 0.5 } // 屏幕适配
+        },
+        vertexShader: `
+                attribute float size;
+                attribute vec3 color;
+                varying vec3 vColor;
+                uniform float scale;
+                void main() {
+                    vColor = color;
+                    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+                    
+                    // 距离计算
+                    float dist = length(mvPosition.xyz);
+                    
+                    // ★ 核心魔法：限制最大粒径 ★
+                    // 正常公式：gl_PointSize = size * (scale / -mvPosition.z);
+                    // 改进公式：clamp 限制最大值，防止 zoom 进来时變成巨型光斑
+                    float pointSize = size * (scale / -mvPosition.z);
+                    gl_PointSize = clamp(pointSize, 1.0, 6.0); // 最大只能显示为 6px
+                    
+                    gl_Position = projectionMatrix * mvPosition;
+                }
+            `,
+        fragmentShader: `
+                uniform sampler2D tex;
+                varying vec3 vColor;
+                void main() {
+                    vec4 t = texture2D(tex, gl_PointCoord);
+                    if (t.a < 0.1) discard;
+                    
+                    // ★ 核心魔法：降低透明度 ★
+                    // 0.6 的透明度意味着你需要叠加很多层才能变成纯白
+                    gl_FragColor = vec4(vColor, 0.6 * t.a); 
+                }
+            `,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        transparent: true
+      });
+
+      system = new THREE.Points(geom, shaderMat);
+      scene.add(system);
+
+      // 视角调整
+      state.tiltX = cfg.type.includes("Lenticular") ? 0.95 : 0.4;
+    }
+
+    function loadGalaxy(key) {
+      currentKey = key;
+      const cfg = GALAXIES[key];
+
+      document.getElementById('ui-title').innerHTML = `${cfg.name} <span>${cfg.span}</span>`;
+      document.getElementById('ui-sub').innerText = cfg.type.toUpperCase();
+
+      document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+      // 简单匹配
+      const btns = document.querySelectorAll('.btn');
+      if (key === 'milkyway') btns[0].classList.add('active');
+      if (key === 'andromeda') btns[1].classList.add('active');
+      if (key === 'whirlpool') btns[2].classList.add('active');
+      if (key === 'sombrero') btns[3].classList.add('active');
+
+      generateGalaxy(cfg);
+    }
+
+    function createBackground() {
+      const geom = new THREE.BufferGeometry();
+      const pos = [];
+      for (let i = 0; i < 3000; i++) pos.push((Math.random() - 0.5) * 1200, (Math.random() - 0.5) * 1200, (Math.random() - 0.5) * 1200);
+      geom.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+      scene.add(new THREE.Points(geom, new THREE.PointsMaterial({ color: 0x555555, size: 1.5, sizeAttenuation: false })));
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+
+      if (system) {
+        // 自转
+        system.rotation.y -= (0.0005 + state.energy * 0.005);
+
+        // 粒子活跃度 (仅位置微调，不改大小)
+        if (state.energy > 0.05) {
+          // 为了性能，只抖动整个容器，不遍历几十万个点
+          system.position.x = (Math.random() - 0.5) * 0.05;
+          system.position.y = (Math.random() - 0.5) * 0.05;
+        } else {
+          system.position.set(0, 0, 0);
+        }
+      }
+
+      // Camera Smooth Move
+      const r = state.zoom;
+      const th = Math.max(0.05, Math.min(Math.PI - 0.05, state.tiltX * Math.PI));
+      const ph = state.tiltY * Math.PI;
+
+      camera.position.x += (r * Math.sin(th) * Math.sin(ph) - camera.position.x) * 0.1;
+      camera.position.y += (r * Math.cos(th) - camera.position.y) * 0.1;
+      camera.position.z += (r * Math.sin(th) * Math.cos(ph) - camera.position.z) * 0.1;
+      camera.lookAt(0, 0, 0);
+
+      renderer.render(scene, camera);
+    }
+
+    function onResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      if (system) system.material.uniforms.scale.value = window.innerHeight * 0.5;
+    }
+
+    // --- MediaPipe Hand Control ---
+    function initAI() {
+      const video = document.getElementsByClassName('input_video')[0];
+      const hands = new Hands({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}` });
+      hands.setOptions({ maxNumHands: 2, modelComplexity: 1, minDetectionConfidence: 0.6 });
+
+      hands.onResults(res => {
+        if (res.multiHandLandmarks.length > 0) {
+          const h = res.multiHandLandmarks;
+          // Tilt (One Hand)
+          state.tiltY = (h[0][9].x - 0.5) * 2;
+          state.tiltX = h[0][9].y;
+
+          // Zoom (Two Hands)
+          if (h.length === 2) {
+            const d = Math.sqrt(Math.pow(h[0][0].x - h[1][0].x, 2) + Math.pow(h[0][0].y - h[1][0].y, 2));
+            // 距离近(0.1)->Zoom 100, 距离远(0.5)->Zoom 20
+            state.zoom = 120 - (d * 180);
+            if (state.zoom < 10) state.zoom = 10;
+          }
+
+          // Energy (Fist)
+          let open = 0;
+          h.forEach(x => { [8, 12, 16, 20].forEach(t => open += Math.abs(x[t].y - x[0].y)) });
+          state.energy = (open < 0.25) ? 1 : 0; // 降低阈值，更难触发误判
+
+          document.getElementById('loader').style.display = 'none';
+        }
+      });
+
+      const cam = new Camera(video, {
+        onFrame: async () => { await hands.send({ image: video }) },
+        width: 640, height: 480
+      });
+      cam.start();
+    }
+
+    init();
+    initAI();
+
+  </script>
+</body>
+
+</html>

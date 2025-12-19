@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>单词发音学习</title>
+  <style>
+    /* CSS Variables for theming */
+    :root {
+      --background-color: #f0f8ff;
+      --text-color: #333;
+      --primary-color: #1a73e8;
+      --primary-hover-color: #1557b0;
+      --border-color: #dfe1e5;
+      --shadow-color: rgba(32, 33, 36, 0.28);
+      --status-color: #5f6368;
+      --font-family: 'Microsoft YaHei', sans-serif;
+    }
+
+    /* Dark Mode */
+    .dark-mode {
+      --background-color: #222;
+      --text-color: #eee;
+      --primary-color: #64b5f6;
+      --primary-hover-color: #42a5f5;
+      --border-color: #444;
+      --shadow-color: rgba(0, 0, 0, 0.5);
+      --status-color: #ccc;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      font-family: var(--font-family);
+      background: var(--background-color);
+      color: var(--text-color);
+      transition: background 0.3s, color 0.3s;
+      /* Smooth transition for theme change */
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 10vh;
+      width: 90%;
+      max-width: 600px;
+    }
+
+    .logo {
+      font-size: 4rem;
+      margin-bottom: 2rem;
+      color: var(--primary-color);
+      font-weight: bold;
+    }
+
+    .search-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 44px;
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      padding: 0 20px;
+      font-size: 16px;
+      outline: none;
+      box-shadow: none;
+      transition: box-shadow 0.3s, border-color 0.3s;
+      background-color: transparent;
+      /* Make the input field transparent */
+      color: var(--text-color);
+    }
+
+    .search-input:hover,
+    .search-input:focus {
+      box-shadow: 0 1px 6px var(--shadow-color);
+      border-color: var(--primary-color);
+    }
+
+    .buttons {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .button {
+      background-color: var(--primary-color);
+      border: 1px solid var(--primary-color);
+      border-radius: 4px;
+      color: white;
+      font-size: 14px;
+      padding: 0 16px;
+      height: 36px;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .button:hover {
+      background-color: var(--primary-hover-color);
+      border-color: var(--primary-hover-color);
+      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+    }
+
+    .status {
+      margin-top: 20px;
+      color: var(--status-color);
+      font-size: 14px;
+    }
+
+    #downloadBtn {
+      display: none;
+      margin-top: 10px;
+      text-decoration: none;
+      background-color: var(--primary-color);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-size: 14px;
+      transition: background-color 0.3s;
+    }
+
+    #downloadBtn:hover {
+      background-color: var(--primary-hover-color);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 600px) {
+      .logo {
+        font-size: 3rem;
+      }
+
+      .search-input {
+        font-size: 14px;
+      }
+
+      .button {
+        font-size: 12px;
+        padding: 0 12px;
+      }
+    }
+
+    /* Theme Toggle Button */
+    .theme-toggle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      cursor: pointer;
+      background-color: transparent;
+      border: none;
+      font-size: 24px;
+      color: var(--text-color);
+    }
+
+  </style>
+</head>
+
+<body>
+  <button class="theme-toggle" id="themeToggle">☀️</button>
+  <div class="container">
+    <div class="logo">Pronunciation</div>
+    <div class="search-box">
+      <input type="text" class="search-input" placeholder="输入要朗读的单词..." id="wordInput">
+      <div class="buttons">
+        <button class="button" onclick="getAudio('en-US')">美式发音</button>
+        <button class="button" onclick="getAudio('en-GB')">英式发音</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container" style="margin-top: 50px;">
+    <div class="search-box">
+      <select id="voiceSelect" class="search-input" style="margin-bottom: 20px;">
+        <option value="">选择语音</option>
+      </select>
+      <button class="button" onclick="useBrowserTTS()">使用Browser TTS</button>
+    </div>
+  </div>
+  <div class="status" id="status"></div>
+  <script>
+    // Theme Toggle Logic
+    const themeToggle = document.getElementById('themeToggle');
+    const body = document.body;
+
+    themeToggle.addEventListener('click', () => {
+      body.classList.toggle('dark-mode');
+      if (body.classList.contains('dark-mode')) {
+        themeToggle.textContent = '🌙';
+      } else {
+        themeToggle.textContent = '☀️';
+      }
+    });
+
+    // 获取浏览器支持的语音列表
+    function populateVoiceList() {
+      const voices = speechSynthesis.getVoices();
+      const voiceSelect = document.getElementById('voiceSelect');
+      const currentSelection = voiceSelect.value;  // Store current selection
+
+      // Clear existing options except the first one
+      while (voiceSelect.options.length > 1) {
+        voiceSelect.remove(1);
+      }
+
+      voices.forEach(voice => {
+        if (voice.lang.startsWith('en')) {
+          const option = document.createElement('option');
+          option.value = voice.name;
+          option.textContent = `${voice.name} (${voice.lang})`;
+          voiceSelect.appendChild(option);
+
+          // Restore previous selection if it matches
+          if (voice.name === currentSelection) {
+            option.selected = true;
+          }
+        }
+      });
+    }
+
+    // 初始化时获取语音列表
+    populateVoiceList();
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+      speechSynthesis.onvoiceschanged = populateVoiceList;
+    }
+
+    // 使用Browser TTS播放
+    function useBrowserTTS() {
+      const word = document.getElementById('wordInput').value.trim();
+      const voiceSelect = document.getElementById('voiceSelect');
+      const selectedVoice = voiceSelect.value;
+
+      if (!word) {
+        document.getElementById('status').textContent = '请输入单词';
+        return;
+      }
+
+      if (!selectedVoice) {
+        document.getElementById('status').textContent = '请选择语音';
+        return;
+      }
+
+      document.getElementById('status').textContent = '正在播放发音...';
+
+      try {
+        const utterance = new SpeechSynthesisUtterance(word);
+        const voices = speechSynthesis.getVoices();
+        utterance.voice = voices.find(voice => voice.name === selectedVoice);
+
+        utterance.onend = function () {
+          document.getElementById('status').textContent = '';
+        };
+
+        speechSynthesis.speak(utterance);
+      } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('status').textContent = '播放发音时出错，请重试';
+      }
+    }
+
+    function getAudio(accent) {
+      const word = document.getElementById('wordInput').value.trim();
+      if (!word) {
+        document.getElementById('status').textContent = '请输入单词';
+        return;
+      }
+
+      document.getElementById('status').textContent = '正在播放发音...';
+
+      try {
+        const utterance = new SpeechSynthesisUtterance(word);
+        utterance.lang = accent;
+        utterance.rate = 0.8;
+
+        // 添加播放结束事件处理
+        utterance.onend = function () {
+          document.getElementById('status').textContent = '';
+        };
+
+        speechSynthesis.speak(utterance);
+      } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('status').textContent = '播放发音时出错，请重试';
+      }
+    }
+  </script>
+</body>
+
+</html>

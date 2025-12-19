@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blue Plasma Orb Interface</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #000;
+      font-family: 'Arial', sans-serif;
+    }
+
+    /* Video Background */
+    #webcam {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1);
+      z-index: 0;
+    }
+
+    /* Dark Overlay to make particles pop */
+    #overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* 3D Scene */
+    #canvas-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+    }
+
+    /* Simple UI Status */
+    #status-bar {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      background: rgba(0, 20, 50, 0.8);
+      border: 1px solid #0088ff;
+      color: #0088ff;
+      padding: 10px 30px;
+      border-radius: 20px;
+      font-size: 14px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      box-shadow: 0 0 20px rgba(0, 136, 255, 0.4);
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <video id="webcam" playsinline></video>
+  <div id="overlay"></div>
+  <div id="canvas-container"></div>
+  <div id="status-bar">Initialize Hand Tracking...</div>
+
+  <!-- Three.js & MediaPipe -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+  <script>
+    // --- Configuration ---
+    const CONFIG = {
+      particleCount: 12000,
+      baseRadius: 15,
+      camZ: 100,
+      color: new THREE.Color(0x0088ff) // Deep Blue
+    };
+
+    const state = {
+      phase: 'IDLE', // IDLE, TRACKING, FLYING, EXPLODING
+      handPos: new THREE.Vector3(0, 0, 0),
+      orbPos: new THREE.Vector3(0, 0, 0),
+      targetPos: new THREE.Vector3(0, 0, 0), // Destination (Top Left)
+      scale: 0,
+      explosion: 0
+    };
+
+    // --- Three.js Setup ---
+    const container = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = CONFIG.camZ;
+
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    container.appendChild(renderer.domElement);
+
+    // --- Particle System (Shader) ---
+    const geometry = new THREE.BufferGeometry();
+    const positions = [];
+    const randoms = [];
+
+    for (let i = 0; i < CONFIG.particleCount; i++) {
+      // Create a sphere
+      const r = CONFIG.baseRadius * Math.pow(Math.random(), 0.5); // Fill volume
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+
+      const x = r * Math.sin(phi) * Math.cos(theta);
+      const y = r * Math.sin(phi) * Math.sin(theta);
+      const z = r * Math.cos(phi);
+
+      positions.push(x, y, z);
+      randoms.push(Math.random(), Math.random(), Math.random());
+    }
+
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    geometry.setAttribute('aRandom', new THREE.Float32BufferAttribute(randoms, 3));
+
+    const vertexShader = `
+            uniform float uTime;
+            uniform float uScale;
+            uniform float uExplosion;
+            uniform vec3 uPos; // World position of the orb
+
+            attribute vec3 aRandom;
+            varying float vAlpha;
+
+            void main() {
+                vec3 pos = position;
+
+                // 1. Rotation (Idle animation)
+                float angle = uTime * 0.5 + aRandom.x;
+                float s = sin(angle);
+                float c = cos(angle);
+                // Rotate around Y
+                pos.xz = mat2(c, -s, s, c) * pos.xz;
+
+                // 2. Growth Logic
+                pos *= uScale;
+
+                // 3. Explosion Logic
+                if (uExplosion > 0.0) {
+                    // Explode outward along normal + random chaos
+                    vec3 dir = normalize(position); 
+                    float burst = uExplosion * 150.0; // Explosion force
+                    pos += (dir + (aRandom - 0.5)) * burst;
+                }
+
+                // 4. World Position
+                vec3 worldPos = pos + uPos;
+
+                vec4 mvPosition = modelViewMatrix * vec4(worldPos, 1.0);
+                gl_Position = projectionMatrix * mvPosition;
+
+                // Size attenuation
+                gl_PointSize = (4.0 * uScale) * (300.0 / -mvPosition.z);
+                
+                // Fade out during explosion
+                vAlpha = 1.0 - (uExplosion * 1.5);
+            }
+        `;
+
+    const fragmentShader = `
+            uniform vec3 uColor;
+            varying float vAlpha;
+
+            void main() {
+                // Circular particle
+                vec2 coord = gl_PointCoord - vec2(0.5);
+                float dist = length(coord);
+                if (dist > 0.5) discard;
+
+                // Glow effect
+                float glow = 1.0 - (dist * 2.0);
+                glow = pow(glow, 2.0);
+
+                gl_FragColor = vec4(uColor, glow * vAlpha);
+            }
+        `;
+
+    const material = new THREE.ShaderMaterial({
+      vertexShader: vertexShader,
+      fragmentShader: fragmentShader,
+      uniforms: {
+        uTime: { value: 0 },
+        uScale: { value: 0 },
+        uExplosion: { value: 0 },
+        uPos: { value: new THREE.Vector3() },
+        uColor: { value: CONFIG.color }
+      },
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending
+    });
+
+    const sphere = new THREE.Points(geometry, material);
+    scene.add(sphere);
+
+    // --- Helper: Calculate Screen Corners in 3D ---
+    function getTopLeftCoordinate() {
+      // Calculate the visible height at the camera's Z distance
+      // vH = 2 * tan(fov / 2) * dist
+      const vFOV = camera.fov * Math.PI / 180;
+      const height = 2 * Math.tan(vFOV / 2) * Math.abs(camera.position.z);
+      const width = height * camera.aspect;
+
+      // Top Left is (-width/2, +height/2)
+      return new THREE.Vector3(-width / 2.5, height / 2.5, 0);
+      // Divided by 2.5 instead of 2 to keep it slightly inside screen margins
+    }
+
+    // --- MediaPipe Hands Logic ---
+    const statusBar = document.getElementById('status-bar');
+
+    function onResults(results) {
+      statusBar.style.opacity = 1;
+
+      // If a hand is detected
+      if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+        const landmarks = results.multiHandLandmarks[0];
+        const wrist = landmarks[0];
+
+        // 1. Calculate Hand Position in 3D
+        const aspect = window.innerWidth / window.innerHeight;
+        const vHeight = 2 * Math.tan((camera.fov * Math.PI / 180) / 2) * CONFIG.camZ;
+        const vWidth = vHeight * aspect;
+
+        // Convert 0-1 video coords to World Coords
+        // Note: Video is mirrored via CSS, so logic: (0.5 - x) works for "mirror" feel
+        const x = (0.5 - landmarks[9].x) * vWidth;
+        const y = (0.5 - landmarks[9].y) * vHeight;
+        state.handPos.set(x, y, 0);
+
+        // 2. Detect Fist vs Open Hand
+        // Logic: Compare distance of fingertips to wrist
+        const tips = [8, 12, 16, 20]; // Index, Middle, Ring, Pinky
+        let extendedFingers = 0;
+
+        // Approximate hand size (wrist to middle finger base)
+        const handSize = Math.hypot(landmarks[9].x - wrist.x, landmarks[9].y - wrist.y);
+        const threshold = handSize * 1.5; // If tip is further than 1.5x handSize, it's open
+
+        tips.forEach(idx => {
+          const dist = Math.hypot(landmarks[idx].x - wrist.x, landmarks[idx].y - wrist.y);
+          if (dist > threshold) extendedFingers++;
+        });
+
+        const isFist = (extendedFingers <= 1); // 0 or 1 finger extended = Fist
+
+        // State Machine Transition
+        if (state.phase === 'IDLE') {
+          if (!isFist) {
+            state.phase = 'TRACKING';
+            statusBar.innerText = "OPEN HAND: TRACKING";
+            statusBar.style.color = "#0088ff";
+            statusBar.style.borderColor = "#0088ff";
+          }
+        } else if (state.phase === 'TRACKING') {
+          if (isFist) {
+            state.phase = 'FLYING';
+            statusBar.innerText = "FIST DETECTED: LAUNCHING";
+            statusBar.style.color = "#ffaa00";
+            statusBar.style.borderColor = "#ffaa00";
+            state.targetPos.copy(getTopLeftCoordinate());
+          } else {
+            // Keep tracking
+            statusBar.innerText = "OPEN HAND: TRACKING";
+          }
+        }
+      } else {
+        // No hand detected
+        if (state.phase === 'TRACKING') {
+          state.phase = 'IDLE';
+          statusBar.innerText = "WAITING FOR HAND";
+        }
+      }
+    }
+
+    const hands = new Hands({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}` });
+    hands.setOptions({ maxNumHands: 1, modelComplexity: 1, minDetectionConfidence: 0.7, minTrackingConfidence: 0.7 });
+    hands.onResults(onResults);
+
+    const videoElement = document.getElementById('webcam');
+    const cameraUtils = new Camera(videoElement, {
+      onFrame: async () => { await hands.send({ image: videoElement }); },
+      width: 1280, height: 720
+    });
+    cameraUtils.start();
+
+    // --- Animation Loop ---
+    const clock = new THREE.Clock();
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const dt = clock.getDelta();
+      const time = clock.getElapsedTime();
+
+      material.uniforms.uTime.value = time;
+
+      if (state.phase === 'IDLE') {
+        // Shrink and hide
+        state.scale = THREE.MathUtils.lerp(state.scale, 0, 0.1);
+        state.orbPos.lerp(new THREE.Vector3(0, 0, 0), 0.05); // Return to center invisible
+
+      } else if (state.phase === 'TRACKING') {
+        // Grow and Follow
+        state.scale = THREE.MathUtils.lerp(state.scale, 1.2, 0.05); // Grow to 1.2 scale
+        state.orbPos.lerp(state.handPos, 0.15); // Smooth tracking
+        material.uniforms.uExplosion.value = 0; // Reset explosion
+
+      } else if (state.phase === 'FLYING') {
+        // Fly to Top Left
+        const speed = 300 * dt; // Pixels per second
+        const direction = new THREE.Vector3().subVectors(state.targetPos, state.orbPos).normalize();
+        state.orbPos.add(direction.multiplyScalar(speed));
+
+        // Check distance to target
+        if (state.orbPos.distanceTo(state.targetPos) < 10) {
+          state.phase = 'EXPLODING';
+          state.explosion = 0;
+          statusBar.innerText = "IMPACT DETECTED";
+          statusBar.style.color = "#ff0055";
+          statusBar.style.borderColor = "#ff0055";
+        }
+
+      } else if (state.phase === 'EXPLODING') {
+        // Animate Explosion
+        state.explosion += dt * 1.5;
+        material.uniforms.uExplosion.value = state.explosion;
+
+        // When explosion finishes
+        if (state.explosion > 1.0) {
+          state.phase = 'IDLE';
+          state.scale = 0;
+          material.uniforms.uExplosion.value = 0;
+          statusBar.innerText = "WAITING FOR HAND";
+          statusBar.style.color = "#0088ff";
+          statusBar.style.borderColor = "#0088ff";
+        }
+      }
+
+      // Update Shader Uniforms
+      material.uniforms.uScale.value = state.scale;
+      material.uniforms.uPos.value.copy(state.orbPos);
+
+      renderer.render(scene, camera);
+    }
+
+    animate();
+
+    // Handle Resize
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+  </script>
+</body>
+
+</html>

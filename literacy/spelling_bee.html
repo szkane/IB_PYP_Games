@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Spelling Bee for IB PYP G1</title>
+
+  <link rel="manifest"
+    href="data:application/manifest+json;base64,ewogICJuYW1lIjogIlNwZWxsaW5nIEJlZSBmb3IgSUIgUFlQIEcxIiwKICAic2hvcnRfbmFtZSI6ICJTcGVsbGluZyIsCiAgInN0YXJ0X3VybCI6ICIuIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIuRjBGNEY4IiwKICAidGhlbWVfY29sb3IiOiAiIzRBOTBFMiIKfQ==">
+
+  <style>
+    :root {
+      --primary: #007AFF;
+      --accent: #FF2D55;
+      --success: #34C759;
+      --warning: #FF9500;
+      --bg: #F5F5F7;
+      --key-bg: #FFFFFF;
+      --key-text: #1D1D1F;
+    }
+
+    * {
+      box-sizing: border-box;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+      background: var(--bg);
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* Overlays (Start & DIY) */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(5px);
+    }
+
+    #start-overlay {
+      z-index: 1000;
+    }
+
+    /* Topmost */
+
+    .start-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 20px 40px;
+      font-size: 1.5rem;
+      border-radius: 50px;
+      font-weight: bold;
+      box-shadow: 0 10px 20px rgba(0, 122, 255, 0.3);
+      cursor: pointer;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.05);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    /* DIY Modal Styling */
+    #diy-overlay {
+      display: none;
+      background: rgba(0, 0, 0, 0.5);
+    }
+
+    .diy-box {
+      background: white;
+      width: 90%;
+      max-width: 500px;
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .diy-title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #1D1D1F;
+      margin: 0;
+    }
+
+    .diy-desc {
+      font-size: 0.9rem;
+      color: #86868B;
+      margin: 0;
+    }
+
+    textarea#diy-input {
+      width: 100%;
+      height: 150px;
+      padding: 15px;
+      font-size: 1rem;
+      border: 2px solid #E5E5EA;
+      border-radius: 12px;
+      resize: none;
+      font-family: monospace;
+      outline: none;
+    }
+
+    textarea#diy-input:focus {
+      border-color: var(--primary);
+    }
+
+    .diy-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .btn-cancel {
+      background: #E5E5EA;
+      color: #1D1D1F;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-save {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+
+    /* Main App Layout */
+    #app {
+      display: flex;
+      flex-direction: column;
+      background: white;
+      width: 100%;
+      height: 100%;
+      max-width: 1024px;
+      max-height: 800px;
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    @media (min-width: 768px) and (orientation: landscape) {
+      #app {
+        flex-direction: row;
+        border-radius: 20px;
+        height: 92vh;
+        margin: 20px;
+        border: 1px solid #D1D1D6;
+      }
+
+      .sidebar {
+        width: 280px;
+        border-right: 1px solid #E5E5EA;
+      }
+
+      .game-area {
+        flex: 1;
+      }
+    }
+
+    @media (max-width: 767px),
+    (orientation: portrait) {
+      #app {
+        height: 100vh;
+        border-radius: 0;
+      }
+
+      .sidebar {
+        padding: 15px;
+        border-bottom: 1px solid #E5E5EA;
+        flex: none;
+      }
+
+      .game-area {
+        flex: 1;
+      }
+
+      .app-title {
+        font-size: 1.2rem !important;
+        margin-bottom: 5px !important;
+      }
+
+      .keyboard-base {
+        padding: 5px !important;
+        padding-bottom: 20px !important;
+      }
+
+      .key {
+        height: 42px !important;
+        font-size: 1rem !important;
+      }
+    }
+
+    .sidebar {
+      background: #FAFAFC;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      overflow-y: auto;
+    }
+
+    .app-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #1D1D1F;
+      margin: 0;
+      line-height: 1.2;
+    }
+
+    .app-subtitle {
+      font-size: 0.9rem;
+      color: #86868B;
+      font-weight: 500;
+    }
+
+    .stats-block {
+      background: white;
+      padding: 16px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      text-align: center;
+    }
+
+    .score-num {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .score-label {
+      font-size: 0.75rem;
+      color: #86868B;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .control-group h4 {
+      margin: 0 0 10px 0;
+      font-size: 0.75rem;
+      color: #86868B;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      padding: 8px 14px;
+      border: 1px solid #D1D1D6;
+      border-radius: 18px;
+      font-size: 0.85rem;
+      background: white;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      color: #1D1D1F;
+    }
+
+    .chip:active {
+      transform: scale(0.96);
+    }
+
+    .chip.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      box-shadow: 0 2px 6px rgba(0, 122, 255, 0.3);
+    }
+
+    .chip.random-mode {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .chip.random-mode.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    .chip.diy-mode {
+      border-color: var(--warning);
+      color: var(--warning);
+    }
+
+    .chip.diy-mode.active {
+      background: var(--warning);
+      color: white;
+      border-color: var(--warning);
+    }
+
+    .game-area {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background: #FFFFFF;
+    }
+
+    .puzzle-zone {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .word-slot {
+      font-family: 'Menlo', 'Courier New', monospace;
+      font-size: 3.5rem;
+      color: #1D1D1F;
+      margin: 20px 0;
+      letter-spacing: 8px;
+      min-height: 80px;
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    .missing {
+      color: var(--primary);
+      border-bottom: 4px solid var(--primary);
+    }
+
+    #user-input-display {
+      font-size: 2rem;
+      min-height: 3rem;
+      border-bottom: 2px solid #E5E5EA;
+      padding: 5px 20px;
+      color: var(--primary);
+      font-weight: 600;
+      margin-bottom: 10px;
+      letter-spacing: 2px;
+    }
+
+    .btn-listen {
+      background: #F2F2F7;
+      color: var(--primary);
+      border: none;
+      padding: 10px 24px;
+      border-radius: 20px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-listen:active {
+      background: #E5E5EA;
+    }
+
+    .keyboard-base {
+      background: #D5D6DA;
+      padding: 12px;
+      padding-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      width: 100%;
+      border-top: 1px solid #C7C7CC;
+    }
+
+    .kb-row {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .kb-row:nth-child(2) {
+      padding-left: 20px;
+    }
+
+    .kb-row:nth-child(3) {
+      padding-left: 0;
+    }
+
+    .key {
+      background: #FFFFFF;
+      border-radius: 5px;
+      box-shadow: 0 1px 0 #888;
+      height: 50px;
+      width: 45px;
+      flex: 1;
+      max-width: 55px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: -apple-system, sans-serif;
+      font-size: 1.2rem;
+      color: #000;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.1s;
+    }
+
+    .key:active {
+      background: #E5E5EA;
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+
+    .key.special {
+      font-size: 0.9rem;
+      background: #Eef0f2;
+      color: #333;
+    }
+
+    .key-delete {
+      flex: 1.2;
+      max-width: 70px;
+      font-size: 1rem;
+    }
+
+    .key-return {
+      flex: 1.5;
+      max-width: 80px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      box-shadow: 0 1px 0 #0056b3;
+    }
+
+    .key-shift {
+      flex: 1.2;
+      max-width: 70px;
+      align-items: flex-end;
+      padding-bottom: 12px;
+      padding-left: 8px;
+      justify-content: flex-start;
+    }
+
+    .key[data-char="f"]::after,
+    .key[data-char="j"]::after {
+      content: "";
+      position: absolute;
+      bottom: 8px;
+      width: 12px;
+      height: 2px;
+      background: #E5E5EA;
+      border-radius: 1px;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <div id="start-overlay" class="overlay">
+    <h1 style="color:#1D1D1F; margin-bottom:10px;">Ready, Hilson?</h1>
+    <p style="color:#86868B; margin-bottom:30px;">Turn up the volume! 🔊</p>
+    <button class="start-btn" onclick="game.start()">▶ Play</button>
+  </div>
+
+  <div id="diy-overlay" class="overlay">
+    <div class="diy-box">
+      <div>
+        <h3 class="diy-title">Custom Word List</h3>
+        <p class="diy-desc">Edit your words below (comma separated).</p>
+      </div>
+      <textarea id="diy-input" placeholder="Example: apple, banana, computer, science"></textarea>
+      <div class="diy-actions">
+        <button class="btn-cancel" onclick="game.closeDIY()">Cancel</button>
+        <button class="btn-save" onclick="game.saveDIY()">Save & Play</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="app">
+    <div class="sidebar">
+      <div>
+        <h1 class="app-title">Spelling Bee</h1>
+        <div class="app-subtitle">for IB PYP G1</div>
+      </div>
+      <div class="stats-block">
+        <div class="score-label">Score</div>
+        <div class="score-num" id="score">0</div>
+      </div>
+
+      <div class="control-group">
+        <h4>Level</h4>
+        <div class="chips" id="diff-chips"></div>
+      </div>
+
+      <div class="control-group">
+        <h4>Word List</h4>
+        <div class="chips" id="cat-chips"></div>
+      </div>
+    </div>
+
+    <div class="game-area">
+      <div class="puzzle-zone">
+        <button class="btn-listen" onclick="game.speak()">🔊 Listen</button>
+        <div class="word-slot" id="puzzle-display"></div>
+        <div id="user-input-display"></div>
+        <div id="feedback" style="color:var(--success); height:24px; font-weight:600;"></div>
+      </div>
+
+      <div class="keyboard-base">
+        <div class="kb-row">
+          <div class="key" onclick="game.input('q')">Q</div>
+          <div class="key" onclick="game.input('w')">W</div>
+          <div class="key" onclick="game.input('e')">E</div>
+          <div class="key" onclick="game.input('r')">R</div>
+          <div class="key" onclick="game.input('t')">T</div>
+          <div class="key" onclick="game.input('y')">Y</div>
+          <div class="key" onclick="game.input('u')">U</div>
+          <div class="key" onclick="game.input('i')">I</div>
+          <div class="key" onclick="game.input('o')">O</div>
+          <div class="key" onclick="game.input('p')">P</div>
+          <div class="key special key-delete" onclick="game.input('BACK')">delete</div>
+        </div>
+        <div class="kb-row">
+          <div class="key" onclick="game.input('a')">A</div>
+          <div class="key" onclick="game.input('s')">S</div>
+          <div class="key" onclick="game.input('d')">D</div>
+          <div class="key" data-char="f" onclick="game.input('f')">F</div>
+          <div class="key" onclick="game.input('g')">G</div>
+          <div class="key" onclick="game.input('h')">H</div>
+          <div class="key" data-char="j" onclick="game.input('j')">J</div>
+          <div class="key" onclick="game.input('k')">K</div>
+          <div class="key" onclick="game.input('l')">L</div>
+          <div class="key key-return" onclick="game.check()">return</div>
+        </div>
+        <div class="kb-row">
+          <div class="key special key-shift">⇧</div>
+          <div class="key" onclick="game.input('z')">Z</div>
+          <div class="key" onclick="game.input('x')">X</div>
+          <div class="key" onclick="game.input('c')">C</div>
+          <div class="key" onclick="game.input('v')">V</div>
+          <div class="key" onclick="game.input('b')">B</div>
+          <div class="key" onclick="game.input('n')">N</div>
+          <div class="key" onclick="game.input('m')">M</div>
+          <div class="key special key-shift" style="flex:1.2; opacity:0.5">⇧</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const data = {
+      "sight_words": { "name": "Sight Words", "words": ["said", "from", "are", "they", "have", "where", "there", "could", "would", "about"] },
+      "phonics": { "name": "Phonics", "words": ["cat", "pig", "sun", "map", "dig", "pot", "mud", "bed", "fed", "ship", "fish", "duck"] },
+      "uoi": { "name": "UOI / Nature", "words": ["family", "friend", "school", "share", "help", "world", "nature", "happy", "plant"] }
+    };
+
+    const game = {
+      difficulty: 'easy',
+      category: 'sight_words',
+      customWords: [],
+      currentWord: '',
+      userText: '',
+      score: 0,
+      audioAllowed: false,
+
+      init() {
+        this.renderControls();
+
+        // 尝试从 LocalStorage 加载 DIY 数据
+        const savedDIY = localStorage.getItem('hilson_diy_words');
+        if (savedDIY) {
+          // 如果有存档，预解析一下，但不需要立即切换过去
+          this.parseCustomWords(savedDIY);
+        }
+
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Backspace') this.input('BACK');
+          else if (e.key === 'Enter') this.check();
+          else if (/^[a-zA-Z]$/.test(e.key)) this.input(e.key);
+        });
+      },
+
+      start() {
+        this.audioAllowed = true;
+        document.getElementById('start-overlay').style.display = 'none';
+        const u = new SpeechSynthesisUtterance("");
+        window.speechSynthesis.speak(u);
+        this.nextWord();
+      },
+
+      renderControls() {
+        const diffBox = document.getElementById('diff-chips');
+        diffBox.innerHTML = '';
+        ['easy', 'normal', 'hard'].forEach(level => {
+          const btn = document.createElement('div');
+          btn.className = `chip ${this.difficulty === level ? 'active' : ''}`;
+          btn.innerText = level.charAt(0).toUpperCase() + level.slice(1);
+          btn.onclick = () => this.setDifficulty(level);
+          diffBox.appendChild(btn);
+        });
+
+        const catBox = document.getElementById('cat-chips');
+        catBox.innerHTML = '';
+
+        Object.keys(data).forEach((key) => {
+          const d = document.createElement('div');
+          d.className = `chip ${key === this.category ? 'active' : ''}`;
+          d.innerText = data[key].name;
+          d.onclick = () => this.setCategory(key);
+          catBox.appendChild(d);
+        });
+
+        const rnd = document.createElement('div');
+        rnd.className = `chip random-mode ${this.category === 'random' ? 'active' : ''}`;
+        rnd.innerText = "🎲 Random";
+        rnd.onclick = () => this.setCategory('random');
+        catBox.appendChild(rnd);
+
+        const diy = document.createElement('div');
+        diy.className = `chip diy-mode ${this.category === 'diy' ? 'active' : ''}`;
+        diy.innerText = "✏️ DIY";
+        diy.onclick = () => this.openDIYModal(); // 改为打开弹窗
+        catBox.appendChild(diy);
+      },
+
+      setDifficulty(level) {
+        this.difficulty = level;
+        this.renderControls();
+        this.nextWord();
+      },
+
+      setCategory(cat) {
+        this.category = cat;
+        this.renderControls();
+        this.nextWord();
+      },
+
+      // --- DIY Logic Start ---
+      openDIYModal() {
+        const modal = document.getElementById('diy-overlay');
+        const textarea = document.getElementById('diy-input');
+
+        // 从 LocalStorage 读取最新的文本
+        const savedText = localStorage.getItem('hilson_diy_words') || "";
+        textarea.value = savedText;
+
+        modal.style.display = 'flex';
+      },
+
+      closeDIY() {
+        document.getElementById('diy-overlay').style.display = 'none';
+      },
+
+      saveDIY() {
+        const textarea = document.getElementById('diy-input');
+        const rawText = textarea.value;
+
+        if (this.parseCustomWords(rawText)) {
+          // 保存到 LocalStorage
+          localStorage.setItem('hilson_diy_words', rawText);
+
+          // 切换模式并开始
+          this.category = 'diy';
+          this.renderControls();
+          this.closeDIY();
+          this.nextWord();
+        } else {
+          alert("Please enter at least one word!");
+        }
+      },
+
+      parseCustomWords(text) {
+        // 支持逗号、换行符、空格作为分隔符
+        const words = text.split(/[,，\n\r]+/).map(w => w.trim()).filter(w => w.length > 0);
+        if (words.length > 0) {
+          this.customWords = words;
+          return true;
+        }
+        return false;
+      },
+      // --- DIY Logic End ---
+
+      getWordList() {
+        if (this.category === 'random') {
+          let allWords = [];
+          Object.values(data).forEach(cat => allWords = [...allWords, ...cat.words]);
+          return [...new Set(allWords)];
+        } else if (this.category === 'diy') {
+          return this.customWords;
+        } else {
+          return data[this.category].words;
+        }
+      },
+
+      nextWord() {
+        const list = this.getWordList();
+        if (!list || list.length === 0) {
+          // 如果当前模式没有词 (比如DIY被清空)，切回 Random
+          if (this.category === 'diy') this.openDIYModal();
+          return;
+        }
+
+        this.currentWord = list[Math.floor(Math.random() * list.length)];
+        this.userText = "";
+        this.updateInputUI();
+
+        let display = "";
+        let indices = [];
+
+        if (this.difficulty === 'easy') indices = [Math.floor(Math.random() * this.currentWord.length)];
+        else if (this.difficulty === 'normal') {
+          const count = Math.max(2, Math.floor(this.currentWord.length / 2));
+          while (indices.length < count) {
+            let r = Math.floor(Math.random() * this.currentWord.length);
+            if (!indices.includes(r)) indices.push(r);
+          }
+        }
+
+        for (let i = 0; i < this.currentWord.length; i++) {
+          if (this.difficulty === 'hard' || indices.includes(i)) {
+            display += '<span class="missing">_</span>';
+          } else {
+            display += this.currentWord[i];
+          }
+        }
+        document.getElementById('puzzle-display').innerHTML = display;
+        document.getElementById('feedback').innerText = "";
+
+        this.speak();
+      },
+
+      speak() {
+        if (!this.audioAllowed) return;
+        const u = new SpeechSynthesisUtterance(this.currentWord);
+        u.rate = 0.75;
+        window.speechSynthesis.speak(u);
+      },
+
+      input(char) {
+        if (char === 'BACK') {
+          this.userText = this.userText.slice(0, -1);
+        } else {
+          if (this.userText.length < 15) this.userText += char.toLowerCase();
+        }
+        this.updateInputUI();
+      },
+
+      updateInputUI() {
+        document.getElementById('user-input-display').innerText = this.userText;
+      },
+
+      check() {
+        const feedback = document.getElementById('feedback');
+        if (this.userText.toLowerCase() === this.currentWord.toLowerCase()) {
+          this.score += 10;
+          document.getElementById('score').innerText = this.score;
+          feedback.style.color = 'var(--success)';
+          feedback.innerText = "Correct! 🎉";
+          setTimeout(() => this.nextWord(), 1200);
+        } else {
+          feedback.style.color = "#FF2D55";
+          feedback.innerText = "Try again!";
+          this.shake();
+        }
+      },
+
+      shake() {
+        const el = document.querySelector('.game-area');
+        el.style.transform = "translateX(8px)";
+        setTimeout(() => el.style.transform = "translateX(-8px)", 50);
+        setTimeout(() => el.style.transform = "translateX(0)", 100);
+      }
+    };
+
+    window.onload = () => game.init();
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GALAXY ENGINE - GESTURE CONTROL FIXED</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #000;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    /* 全屏 3D 容器 */
+    #canvas-container {
+      width: 100vw;
+      height: 100vh;
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+
+    /* 隐藏原始视频流 */
+    .input_video {
+      display: none;
+    }
+
+    /* UI 界面 */
+    #ui-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    /* 顶部标题栏 */
+    .header {
+      position: absolute;
+      bottom: 40px;
+      left: 40px;
+      text-shadow: 0 0 20px rgba(0, 0, 0, 1);
+    }
+
+    h1 {
+      font-size: 3.5rem;
+      margin: 0;
+      color: #fff;
+      letter-spacing: 5px;
+      font-weight: 300;
+    }
+
+    h1 span {
+      color: #00d2ff;
+      font-weight: 700;
+    }
+
+    .sub-text {
+      color: #778899;
+      font-size: 0.9rem;
+      letter-spacing: 2px;
+      margin-top: 5px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .badge {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      color: #aaddff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* 右侧菜单 (可点击) */
+    #menu {
+      position: absolute;
+      top: 50%;
+      right: 30px;
+      transform: translateY(-50%);
+      pointer-events: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .btn {
+      background: rgba(10, 20, 30, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #8899aa;
+      padding: 12px 25px;
+      text-align: right;
+      cursor: pointer;
+      font-size: 0.85rem;
+      letter-spacing: 2px;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(8px);
+      border-radius: 4px;
+      width: 180px;
+    }
+
+    .btn:hover {
+      border-color: #fff;
+      color: #fff;
+      transform: translateX(-5px);
+    }
+
+    .btn.active {
+      border-right: 4px solid #00d2ff;
+      color: #fff;
+      background: linear-gradient(90deg, transparent, rgba(0, 210, 255, 0.1));
+      text-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
+    }
+
+    /* 状态指示器 */
+    #status-bar {
+      position: absolute;
+      top: 30px;
+      right: 30px;
+      text-align: right;
+    }
+
+    .status-item {
+      color: #556677;
+      font-size: 0.8rem;
+      margin-bottom: 5px;
+    }
+
+    .status-active {
+      color: #00ffaa;
+      text-shadow: 0 0 8px #00ffaa;
+    }
+
+    /* 加载动画 */
+    #loader {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #00d2ff;
+      letter-spacing: 3px;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(0, 210, 255, 0.3);
+      border-top: 3px solid #00d2ff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+  </style>
+
+  <!-- 引入必要的库 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+</head>
+
+<body>
+
+  <div id="loader">
+    <div class="spinner"></div>
+    <div>INITIALIZING SYSTEMS</div>
+    <div style="font-size:0.7rem; opacity:0.6; margin-top:10px">PLEASE ALLOW CAMERA ACCESS</div>
+  </div>
+
+  <div id="ui-layer">
+    <div id="status-bar">
+      <div class="status-item" id="cam-status">CAMERA: INITIALIZING...</div>
+      <div class="status-item" id="hand-status">HANDS: WAITING...</div>
+    </div>
+
+    <div class="header">
+      <h1 id="ui-title">MILKY <span>WAY</span></h1>
+      <div class="sub-text" id="ui-badges">
+        <span class="badge" style="color:#ffcc00; border-color:#ffcc00">Yellow Core</span>
+        <span class="badge" style="color:#4488ff; border-color:#4488ff">Blue Arms</span>
+        <span class="badge" style="color:#aa44ff; border-color:#aa44ff">Purple Minor</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="menu">
+    <div class="btn active" onclick="loadGalaxy('milkyway')">MILKY WAY (Real)</div>
+    <div class="btn" onclick="loadGalaxy('andromeda')">ANDROMEDA</div>
+    <div class="btn" onclick="loadGalaxy('whirlpool')">WHIRLPOOL (M51)</div>
+    <div class="btn" onclick="loadGalaxy('sombrero')">SOMBRERO (M104)</div>
+  </div>
+
+  <div id="canvas-container"></div>
+  <video class="input_video"></video>
+
+  <script>
+    // --- 1. 配置参数 ---
+    const CONFIG = {
+      particleCount: 250000,
+      colors: {
+        gold: [1.0, 0.75, 0.3], // 核心黄
+        blue: [0.1, 0.5, 1.0],  // 主旋臂蓝
+        purple: [0.5, 0.2, 0.9],  // 次旋臂紫
+        pink: [1.0, 0.0, 0.5],  // 星云粉
+        dust: [0.05, 0.02, 0.05] // 尘埃
+      }
+    };
+
+    const GALAXIES = {
+      'milkyway': {
+        name: "MILKY", span: "WAY", type: "Barred Spiral",
+        badges: ["Yellow Core", "Blue Arms", "Purple Minor"],
+        params: { r: 55, spin: 3.5, bar: 14 }
+      },
+      'andromeda': {
+        name: "ANDRO", span: "MEDA", type: "Spiral",
+        badges: ["Massive", "Cold Blue", "Tight Arms"],
+        params: { r: 65, spin: 5, bar: 0 }
+      },
+      'whirlpool': {
+        name: "WHIRL", span: "POOL", type: "Grand Design",
+        badges: ["Binary", "Hot Pink", "Distinct"],
+        params: { r: 45, spin: 4.5, bar: 0 }
+      },
+      'sombrero': {
+        name: "SOMB", span: "RERO", type: "Lenticular",
+        badges: ["Golden Bulb", "Dust Ring", "Thin Disk"],
+        params: { r: 50, spin: 0, bar: 0 }
+      }
+    };
+
+    let scene, camera, renderer, system;
+    let currentKey = 'milkyway';
+
+    // 全局交互状态 (Hand State)
+    const state = {
+      zoom: 60,       // 摄像机距离
+      tiltX: 0.4,     // 俯仰角 (0-1)
+      tiltY: 0,       // 旋转角
+      energy: 0,      // 握拳能量 (0-1)
+      handsDetected: false
+    };
+
+    // --- 2. Three.js 初始化 ---
+    function initThree() {
+      const container = document.getElementById('canvas-container');
+      scene = new THREE.Scene();
+      scene.fog = new THREE.FogExp2(0x000000, 0.002);
+
+      camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.set(0, 40, 60);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      container.appendChild(renderer.domElement);
+
+      createBackground();
+      generateGalaxy(GALAXIES['milkyway']);
+
+      animate();
+      window.addEventListener('resize', onResize);
+    }
+
+    // --- 3. 纹理生成 (实心点 + 柔边) ---
+    function createTexture() {
+      const cvs = document.createElement('canvas');
+      cvs.width = 32; cvs.height = 32;
+      const ctx = cvs.getContext('2d');
+      const g = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
+      g.addColorStop(0, 'rgba(255,255,255,1)');
+      g.addColorStop(0.4, 'rgba(255,255,255,0.8)');
+      g.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, 32, 32);
+      return new THREE.CanvasTexture(cvs);
+    }
+    const particleTex = createTexture();
+
+    // --- 4. 星系生成算法 (关键逻辑) ---
+    function generateGalaxy(cfg) {
+      if (system) { scene.remove(system); system.geometry.dispose(); }
+
+      const count = CONFIG.particleCount;
+      const positions = new Float32Array(count * 3);
+      const colors = new Float32Array(count * 3);
+      const sizes = new Float32Array(count);
+
+      for (let i = 0; i < count; i++) {
+        let x, y, z, r, angle;
+        let c = { r: 1, g: 1, b: 1 };
+        let s = Math.random();
+
+        // 大小分布：大部分微小，少部分大
+        if (s > 0.99) s = 3.0; // 亮星
+        else if (s > 0.9) s = 1.2;
+        else s = 0.6; // 尘埃微粒
+
+        // === 银河系专属逻辑 (5层结构) ===
+        if (currentKey === 'milkyway') {
+          const barL = cfg.params.bar;
+
+          // 1. 核心棒 (Yellow Bar) - 20%
+          if (i < count * 0.2) {
+            const lx = (Math.random() - 0.5) * barL * 2;
+            const lz = (Math.random() - 0.5) * 4 * (1 - Math.abs(lx) / barL); // 梭形
+            const rot = 0.8;
+            x = lx * Math.cos(rot) - lz * Math.sin(rot);
+            z = lx * Math.sin(rot) + lz * Math.cos(rot);
+            y = (Math.random() - 0.5) * 3 * Math.exp(-Math.abs(lx) / 8);
+
+            c = { r: CONFIG.colors.gold[0], g: CONFIG.colors.gold[1], b: CONFIG.colors.gold[2] };
+            s *= 1.2;
+          }
+          // 2. 旋臂 (Arms) - 80%
+          else {
+            const dist = Math.random() * (cfg.params.r - barL);
+            r = barL + dist;
+
+            // 决定属于哪条臂 (0-4)
+            const armID = Math.floor(Math.random() * 5);
+            let angleOffset = 0;
+            let baseColor = CONFIG.colors.blue;
+
+            if (armID === 0) { // Major 1 (Blue)
+              angleOffset = 0.7;
+              baseColor = CONFIG.colors.blue;
+            } else if (armID === 1) { // Major 2 (Blue)
+              angleOffset = 0.7 + Math.PI;
+              baseColor = CONFIG.colors.blue;
+            } else if (armID === 2) { // Minor 1 (Purple)
+              angleOffset = 0.7 + Math.PI * 0.4;
+              baseColor = CONFIG.colors.purple;
+            } else if (armID === 3) { // Minor 2 (Purple)
+              angleOffset = 0.7 + Math.PI * 1.4;
+              baseColor = CONFIG.colors.purple;
+            } else { // Spur (Mix)
+              angleOffset = 0.7 + Math.PI * 1.8;
+              baseColor = CONFIG.colors.blue; // 接近蓝色
+            }
+
+            const spin = (dist / cfg.params.r) * cfg.params.spin;
+            const spread = (Math.random() - 0.5) * (0.5 + dist / 18); // 弥散
+
+            angle = angleOffset + spin + spread;
+            x = Math.cos(angle) * r;
+            z = Math.sin(angle) * r;
+            y = (Math.random() - 0.5) * (r * 0.04);
+
+            // 颜色混合逻辑
+            if (Math.abs(spread) < 0.2) {
+              // 旋臂中心亮色
+              c = { r: baseColor[0], g: baseColor[1], b: baseColor[2] };
+            } else if (Math.abs(spread) > 0.5) {
+              // 边缘尘埃
+              c = { r: CONFIG.colors.dust[0], g: CONFIG.colors.dust[1], b: CONFIG.colors.dust[2] };
+            } else {
+              // 过渡区 + 粉色星云点缀
+              if (Math.random() > 0.98) {
+                c = { r: CONFIG.colors.pink[0], g: CONFIG.colors.pink[1], b: CONFIG.colors.pink[2] };
+                s *= 2.0; // 星云大一点
+              } else {
+                c = { r: baseColor[0] * 0.7, g: baseColor[1] * 0.6, b: baseColor[2] * 0.8 };
+              }
+            }
+          }
+        }
+        // === 其他星系逻辑 (简化) ===
+        else if (currentKey === 'sombrero') {
+          // 草帽: 核球 + 环
+          if (i < count * 0.3) {
+            const rad = Math.pow(Math.random(), 0.6) * 12;
+            const th = Math.random() * Math.PI * 2, ph = Math.acos(2 * Math.random() - 1);
+            x = rad * Math.sin(ph) * Math.cos(th); z = rad * Math.sin(ph) * Math.sin(th); y = rad * Math.cos(ph) * 0.7;
+            c = { r: CONFIG.colors.gold[0], g: CONFIG.colors.gold[1], b: CONFIG.colors.gold[2] };
+          } else {
+            r = 12 + Math.random() * (cfg.params.r - 12);
+            angle = Math.random() * Math.PI * 2;
+            x = Math.cos(angle) * r; z = Math.sin(angle) * r; y = (Math.random() - 0.5) * 0.5;
+            c = (r > cfg.params.r * 0.9) ? { r: 0, g: 0, b: 0 } : { r: CONFIG.colors.gold[0] * 0.5, g: 0.2, b: 0.1 };
+          }
+        } else {
+          // 普通螺旋
+          r = Math.pow(Math.random(), 1.2) * cfg.params.r;
+          const spin = (r / cfg.params.r) * cfg.params.spin;
+          const arms = cfg.params.arms || 2;
+          const branch = (Math.floor(Math.random() * arms) / arms) * Math.PI * 2;
+          const spread = (Math.random() - 0.5) * 0.6;
+          angle = spin + branch + spread;
+          x = Math.cos(angle) * r; z = Math.sin(angle) * r; y = (Math.random() - 0.5) * (6 / (r * 0.1 + 1));
+
+          if (r / cfg.params.r < 0.15) c = { r: CONFIG.colors.gold[0], g: CONFIG.colors.gold[1], b: CONFIG.colors.gold[2] };
+          else if (Math.abs(spread) > 0.25) c = { r: CONFIG.colors.dust[0], g: CONFIG.colors.dust[1], b: CONFIG.colors.dust[2] };
+          else c = { r: CONFIG.colors.blue[0], g: CONFIG.colors.blue[1], b: CONFIG.colors.blue[2] };
+        }
+
+        // 写入 buffer
+        const noise = (Math.random() - 0.5) * 0.05;
+        positions[i * 3] = x; positions[i * 3 + 1] = y; positions[i * 3 + 2] = z;
+        colors[i * 3] = Math.max(0, c.r + noise);
+        colors[i * 3 + 1] = Math.max(0, c.g + noise);
+        colors[i * 3 + 2] = Math.max(0, c.b + noise);
+        sizes[i] = s;
+      }
+
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+      geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+      // Shader Material
+      const material = new THREE.ShaderMaterial({
+        uniforms: {
+          tex: { value: particleTex },
+          scale: { value: window.innerHeight * 0.5 }
+        },
+        vertexShader: `
+                attribute float size;
+                attribute vec3 color;
+                varying vec3 vColor;
+                uniform float scale;
+                void main() {
+                    vColor = color;
+                    vec4 mv = modelViewMatrix * vec4(position, 1.0);
+                    // 限制最大大小，防止白屏
+                    gl_PointSize = clamp(size * (scale / -mv.z), 1.0, 5.0);
+                    gl_Position = projectionMatrix * mv;
+                }
+            `,
+        fragmentShader: `
+                uniform sampler2D tex;
+                varying vec3 vColor;
+                void main() {
+                    vec4 t = texture2D(tex, gl_PointCoord);
+                    if (t.a < 0.1) discard;
+                    // 透明度 0.6
+                    gl_FragColor = vec4(vColor, 0.6 * t.a);
+                }
+            `,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        transparent: true
+      });
+
+      system = new THREE.Points(geometry, material);
+      scene.add(system);
+
+      // 设置默认视角
+      state.tiltX = currentKey === 'sombrero' ? 0.95 : 0.4;
+    }
+
+    function createBackground() {
+      const geom = new THREE.BufferGeometry();
+      const pos = [];
+      for (let i = 0; i < 3000; i++) pos.push((Math.random() - 0.5) * 1500, (Math.random() - 0.5) * 1500, (Math.random() - 0.5) * 1500);
+      geom.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+      scene.add(new THREE.Points(geom, new THREE.PointsMaterial({ color: 0x555555, size: 1.5, sizeAttenuation: false })));
+    }
+
+    function loadGalaxy(key) {
+      currentKey = key;
+      const cfg = GALAXIES[key];
+      document.getElementById('ui-title').innerHTML = `${cfg.name} <span>${cfg.span}</span>`;
+
+      // 更新 Badge
+      const badgeContainer = document.getElementById('ui-badges');
+      badgeContainer.innerHTML = '';
+      cfg.badges.forEach(b => {
+        const span = document.createElement('span');
+        span.className = 'badge';
+        span.innerText = b;
+        badgeContainer.appendChild(span);
+      });
+
+      document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+      // 简单匹配高亮
+      const btns = document.querySelectorAll('.btn');
+      if (key === 'milkyway') btns[0].classList.add('active');
+      else if (key === 'andromeda') btns[1].classList.add('active');
+      else if (key === 'whirlpool') btns[2].classList.add('active');
+      else if (key === 'sombrero') btns[3].classList.add('active');
+
+      generateGalaxy(cfg);
+    }
+
+    // --- 5. 动画循环 ---
+    function animate() {
+      requestAnimationFrame(animate);
+
+      if (system) {
+        // 自转
+        const rotSpeed = 0.0005 + state.energy * 0.005;
+        system.rotation.y -= rotSpeed;
+
+        // 握拳震动效果 (不修改 buffer，只修改 mesh 位置以节省性能)
+        if (state.energy > 0.1) {
+          system.position.x = (Math.random() - 0.5) * 0.05;
+          system.position.y = (Math.random() - 0.5) * 0.05;
+        } else {
+          system.position.set(0, 0, 0);
+        }
+      }
+
+      // 摄像机控制 (基于手势状态)
+      const r = state.zoom;
+      const th = Math.max(0.05, Math.min(Math.PI - 0.05, state.tiltX * Math.PI));
+      const ph = state.tiltY * Math.PI;
+
+      camera.position.x += (r * Math.sin(th) * Math.sin(ph) - camera.position.x) * 0.1;
+      camera.position.y += (r * Math.cos(th) - camera.position.y) * 0.1;
+      camera.position.z += (r * Math.sin(th) * Math.cos(ph) - camera.position.z) * 0.1;
+      camera.lookAt(0, 0, 0);
+
+      renderer.render(scene, camera);
+    }
+
+    function onResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      if (system) system.material.uniforms.scale.value = window.innerHeight * 0.5;
+    }
+
+    // --- 6. MediaPipe 手势控制 (修复版) ---
+    function initCamera() {
+      const video = document.getElementsByClassName('input_video')[0];
+      const statusCam = document.getElementById('cam-status');
+      const statusHand = document.getElementById('hand-status');
+      const loader = document.getElementById('loader');
+
+      const hands = new Hands({
+        locateFile: (file) => {
+          return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+        }
+      });
+
+      hands.setOptions({
+        maxNumHands: 2,
+        modelComplexity: 1,
+        minDetectionConfidence: 0.5,
+        minTrackingConfidence: 0.5
+      });
+
+      hands.onResults(onResults);
+
+      const camera = new Camera(video, {
+        onFrame: async () => {
+          await hands.send({ image: video });
+        },
+        width: 640,
+        height: 480
+      });
+
+      camera.start()
+        .then(() => {
+          statusCam.innerText = "CAMERA: ACTIVE";
+          statusCam.classList.add('status-active');
+        })
+        .catch(err => {
+          statusCam.innerText = "CAMERA: ERROR (Check HTTPS)";
+          loader.innerHTML = "<div style='color:red'>CAMERA ERROR<br>Please run on HTTPS or Localhost</div>";
+        });
+
+      function onResults(results) {
+        if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+          state.handsDetected = true;
+          statusHand.innerText = "HANDS: TRACKING";
+          statusHand.classList.add('status-active');
+          loader.style.display = 'none';
+
+          const h = results.multiHandLandmarks;
+
+          // 1. 视角倾斜 (Tilt) - 基于第一只手的位置
+          // X轴控制左右旋转 (TiltY), Y轴控制俯仰 (TiltX)
+          const p = h[0][9]; // 中指根部
+          state.tiltY = (p.x - 0.5) * 2; // -1 to 1
+          state.tiltX = p.y; // 0 to 1
+
+          // 2. 缩放 (Zoom) - 基于双手距离
+          if (h.length === 2) {
+            const d = Math.sqrt(Math.pow(h[0][0].x - h[1][0].x, 2) + Math.pow(h[0][0].y - h[1][0].y, 2));
+            // d ~ 0.1 (近) -> Zoom 120
+            // d ~ 0.6 (远) -> Zoom 10
+            state.zoom = 120 - (d * 180);
+            if (state.zoom < 10) state.zoom = 10;
+            if (state.zoom > 150) state.zoom = 150;
+          }
+
+          // 3. 能量/握拳 (Energy)
+          // 计算指尖到手腕距离
+          let totalOpenness = 0;
+          h.forEach(hand => {
+            [8, 12, 16, 20].forEach(tip => {
+              const wrist = hand[0];
+              totalOpenness += Math.sqrt(Math.pow(hand[tip].y - wrist.y, 2) + Math.pow(hand[tip].x - wrist.x, 2));
+            });
+          });
+
+          // 阈值判断
+          const threshold = h.length * 0.25;
+          state.energy = (totalOpenness < threshold) ? 1.0 : 0.0;
+
+        } else {
+          state.handsDetected = false;
+          statusHand.innerText = "HANDS: SEARCHING...";
+          statusHand.classList.remove('status-active');
+          state.energy = 0;
+        }
+      }
+    }
+
+    // 启动程序
+    initThree();
+    initCamera();
+
+  </script>
+</body>
+
+</html>
