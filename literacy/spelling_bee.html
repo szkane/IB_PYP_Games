@@ -28,18 +28,22 @@
       -webkit-tap-highlight-color: transparent;
     }
 
+    /* 关键优化：使用 dvh 解决 Safari 遮挡，禁止滚动回弹 */
     body {
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
       background: var(--bg);
       margin: 0;
-      height: 100vh;
+      height: 100dvh;
+      /* Dynamic Viewport Height */
+      width: 100vw;
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
+      overscroll-behavior: none;
     }
 
-    /* Overlays (Start & DIY) */
+    /* Overlays */
     .overlay {
       position: fixed;
       top: 0;
@@ -58,8 +62,6 @@
     #start-overlay {
       z-index: 1000;
     }
-
-    /* Topmost */
 
     .start-btn {
       background: var(--primary);
@@ -88,7 +90,7 @@
       }
     }
 
-    /* DIY Modal Styling */
+    /* DIY Modal */
     #diy-overlay {
       display: none;
       background: rgba(0, 0, 0, 0.5);
@@ -161,7 +163,6 @@
       cursor: pointer;
     }
 
-
     /* Main App Layout */
     #app {
       display: flex;
@@ -170,41 +171,88 @@
       width: 100%;
       height: 100%;
       max-width: 1024px;
-      max-height: 800px;
+      max-height: 820px;
       box-shadow: 0 0 40px rgba(0, 0, 0, 0.1);
       overflow: hidden;
     }
 
+    /* --- 核心优化：iPad 横屏适配 (Landscape) --- */
     @media (min-width: 768px) and (orientation: landscape) {
       #app {
         flex-direction: row;
-        border-radius: 20px;
-        height: 92vh;
-        margin: 20px;
+        border-radius: 16px;
+        /* 稍微留点边距，但在小尺寸横屏下尽量撑满 */
+        height: 96dvh;
+        margin: 10px;
         border: 1px solid #D1D1D6;
       }
 
       .sidebar {
-        width: 280px;
+        width: 260px;
         border-right: 1px solid #E5E5EA;
+        padding: 15px !important;
       }
 
       .game-area {
         flex: 1;
+        padding: 10px !important;
+      }
+
+      /* 压缩单词显示区域的高度 */
+      .puzzle-zone {
+        justify-content: flex-end !important;
+        padding-bottom: 10px !important;
+      }
+
+      /* 缩小单词字号和间距 */
+      .word-slot {
+        font-size: 2.8rem !important;
+        margin: 5px 0 !important;
+        min-height: 50px !important;
+        letter-spacing: 5px !important;
+      }
+
+      /* 缩小输入框高度 */
+      #user-input-display {
+        font-size: 1.8rem !important;
+        min-height: 2.5rem !important;
+        padding: 2px 20px !important;
+        margin-bottom: 5px !important;
+      }
+
+      /* 缩小 Listen 按钮 */
+      .btn-listen {
+        padding: 8px 20px !important;
+        font-size: 0.9rem !important;
+      }
+
+      /* 调整键盘区域 */
+      .keyboard-base {
+        padding: 8px !important;
+        padding-bottom: 10px !important;
+        gap: 5px !important;
+      }
+
+      .key {
+        height: 48px !important;
       }
     }
 
+    /* Portrait/Mobile Layout */
     @media (max-width: 767px),
     (orientation: portrait) {
       #app {
-        height: 100vh;
+        height: 100dvh;
         border-radius: 0;
+        margin: 0;
       }
 
       .sidebar {
         padding: 15px;
         border-bottom: 1px solid #E5E5EA;
         flex: none;
+        height: auto;
+        max-height: 35vh;
       }
 
       .game-area {
@@ -222,8 +270,13 @@
       }
 
       .key {
-        height: 42px !important;
+        height: 44px !important;
         font-size: 1rem !important;
+      }
+
+      .word-slot {
+        font-size: 2.5rem;
+        margin: 10px 0;
       }
     }
 
@@ -232,7 +285,7 @@
       padding: 24px;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 15px;
       overflow-y: auto;
     }
 
@@ -252,27 +305,27 @@
 
     .stats-block {
       background: white;
-      padding: 16px;
+      padding: 12px;
       border-radius: 12px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
       text-align: center;
     }
 
     .score-num {
-      font-size: 2rem;
+      font-size: 1.8rem;
       font-weight: 700;
       color: var(--primary);
     }
 
     .score-label {
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       color: #86868B;
       letter-spacing: 1px;
       text-transform: uppercase;
     }
 
     .control-group h4 {
-      margin: 0 0 10px 0;
+      margin: 0 0 8px 0;
       font-size: 0.75rem;
       color: #86868B;
       text-transform: uppercase;
@@ -282,14 +335,14 @@
     .chips {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 6px;
     }
 
     .chip {
-      padding: 8px 14px;
+      padding: 6px 12px;
       border: 1px solid #D1D1D6;
-      border-radius: 18px;
-      font-size: 0.85rem;
+      border-radius: 16px;
+      font-size: 0.8rem;
       background: white;
       cursor: pointer;
       transition: all 0.2s ease;
@@ -343,6 +396,7 @@
       align-items: center;
       justify-content: center;
       padding: 20px;
+      transition: all 0.3s;
     }
 
     .word-slot {
@@ -351,7 +405,7 @@
       color: #1D1D1F;
       margin: 20px 0;
       letter-spacing: 8px;
-      min-height: 80px;
+      min-height: 60px;
       text-align: center;
       line-height: 1.2;
     }
@@ -399,6 +453,8 @@
       gap: 6px;
       width: 100%;
       border-top: 1px solid #C7C7CC;
+      flex-shrink: 0;
+      /* 防止键盘被压缩 */
     }
 
     .kb-row {
@@ -599,10 +655,9 @@
       init() {
         this.renderControls();
 
-        // 尝试从 LocalStorage 加载 DIY 数据
+        // Check LocalStorage for DIY
         const savedDIY = localStorage.getItem('hilson_diy_words');
         if (savedDIY) {
-          // 如果有存档，预解析一下，但不需要立即切换过去
           this.parseCustomWords(savedDIY);
         }
 
@@ -652,7 +707,7 @@
         const diy = document.createElement('div');
         diy.className = `chip diy-mode ${this.category === 'diy' ? 'active' : ''}`;
         diy.innerText = "✏️ DIY";
-        diy.onclick = () => this.openDIYModal(); // 改为打开弹窗
+        diy.onclick = () => this.openDIYModal();
         catBox.appendChild(diy);
       },
 
@@ -668,15 +723,11 @@
         this.nextWord();
       },
 
-      // --- DIY Logic Start ---
       openDIYModal() {
         const modal = document.getElementById('diy-overlay');
         const textarea = document.getElementById('diy-input');
-
-        // 从 LocalStorage 读取最新的文本
         const savedText = localStorage.getItem('hilson_diy_words') || "";
         textarea.value = savedText;
-
         modal.style.display = 'flex';
       },
 
@@ -689,10 +740,7 @@
         const rawText = textarea.value;
 
         if (this.parseCustomWords(rawText)) {
-          // 保存到 LocalStorage
           localStorage.setItem('hilson_diy_words', rawText);
-
-          // 切换模式并开始
           this.category = 'diy';
           this.renderControls();
           this.closeDIY();
@@ -703,7 +751,6 @@
       },
 
       parseCustomWords(text) {
-        // 支持逗号、换行符、空格作为分隔符
         const words = text.split(/[,，\n\r]+/).map(w => w.trim()).filter(w => w.length > 0);
         if (words.length > 0) {
           this.customWords = words;
@@ -711,7 +758,6 @@
         }
         return false;
       },
-      // --- DIY Logic End ---
 
       getWordList() {
         if (this.category === 'random') {
@@ -728,7 +774,6 @@
       nextWord() {
         const list = this.getWordList();
         if (!list || list.length === 0) {
-          // 如果当前模式没有词 (比如DIY被清空)，切回 Random
           if (this.category === 'diy') this.openDIYModal();
           return;
         }
