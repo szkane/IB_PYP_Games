@@ -642,6 +642,11 @@
         <h4>Word List</h4>
         <div class="chips" id="cat-chips"></div>
       </div>
+
+      <div class="control-group">
+        <h4>Accent</h4>
+        <div class="chips" id="accent-chips"></div>
+      </div>
     </div>
 
     <div class="game-area">
@@ -695,14 +700,31 @@
 
   <script>
     const data = {
-      "sight_words": { "name": "Sight Words", "words": ["said", "from", "are", "they", "have", "where", "there", "could", "would", "about"] },
-      "phonics": { "name": "Phonics", "words": ["cat", "pig", "sun", "map", "dig", "pot", "mud", "bed", "fed", "ship", "fish", "duck"] },
-      "uoi": { "name": "UOI", "words": ["family", "friend", "school", "share", "help", "world", "nature", "happy", "plant"] }
+      "sight_words": { "name": "Spelling Words", "words": ["about", "and", "animal", "answer", "around", "around", "bean", "because", "bedroom", "before", "boat", "brave", "broken", "but", "butterfly", "chart", "children", "clock", "column", "community", "completely", "count", "data", "date", "dessert", "digit", "down", "eat", "faster", "friend", "friendly", "helper", "home", "important", "inquire", "internet", "jumping", "letter", "life", "like", "listen", "look", "louder", "many", "measure", "month", "moon", "morning", "nighttime", "noun", "number", "our", "ourselves", "outfits", "outside", "painted", "peaceful", "people", "plant", "plus", "possible", "question", "rabbit", "replace", "said", "scream", "season", "sense", "smell", "snake", "some", "sound", "spring", "story", "subtraction", "sunny", "tally", "the", "their", "they", "think", "this", "thoughts", "thousand", "Thursday", "time", "title", "value", "vocabulary", "Wednesday", "what", "when", "where", "whisper", "why", "yesterday"] },
+      "phonics": {
+        "name": "Phonics", "words": ["like", "home", "time", "plant", "friend", "help", "play", "school", "book", "read",
+          "write", "draw", "day", "sun", "rain", "tree", "water", "food", "good", "happy",
+          "look", "see", "make", "come", "have", "said", "this", "that", "with", "they",
+          "what", "when", "where", "why", "how", "number", "color", "shape", "big", "small",
+          "fast", "slow", "up", "down", "in", "out", "cat", "dog", "fish", "bird"]
+      },
+      "uoi": {
+        "name": "UOI", "words": ["think", "question", "why", "what", "find", "learn", "change", "feel", "share", "group",
+          "family", "friend", "home", "school", "community", "help", "care", "rule", "safe", "place",
+          "live", "grow", "water", "plant", "animal", "food", "weather", "season", "recycle", "earth"]
+      },
+      "classmate": {
+        "name": "Classmate", "words": ["Hilson", "Mavis", "Callalily", "Lina", "Alex", "Yolanda", "Miranda", "Jinny", "Nelly", "Franky", "Jacob",
+          "Owen", "Carter", "Sian", "Floyd", "Gina", "Doris", "Demo", "Jayden", "Lulu", "Adam", "Chester", "Sean", "Nick", "Jonathan", "Lulu", "Adam", "Chester"
+        ]
+      }
+
     };
 
     const game = {
       difficulty: 'easy',
       category: 'sight_words',
+      accent: 'en-US',
       customWords: [],
       currentWord: '',
       userText: '',
@@ -816,6 +838,20 @@
         diy.innerText = "✏️ DIY";
         diy.onclick = () => this.openDIYModal();
         catBox.appendChild(diy);
+
+        const accentBox = document.getElementById('accent-chips');
+        accentBox.innerHTML = '';
+        const accents = [
+          { id: 'en-US', label: '🇺🇸 US' },
+          { id: 'en-GB', label: '🇬🇧 UK' }
+        ];
+        accents.forEach(acc => {
+          const btn = document.createElement('div');
+          btn.className = `chip ${this.accent === acc.id ? 'active' : ''}`;
+          btn.innerText = acc.label;
+          btn.onclick = () => this.setAccent(acc.id);
+          accentBox.appendChild(btn);
+        });
       },
 
       setDifficulty(level) {
@@ -828,6 +864,12 @@
         this.category = cat;
         this.renderControls();
         if (this.gameActive) this.nextWord();
+      },
+
+      setAccent(lang) {
+        this.accent = lang;
+        this.renderControls();
+        if (this.gameActive) this.speak();
       },
 
       openDIYModal() {
@@ -917,6 +959,7 @@
       speak() {
         if (!this.audioAllowed) return;
         const u = new SpeechSynthesisUtterance(this.currentWord);
+        u.lang = this.accent;
         u.rate = 0.75;
         window.speechSynthesis.speak(u);
       },
@@ -937,6 +980,7 @@
 
       check() {
         if (!this.gameActive) return;
+        if (!this.userText) return;
         const feedback = document.getElementById('feedback');
         if (this.userText.toLowerCase() === this.currentWord.toLowerCase()) {
           this.score += 10;
