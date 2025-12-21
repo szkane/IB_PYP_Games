@@ -531,13 +531,14 @@
       color: #000;
       cursor: pointer;
       user-select: none;
-      transition: background 0.1s;
+      transition: all 0.05s ease;
+      position: relative;
     }
 
     .key:active {
-      background: #E5E5EA;
-      transform: translateY(1px);
-      box-shadow: none;
+      background: #D1D1D6;
+      transform: scale(0.92);
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .key.special {
@@ -559,6 +560,11 @@
       color: white;
       border: none;
       box-shadow: 0 1px 0 #0056b3;
+    }
+
+    .key-return:active {
+      background: #0051a8 !important;
+      transform: scale(0.92);
     }
 
     .key-shift {
@@ -733,6 +739,8 @@
       timerInterval: null,
       timeLeft: 300,
       gameActive: false,
+      processingCorrectAnswer: false,
+      audioCtx: null,
 
       init() {
         this.renderControls();
@@ -753,6 +761,9 @@
       start() {
         this.audioAllowed = true;
         this.gameActive = true;
+        // 初始化音频上下文
+        this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
         document.getElementById('start-overlay').style.display = 'none';
         const u = new SpeechSynthesisUtterance("");
         window.speechSynthesis.speak(u);
@@ -768,6 +779,7 @@
         this.timeLeft = 300;     // 重置时间
         this.score = 0;          // 重置分数
         document.getElementById('score').innerText = this.score;
+        this.processingCorrectAnswer = false;
 
         this.gameActive = true;  // 激活游戏状态
         this.startTimer();       // 重启计时器
@@ -964,8 +976,29 @@
         window.speechSynthesis.speak(u);
       },
 
+      playKeySound() {
+        if (!this.audioAllowed || !this.audioCtx) return;
+        if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
+
+        const osc = this.audioCtx.createOscillator();
+        const gain = this.audioCtx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(150, this.audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(0.01, this.audioCtx.currentTime + 0.1);
+
+        gain.gain.setValueAtTime(0.1, this.audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.audioCtx.currentTime + 0.1);
+
+        osc.connect(gain);
+        gain.connect(this.audioCtx.destination);
+        osc.start();
+        osc.stop(this.audioCtx.currentTime + 0.1);
+      },
+
       input(char) {
         if (!this.gameActive) return;
+        this.playKeySound();
         if (char === 'BACK') {
           this.userText = this.userText.slice(0, -1);
         } else {
@@ -980,14 +1013,20 @@
 
       check() {
         if (!this.gameActive) return;
+        if (this.processingCorrectAnswer) return;
         if (!this.userText) return;
+        this.playKeySound();
         const feedback = document.getElementById('feedback');
         if (this.userText.toLowerCase() === this.currentWord.toLowerCase()) {
+          this.processingCorrectAnswer = true;
           this.score += 10;
           document.getElementById('score').innerText = this.score;
           feedback.style.color = 'var(--success)';
           feedback.innerText = "Correct! 🎉";
-          setTimeout(() => this.nextWord(), 1200);
+          setTimeout(() => {
+            this.nextWord();
+            this.processingCorrectAnswer = false;
+          }, 1200);
         } else {
           feedback.style.color = "#FF2D55";
           feedback.innerText = "Try again!";
