@@ -131,10 +131,16 @@
       <h1 class="text-xl md:text-2xl font-bold fun-font flex items-center gap-2">
         <span>🎓</span> Hilson的拼音助手
       </h1>
-      <button onclick="playSong()"
-        class="bg-yellow-400 text-blue-900 px-4 py-2 rounded-full text-sm md:text-base font-bold shadow hover:bg-yellow-300 transition transform active:scale-95 flex items-center gap-2">
-        <span>🔊</span> 听标调歌
-      </button>
+      <div class="flex items-center gap-2">
+        <select id="voice-select"
+          class="bg-blue-600 text-white text-xs md:text-sm rounded-lg px-2 py-2 border border-blue-400 focus:outline-none focus:ring-2 focus:ring-yellow-300 max-w-[100px] md:max-w-[180px] cursor-pointer">
+          <option>加载语音...</option>
+        </select>
+        <button onclick="playSong()"
+          class="bg-yellow-400 text-blue-900 px-4 py-2 rounded-full text-sm md:text-base font-bold shadow hover:bg-yellow-300 transition transform active:scale-95 flex items-center gap-2">
+          <span>🔊</span> 听标调歌
+        </button>
+      </div>
     </div>
     <!-- 标调歌提示 -->
     <div class="max-w-7xl mx-auto mt-2 text-center bg-blue-600/80 rounded-lg p-2 text-sm md:text-base backdrop-blur-sm">
@@ -320,6 +326,25 @@
 
     function loadVoices() {
       availableVoices = window.speechSynthesis.getVoices();
+      const voiceSelect = document.getElementById('voice-select');
+      if (!voiceSelect) return;
+
+      // 过滤中文语音
+      const zhVoices = availableVoices.filter(v => v.lang.includes('zh'));
+
+      if (zhVoices.length > 0) {
+        const currentSelection = voiceSelect.value;
+        voiceSelect.innerHTML = '';
+        zhVoices.forEach(v => {
+          const opt = document.createElement('option');
+          opt.value = v.name;
+          opt.textContent = v.name;
+          opt.className = "text-gray-800";
+          voiceSelect.appendChild(opt);
+        });
+        // 如果之前没选过，默认选第0个
+        if (!currentSelection) voiceSelect.selectedIndex = 0;
+      }
     }
 
     if ('speechSynthesis' in window) {
@@ -336,13 +361,9 @@
         utterance.lang = 'zh-CN';
         utterance.rate = 0.8;
 
-        if (availableVoices.length > 0) {
-          const zhVoices = availableVoices.filter(v => v.lang.includes('zh'));
-          let targetVoice = null;
-          if (zhVoices.length > 0) {
-            targetVoice = zhVoices.find(v => v.name.includes('Google') || v.name.includes('Microsoft'));
-            if (!targetVoice) targetVoice = zhVoices[0];
-          }
+        const voiceSelect = document.getElementById('voice-select');
+        if (voiceSelect && voiceSelect.value) {
+          const targetVoice = availableVoices.find(v => v.name === voiceSelect.value);
           if (targetVoice) {
             utterance.voice = targetVoice;
           }
