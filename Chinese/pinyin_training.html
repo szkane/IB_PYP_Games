@@ -12,7 +12,6 @@
     body {
       font-family: 'Noto Sans SC', sans-serif;
       background-color: #f0f9ff;
-      /* 禁止iOS橡皮筋回弹效果，营造原生App感 */
       overscroll-behavior: none;
       touch-action: manipulation;
     }
@@ -27,7 +26,7 @@
 
     .card {
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      /* iPad上按下的反馈 */
+      cursor: pointer;
     }
 
     .card:active {
@@ -46,7 +45,6 @@
       border-color: #e5e7eb;
     }
 
-    /* 隐藏滚动条但保留功能 */
     .hide-scrollbar::-webkit-scrollbar {
       display: none;
     }
@@ -127,7 +125,7 @@
 
 <body class="bg-blue-50 h-screen w-screen flex flex-col overflow-hidden">
 
-  <!-- 顶部：标调歌 (固定区域) -->
+  <!-- 顶部：标调歌 -->
   <header class="bg-blue-500 text-white p-3 md:p-4 shadow-md z-20 flex-shrink-0">
     <div class="max-w-7xl mx-auto flex justify-between items-center">
       <h1 class="text-xl md:text-2xl font-bold fun-font flex items-center gap-2">
@@ -138,7 +136,7 @@
         <span>🔊</span> 听标调歌
       </button>
     </div>
-    <!-- 标调歌在iPad横屏下横向展开，减少高度占用 -->
+    <!-- 标调歌提示 -->
     <div class="max-w-7xl mx-auto mt-2 text-center bg-blue-600/80 rounded-lg p-2 text-sm md:text-base backdrop-blur-sm">
       <span class="inline-block mx-2">有 <span class="text-yellow-300 font-bold text-lg">a</span> 先找 a</span>
       <span class="inline-block mx-2">没 a 找 <span class="text-yellow-300 font-bold text-lg">o e</span></span>
@@ -148,7 +146,7 @@
     </div>
   </header>
 
-  <!-- 导航栏 (固定区域) -->
+  <!-- 导航栏 -->
   <nav class="w-full bg-white/80 backdrop-blur-md border-b border-blue-100 z-10 flex-shrink-0">
     <div class="max-w-7xl mx-auto px-4">
       <div class="flex space-x-4 overflow-x-auto hide-scrollbar py-3 justify-start md:justify-center">
@@ -165,20 +163,17 @@
     </div>
   </nav>
 
-  <!-- 内容区域 (滚动区域) -->
-  <!-- 使用 flex-1 让它占据剩余高度，overflow-y-auto 允许内部滚动 -->
+  <!-- 内容区域 -->
   <main class="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 bg-blue-50 relative scroll-smooth">
 
     <div class="max-w-7xl mx-auto h-full">
       <!-- 学习视图 -->
-      <!-- Grid 针对 iPad 横屏优化为 3列 或 4列 -->
       <div id="learning-view"
         class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 pb-20">
         <!-- 卡片将通过 JS 动态插入这里 -->
       </div>
 
       <!-- 测试视图 -->
-      <!-- 使用 flex 让内容在屏幕中间，iPad 体验更好 -->
       <div id="quiz-view" class="hidden h-full flex flex-col justify-center items-center pb-20">
         <div
           class="bg-white rounded-3xl shadow-2xl p-8 md:p-12 text-center w-full max-w-2xl border-b-8 border-purple-200">
@@ -213,49 +208,75 @@
   </main>
 
   <script>
-    // --- 数据源 (严格按照用户提供的表格) ---
+    // --- 核心数据重构：覆盖全韵母 & 全汉字拟音 ---
+    // 目标：
+    // 1. 去重：避免重复的韵母结构。
+    // 2. 多样性：涵盖 a, o, e, i, u, ü, ai, ei, ui, ao, ou, iu, ie, üe, er, an, en, in, un, ün, ang, eng, ing, ong
+    // 3. TTS：声母、韵母全部使用【纯汉字】映射，确保读音准确。
+
+    // 汉字拟音对照表 (仅供参考逻辑)：
+    // a=阿, o=喔, e=鹅, i=衣, u=乌, ü=迂
+    // ai=爱, ei=诶, ui=威, ao=袄, ou=欧, iu=优
+    // an=安, en=恩, in=因, ang=昂, eng=亨(取韵), ing=英, ong=轰(取韵)
+
     const data = {
       two: [
-        { py: "mā", char: "妈", rule: "有 a 先找 a", type: "a" },
-        { py: "bá", char: "拔", rule: "有 a 先找 a", type: "a" },
-        { py: "huā", char: "花", rule: "有 a 先找 a", type: "a" },
-        { py: "pá", char: "爬", rule: "有 a 先找 a", type: "a" },
-        { py: "mà", char: "骂", rule: "有 a 先找 a", type: "a" },
-        { py: "guǎ", char: "瓜", rule: "有 a 先找 a", type: "a" },
-        { py: "lóu", char: "楼", rule: "没 a 找 o e (有o)", type: "o" },
-        { py: "duǒ", char: "朵", rule: "没 a 找 o e (有o)", type: "o" },
-        { py: "měi", char: "美", rule: "没 a 找 o e (有e)", type: "e" },
-        { py: "léi", char: "雷", rule: "没 a 找 o e (有e)", type: "e" },
-        { py: "liú", char: "流", rule: "i u 并列标在后 (标u)", type: "iu" },
-        { py: "guī", char: "归", rule: "i u 并列标在后 (标i)", type: "iu" },
-        { py: "lǐ", char: "里", rule: "i 上标调点去掉", type: "i" },
-        { py: "nǐ", char: "你", rule: "i 上标调点去掉", type: "i" },
-        { py: "lǜ", char: "绿", rule: "ü 上标调保留点", type: "u_dot" },
-        { py: "nǚ", char: "女", rule: "ü 上标调保留点", type: "u_dot" }
+        // 单韵母
+        { py: "mā", char: "妈", rule: "有 a 先找 a", type: "a", tts: "摸, 阿, 妈" },
+        { py: "bō", char: "波", rule: "没 a 找 o e (有o)", type: "o", tts: "玻, 喔, 波" },
+        { py: "lè", char: "乐", rule: "没 a 找 o e (有e)", type: "e", tts: "勒, 饿, 乐" },
+        { py: "bǐ", char: "笔", rule: "i 上标调点去掉", type: "i", tts: "玻, 以, 笔" },
+        { py: "bù", char: "不", rule: "标在 u 上", type: "u", tts: "玻, 悟, 不" },
+        { py: "nǚ", char: "女", rule: "ü 上标调保留点", type: "u_dot", tts: "呢, 迂, 女" },
+
+        // 复韵母 (ai, ei, ui, ao, ou, iu)
+        { py: "cài", char: "菜", rule: "有 a 先找 a (ai)", type: "a", tts: "雌, 爱, 菜" },
+        { py: "fēi", char: "飞", rule: "没 a 找 o e (ei)", type: "e", tts: "佛, 诶, 飞" },
+        { py: "guī", char: "归", rule: "i u 并列标在后 (ui标i)", type: "iu", tts: "哥, 威, 归" },
+        { py: "pǎo", char: "跑", rule: "有 a 先找 a (ao)", type: "a", tts: "坡, 袄, 跑" },
+        { py: "tóu", char: "头", rule: "没 a 找 o e (ou标o)", type: "o", tts: "特, 欧, 头" },
+        { py: "liú", char: "流", rule: "i u 并列标在后 (iu标u)", type: "iu", tts: "勒, 优, 流" },
+
+        // 鼻韵母 (an, en, in, ang, eng, ing, ong)
+        { py: "shān", char: "山", rule: "有 a 先找 a (an)", type: "a", tts: "诗, 安, 山" },
+        { py: "mén", char: "门", rule: "没 a 找 o e (en)", type: "e", tts: "摸, 嗯, 门" },
+        { py: "lín", char: "林", rule: "i 上标调点去掉 (in)", type: "i", tts: "勒, 银, 林" },
+        { py: "bāng", char: "帮", rule: "有 a 先找 a (ang)", type: "a", tts: "玻, 昂, 帮" },
+        { py: "dēng", char: "灯", rule: "没 a 找 o e (eng)", type: "e", tts: "得, 恩, 灯" },
+        { py: "xīng", char: "星", rule: "i 上标调点去掉 (ing)", type: "i", tts: "西, 英, 星" },
+        { py: "hóng", char: "红", rule: "没 a 找 o e (ong标o)", type: "o", tts: "喝, 红, 红" }
       ],
       three: [
-        { py: "guā", char: "瓜", rule: "有 a 先找 a (不管多长)", type: "a" },
-        { py: "kuà", char: "跨", rule: "有 a 先找 a", type: "a" },
-        { py: "xiá", char: "霞", rule: "有 a 先找 a", type: "a" },
-        { py: "qià", char: "恰", rule: "有 a 先找 a", type: "a" },
-        { py: "guǒ", char: "果", rule: "没 a 找 o e (标o)", type: "o" },
-        { py: "jué", char: "觉", rule: "没 a 找 o e (标e, j见ü去点)", type: "e" },
-        { py: "xué", char: "学", rule: "没 a 找 o e (标e, x见ü去点)", type: "e" },
-        { py: "qiū", char: "秋", rule: "i u 并列标在后 (标u)", type: "iu" },
-        { py: "guī", char: "归", rule: "i u 并列标在后 (标i)", type: "iu" },
-        { py: "jiǎo", char: "脚", rule: "有 a 先找 a (不是i上标调!)", type: "a" },
-        { py: "diǎn", char: "点", rule: "有 a 先找 a (不是i上标调!)", type: "a" }
+        // 简单的介母组合 (u-a, u-o, i-a)
+        { py: "guā", char: "瓜", rule: "有 a 先找 a (g-u-a)", type: "a", tts: "哥, 乌, 阿, 瓜" },
+        { py: "huā", char: "花", rule: "有 a 先找 a (h-u-a)", type: "a", tts: "喝, 乌, 阿, 花" },
+        { py: "duǒ", char: "朵", rule: "没 a 找 o e (d-u-o)", type: "o", tts: "得, 乌, 噢, 朵" },
+        { py: "jiā", char: "家", rule: "有 a 先找 a (j-i-a)", type: "a", tts: "鸡, 衣, 阿, 家" },
+        { py: "qiā", char: "掐", rule: "有 a 先找 a (q-i-a)", type: "a", tts: "七, 衣, 阿, 掐" },
+        { py: "xiā", char: "虾", rule: "有 a 先找 a (x-i-a)", type: "a", tts: "西, 衣, 阿, 虾" },
+
+        // 复杂的三拼 (包含 ai, ao, an, ang, ong 等)
+        { py: "shuài", char: "帅", rule: "有 a 先找 a (u-ai)", type: "a", tts: "诗, 乌, 爱, 帅" },
+        { py: "kuài", char: "快", rule: "有 a 先找 a (u-ai)", type: "a", tts: "科, 乌, 爱, 快" },
+        { py: "qiáo", char: "桥", rule: "有 a 先找 a (i-ao)", type: "a", tts: "七, 衣, 熬, 桥" },
+        { py: "xiǎo", char: "小", rule: "有 a 先找 a (i-ao)", type: "a", tts: "西, 衣, 袄, 小" },
+        { py: "luàn", char: "乱", rule: "有 a 先找 a (u-an)", type: "a", tts: "勒, 乌, 岸, 乱" },
+        { py: "juǎn", char: "卷", rule: "有 a 先找 a (ü-an)", type: "a", tts: "鸡, 迂, 俺, 卷" },
+        { py: "quán", char: "泉", rule: "有 a 先找 a (ü-an)", type: "a", tts: "七, 迂, 安, 泉" },
+        { py: "xióng", char: "熊", rule: "没 a 找 o e (i-ong)", type: "o", tts: "西, 衣, 轰, 熊" },
+        { py: "guāng", char: "光", rule: "有 a 先找 a (u-ang)", type: "a", tts: "哥, 乌, 昂, 光" }
       ],
       whole: [
-        { py: "yuān", char: "冤", rule: "有 a 先找 a (y-ü-an)", type: "a" },
-        { py: "yē", char: "耶", rule: "没 a 找 o e (i-e)", type: "e" },
-        { py: "yé", char: "爷", rule: "没 a 找 o e", type: "e" },
-        { py: "yuē", char: "约", rule: "没 a 找 o e (ü-e)", type: "e" },
-        { py: "yī", char: "衣", rule: "i 上标调点去掉", type: "i" },
-        { py: "wū", char: "乌", rule: "标在 u 上", type: "u" },
-        { py: "yū", char: "迂", rule: "j q x y 见 ü 去两点 (标u)", type: "u" },
-        { py: "yǔ", char: "雨", rule: "j q x y 见 ü 去两点 (标u)", type: "u" },
-        { py: "yūn", char: "晕", rule: "j q x y 见 ü 去两点 (标u)", type: "u" }
+        // 整体认读音节不需要拼读，直接读音
+        { py: "yuān", char: "冤", rule: "有 a 先找 a (y-ü-an)", type: "a", tts: "冤" },
+        { py: "yē", char: "耶", rule: "没 a 找 o e (i-e)", type: "e", tts: "耶" },
+        { py: "yé", char: "爷", rule: "没 a 找 o e", type: "e", tts: "爷" },
+        { py: "yuē", char: "约", rule: "没 a 找 o e (ü-e)", type: "e", tts: "约" },
+        { py: "yī", char: "衣", rule: "i 上标调点去掉", type: "i", tts: "衣" },
+        { py: "wū", char: "乌", rule: "标在 u 上", type: "u", tts: "乌" },
+        { py: "yū", char: "迂", rule: "j q x y 见 ü 去两点 (标u)", type: "u", tts: "迂" },
+        { py: "yǔ", char: "雨", rule: "j q x y 见 ü 去两点 (标u)", type: "u", tts: "雨" },
+        { py: "yūn", char: "晕", rule: "j q x y 见 ü 去两点 (标u)", type: "u", tts: "晕" }
       ]
     };
 
@@ -286,7 +307,8 @@
           char: item.char,
           clean: cleanPy,
           targetChar: targetChar,
-          hint: item.rule
+          hint: item.rule,
+          tts: item.tts
         };
       }).sort(() => 0.5 - Math.random());
     }
@@ -305,6 +327,7 @@
       window.speechSynthesis.onvoiceschanged = loadVoices;
     }
 
+    // 发音函数
     function speak(text) {
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
@@ -314,19 +337,12 @@
         utterance.rate = 0.8;
 
         if (availableVoices.length > 0) {
-          const zhVoices = availableVoices.filter(v => v.lang === 'zh-CN' || v.lang === 'zh' || v.lang === 'zh-Hans');
+          const zhVoices = availableVoices.filter(v => v.lang.includes('zh'));
           let targetVoice = null;
-
           if (zhVoices.length > 0) {
-            targetVoice = zhVoices.find(v => v.name.includes('Google'));
-            if (!targetVoice) {
-              targetVoice = zhVoices.find(v => v.name.includes('Microsoft') && v.name.includes('Chinese'));
-            }
-            if (!targetVoice) {
-              targetVoice = zhVoices[0];
-            }
+            targetVoice = zhVoices.find(v => v.name.includes('Google') || v.name.includes('Microsoft'));
+            if (!targetVoice) targetVoice = zhVoices[0];
           }
-
           if (targetVoice) {
             utterance.voice = targetVoice;
           }
@@ -361,7 +377,7 @@
         const card = document.createElement('div');
         card.className = `card bg-white rounded-2xl shadow-sm border-b-4 p-6 flex flex-col items-center justify-center relative overflow-hidden ${style.replace('bg-', 'border-')}`;
 
-        card.onclick = () => speak(item.char);
+        card.onclick = () => speak(item.tts);
 
         card.innerHTML = `
                     <div class="absolute top-3 right-3 text-2xl opacity-20">🔊</div>
@@ -433,7 +449,6 @@
 
       displayChars.forEach((char, index) => {
         const btn = document.createElement('button');
-        // 按钮尺寸优化：针对大屏使用更大的尺寸
         btn.className = "w-16 h-20 md:w-24 md:h-32 text-4xl md:text-6xl font-bold rounded-2xl border-4 border-gray-100 bg-white text-gray-700 hover:bg-blue-50 hover:border-blue-200 focus:outline-none transition transform shadow-sm relative overflow-hidden";
         btn.innerText = char;
 
@@ -457,7 +472,7 @@
                                 <p class="text-gray-500 text-lg">读作：<span class="font-bold text-black">${q.original}</span> (${q.hint})</p>
                             </div>
                         `;
-            speak("答对了！" + q.char);
+            speak("答对了！" + q.tts);
 
             Array.from(container.children).forEach(b => b.disabled = true);
             nextBtn.classList.remove('hidden');
@@ -489,7 +504,6 @@
                 `;
         document.getElementById('next-btn').innerHTML = "再玩一次";
         document.getElementById('next-btn').onclick = initQuiz;
-        // 隐藏汉字显示以免干扰
         document.getElementById('quiz-char-display').innerText = "";
       } else {
         renderQuestion();
