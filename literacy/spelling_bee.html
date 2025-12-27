@@ -454,7 +454,79 @@
 
     .missing {
       color: var(--primary);
-      border-bottom: 4px solid var(--primary);
+      display: inline-block;
+      min-width: 0.5em;
+      text-align: center;
+    }
+
+    /* Action buttons container */
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .btn-hint {
+      background: linear-gradient(135deg, #FFD60A 0%, #FF9500 100%);
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 20px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(255, 149, 0, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    .btn-hint:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(255, 149, 0, 0.4);
+    }
+
+    .btn-hint:active {
+      transform: translateY(0);
+      background: linear-gradient(135deg, #E5C100 0%, #E58500 100%);
+    }
+
+    .btn-hint:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-skip {
+      background: linear-gradient(135deg, #8E8E93 0%, #636366 100%);
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 20px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(99, 99, 102, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    .btn-skip:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(99, 99, 102, 0.4);
+    }
+
+    .btn-skip:active {
+      transform: translateY(0);
+      background: linear-gradient(135deg, #7A7A7F 0%, #555558 100%);
+    }
+
+    .hint-counter {
+      font-size: 0.8rem;
+      opacity: 0.8;
     }
 
     #user-input-display {
@@ -661,6 +733,10 @@
         <div class="word-slot" id="puzzle-display"></div>
         <div id="user-input-display"></div>
         <div id="feedback" style="color:var(--success); height:24px; font-weight:600;"></div>
+        <div class="action-buttons">
+          <button class="btn-hint" id="btn-hint" onclick="game.showHint()">💡 Hint <span class="hint-counter" id="hint-counter">(3)</span></button>
+          <button class="btn-skip" onclick="game.skipWord()">⏭️ Skip</button>
+        </div>
       </div>
 
       <div class="keyboard-base">
@@ -739,6 +815,9 @@
       timerInterval: null,
       timeLeft: 300,
       gameActive: false,
+      hintsRemaining: 3,
+      revealedIndices: [],
+      missingIndices: [],
       processingCorrectAnswer: false,
       audioCtx: null,
 
@@ -778,7 +857,9 @@
         // 核心逻辑：
         this.timeLeft = 300;     // 重置时间
         this.score = 0;          // 重置分数
+        this.hintsRemaining = 3; // 重置提示次数
         document.getElementById('score').innerText = this.score;
+        this.updateHintUI();
         this.processingCorrectAnswer = false;
 
         this.gameActive = true;  // 激活游戏状态
@@ -955,9 +1036,14 @@
           }
         }
 
+        this.missingIndices = this.difficulty === 'hard' 
+          ? [...Array(this.currentWord.length).keys()] 
+          : indices;
+        this.revealedIndices = [];
+
         for (let i = 0; i < this.currentWord.length; i++) {
           if (this.difficulty === 'hard' || indices.includes(i)) {
-            display += '<span class="missing">_</span>';
+            display += '<span class="missing" data-index="' + i + '">_</span>';
           } else {
             display += this.currentWord[i];
           }
@@ -1039,6 +1125,116 @@
         el.style.transform = "translateX(8px)";
         setTimeout(() => el.style.transform = "translateX(-8px)", 50);
         setTimeout(() => el.style.transform = "translateX(0)", 100);
+      },
+
+      // 提示功能：显示一个缺失的字母
+      showHint() {
+        if (!this.gameActive || this.hintsRemaining <= 0) return;
+        
+        // 找出还没被揭示的缺失字母
+        const unrevealed = this.missingIndices.filter(i => !this.revealedIndices.includes(i));
+        if (unrevealed.length === 0) return;
+
+        // 随机选择一个字母揭示
+        const randomIndex = unrevealed[Math.floor(Math.random() * unrevealed.length)];
+        this.revealedIndices.push(randomIndex);
+        
+        // 更新UI显示揭示的字母
+        const missingSpans = document.querySelectorAll('.missing');
+        missingSpans.forEach(span => {
+          const idx = parseInt(span.getAttribute('data-index'));
+          if (idx === randomIndex) {
+            span.innerHTML = this.currentWord[idx];
+            span.style.color = 'var(--warning)';
+            span.style.animation = 'pulse 0.5s ease';
+          }
+        });
+
+        // 减少提示次数
+        this.hintsRemaining--;
+        this.updateHintUI();
+
+        // 扣分惩罚（可选）
+        if (this.score > 0) {
+          this.score = Math.max(0, this.score - 2);
+          document.getElementById('score').innerText = this.score;
+        }
+
+        // 播放提示音效
+        this.playHintSound();
+      },
+
+      updateHintUI() {
+        const counter = document.getElementById('hint-counter');
+        const btn = document.getElementById('btn-hint');
+        counter.innerText = `(${this.hintsRemaining})`;
+        btn.disabled = this.hintsRemaining <= 0;
+      },
+
+      playHintSound() {
+        if (!this.audioAllowed || !this.audioCtx) return;
+        if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
+
+        const osc = this.audioCtx.createOscillator();
+        const gain = this.audioCtx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(800, this.audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1200, this.audioCtx.currentTime + 0.1);
+
+        gain.gain.setValueAtTime(0.15, this.audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.audioCtx.currentTime + 0.2);
+
+        osc.connect(gain);
+        gain.connect(this.audioCtx.destination);
+        osc.start();
+        osc.stop(this.audioCtx.currentTime + 0.2);
+      },
+
+      // 跳过当前单词
+      skipWord() {
+        if (!this.gameActive) return;
+        if (this.processingCorrectAnswer) return;
+
+        const feedback = document.getElementById('feedback');
+        feedback.style.color = 'var(--warning)';
+        feedback.innerText = `Skipped! Answer: ${this.currentWord}`;
+
+        // 扣分惩罚
+        if (this.score > 0) {
+          this.score = Math.max(0, this.score - 5);
+          document.getElementById('score').innerText = this.score;
+        }
+
+        // 播放跳过音效
+        this.playSkipSound();
+
+        // 延迟后显示下一个单词
+        this.processingCorrectAnswer = true;
+        setTimeout(() => {
+          this.nextWord();
+          this.processingCorrectAnswer = false;
+        }, 1500);
+      },
+
+      playSkipSound() {
+        if (!this.audioAllowed || !this.audioCtx) return;
+        if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
+
+        const osc = this.audioCtx.createOscillator();
+        const gain = this.audioCtx.createGain();
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(400, this.audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(200, this.audioCtx.currentTime + 0.15);
+
+        gain.gain.setValueAtTime(0.1, this.audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.audioCtx.currentTime + 0.15);
+
+        osc.connect(gain);
+        gain.connect(this.audioCtx.destination);
+        osc.start();
+        osc.stop(this.audioCtx.currentTime + 0.15);
       }
     };
 
