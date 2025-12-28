@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="MoveSpell - A gesture-based spelling game for kids. Learn to spell with magic hand movements!"
+    />
+    <title>MoveSpell - Magic Hand Edition</title>
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/style.css" />
+
+    <!-- Favicon -->
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✨</text></svg>"
+    />
+  </head>
+  <body>
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+      <h1 class="loading-title">✨ MoveSpell ✨</h1>
+      <div class="loading-spinner"></div>
+      <p class="loading-text">Loading game...</p>
+    </div>
+
+    <!-- Camera Permission Overlay -->
+    <div id="permission-overlay">
+      <div class="permission-icon">📸</div>
+      <h2 class="permission-title">Camera Access Required</h2>
+      <p class="permission-text">
+        MoveSpell uses your camera to track hand movements. No video is recorded
+        or uploaded - everything happens in your browser!
+      </p>
+      <button id="permission-btn" class="permission-btn">
+        Start Camera 🎮
+      </button>
+    </div>
+
+    <!-- Camera background (full-screen behind everything) -->
+    <video id="camera-video" playsinline autoplay muted></video>
+    
+    <!-- Dark overlay for camera background -->
+    <div class="camera-overlay"></div>
+
+    <!-- Main Game Container -->
+    <div id="game-container">
+      <!-- Camera preview (debug) -->
+      <video
+        id="camera-preview"
+        class="hidden"
+        playsinline
+        autoplay
+        muted
+      ></video>
+
+      <!-- Phaser canvas will be inserted here -->
+    </div>
+
+    <!-- Hand Cursor (CSS-based for smooth rendering) -->
+    <div id="hand-cursor" class="hidden"></div>
+
+    <!-- External Libraries (CDN) -->
+    <!-- MediaPipe Hands -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- Phaser 3 -->
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+
+    <!-- Core Modules -->
+    <script src="js/core/hand-tracker.js?v=202512282233"></script>
+    <script src="js/core/audio-manager.js?v=202512282233"></script>
+
+    <!-- Game Modules -->
+    <script src="js/game/spawner.js?v=202512282233"></script>
+    <script src="js/game/scene-setup.js?v=202512282233"></script>
+    <script src="js/game/scene-play.js?v=202512282233"></script>
+    <script src="js/game/scene-results.js?v=202512282233"></script>
+
+    <!-- Main Entry Point -->
+    <script src="js/main.js?v=202512282233"></script>
+  </body>
+</html>

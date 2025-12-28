@@ -1,0 +1,137 @@
+{
+"meta": {
+"title": "Primary English Vocabulary",
+"version": "1.0",
+"author": "MoveSpell Team"
+},
+"curriculum": [
+{
+"grade": "SGA",
+"label": "SGA",
+"units": [
+{
+"unit": "Grade 1 Spelling Bee",
+"label": "Spelling Bee",
+"words": ["about", "and", "animal", "answer", "around", "around", "bean", "because", "bedroom", "before", "boat", "brave", "broken", "but", "butterfly", "chart", "children", "clock", "column", "community", "completely", "count", "data", "date", "dessert", "digit", "down", "eat", "faster", "friend", "friendly", "helper", "home", "important", "inquire", "internet", "jumping", "letter", "life", "like", "listen", "look", "louder", "many", "measure", "month", "moon", "morning", "nighttime", "noun", "number", "our", "ourselves", "outfits", "outside", "painted", "peaceful", "people", "plant", "plus", "possible", "question", "rabbit", "replace", "said", "scream", "season", "sense", "smell", "snake", "some", "sound", "spring", "story", "subtraction", "sunny", "tally", "the", "their", "they", "think", "this", "thoughts", "thousand", "Thursday", "time", "title", "value", "vocabulary", "Wednesday", "what", "when", "where", "whisper", "why", "yesterday"] 
+},
+{"unit": "UOI",
+"label": "UOI",
+"words": ["think", "question", "why", "what", "find", "learn", "change", "feel", "share", "group",
+          "family", "friend", "home", "school", "community", "help", "care", "rule", "safe", "place",
+          "live", "grow", "water", "plant", "animal", "food", "weather", "season", "recycle", "earth"]},
+{"unit": "G1.3 Name",
+"label": "G1.3 Name",
+"words": ["Hilson", "Mavis", "Callalily", "Lina", "Alex", "Yolanda", "Miranda", "Jinny", "Nelly", "Franky", "Jacob",
+          "Owen", "Carter", "Sian", "Floyd", "Gina", "Doris", "Demo", "Jayden", "Lulu", "Adam", "Chester", "Sean", "Nick", "Jonathan", "Lulu", "Adam", "Chester"
+        ]}]
+},
+{
+"grade": "1",
+"label": "Grade 1",
+"units": [
+{
+"unit": "1",
+"label": "Unit 1: School Things",
+"words": ["BOOK", "RULER", "PENCIL", "SCHOOLBAG", "TEACHER"]
+},
+{
+"unit": "2",
+"label": "Unit 2: Body",
+"words": ["FACE", "EYE", "NOSE", "MOUTH", "EAR"]
+},
+{
+"unit": "3",
+"label": "Unit 3: Colors",
+"words": ["RED", "BLUE", "GREEN", "YELLOW", "BLACK", "WHITE"]
+},
+{
+"unit": "4",
+"label": "Unit 4: Animals",
+"words": ["FROG", "RABBIT", "BEE", "BIRD", "SHEEP", "HEN"]
+},
+{
+"unit": "5",
+"label": "Unit 5: Numbers",
+"words": ["ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN"]
+},
+{
+"unit": "6",
+"label": "Unit 6: Fruits",
+"words": ["APPLE", "BANANA", "ORANGE", "PEACH", "PEAR"]
+}
+]
+},
+{
+"grade": "2",
+"label": "Grade 2",
+"units": [
+{
+"unit": "1",
+"label": "Unit 1: Family",
+"words": ["FAMILY", "GRANDPA", "GRANDMA", "DAD", "MOM", "SISTER", "BROTHER"]
+},
+{
+"unit": "2",
+"label": "Unit 2: Friends",
+"words": ["FRIEND", "BOY", "GIRL", "WE", "PLAY"]
+},
+{
+"unit": "3",
+"label": "Unit 3: Park",
+"words": ["PARK", "TREE", "FLOWER", "GRASS", "LAKE"]
+},
+{
+"unit": "4",
+"label": "Unit 4: Streets",
+"words": ["STREET", "TRAFFIC LIGHT", "CAR", "BUS", "BIKE"]
+},
+{
+"unit": "5",
+"label": "Unit 5: Beijing",
+"words": ["BEIJING", "THE GREAT WALL", "THE FORBIDDEN CITY", "TIAN'ANMEN SQUARE"]
+},
+{
+"unit": "6",
+"label": "Unit 6: Festivals",
+"words": ["FESTIVAL", "SPRING FESTIVAL", "LANTERN", "GIFT", "CAKE"]
+}
+]
+},
+{
+"grade": "3",
+"label": "Grade 3",
+"units": [
+{
+"unit": "1",
+"label": "Unit 1: Myself",
+"words": ["NAME", "AGE", "BOY", "GIRL", "STUDENT"]
+},
+{
+"unit": "2",
+"label": "Unit 2: School Things",
+"words": ["PEN", "PENCIL", "ERASER", "CRAYON", "BAG", "BOOK", "RULER", "PENCIL BOX"]
+},
+{
+"unit": "3",
+"label": "Unit 3: Colors",
+"words": ["RED", "BLUE", "GREEN", "YELLOW", "BLACK", "WHITE", "ORANGE", "PINK", "PURPLE", "BROWN"]
+},
+{
+"unit": "4",
+"label": "Unit 4: Food",
+"words": ["BREAD", "JUICE", "MILK", "EGG", "RICE", "NOODLES"]
+},
+{
+"unit": "5",
+"label": "Unit 5: Pets",
+"words": ["CAT", "DOG", "FISH", "BIRD", "RABBIT", "PET"]
+},
+{
+"unit": "6",
+"label": "Unit 6: Clothes",
+"words": ["DRESS", "SKIRT", "SHIRT", "T-SHIRT", "PANTS", "SHOES", "HAT"]
+}
+]
+}
+]
+}

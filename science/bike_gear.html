@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>单车齿轮实验室：点一下转一圈</title>
+    <style>
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background-color: #fce4ec; /* 柔和粉背景 */
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            user-select: none; /* 防止双击选中文本 */
+        }
+
+        h2 { color: #880e4f; margin: 10px 0; }
+
+        #lab-bench {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            padding: 15px;
+            width: 95%;
+            max-width: 800px;
+            position: relative;
+        }
+
+        canvas {
+            background: linear-gradient(to bottom, #e1f5fe 60%, #a5d6a7 60%);
+            border-radius: 10px;
+            border: 3px solid #0277bd;
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* 仪表盘 */
+        .dashboard {
+            display: flex;
+            justify-content: space-around;
+            background: #fff9c4;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 2px dashed #fbc02d;
+        }
+        .stat-item { font-size: 18px; color: #555; }
+        .big-num { font-size: 24px; font-weight: bold; color: #d32f2f; }
+        
+        /* 核心控制区 */
+        .action-area {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+            align-items: center;
+        }
+
+        .btn-pedal {
+            background-color: #43a047;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #2e7d32;
+            transition: transform 0.1s;
+            font-weight: bold;
+        }
+        .btn-pedal:active { transform: translateY(5px); box-shadow: none; }
+        .btn-pedal:disabled { background-color: #ccc; box-shadow: none; cursor: not-allowed; }
+
+        .btn-reset {
+            background-color: #ff5722;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 3px 0 #bf360c;
+        }
+        .btn-reset:active { transform: translateY(3px); box-shadow: none; }
+
+        /* 档位选择区 */
+        .gear-selector {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding: 0 10px;
+        }
+        .gear-box {
+            background: #f5f5f5;
+            padding: 8px;
+            border-radius: 8px;
+            width: 45%;
+        }
+        .gear-btn {
+            width: 30px;
+            height: 30px;
+            margin: 2px;
+            border-radius: 50%;
+            border: 1px solid #999;
+            cursor: pointer;
+            background: #eee;
+        }
+        .gear-btn.active { transform: scale(1.2); font-weight: bold; color: white; border: none; }
+        .left-active { background: #d32f2f; }
+        .right-active { background: #1976d2; }
+
+    </style>
+</head>
+<body>
+
+    <h2>⚙️ 单车齿轮实验室</h2>
+
+    <div id="lab-bench">
+        
+        <div class="dashboard">
+            <div class="stat-item">踏板: <span id="pedal-disp" class="big-num">0</span> 圈</div>
+            <div class="stat-item">后轮: <span id="wheel-disp" class="big-num">0.0</span> 圈</div>
+            <div class="stat-item">倍数: <span id="ratio-disp" class="big-num">1.0</span> 倍</div>
+        </div>
+
+        <canvas id="bikeCanvas" width="600" height="280"></canvas>
+
+        <div class="gear-selector">
+            <div class="gear-box">
+                <div>前齿轮 (左手)</div>
+                <div id="front-btns"></div>
+            </div>
+            <div class="gear-box">
+                <div>后齿轮 (右手)</div>
+                <div id="rear-btns"></div>
+            </div>
+        </div>
+
+        <div class="action-area">
+            <button class="btn-reset" onclick="resetCounts()">🔄 归零</button>
+            <button id="pedalBtn" class="btn-pedal" onclick="startOneLap()">🦶 用力踩一圈！</button>
+        </div>
+
+    </div>
+
+<script>
+    const canvas = document.getElementById('bikeCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // === 配置 ===
+    const frontGears = [
+        { id: 1, radius: 25 }, { id: 2, radius: 40 }, { id: 3, radius: 55 }
+    ];
+    const rearGears = [
+        { id: 1, radius: 45 }, { id: 2, radius: 40 }, { id: 3, radius: 35 },
+        { id: 4, radius: 30 }, { id: 5, radius: 25 }, { id: 6, radius: 20 }, { id: 7, radius: 15 }
+    ];
+
+    // 位置
+    const posFront = { x: 180, y: 180 };
+    const posRear = { x: 480, y: 180 };
+
+    // === 状态变量 ===
+    let curFrontIdx = 1; // 默认2档
+    let curRearIdx = 3;  // 默认4档
+    
+    // 角度 (弧度制)
+    let pedalAngle = 0; 
+    let wheelAngle = 0;
+
+    // 动画控制
+    let targetPedalAngle = 0; // 目标角度
+    let isAnimating = false;
+    let animationSpeed = 0.08; // 转动速度
+
+    // 初始化界面
+    function init() {
+        createButtons();
+        updateRatio();
+        draw();
+    }
+
+    function createButtons() {
+        const fDiv = document.getElementById('front-btns');
+        frontGears.forEach((g, i) => {
+            let b = document.createElement('button');
+            b.innerText = g.id;
+            b.className = `gear-btn ${i===curFrontIdx?'active left-active':''}`;
+            b.onclick = () => { if(!isAnimating) { curFrontIdx=i; updateUI(); } };
+            fDiv.appendChild(b);
+        });
+
+        const rDiv = document.getElementById('rear-btns');
+        rearGears.forEach((g, i) => {
+            let b = document.createElement('button');
+            b.innerText = g.id;
+            b.className = `gear-btn ${i===curRearIdx?'active right-active':''}`;
+            b.onclick = () => { if(!isAnimating) { curRearIdx=i; updateUI(); } };
+            rDiv.appendChild(b);
+        });
+    }
+
+    function updateUI() {
+        // 更新按钮样式
+        const fBtns = document.getElementById('front-btns').children;
+        for(let i=0; i<fBtns.length; i++) fBtns[i].className = `gear-btn ${i===curFrontIdx?'active left-active':''}`;
+        
+        const rBtns = document.getElementById('rear-btns').children;
+        for(let i=0; i<rBtns.length; i++) rBtns[i].className = `gear-btn ${i===curRearIdx?'active right-active':''}`;
+
+        updateRatio();
+        draw(); // 立即重绘以显示齿轮大小变化
+    }
+
+    function updateRatio() {
+        const ratio = frontGears[curFrontIdx].radius / rearGears[curRearIdx].radius;
+        document.getElementById('ratio-disp').innerText = ratio.toFixed(1);
+    }
+
+    // === 核心功能：踩一圈 ===
+    function startOneLap() {
+        if (isAnimating) return;
+        
+        // 设定目标：当前角度 + 2PI (360度)
+        targetPedalAngle = pedalAngle + (Math.PI * 2);
+        isAnimating = true;
+        
+        // 禁用按钮防止重复点击
+        document.getElementById('pedalBtn').disabled = true;
+        document.getElementById('pedalBtn').innerText = "转动中...";
+
+        animate();
+    }
+
+    function resetCounts() {
+        if (isAnimating) return;
+        pedalAngle = 0;
+        wheelAngle = 0;
+        targetPedalAngle = 0;
+        document.getElementById('pedal-disp').innerText = "0";
+        document.getElementById('wheel-disp').innerText = "0.0";
+        draw();
+    }
+
+    function animate() {
+        if (!isAnimating) return;
+
+        // 1. 计算这一帧的增量
+        // 如果剩下的距离小于速度，就直接到位
+        if (targetPedalAngle - pedalAngle < animationSpeed) {
+            const remaining = targetPedalAngle - pedalAngle;
+            pedalAngle = targetPedalAngle;
+            
+            // 核心物理公式：后轮增量 = 踏板增量 * 齿轮比
+            const ratio = frontGears[curFrontIdx].radius / rearGears[curRearIdx].radius;
+            wheelAngle += remaining * ratio;
+
+            isAnimating = false; // 结束动画
+            document.getElementById('pedalBtn').disabled = false;
+            document.getElementById('pedalBtn').innerText = "🦶 用力踩一圈！";
+        } else {
+            pedalAngle += animationSpeed;
+            const ratio = frontGears[curFrontIdx].radius / rearGears[curRearIdx].radius;
+            wheelAngle += animationSpeed * ratio;
+            requestAnimationFrame(animate);
+        }
+
+        updateDisplayNumbers();
+        draw();
+    }
+
+    function updateDisplayNumbers() {
+        // 将弧度转换为圈数
+        const pLaps = Math.round(pedalAngle / (Math.PI * 2)); // 踏板取整，因为我们是一圈圈踩的
+        const wLaps = (wheelAngle / (Math.PI * 2)).toFixed(1); // 后轮保留一位小数
+        
+        document.getElementById('pedal-disp').innerText = pLaps;
+        document.getElementById('wheel-disp').innerText = wLaps;
+    }
+
+    // === 绘图逻辑 ===
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // 1. 画背景路面
+        ctx.fillStyle = "#81c784";
+        ctx.fillRect(0, 220, 600, 60); // 草地
+        ctx.fillStyle = "#795548";
+        ctx.fillRect(0, 220, 600, 10); // 路基
+
+        // 2. 画车架连接
+        ctx.beginPath();
+        ctx.strokeStyle = "#555";
+        ctx.lineWidth = 8;
+        ctx.moveTo(posFront.x, posFront.y);
+        ctx.lineTo(posRear.x, posRear.y);
+        ctx.moveTo(posFront.x, posFront.y);
+        ctx.lineTo(posFront.x - 20, posFront.y - 80);
+        ctx.stroke();
+
+        // 3. 画齿轮 & 链条
+        drawGearSet(posRear, rearGears, curRearIdx, "#1976d2");
+        drawGearSet(posFront, frontGears, curFrontIdx, "#d32f2f");
+        drawChain();
+
+        // 4. 画踏板 (带进度效果)
+        drawPedal();
+
+        // 5. 画后轮
+        drawRearWheel();
+    }
+
+    function drawGearSet(pos, gears, activeIdx, color) {
+        // 从大到小画，形成堆叠感
+        const sorted = [...gears].sort((a,b) => b.radius - a.radius);
+        
+        sorted.forEach(g => {
+            const isActive = (g.id === gears[activeIdx].id);
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, g.radius, 0, Math.PI * 2);
+            ctx.fillStyle = isActive ? color : "#cfd8dc";
+            ctx.fill();
+            ctx.strokeStyle = "#555";
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            
+            // 选中的齿轮加个高亮圈
+            if(isActive) {
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, g.radius - 4, 0, Math.PI*2);
+                ctx.strokeStyle = "rgba(255,255,255,0.6)";
+                ctx.stroke();
+            }
+        });
+    }
+
+    function drawChain() {
+        const r1 = frontGears[curFrontIdx].radius;
+        const r2 = rearGears[curRearIdx].radius;
+        
+        ctx.beginPath();
+        ctx.strokeStyle = "#333";
+        ctx.lineWidth = 3;
+        ctx.moveTo(posFront.x, posFront.y - r1);
+        ctx.lineTo(posRear.x, posRear.y - r2);
+        ctx.stroke();
+        
+        ctx.beginPath();
+        ctx.moveTo(posFront.x, posFront.y + r1);
+        ctx.lineTo(posRear.x, posRear.y + r2);
+        ctx.stroke();
+    }
+
+    function drawPedal() {
+        ctx.save();
+        ctx.translate(posFront.x, posFront.y);
+        
+        // --- 进度效果 ---
+        if (isAnimating) {
+            // 计算当前这一圈转了多少 (0 到 2PI)
+            const progress = pedalAngle % (Math.PI * 2); 
+            const r = frontGears[curFrontIdx].radius + 15; // 进度条画在齿轮外圈
+            
+            ctx.beginPath();
+            ctx.arc(0, 0, r, 0, progress, false); // 画弧
+            ctx.strokeStyle = "rgba(0, 200, 0, 0.7)";
+            ctx.lineWidth = 8;
+            ctx.lineCap = "round";
+            ctx.stroke();
+            
+            // 进度文字
+            // ctx.fillStyle = "#006400";
+            // ctx.font = "12px Arial";
+            // ctx.fillText("转动中...", -20, -r - 10);
+        }
+
+        ctx.rotate(pedalAngle);
+
+        // 曲柄
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(0, -60);
+        ctx.lineWidth = 8;
+        ctx.strokeStyle = "#333";
+        ctx.lineCap = "round";
+        ctx.stroke();
+
+        // 踏板
+        ctx.fillStyle = "black";
+        ctx.fillRect(-12, -70, 24, 12);
+        
+        // 脚的示意图 (鞋子)
+        ctx.fillStyle = "#ff9800";
+        ctx.beginPath();
+        ctx.ellipse(0, -70, 15, 8, 0, 0, Math.PI*2);
+        ctx.fill();
+
+        ctx.restore();
+    }
+
+    function drawRearWheel() {
+        ctx.save();
+        ctx.translate(posRear.x, posRear.y);
+        ctx.rotate(wheelAngle);
+
+        // 轮胎
+        ctx.beginPath();
+        ctx.arc(0, 0, 80, 0, Math.PI * 2);
+        ctx.strokeStyle = "#333";
+        ctx.lineWidth = 10;
+        ctx.stroke();
+
+        // 辐条 (画少一点方便看清旋转)
+        ctx.strokeStyle = "#aaa";
+        ctx.lineWidth = 2;
+        for(let i=0; i<4; i++) {
+            ctx.beginPath();
+            ctx.moveTo(0,0);
+            ctx.lineTo(80*Math.cos(i*Math.PI/2), 80*Math.sin(i*Math.PI/2));
+            ctx.stroke();
+        }
+
+        // --- 视觉标记点 (重要) ---
+        // 在轮胎边缘画一个明亮的小球
+        ctx.beginPath();
+        ctx.arc(0, -70, 10, 0, Math.PI * 2);
+        ctx.fillStyle = "#ffff00"; // 亮黄
+        ctx.fill();
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        ctx.restore();
+    }
+
+    // 启动
+    init();
+
+</script>
+</body>
+</html>
