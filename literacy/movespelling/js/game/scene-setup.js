@@ -30,6 +30,17 @@ class SetupScene extends Phaser.Scene {
   create() {
     const { width, height } = this.cameras.main;
     
+    // 重置所有状态（防止场景重用时状态混乱）
+    this.currentStep = 0;
+    this.selectedTheme = 'scifi';
+    this.selectedAccent = 'US';
+    this.selectedDifficulty = 'medium';
+    this.selectedGrade = null;
+    this.selectedUnit = null;
+    this.hoverTarget = null;
+    this.hoverStartTime = 0;
+    this.isProcessing = false; // 防止重复触发
+    
     // Background is now transparent to show camera feed
     // UI particles removed to keep view clean
     
@@ -634,6 +645,13 @@ class SetupScene extends Phaser.Scene {
    * Handle selection of a target
    */
   selectTarget(target) {
+    // 防止重复触发
+    if (this.isProcessing) {
+      console.log('[SetupScene] Already processing, ignoring duplicate selection');
+      return;
+    }
+    this.isProcessing = true;
+    
     const type = target.getData('type');
     const value = target.getData('value');
     
@@ -647,7 +665,10 @@ class SetupScene extends Phaser.Scene {
       case 'theme':
         this.selectedTheme = value;
         this.applyTheme(value);
-        this.time.delayedCall(500, () => this.showAccentSelection());
+        this.time.delayedCall(500, () => {
+          this.isProcessing = false;
+          this.showAccentSelection();
+        });
         break;
         
       case 'accent':
@@ -656,12 +677,18 @@ class SetupScene extends Phaser.Scene {
           audioManager.setAccent(value);
           audioManager.playTestSound();
         }
-        this.time.delayedCall(1000, () => this.showDifficultySelection());
+        this.time.delayedCall(1000, () => {
+          this.isProcessing = false;
+          this.showDifficultySelection();
+        });
         break;
         
       case 'difficulty':
         this.selectedDifficulty = value;
-        this.time.delayedCall(500, () => this.showContentSelection());
+        this.time.delayedCall(500, () => {
+          this.isProcessing = false;
+          this.showContentSelection();
+        });
         break;
         
       case 'content':
@@ -670,10 +697,14 @@ class SetupScene extends Phaser.Scene {
         
         if (selectType === 'grade') {
           this.selectedGrade = data;
-          this.time.delayedCall(300, () => this.showContentSelection()); // This calls clearContent() first
+          this.time.delayedCall(300, () => {
+            this.isProcessing = false;
+            this.showContentSelection(); // This calls clearContent() first
+          });
         } else if (selectType === 'unit') {
           this.selectedUnit = data;
           this.startGame();
+          // isProcessing 会在场景切换时自动重置
         }
         break;
     }
@@ -711,5 +742,24 @@ class SetupScene extends Phaser.Scene {
       
       // Could add progress ring here
     }
+  }
+  
+  /**
+   * Cleanup when scene shuts down
+   */
+  shutdown() {
+    console.log('[SetupScene] Shutting down, cleaning up event listeners');
+    
+    // 移除事件监听器
+    this.game.events.off('handUpdate', this.onHandUpdate, this);
+    this.game.events.off('handStateChange', this.onHandStateChange, this);
+    
+    // 清除所有延迟回调
+    this.time.removeAllEvents();
+    
+    // 重置状态
+    this.isProcessing = false;
+    this.hoverTarget = null;
+    this.hoverStartTime = 0;
   }
 }

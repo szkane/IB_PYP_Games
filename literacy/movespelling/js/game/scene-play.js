@@ -337,4 +337,22 @@ class PlayScene extends Phaser.Scene {
     this.cameras.main.fadeOut(500);
     this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start('ResultsScene'));
   }
+  
+  /**
+   * Cleanup when scene shuts down
+   */
+  shutdown() {
+    console.log('[PlayScene] Shutting down, cleaning up event listeners');
+    
+    // 移除事件监听器
+    this.game.events.off('handUpdate', this.onHandUpdate, this);
+    this.game.events.off('handStateChange', this.onHandStateChange, this);
+    
+    // 清除所有延迟回调
+    this.time.removeAllEvents();
+    
+    // 重置状态
+    this.grabbedOrb = null;
+    this.phase = 'idle';
+  }
 }

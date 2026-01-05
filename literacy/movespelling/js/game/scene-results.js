@@ -103,11 +103,12 @@ class ResultsScene extends Phaser.Scene {
     }).setOrigin(0.5);
     btn.add(btnText);
     
-    // Hover for gesture selection
+    // Hover for gesture selection - STORE REFERENCE
     let hoverStart = 0;
     const hoverDuration = 1500;
     
-    this.game.events.on('handUpdate', (data) => {
+    // Store the handler function reference for cleanup
+    this.buttonHoverHandler = (data) => {
       const { position } = data;
       const bounds = btnBg.getBounds();
       
@@ -124,7 +125,9 @@ class ResultsScene extends Phaser.Scene {
         hoverStart = 0;
         btn.setScale(1);
       }
-    });
+    };
+    
+    this.game.events.on('handUpdate', this.buttonHoverHandler);
     
     // Click also works
     btnBg.on('pointerdown', () => this.playAgain());
@@ -142,16 +145,19 @@ class ResultsScene extends Phaser.Scene {
     homeBtn.on('pointerover', () => homeBtn.setScale(1.1));
     homeBtn.on('pointerout', () => homeBtn.setScale(1));
     
-    // Hand cursor
+    // Hand cursor - STORE REFERENCE
     this.handCursor = this.add.circle(0, 0, 30, 0x00f3ff, 0.5);
     this.handCursor.setStrokeStyle(3, 0x00f3ff);
     this.handCursor.setVisible(false);
     this.handCursor.setDepth(100);
     
-    this.game.events.on('handUpdate', (data) => {
+    // Store the handler function reference for cleanup
+    this.cursorUpdateHandler = (data) => {
       this.handCursor.setPosition(data.position.x, data.position.y);
       this.handCursor.setVisible(data.state !== 'IDLE');
-    });
+    };
+    
+    this.game.events.on('handUpdate', this.cursorUpdateHandler);
     
     // Victory sound
     const audioManager = this.game.registry.get('audioManager');
@@ -175,5 +181,26 @@ class ResultsScene extends Phaser.Scene {
     this.cameras.main.once('camerafadeoutcomplete', () => {
       this.scene.start('SetupScene');
     });
+  }
+  
+  /**
+   * Cleanup when scene shuts down
+   */
+  shutdown() {
+    console.log('[ResultsScene] Shutting down, cleaning up event listeners');
+    
+    // Remove BOTH event listeners properly using their stored references
+    if (this.buttonHoverHandler) {
+      this.game.events.off('handUpdate', this.buttonHoverHandler);
+      this.buttonHoverHandler = null;
+    }
+    
+    if (this.cursorUpdateHandler) {
+      this.game.events.off('handUpdate', this.cursorUpdateHandler);
+      this.cursorUpdateHandler = null;
+    }
+    
+    // Clear all delayed callbacks
+    this.time.removeAllEvents();
   }
 }

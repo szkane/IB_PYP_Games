@@ -229,7 +229,7 @@ body {
 }
 
 /* ============================================
-   Camera Permission Request
+   Landing Page / Camera Permission Request
    ============================================ */
 
 #permission-overlay {
@@ -244,64 +244,159 @@ body {
   align-items: center;
   justify-content: center;
   z-index: 2000;
-  padding: var(--spacing-unit);
+  padding: clamp(20px, 5vw, 60px);
+  overflow-y: auto; /* Allow scrolling if content is too tall for viewport */
+  scroll-behavior: smooth;
 }
 
 #permission-overlay.hidden {
   display: none;
 }
 
-.permission-icon {
-  font-size: clamp(4rem, 15vw, 8rem);
+.landing-header {
+  text-align: center;
+  margin-bottom: clamp(2rem, 5vw, 4rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.landing-logo {
+  width: clamp(120px, 20vw, 280px);
+  height: auto;
   margin-bottom: 1.5rem;
-  animation: bounce 1s ease infinite;
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.15));
 }
 
-@keyframes bounce {
-  0%,
-  100% {
-    transform: translateY(0) scale(1);
-  }
-  50% {
-    transform: translateY(-15px) scale(1.05);
-  }
-}
-
-.permission-title {
-  font-size: clamp(1.8rem, 5vw, 3rem);
-  font-weight: 700;
-  margin-bottom: 1rem;
+.landing-title {
+  font-size: clamp(3rem, 10vw, 5.5rem);
+  font-weight: 800;
   color: var(--primary-color);
-  text-align: center;
+  text-shadow: 3px 3px 0 var(--secondary-color), 6px 6px 20px rgba(0, 0, 0, 0.1);
+  animation: wiggle 2s ease-in-out infinite;
+  margin-bottom: 0.5rem;
 }
 
-.permission-text {
-  font-size: clamp(1rem, 2.5vw, 1.3rem);
-  font-weight: 500;
+.landing-tagline {
+  font-size: clamp(1.2rem, 3vw, 2rem);
+  font-weight: 700;
   color: var(--text-muted);
+  letter-spacing: 0.2rem;
+  text-transform: uppercase;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  max-width: 1000px;
+  width: 100%;
+  margin-bottom: clamp(2rem, 5vw, 4rem);
+}
+
+.feature-card {
+  background: var(--card-bg);
+  border: 3px solid var(--card-border);
+  border-radius: 30px;
+  padding: clamp(20px, 3vw, 30px);
   text-align: center;
-  max-width: 500px;
-  margin-bottom: 2rem;
-  line-height: 1.5;
+  transition: all var(--transition-normal);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.feature-card:hover {
+  transform: translateY(-10px);
+  border-color: var(--secondary-color);
+  box-shadow: 0 15px 40px rgba(255, 152, 0, 0.2);
+}
+
+.feature-icon {
+  font-size: 3.5rem;
+  margin-bottom: 1rem;
+}
+
+.feature-card h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--primary-color);
+}
+
+.feature-card p {
+  font-size: 1rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.landing-action {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
 }
 
 .permission-btn {
-  padding: clamp(1rem, 3vw, 1.5rem) clamp(2rem, 6vw, 3.5rem);
-  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  padding: clamp(1.2rem, 3vw, 1.8rem) clamp(2.5rem, 6vw, 4.5rem);
+  font-size: clamp(1.4rem, 3vw, 2.2rem);
   font-family: var(--font-primary);
   font-weight: 700;
   color: white;
   background: linear-gradient(135deg, var(--secondary-color), #fb8c00);
   border: none;
-  border-radius: 50px;
+  border-radius: 60px;
   cursor: pointer;
   transition: all var(--transition-normal);
-  box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
+  box-shadow: 0 8px 25px rgba(255, 152, 0, 0.4);
 }
 
 .permission-btn:hover {
-  transform: scale(1.08) translateY(-3px);
-  box-shadow: 0 10px 30px rgba(255, 152, 0, 0.5);
+  transform: scale(1.05) translateY(-5px);
+  box-shadow: 0 15px 40px rgba(255, 152, 0, 0.5);
+}
+
+.privacy-warning {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #ef5350; /* Red color as requested */
+  max-width: 400px;
+  line-height: 1.4;
+}
+
+.landing-footer {
+  margin-top: auto;
+  padding-top: clamp(2rem, 4vw, 3rem);
+  text-align: center;
+  font-size: clamp(0.8rem, 2vw, 0.95rem);
+  color: var(--text-muted);
+}
+
+.footer-links {
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.footer-links a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 700;
+  transition: all var(--transition-fast);
+}
+
+.footer-links a:hover {
+  color: var(--secondary-color);
+  text-decoration: underline;
+}
+
+.footer-dot {
+  color: var(--text-muted);
+  opacity: 0.5;
 }
 
 .permission-btn:active {
@@ -774,6 +869,108 @@ body {
 
   #slot-container {
     bottom: 20%;
+  }
+
+  /* Compact landing for tablet landscape */
+  .landing-logo {
+    width: 150px;
+    margin-bottom: 1rem;
+  }
+  .landing-title {
+    display: none; /* Hide text title on iPad as requested */
+  }
+  .landing-header {
+    margin-bottom: 1.5rem;
+  }
+  .features-grid {
+    margin-bottom: 1.5rem;
+    gap: 15px;
+  }
+  .feature-card {
+    padding: 15px;
+  }
+  .feature-icon {
+    font-size: 2.5rem;
+  }
+}
+
+/* Tablet / iPad Portrait & Small Desktop */
+@media (max-width: 1024px) {
+  .landing-logo {
+    width: clamp(100px, 15vw, 200px);
+    margin-bottom: 1rem;
+  }
+
+  .landing-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .features-grid {
+    gap: 12px;
+    margin-bottom: 2rem;
+  }
+
+  .feature-card {
+    padding: 15px;
+  }
+
+  .feature-icon {
+    font-size: 2.5rem;
+  }
+
+  .feature-card h3 {
+    font-size: 1.2rem;
+  }
+
+  .feature-card p {
+    font-size: 0.9rem;
+  }
+  
+  .landing-title {
+    display: none; /* Hide text title on iPad as requested */
+  }
+}
+
+/* Mobile adjustments for landing page */
+@media (max-width: 768px) {
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 1.5rem;
+  }
+
+  .landing-title {
+    display: none; /* Hide text title on mobile as requested */
+  }
+
+  .landing-logo {
+    width: 120px;
+    margin-bottom: 0.5rem;
+  }
+
+  .feature-card {
+    padding: 12px 20px;
+    flex-direction: row;
+    text-align: left;
+    gap: 15px;
+  }
+
+  .feature-icon {
+    font-size: 2rem;
+    margin-bottom: 0;
+  }
+
+  .feature-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0;
+  }
+
+  .feature-card p {
+    font-size: 0.85rem;
+  }
+
+  .landing-footer {
+    padding-top: 1.5rem;
   }
 }
 

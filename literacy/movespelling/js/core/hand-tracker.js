@@ -13,6 +13,7 @@ class HandTracker {
 
     // Hand state
     this.isTracking = false;
+    this.isProcessing = false; // 防止 MediaPipe 请求堆积
     this.currentState = "IDLE"; // 'IDLE' | 'OPEN' | 'FIST'
     this.previousState = "IDLE";
     this.stateChangeTime = 0;
@@ -27,6 +28,16 @@ class HandTracker {
     this.FIST_THRESHOLD = 0.08;
     this.OPEN_THRESHOLD = 0.15;
     this.STATE_DEBOUNCE_MS = 100;
+
+    // Frame rate limiting (方案二增强)
+    this.targetFPS = 30; // 降低到 30fps 减少负担
+    this.frameInterval = 1000 / this.targetFPS;
+    this.lastFrameTime = 0;
+    this.consecutiveErrors = 0;
+    this.MAX_CONSECUTIVE_ERRORS = 5;
+
+    // Animation frame tracking for proper cleanup
+    this.animationFrameId = null;
 
     // Callbacks
     this.onHandUpdate = null;
@@ -143,27 +154,97 @@ class HandTracker {
    * Stop tracking and release camera
    */
   stop() {
+    console.log("[HandTracker] Stopping tracking...");
     this.isTracking = false;
 
+    // Cancel any pending animation frame to prevent memory leak
+    if (this.animationFrameId !== null) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+      console.log("[HandTracker] Cancelled animation frame");
+    }
+
+    // Reset processing state
+    this.isProcessing = false;
+    this.consecutiveErrors = 0;
+
+    // Stop camera tracks
     if (this.videoElement && this.videoElement.srcObject) {
       const tracks = this.videoElement.srcObject.getTracks();
       tracks.forEach((track) => track.stop());
+      this.videoElement.srcObject = null;
     }
 
-    console.log("[HandTracker] Tracking stopped");
+    // Clean up MediaPipe resources
+    if (this.hands) {
+      try {
+        this.hands.close();
+        console.log("[HandTracker] MediaPipe Hands closed");
+      } catch (error) {
+        console.warn("[HandTracker] Error closing MediaPipe:", error);
+      }
+    }
+
+    console.log("[HandTracker] Tracking stopped and resources released");
   }
 
   /**
    * Main tracking loop
    */
   async trackLoop() {
-    if (!this.isTracking) return;
-
-    if (this.videoElement.readyState >= 2) {
-      await this.hands.send({ image: this.videoElement });
+    // Critical: Check if still tracking at the start
+    if (!this.isTracking) {
+      console.log("[HandTracker] Track loop stopped");
+      this.animationFrameId = null;
+      return;
     }
 
-    requestAnimationFrame(() => this.trackLoop());
+    const now = performance.now();
+    const elapsed = now - this.lastFrameTime;
+
+    // 帧率限制：确保不超过目标 FPS
+    if (elapsed >= this.frameInterval) {
+      this.lastFrameTime = now;
+
+      // 防止请求堆积：只有在上一帧处理完成后才发送新帧
+      if (this.videoElement.readyState >= 2 && !this.isProcessing) {
+        this.isProcessing = true;
+        try {
+          await this.hands.send({ image: this.videoElement });
+          // 成功处理，重置错误计数
+          this.consecutiveErrors = 0;
+        } catch (error) {
+          this.consecutiveErrors++;
+          console.error(
+            `[HandTracker] Error processing frame (${this.consecutiveErrors}/${this.MAX_CONSECUTIVE_ERRORS}):`,
+            error
+          );
+
+          // 如果连续错误过多，尝试重置处理状态
+          if (this.consecutiveErrors >= this.MAX_CONSECUTIVE_ERRORS) {
+            console.warn(
+              "[HandTracker] Too many consecutive errors, resetting processing state"
+            );
+            this.isProcessing = false;
+            this.consecutiveErrors = 0;
+            // 可选：触发回调通知外部系统
+            if (this.onHandUpdate) {
+              this.onHandUpdate({
+                detected: false,
+                state: "ERROR",
+                position: this.handPosition,
+              });
+            }
+          }
+        } finally {
+          // Always reset processing flag
+          this.isProcessing = false;
+        }
+      }
+    }
+
+    // Store the animation frame ID for proper cleanup
+    this.animationFrameId = requestAnimationFrame(() => this.trackLoop());
   }
 
   /**

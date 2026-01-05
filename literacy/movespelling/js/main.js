@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       loadingScreen.querySelector('.loading-text').textContent = 'Loading vocabulary...';
       
       try {
-        const response = await fetch('assets/data/words.json');
+        const response = await fetch('assets/data/words.json?v=202601051232');
         const wordData = await response.json();
         
         // Start game
