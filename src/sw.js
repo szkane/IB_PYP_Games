@@ -5,8 +5,10 @@ const urlsToCache = [
     '/manifest.json',
     '/icon-192.png',
     '/icon-512.png',
-    '/literacy/spelling_bee.html',
+    '/Chinese/pinyin_training.html',
+    '/literacy/movespelling/index.html',
     '/literacy/pronunciation.html',
+    '/literacy/spelling_bee.html',
     '/math/Kangaroo_Math.html',
     '/science/3D_camara_galaxy.html',
     '/science/3D_camara_galaxy2.html',
@@ -16,6 +18,7 @@ const urlsToCache = [
     '/science/3D_camera_blueball.html',
     '/science/3D_camera_dragonball.html',
     '/science/3D_camera_test.html',
+    '/science/bike_gear.html',
     '/science/solar_system.html'
 ];
 
