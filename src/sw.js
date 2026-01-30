@@ -10,6 +10,7 @@ const urlsToCache = [
     '/literacy/pronunciation.html',
     '/literacy/spelling_bee.html',
     '/math/Kangaroo_Math.html',
+    '/math/arithmetic.html',
     '/science/3D_camara_galaxy.html',
     '/science/3D_camara_galaxy2.html',
     '/science/3D_camara_milkyway.html',

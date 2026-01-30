@@ -1,0 +1,857 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Arithmetic Worksheet Generator - Free Printable Math Practice</title>
+    <meta
+      name="description"
+      content="Generate free, customizable, and printable arithmetic worksheets for children. Options for addition, subtraction, mixed problems, difficulty levels, and various formats."
+    />
+    <meta
+      name="keywords"
+      content="math worksheet generator, arithmetic practice, printable math worksheets, addition worksheets, subtraction worksheets, kids math, education tool"
+    />
+    <meta name="author" content="IB PYP Games" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:title"
+      content="Arithmetic Worksheet Generator - Free Printable Math Practice"
+    />
+    <meta
+      property="og:description"
+      content="Generate free, customizable, and printable arithmetic worksheets for children. Perfect for teachers and parents."
+    />
+    <meta
+      property="og:image"
+      content="https://ib-pyp-games.pages.dev/assets/math-preview.png"
+    />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta
+      property="twitter:title"
+      content="Arithmetic Worksheet Generator - Free Printable Math Practice"
+    />
+    <meta
+      property="twitter:description"
+      content="Generate free, customizable, and printable arithmetic worksheets for children. Perfect for teachers and parents."
+    />
+
+    <!-- Distinctive fonts: Fredoka for playful display, Nunito for body -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        /* Playful candy color palette */
+        --candy-pink: #ff6b9d;
+        --candy-orange: #ff9f43;
+        --candy-yellow: #feca57;
+        --candy-green: #1dd1a1;
+        --candy-blue: #54a0ff;
+        --candy-purple: #a55eea;
+        --dark-text: #2d3436;
+        --light-bg: #ffeef4;
+        --white: #ffffff;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Nunito", sans-serif;
+        background: var(--light-bg);
+        background-image:
+          radial-gradient(
+            circle at 10% 20%,
+            rgba(255, 107, 157, 0.15) 0%,
+            transparent 30%
+          ),
+          radial-gradient(
+            circle at 90% 80%,
+            rgba(84, 160, 255, 0.15) 0%,
+            transparent 30%
+          ),
+          radial-gradient(
+            circle at 50% 50%,
+            rgba(254, 202, 87, 0.1) 0%,
+            transparent 50%
+          );
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      /* Settings Panel - Playful Card */
+      .settings-panel {
+        background: var(--white);
+        border-radius: 32px;
+        padding: 35px;
+        margin-bottom: 25px;
+        box-shadow:
+          0 10px 40px rgba(255, 107, 157, 0.15),
+          0 0 0 4px rgba(255, 159, 67, 0.1);
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* Decorative floating shapes */
+      .settings-panel::before {
+        content: "➕➖🔢";
+        position: absolute;
+        top: 15px;
+        right: 25px;
+        font-size: 24px;
+        opacity: 0.6;
+        animation: float 3s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-8px);
+        }
+      }
+
+      .settings-title {
+        font-family: "Fredoka", sans-serif;
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--dark-text);
+        margin-bottom: 30px;
+        text-align: center;
+        position: relative;
+      }
+
+      .settings-title::after {
+        content: "";
+        display: block;
+        width: 80px;
+        height: 4px;
+        background: linear-gradient(
+          90deg,
+          var(--candy-pink),
+          var(--candy-orange),
+          var(--candy-yellow)
+        );
+        border-radius: 2px;
+        margin: 12px auto 0;
+      }
+
+      .settings-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 25px;
+        margin-bottom: 25px;
+      }
+
+      .setting-group {
+        flex: 1;
+        min-width: 200px;
+      }
+
+      .setting-label {
+        font-family: "Fredoka", sans-serif;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--candy-purple);
+        margin-bottom: 12px;
+        display: block;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .setting-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .option-btn {
+        font-family: "Nunito", sans-serif;
+        padding: 12px 18px;
+        border: 3px solid #eee;
+        border-radius: 14px;
+        background: var(--white);
+        color: var(--dark-text);
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .option-btn:hover {
+        border-color: var(--candy-blue);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(84, 160, 255, 0.25);
+      }
+
+      .option-btn.active {
+        background: linear-gradient(
+          135deg,
+          var(--candy-pink),
+          var(--candy-orange)
+        );
+        border-color: transparent;
+        color: var(--white);
+        transform: scale(1.02);
+        box-shadow: 0 6px 25px rgba(255, 107, 157, 0.4);
+      }
+
+      /* Action Buttons */
+      .action-buttons {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+        margin-top: 30px;
+      }
+
+      .action-btn {
+        font-family: "Fredoka", sans-serif;
+        padding: 16px 44px;
+        border: none;
+        border-radius: 50px;
+        font-size: 17px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .btn-regen {
+        background: linear-gradient(
+          135deg,
+          var(--candy-blue),
+          var(--candy-purple)
+        );
+        color: var(--white);
+        box-shadow: 0 8px 30px rgba(84, 160, 255, 0.4);
+      }
+
+      .btn-regen:hover {
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 12px 40px rgba(84, 160, 255, 0.5);
+      }
+
+      .btn-regen:active {
+        transform: scale(0.98);
+      }
+
+      .btn-print {
+        background: linear-gradient(135deg, var(--candy-green), #0abf6b);
+        color: var(--white);
+        box-shadow: 0 8px 30px rgba(29, 209, 161, 0.4);
+      }
+
+      .btn-print:hover {
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 12px 40px rgba(29, 209, 161, 0.5);
+      }
+
+      .btn-print:active {
+        transform: scale(0.98);
+      }
+
+      /* Worksheet Area - A4 like container */
+      .worksheet {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        max-width: 920px; /* Narrower for screen display */
+        margin: 0 auto;
+      }
+
+      .worksheet-header {
+        text-align: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px dashed #e0e0e0;
+      }
+
+      .worksheet-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 10px;
+      }
+
+      .worksheet-info {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        font-size: 14px;
+        color: #777;
+      }
+
+      .info-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .info-line {
+        display: inline-block;
+        border-bottom: 1px solid #333;
+        min-width: 80px;
+      }
+
+      /* Problems Grid - 5 columns for A4 consistency */
+      .problems-grid {
+        display: grid;
+        gap: 20px 12px; /* row gap, column gap */
+      }
+
+      .problems-grid.calculation {
+        grid-template-columns: repeat(5, 1fr);
+      }
+
+      .problems-grid.fillin {
+        grid-template-columns: repeat(5, 1fr);
+      }
+
+      .problems-grid.vertical {
+        grid-template-columns: repeat(5, 1fr);
+      }
+
+      /* Problem Item - Calculation Format */
+      .problem-item {
+        font-size: 18px;
+        font-weight: 500;
+        color: #333;
+        padding: 15px 8px;
+        text-align: center;
+        border-radius: 8px;
+        background: #f8f9ff;
+      }
+
+      .problem-item .blank {
+        display: inline-block;
+        min-width: 40px;
+        margin: 2px;
+      }
+      .problem-item .blank::after {
+        content: "(   \00A0\00A0\00A0\00A0\00A0\00A0)";
+      }
+
+      /* Problem Item - Vertical Format */
+      .problem-vertical {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        padding: 15px;
+        background: #f8f9ff;
+        border-radius: 10px;
+        font-family: "Courier New", monospace;
+      }
+
+      .vertical-row {
+        font-size: 20px;
+        font-weight: 600;
+        color: #333;
+        min-width: 80px;
+        text-align: right;
+        padding: 3px 0;
+      }
+
+      .vertical-operator {
+        display: flex;
+        width: 100%;
+        align-items: center;
+      }
+
+      .vertical-operator .op {
+        font-size: 18px;
+        margin-right: 8px;
+      }
+
+      .vertical-operator .num {
+        flex: 1;
+        text-align: right;
+      }
+
+      .vertical-line {
+        width: 100%;
+        height: 2px;
+        background: #333;
+        margin: 5px 0;
+      }
+
+      .vertical-answer {
+        min-height: 28px;
+      }
+
+      /* Print Styles - matches screen layout */
+      @media print {
+        @page {
+          size: A4;
+          margin: 10mm;
+        }
+
+        body {
+          background: white;
+          padding: 0;
+          min-height: auto;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+
+        .settings-panel {
+          display: none !important;
+        }
+
+        .container {
+          max-width: 100%;
+          width: 100%;
+        }
+
+        .worksheet {
+          box-shadow: none;
+          padding: 0;
+          border-radius: 0;
+          max-width: 100%;
+          width: 100%;
+        }
+
+        .problems-grid {
+          display: grid !important;
+          width: 100% !important;
+          gap: 15px 8px !important; /* row gap, column gap */
+        }
+
+        .problems-grid.calculation,
+        .problems-grid.fillin,
+        .problems-grid.vertical {
+          grid-template-columns: repeat(5, 1fr) !important;
+        }
+
+        .problem-item {
+          background: none;
+          padding: 20px 2px;
+          font-size: 16px;
+          border: 1px dashed #ddd;
+          border-radius: 4px;
+        }
+
+        .problem-vertical {
+          background: none;
+          padding: 6px;
+          page-break-inside: avoid;
+        }
+
+        .vertical-row {
+          font-size: 16px;
+          min-width: 40px;
+        }
+
+        .vertical-operator .op {
+          font-size: 16px;
+        }
+
+        .vertical-line {
+          background: #000 !important;
+          height: 1px !important;
+          border-top: 1px solid #000;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .problems-grid.calculation,
+        .problems-grid.fillin {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .problems-grid.vertical {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+    </style>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Arithmetic Worksheet Generator",
+        "url": "https://ib-pyp-games.pages.dev/math/arithmetic.html",
+        "description": "A free tool to generate customizable and printable arithmetic worksheets foraddition, subtraction, and mixed math practice.",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "All"
+      }
+    </script>
+  </head>
+
+  <body>
+    <main class="container">
+      <!-- Settings Panel -->
+      <div class="settings-panel">
+        <h1 class="settings-title">📐 Arithmetic Worksheet Generator</h1>
+
+        <div class="settings-row">
+          <!-- Problem Type -->
+          <div class="setting-group">
+            <label class="setting-label">Problem Type</label>
+            <div class="setting-options" id="typeOptions">
+              <button class="option-btn active" data-value="add">
+                ➕ Addition
+              </button>
+              <button class="option-btn" data-value="sub">
+                ➖ Subtraction
+              </button>
+              <button class="option-btn" data-value="mixed">🔀 Mixed</button>
+            </div>
+          </div>
+
+          <!-- Range -->
+          <div class="setting-group">
+            <label class="setting-label">Number Range</label>
+            <div class="setting-options" id="rangeOptions">
+              <button class="option-btn" data-value="10">10</button>
+              <button class="option-btn" data-value="20">20</button>
+              <button class="option-btn" data-value="50">50</button>
+              <button class="option-btn active" data-value="100">100</button>
+              <button class="option-btn" data-value="200">200</button>
+              <button class="option-btn" data-value="500">500</button>
+              <button class="option-btn" data-value="1000">1000</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <!-- Format -->
+          <div class="setting-group">
+            <label class="setting-label">Format</label>
+            <div class="setting-options" id="formatOptions">
+              <button class="option-btn active" data-value="vertical">
+                🔢 Vertical
+              </button>
+              <button class="option-btn" data-value="calculation">
+                📝 Calculation
+              </button>
+              <button class="option-btn" data-value="fillin">
+                ✏️ Fill-in-blank
+              </button>
+            </div>
+          </div>
+
+          <!-- Difficulty -->
+          <div class="setting-group">
+            <label class="setting-label">Difficulty</label>
+            <div class="setting-options" id="difficultyOptions">
+              <button class="option-btn" data-value="easy">🟢 Easy</button>
+              <button class="option-btn active" data-value="medium">
+                🟡 Medium
+              </button>
+              <button class="option-btn" data-value="hard">🔴 Hard</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <button class="action-btn btn-regen" onclick="generateProblems()">
+            🔄 Regen
+          </button>
+          <button class="action-btn btn-print" onclick="window.print()">
+            🖨️ Print
+          </button>
+        </div>
+        <p
+          style="
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+            margin-top: 15px;
+          "
+        >
+          💡 Tip: In print dialog, uncheck "Headers and footers" to remove
+          date/URL from printout
+        </p>
+      </div>
+
+      <!-- Worksheet -->
+      <div class="worksheet">
+        <div class="worksheet-header">
+          <h2 class="worksheet-title" id="worksheetTitle">Addition Practice</h2>
+          <div class="worksheet-info">
+            <div class="info-item">Name: ______________</div>
+            <div class="info-item">Date: ______________</div>
+            <div class="info-item">Score: ______________</div>
+            <div class="info-item">&copy; 2026 IB PYP Games @szkane</div>
+          </div>
+        </div>
+
+        <div class="problems-grid calculation" id="problemsGrid">
+          <!-- Problems will be generated here -->
+        </div>
+      </div>
+    </main>
+
+    <script>
+      // Settings state
+      let settings = {
+        type: "add",
+        range: 100,
+        format: "vertical",
+        difficulty: "medium",
+      };
+
+      // Initialize option buttons
+      function initOptionButtons() {
+        document
+          .querySelectorAll(".setting-options")
+          .forEach((optionsGroup) => {
+            optionsGroup.querySelectorAll(".option-btn").forEach((btn) => {
+              btn.addEventListener("click", () => {
+                // Remove active from siblings
+                optionsGroup
+                  .querySelectorAll(".option-btn")
+                  .forEach((b) => b.classList.remove("active"));
+                // Add active to clicked
+                btn.classList.add("active");
+                // Update settings
+                const value = btn.dataset.value;
+                if (optionsGroup.id === "typeOptions") settings.type = value;
+                if (optionsGroup.id === "rangeOptions")
+                  settings.range = parseInt(value);
+                if (optionsGroup.id === "formatOptions")
+                  settings.format = value;
+                if (optionsGroup.id === "difficultyOptions")
+                  settings.difficulty = value;
+                // Regenerate
+                generateProblems();
+              });
+            });
+          });
+      }
+
+      // Generate random number within range
+      function randomNum(max) {
+        return Math.floor(Math.random() * max) + 1;
+      }
+
+      // Generate a single problem based on difficulty
+      function generateProblem() {
+        const { type, range, difficulty } = settings;
+        let a, b, operator, result;
+
+        // Determine operator
+        if (type === "add") {
+          operator = "+";
+        } else if (type === "sub") {
+          operator = "-";
+        } else {
+          operator = Math.random() < 0.5 ? "+" : "-";
+        }
+
+        if (operator === "+") {
+          // Addition based on difficulty
+          if (difficulty === "easy") {
+            // Easy: no carrying (e.g., 23 + 14, ones digits sum < 10)
+            a = generateEasyAdditionNumber(range);
+            b = generateEasyAdditionPair(a, range);
+          } else if (difficulty === "hard") {
+            // Hard: requires carrying (e.g., 28 + 15, ones digits sum >= 10)
+            [a, b] = generateHardAdditionPair(range);
+          } else {
+            // Medium: random
+            a = randomNum(range - 1);
+            b = randomNum(range - a);
+          }
+          result = a + b;
+        } else {
+          // Subtraction based on difficulty
+          if (difficulty === "easy") {
+            // Easy: no borrowing (e.g., 38 - 14, ones digit of a >= b)
+            [a, b] = generateEasySubtractionPair(range);
+          } else if (difficulty === "hard") {
+            // Hard: requires borrowing (e.g., 43 - 19, ones digit of a < b)
+            [a, b] = generateHardSubtractionPair(range);
+          } else {
+            // Medium: random
+            a = randomNum(range);
+            b = randomNum(a);
+          }
+          result = a - b;
+        }
+
+        return { a, b, operator, result };
+      }
+
+      // Helper: Generate easy addition number
+      function generateEasyAdditionNumber(range) {
+        return randomNum(Math.min(range - 1, range));
+      }
+
+      // Helper: Generate easy addition pair (no carrying)
+      function generateEasyAdditionPair(a, range) {
+        const aOnes = a % 10;
+        const maxBOnes = 9 - aOnes; // Ones that don't cause carry
+        const maxB = range - a;
+        if (maxB <= 0) return 1;
+
+        // Try to find b where ones don't carry
+        let b;
+        for (let i = 0; i < 10; i++) {
+          b = randomNum(maxB);
+          if ((a % 10) + (b % 10) < 10) return b;
+        }
+        return b;
+      }
+
+      // Helper: Generate hard addition pair (requires carrying)
+      function generateHardAdditionPair(range) {
+        let a, b;
+        for (let i = 0; i < 20; i++) {
+          a = randomNum(range - 10);
+          const aOnes = a % 10;
+          const minBOnes = aOnes < 9 ? 10 - aOnes : 1;
+          const maxB = range - a;
+          if (maxB <= minBOnes) continue;
+
+          // Generate b where ones sum >= 10
+          b = randomNum(maxB);
+          const bOnes = b % 10;
+          if (aOnes + bOnes >= 10) return [a, b];
+        }
+        // Fallback
+        return [randomNum(range - 1), randomNum(range - a)];
+      }
+
+      // Helper: Generate easy subtraction pair (no borrowing)
+      function generateEasySubtractionPair(range) {
+        let a, b;
+        for (let i = 0; i < 20; i++) {
+          a = randomNum(range);
+          b = randomNum(a);
+          const aOnes = a % 10;
+          const bOnes = b % 10;
+          // No borrowing: ones digit of a >= ones digit of b
+          if (aOnes >= bOnes) return [a, b];
+        }
+        return [a, b];
+      }
+
+      // Helper: Generate hard subtraction pair (requires borrowing)
+      function generateHardSubtractionPair(range) {
+        let a, b;
+        for (let i = 0; i < 20; i++) {
+          a = 10 + randomNum(range - 10); // At least 10 to allow borrowing
+          b = randomNum(a - 1);
+          const aOnes = a % 10;
+          const bOnes = b % 10;
+          // Requires borrowing: ones digit of a < ones digit of b
+          if (aOnes < bOnes && b > 0) return [a, b];
+        }
+        // Fallback: force a borrowing scenario
+        a = 20 + randomNum(Math.min(range - 20, 80));
+        b = 10 + randomNum(9); // Something like 13-19
+        if (b < a) return [a, b];
+        return [a, Math.floor(a / 2)];
+      }
+
+      // Render calculation format
+      function renderCalculation(problem) {
+        return `<div class="problem-item">${problem.a} ${problem.operator} ${problem.b} = <span class="blank"></span></div>`;
+      }
+
+      // Render fill-in-blank format
+      function renderFillin(problem) {
+        const type = Math.floor(Math.random() * 3); // 0: missing a, 1: missing b, 2: missing result
+        switch (type) {
+          case 0:
+            return `<div class="problem-item"><span class="blank"></span> ${problem.operator} ${problem.b} = ${problem.result}</div>`;
+          case 1:
+            return `<div class="problem-item">${problem.a} ${problem.operator} <span class="blank"></span> = ${problem.result}</div>`;
+          default:
+            return `<div class="problem-item">${problem.a} ${problem.operator} ${problem.b} = <span class="blank"></span></div>`;
+        }
+      }
+
+      // Render vertical format
+      function renderVertical(problem) {
+        const maxLen = Math.max(
+          problem.a.toString().length,
+          problem.b.toString().length,
+          problem.result.toString().length,
+        );
+        return `
+        <div class="problem-vertical">
+          <div class="vertical-row">${problem.a}</div>
+          <div class="vertical-operator">
+            <span class="op">${problem.operator}</span>
+            <span class="num">${problem.b}</span>
+          </div>
+          <div class="vertical-line"></div>
+          <div class="vertical-row vertical-answer"></div>
+        </div>
+      `;
+      }
+
+      // Update worksheet title
+      function updateTitle() {
+        const titles = {
+          add: "Addition Practice",
+          sub: "Subtraction Practice",
+          mixed: "Mixed Addition & Subtraction",
+        };
+        document.getElementById("worksheetTitle").textContent =
+          titles[settings.type];
+      }
+
+      // Generate all problems
+      function generateProblems() {
+        const grid = document.getElementById("problemsGrid");
+        const { format } = settings;
+
+        // Determine number of problems based on format (multiples of 5 for clean rows)
+        let count = 50; // 10 rows of 5
+        if (format === "vertical") count = 40; // 8 rows of 5
+
+        // Update grid class
+        grid.className = `problems-grid ${format}`;
+
+        // Generate problems
+        let html = "";
+        for (let i = 0; i < count; i++) {
+          const problem = generateProblem();
+          if (format === "calculation") {
+            html += renderCalculation(problem);
+          } else if (format === "fillin") {
+            html += renderFillin(problem);
+          } else {
+            html += renderVertical(problem);
+          }
+        }
+
+        grid.innerHTML = html;
+        updateTitle();
+      }
+
+      // Initialize
+      document.addEventListener("DOMContentLoaded", () => {
+        initOptionButtons();
+        generateProblems();
+      });
+    </script>
+  </body>
+</html>
