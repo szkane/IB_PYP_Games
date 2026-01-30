@@ -501,34 +501,30 @@ ${sections}
 }
 
 /**
- * Update sw.js cache list
+ * Update sw.js cache version with build timestamp
+ * This ensures each deployment gets a fresh cache
  */
-function updateServiceWorker(pages) {
+function updateServiceWorker() {
   const swPath = resolve(srcDir, 'sw.js');
   let swContent = readFileSync(swPath, 'utf-8');
   
-  // Build new cache list
-  const cacheUrls = [
-    "'/'",
-    "'/index.html'",
-    "'/manifest.json'",
-    "'/icon-192.png'",
-    "'/icon-512.png'",
-    ...pages.map(p => `'/${p.path}'`)
-  ];
+  // Generate version from current timestamp (YYYYMMDDHHMMSS format)
+  const now = new Date();
+  const version = now.getFullYear().toString() +
+    String(now.getMonth() + 1).padStart(2, '0') +
+    String(now.getDate()).padStart(2, '0') +
+    String(now.getHours()).padStart(2, '0') +
+    String(now.getMinutes()).padStart(2, '0') +
+    String(now.getSeconds()).padStart(2, '0');
   
-  const newCacheArray = `const urlsToCache = [
-    ${cacheUrls.join(',\n    ')}
-];`;
-  
-  // Replace existing urlsToCache
+  // Update the CACHE_VERSION constant
   swContent = swContent.replace(
-    /const urlsToCache = \[[\s\S]*?\];/,
-    newCacheArray
+    /const CACHE_VERSION = '[^']*';/,
+    `const CACHE_VERSION = '${version}';`
   );
   
   writeFileSync(swPath, swContent);
-  console.log('Updated sw.js cache list');
+  console.log(`Updated sw.js cache version to: ${version}`);
 }
 
 // Main
@@ -541,7 +537,7 @@ const indexHtml = generateIndexHtml(pages);
 writeFileSync(resolve(srcDir, 'index.html'), indexHtml);
 console.log('Generated index.html');
 
-// Update sw.js
-updateServiceWorker(pages);
+// Update sw.js cache version
+updateServiceWorker();
 
 console.log('Done!');
