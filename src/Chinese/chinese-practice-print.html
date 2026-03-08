@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>中文练习打印 - Chinese Character Practice</title>
+  <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.19.0/dist/index.min.js"></script>
+  <style>
+    :root {
+      --bg-primary: #f5f5f5;
+      --bg-panel: #ffffff;
+      --border-color: #d9d9d9;
+      --text-primary: #262626;
+      --text-secondary: #595959;
+      --accent-color: #1890ff;
+      --grid-line-color: #4c5662;
+      --trace-color: #cbcfd6;
+      --character-color: #000000;
+      --cell-size: 12mm;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .control-panel {
+      width: 320px;
+      background: var(--bg-panel);
+      border-left: 1px solid var(--border-color);
+      padding: 20px;
+      overflow-y: auto;
+      flex-shrink: 0;
+      order: 2;
+    }
+
+    .control-panel h2 {
+      font-size: 18px;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--accent-color);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .control-group {
+      margin-bottom: 20px;
+    }
+
+    .control-group label {
+      display: block;
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .control-group textarea {
+      width: 100%;
+      min-height: 150px;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: 'KaiTi', '楷体', 'STKaiti', serif;
+      resize: vertical;
+      transition: border-color 0.3s;
+    }
+
+    .control-group textarea:focus {
+      outline: none;
+      border-color: var(--accent-color);
+    }
+
+    .radio-group, .checkbox-group {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .radio-group label, .checkbox-group label {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      font-size: 13px;
+      margin: 0;
+    }
+
+    .input-with-buttons {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .input-with-buttons input[type="number"] {
+      width: 70px;
+      padding: 6px 8px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      text-align: center;
+      font-size: 13px;
+    }
+
+    .input-with-buttons button {
+      width: 28px;
+      height: 28px;
+      border: 1px solid var(--border-color);
+      background: #fafafa;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .input-with-buttons button:hover {
+      background: var(--accent-color);
+      color: white;
+      border-color: var(--accent-color);
+    }
+
+    .color-picker {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .color-picker input[type="color"] {
+      width: 40px;
+      height: 32px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      cursor: pointer;
+      padding: 2px;
+    }
+
+    .color-picker span {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-family: monospace;
+    }
+
+    select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      font-size: 13px;
+      background: white;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 12px;
+      background: var(--accent-color);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.3s;
+      margin-top: 10px;
+    }
+
+    .btn-primary:hover {
+      background: #40a9ff;
+    }
+
+    .btn-secondary {
+      width: 100%;
+      padding: 10px;
+      background: white;
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 8px;
+    }
+
+    .btn-secondary:hover {
+      background: #fafafa;
+    }
+
+    .preview-area {
+      flex: 1;
+      padding: 30px;
+      overflow: auto;
+      background: #e8e8e8;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      order: 1;
+    }
+
+    .a4-paper {
+      background: white;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      width: 210mm;
+      height: 297mm;
+      padding: 10mm;
+      box-sizing: border-box;
+      position: relative;
+      flex-shrink: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .paper-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2mm;
+      font-size: 10px;
+      color: #666;
+      flex-shrink: 0;
+    }
+
+    .paper-header .field {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .paper-header .field-label {
+      font-weight: 500;
+    }
+
+    .paper-header .field-line {
+      display: inline-block;
+      width: 80px;
+      border-bottom: 1px solid #999;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: repeat(14, 1fr);
+      gap: 2mm;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .character-area {
+      grid-column: span 10;
+      display: flex;
+      flex-direction: column;
+      gap: 1mm;
+      overflow: hidden;
+    }
+
+    .word-group-area {
+      grid-column: span 4;
+      display: flex;
+      flex-direction: column;
+      gap: 1mm;
+      overflow: hidden;
+    }
+
+    .grid-row {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .pinyin-wrapper {
+      display: flex;
+      gap: 0.5mm;
+      margin-bottom: 0mm;
+    }
+    
+    .pinyin-cell {
+      width: var(--cell-size);
+      height: calc(var(--cell-size) * 0.6);
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .pinyin-lines {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 100%;
+    }
+
+    .pinyin-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      border-top: 0.5px dashed var(--grid-line-color);
+    }
+
+    .pinyin-line:nth-child(1) { top: 0; }
+    .pinyin-line:nth-child(2) { top: 33.33%; }
+    .pinyin-line:nth-child(3) { top: 66.67%; }
+    .pinyin-line:nth-child(4) { top: 100%; }
+
+    .pinyin-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: calc(var(--cell-size) * 0.35);
+      color: var(--text-secondary);
+      white-space: nowrap;
+      font-family: Arial, sans-serif;
+      line-height: 1;
+      z-index: 10;
+    }
+
+    .grid-cell {
+      width: var(--cell-size);
+      height: var(--cell-size);
+      position: relative;
+      border: 1px solid var(--grid-line-color);
+      background: white;
+      flex-shrink: 0;
+    }
+
+    .tianzige::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 0.5px;
+      background: var(--grid-line-color);
+      transform: translateY(-50%);
+      opacity: 0.5;
+      border-top: 0.5px dashed var(--grid-line-color);
+    }
+
+    .tianzige::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 0.5px;
+      background: var(--grid-line-color);
+      transform: translateX(-50%);
+      opacity: 0.5;
+      border-left: 0.5px dashed var(--grid-line-color);
+    }
+
+    .mizige .diagonal-1,
+    .mizige .diagonal-2 {
+      display: block;
+      position: absolute;
+      background: var(--grid-line-color);
+      opacity: 0.3;
+    }
+
+    .diagonal-1 {
+      width: 0.5px;
+      height: 141%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(45deg);
+      transform-origin: center;
+    }
+
+    .diagonal-2 {
+      width: 0.5px;
+      height: 141%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-45deg);
+      transform-origin: center;
+    }
+
+    .character {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: calc(var(--cell-size) * 0.7);
+      font-family: 'KaiTi', '楷体', 'STKaiti', serif;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .character.trace {
+      color: var(--trace-color);
+    }
+
+    @media print {
+      body { background: white; }
+      .control-panel { display: none; }
+      .preview-area { padding: 0; margin: 0; background: white; display: block; }
+      .a4-paper { box-shadow: none; padding: 10mm; width: 210mm; height: 297mm; margin: 0; page-break-after: always; }
+      @page { size: A4; margin: 0; }
+    }
+
+    @media (max-width: 1200px) {
+      .container { flex-direction: column-reverse; }
+      .control-panel { width: 100%; border-left: none; border-top: 1px solid var(--border-color); }
+      .a4-paper { width: 100%; height: auto; aspect-ratio: 210/297; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="preview-area">
+      <div class="a4-paper">
+        <div class="paper-header">
+          <div class="field">
+            <span class="field-label">姓名：</span>
+            <span class="field-line"></span>
+          </div>
+          <div class="field">
+            <span class="field-label">时间：</span>
+            <span class="field-line"></span>
+          </div>
+        </div>
+        <div class="main-grid">
+          <div class="character-area" id="characterArea"></div>
+          <div class="word-group-area" id="wordGroupArea"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="control-panel">
+      <h2>⚙️ 配置</h2>
+
+      <div class="control-group">
+        <label>生字 (每行一个新字)</label>
+        <textarea id="characterInput" placeholder="每行输入一个新字，系统会自动描红...">河
+眼
+睛
+晴
+保
+护
+苗
+吃
+事
+情
+请
+让
+清</textarea>
+        <small style="color: #666; font-size: 11px; display: block; margin-top: 4px;">每行一个字，自动显示描红效果</small>
+      </div>
+
+      <div class="control-group">
+        <label>描红数量 (每个生字后的描红个数)</label>
+        <div class="input-with-buttons">
+          <button onclick="adjustValue('traceCount', -1)">−</button>
+          <input type="number" id="traceCount" value="2" min="1" max="9" step="1">
+          <button onclick="adjustValue('traceCount', 1)">+</button>
+        </div>
+        <small style="color: #666; font-size: 11px; display: block; margin-top: 4px;">第 1 个字是生字 (黑色)，后面跟描红 (灰色)</small>
+      </div>
+
+      <div class="control-group">
+        <label>组词 (每行对应上方生字)</label>
+        <textarea id="wordGroupInput" placeholder="输入组词，每行对应上方生字...">河水
+眼睛
+睛光
+晴天
+保护
+护工
+苗木
+吃饭
+事情
+请假
+请坐
+让开
+清水</textarea>
+      </div>
+
+      <div class="control-group">
+        <label>空白格类型</label>
+        <div class="radio-group">
+          <label><input type="radio" name="gridType" value="tianzige" checked> 田字格</label>
+          <label><input type="radio" name="gridType" value="mizige"> 米字格</label>
+          <label><input type="radio" name="gridType" value="blank"> 空白格</label>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>格子大小 (mm)</label>
+        <div class="input-with-buttons">
+          <button onclick="adjustValue('cellSize', -1)">−</button>
+          <input type="number" id="cellSize" value="12" min="8" max="20" step="1">
+          <button onclick="adjustValue('cellSize', 1)">+</button>
+        </div>
+        <small style="color: #666; font-size: 11px; display: block; margin-top: 4px;">A4 纸建议 10-15mm</small>
+      </div>
+
+      <div class="control-group">
+        <label>生字颜色</label>
+        <div class="color-picker">
+          <input type="color" id="textColor" value="#000000">
+          <span id="textColorValue">#000000</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>描红颜色</label>
+        <div class="color-picker">
+          <input type="color" id="traceColor" value="#cbcfd6">
+          <span id="traceColorValue">#cbcfd6</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>格子线颜色</label>
+        <div class="color-picker">
+          <input type="color" id="gridColor" value="#4c5662">
+          <span id="gridColorValue">#4c5662</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>字体</label>
+        <select id="fontFamily">
+          <option value="KaiTi, 楷体，STKaiti, serif">楷体</option>
+          <option value="SimSun, 宋体，serif">宋体</option>
+          <option value="SimHei, 黑体，sans-serif">黑体</option>
+          <option value="FangSong, 仿宋，serif">仿宋</option>
+        </select>
+      </div>
+
+      <div class="control-group checkbox-group">
+        <label>
+          <input type="checkbox" id="showPinyin">
+          <span>显示拼音和 4 线格</span>
+        </label>
+      </div>
+
+      <button class="btn-primary" onclick="window.print()">🖨️ 打印</button>
+      <button class="btn-secondary" onclick="resetSettings()">🔄 重置</button>
+    </div>
+  </div>
+
+  <script>
+    const pinyinMap = {
+      '河': 'hé', '眼': 'yǎn', '睛': 'jīng', '晴': 'qíng', '保': 'bǎo',
+      '护': 'hù', '苗': 'miáo', '吃': 'chī', '事': 'shì', '情': 'qíng',
+      '请': 'qǐng', '让': 'ràng', '清': 'qīng', '水': 'shuǐ', '光': 'guāng',
+      '天': 'tiān', '木': 'mù', '饭': 'fàn', '工': 'gōng', '假': 'jià',
+      '坐': 'zuò', '开': 'kāi'
+    };
+
+    let config = {
+      traceCount: 2,
+      cellSize: 12,
+      textColor: '#000000',
+      traceColor: '#cbcfd6',
+      gridColor: '#4c5662',
+      gridType: 'tianzige',
+      fontFamily: 'KaiTi, 楷体，STKaiti, serif',
+      showPinyin: false
+    };
+
+    function getPinyin(char) {
+      if (window.pinyinPro && typeof window.pinyinPro.pinyin === 'function') {
+        try {
+          return window.pinyinPro.pinyin(char, { toneType: 'symbol' });
+        } catch (e) {}
+      }
+      return pinyinMap[char] || '';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadSettings();
+      renderGrid();
+      setupEventListeners();
+    });
+
+    function setupEventListeners() {
+      document.getElementById('characterInput').addEventListener('input', () => {
+        renderGrid();
+        saveSettings();
+      });
+
+      document.getElementById('wordGroupInput').addEventListener('input', () => {
+        renderGrid();
+        saveSettings();
+      });
+
+      ['traceCount', 'cellSize'].forEach(id => {
+        const input = document.getElementById(id);
+        if (input) {
+          input.addEventListener('input', () => {
+            config[id] = parseFloat(input.value);
+            updateCSSVariables();
+            renderGrid();
+            saveSettings();
+          });
+        }
+      });
+
+      ['textColor', 'traceColor', 'gridColor'].forEach(id => {
+        const input = document.getElementById(id);
+        if (input) {
+          input.addEventListener('input', (e) => {
+            config[id] = e.target.value;
+            document.getElementById(id + 'Value').textContent = e.target.value;
+            updateCSSVariables();
+            renderGrid();
+            saveSettings();
+          });
+        }
+      });
+
+      document.querySelectorAll('input[name="gridType"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+          config.gridType = e.target.value;
+          renderGrid();
+          saveSettings();
+        });
+      });
+
+      document.getElementById('fontFamily').addEventListener('change', (e) => {
+        config.fontFamily = e.target.value;
+        renderGrid();
+        saveSettings();
+      });
+
+      document.getElementById('showPinyin').addEventListener('change', (e) => {
+        config.showPinyin = e.target.checked;
+        updateCSSVariables();
+        renderGrid();
+        saveSettings();
+      });
+    }
+
+    function adjustValue(inputId, delta) {
+      const input = document.getElementById(inputId);
+      const step = parseFloat(input.step) || 1;
+      let value = parseFloat(input.value) || 0;
+      value += delta * step;
+      const min = parseFloat(input.min) || -Infinity;
+      const max = parseFloat(input.max) || Infinity;
+      value = Math.max(min, Math.min(max, value));
+      input.value = value;
+      config[inputId] = value;
+      updateCSSVariables();
+      renderGrid();
+      saveSettings();
+    }
+
+    function updateCSSVariables() {
+      const root = document.documentElement;
+      root.style.setProperty('--cell-size', `${config.cellSize}mm`);
+      root.style.setProperty('--character-color', config.textColor);
+      root.style.setProperty('--trace-color', config.traceColor);
+      root.style.setProperty('--grid-line-color', config.gridColor);
+    }
+
+    function renderGrid() {
+      const charArea = document.getElementById('characterArea');
+      const wordArea = document.getElementById('wordGroupArea');
+      charArea.innerHTML = '';
+      wordArea.innerHTML = '';
+
+      const charsInput = document.getElementById('characterInput').value;
+      const wordGroups = document.getElementById('wordGroupInput').value.trim().split('\n').filter(w => w.trim());
+      const lines = charsInput.split('\n');
+      const totalCells = 10; // Fixed 10 cells per row
+
+      lines.forEach((line, lineIndex) => {
+        const trimmedLine = line.trim();
+        if (!trimmedLine) return;
+
+        const charRow = document.createElement('div');
+        charRow.className = 'grid-row';
+
+        // Check if line has multiple characters (no tracing for multi-char lines)
+        const isMultiChar = trimmedLine.length > 1;
+        const chars = trimmedLine.split('');
+
+        // Create pinyin wrapper if enabled
+        if (config.showPinyin) {
+          const pinyinWrapper = document.createElement('div');
+          pinyinWrapper.className = 'pinyin-wrapper';
+
+          for (let i = 0; i < totalCells; i++) {
+            const pinyinCell = document.createElement('div');
+            pinyinCell.className = 'pinyin-cell';
+
+            const pinyinLines = document.createElement('div');
+            pinyinLines.className = 'pinyin-lines';
+
+            for (let j = 0; j < 4; j++) {
+              const pline = document.createElement('div');
+              pline.className = 'pinyin-line';
+              pinyinLines.appendChild(pline);
+            }
+
+            // Add pinyin for cells that have characters
+            let hasChar = false;
+            if (!isMultiChar && i < (1 + config.traceCount)) {
+              hasChar = true;
+            } else if (isMultiChar && i < chars.length) {
+              hasChar = true;
+            }
+
+            if (hasChar && chars[Math.min(i, chars.length - 1)]) {
+              const pinyinText = document.createElement('div');
+              pinyinText.className = 'pinyin-text';
+              const charIndex = isMultiChar ? i : 0;
+              pinyinText.textContent = getPinyin(chars[charIndex]);
+              pinyinLines.appendChild(pinyinText);
+            }
+
+            pinyinCell.appendChild(pinyinLines);
+            pinyinWrapper.appendChild(pinyinCell);
+          }
+
+          charRow.appendChild(pinyinWrapper);
+        }
+
+        const cellsContainer = document.createElement('div');
+        cellsContainer.style.display = 'flex';
+        cellsContainer.style.gap = '0.5mm';
+
+        for (let i = 0; i < totalCells; i++) {
+          const cell = document.createElement('div');
+          cell.className = `grid-cell ${config.gridType}`;
+
+          if (config.gridType === 'mizige') {
+            const diag1 = document.createElement('div');
+            diag1.className = 'diagonal-1';
+            cell.appendChild(diag1);
+            const diag2 = document.createElement('div');
+            diag2.className = 'diagonal-2';
+            cell.appendChild(diag2);
+          }
+
+          // Determine if this cell should have a character
+          let hasChar = false;
+          let charIndex = 0;
+          let isTrace = false;
+
+          if (!isMultiChar) {
+            // Single char with tracing
+            if (i === 0) {
+              hasChar = true;
+              isTrace = false;
+            } else if (i <= config.traceCount) {
+              hasChar = true;
+              isTrace = true;
+            }
+            charIndex = 0;
+          } else {
+            // Multi-char, no tracing
+            if (i < chars.length) {
+              hasChar = true;
+              isTrace = false;
+              charIndex = i;
+            }
+          }
+
+          if (hasChar && chars[charIndex]) {
+            const charEl = document.createElement('div');
+            if (isMultiChar) {
+              charEl.className = 'character';
+              charEl.style.color = config.textColor;
+            } else if (isTrace) {
+              charEl.className = 'character trace';
+            } else {
+              charEl.className = 'character';
+              charEl.style.color = config.textColor;
+            }
+            charEl.textContent = chars[charIndex];
+            charEl.style.fontFamily = config.fontFamily;
+            cell.appendChild(charEl);
+          }
+          // Empty cells remain empty
+
+          cellsContainer.appendChild(cell);
+        }
+
+        charRow.appendChild(cellsContainer);
+        charArea.appendChild(charRow);
+
+        // Create word group row (4 cells)
+        const wordRow = document.createElement('div');
+        wordRow.className = 'grid-row';
+        const wordGroup = wordGroups[lineIndex] || '';
+        const wordChars = wordGroup.split('').slice(0, 4);
+
+        if (config.showPinyin) {
+          const wordPinyinWrapper = document.createElement('div');
+          wordPinyinWrapper.className = 'pinyin-wrapper';
+
+          for (let i = 0; i < 4; i++) {
+            const pinyinCell = document.createElement('div');
+            pinyinCell.className = 'pinyin-cell';
+
+            const pinyinLines = document.createElement('div');
+            pinyinLines.className = 'pinyin-lines';
+
+            for (let j = 0; j < 4; j++) {
+              const pline = document.createElement('div');
+              pline.className = 'pinyin-line';
+              pinyinLines.appendChild(pline);
+            }
+
+            if (i < wordChars.length) {
+              const pinyinText = document.createElement('div');
+              pinyinText.className = 'pinyin-text';
+              pinyinText.textContent = getPinyin(wordChars[i]);
+              pinyinLines.appendChild(pinyinText);
+            }
+
+            pinyinCell.appendChild(pinyinLines);
+            wordPinyinWrapper.appendChild(pinyinCell);
+          }
+
+          wordRow.appendChild(wordPinyinWrapper);
+        }
+
+        const wordCellsContainer = document.createElement('div');
+        wordCellsContainer.style.display = 'flex';
+        wordCellsContainer.style.gap = '0.5mm';
+
+        for (let i = 0; i < 4; i++) {
+          const cell = document.createElement('div');
+          cell.className = `grid-cell ${config.gridType}`;
+
+          if (config.gridType === 'mizige') {
+            const diag1 = document.createElement('div');
+            diag1.className = 'diagonal-1';
+            cell.appendChild(diag1);
+            const diag2 = document.createElement('div');
+            diag2.className = 'diagonal-2';
+            cell.appendChild(diag2);
+          }
+
+          if (i < wordChars.length) {
+            const charEl = document.createElement('div');
+            charEl.className = 'character trace';
+            charEl.textContent = wordChars[i];
+            charEl.style.fontFamily = config.fontFamily;
+            cell.appendChild(charEl);
+          }
+
+          wordCellsContainer.appendChild(cell);
+        }
+
+        wordRow.appendChild(wordCellsContainer);
+        wordArea.appendChild(wordRow);
+      });
+
+      updateCSSVariables();
+    }
+
+    function saveSettings() {
+      const settings = {
+        characters: document.getElementById('characterInput').value,
+        wordGroups: document.getElementById('wordGroupInput').value,
+        config: config
+      };
+      localStorage.setItem('chinesePracticeSettings', JSON.stringify(settings));
+    }
+
+    function loadSettings() {
+      const saved = localStorage.getItem('chinesePracticeSettings');
+      if (saved) {
+        try {
+          const settings = JSON.parse(saved);
+          if (settings.characters) {
+            document.getElementById('characterInput').value = settings.characters;
+          }
+          if (settings.wordGroups) {
+            document.getElementById('wordGroupInput').value = settings.wordGroups;
+          }
+          if (settings.config) {
+            Object.assign(config, settings.config);
+            
+            const traceInput = document.getElementById('traceCount');
+            if (traceInput && settings.config.traceCount) {
+              traceInput.value = settings.config.traceCount;
+            }
+            
+            const input = document.getElementById('cellSize');
+            if (input && settings.config.cellSize) {
+              input.value = settings.config.cellSize;
+            }
+
+            ['textColor', 'traceColor', 'gridColor'].forEach(key => {
+              const colorInput = document.getElementById(key);
+              const display = document.getElementById(key + 'Value');
+              if (colorInput && settings.config[key]) {
+                colorInput.value = settings.config[key];
+                if (display) display.textContent = settings.config[key];
+              }
+            });
+
+            const fontInput = document.getElementById('fontFamily');
+            if (fontInput && settings.config.fontFamily) {
+              fontInput.value = settings.config.fontFamily;
+            }
+
+            const pinyinCheckbox = document.getElementById('showPinyin');
+            if (pinyinCheckbox) {
+              pinyinCheckbox.checked = settings.config.showPinyin || false;
+            }
+
+            const gridTypeRadio = document.querySelector(`input[name="gridType"][value="${settings.config.gridType}"]`);
+            if (gridTypeRadio) {
+              gridTypeRadio.checked = true;
+            }
+          }
+        } catch (e) {
+          console.error('Failed to load settings:', e);
+        }
+      }
+    }
+
+    function resetSettings() {
+      localStorage.removeItem('chinesePracticeSettings');
+      location.reload();
+    }
+  </script>
+</body>
+</html>

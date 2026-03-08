@@ -1,5 +1,5 @@
 // Cache version - auto-updated by build script
-const CACHE_VERSION = '20260130121337';
+const CACHE_VERSION = '20260308105958';
 const CACHE_NAME = `ib-pyp-games-${CACHE_VERSION}`;
 
 // Static assets to pre-cache during install
