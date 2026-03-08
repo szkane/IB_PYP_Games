@@ -359,10 +359,9 @@
       left: 0;
       right: 0;
       height: 0.5px;
-      background: var(--grid-line-color);
+      border-top: 0.5px dashed var(--grid-line-color);
       transform: translateY(-50%);
       opacity: 0.5;
-      border-top: 0.5px dashed var(--grid-line-color);
     }
 
     .tianzige::after {
@@ -372,18 +371,46 @@
       top: 0;
       bottom: 0;
       width: 0.5px;
-      background: var(--grid-line-color);
+      border-left: 0.5px dashed var(--grid-line-color);
       transform: translateX(-50%);
       opacity: 0.5;
+    }
+
+    .mizige::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 0.5px;
+      border-top: 0.5px dashed var(--grid-line-color);
+      transform: translateY(-50%);
+      opacity: 0.5;
+      z-index: 1;
+    }
+
+    .mizige::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 0.5px;
       border-left: 0.5px dashed var(--grid-line-color);
+      transform: translateX(-50%);
+      opacity: 0.5;
+      z-index: 1;
     }
 
     .mizige .diagonal-1,
     .mizige .diagonal-2 {
-      display: block;
+      display: block !important;
       position: absolute;
       background: var(--grid-line-color);
       opacity: 0.3;
+      z-index: 2;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
     }
 
     .diagonal-1 {
@@ -447,6 +474,26 @@
       @page {
         size: A4;
         margin: 0;
+      }
+      
+      /* Force mizige diagonal lines to print */
+      .mizige .diagonal-1,
+      .mizige .diagonal-2 {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 0.5 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+      }
+      
+      /* Force grid lines to print */
+      .grid-cell::before,
+      .grid-cell::after {
+        display: block !important;
+        visibility: visible !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
       }
     }
 
