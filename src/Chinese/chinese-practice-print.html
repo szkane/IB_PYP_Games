@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -87,13 +88,15 @@
       border-color: var(--accent-color);
     }
 
-    .radio-group, .checkbox-group {
+    .radio-group,
+    .checkbox-group {
       display: flex;
       gap: 15px;
       flex-wrap: wrap;
     }
 
-    .radio-group label, .checkbox-group label {
+    .radio-group label,
+    .checkbox-group label {
       display: flex;
       align-items: center;
       gap: 5px;
@@ -288,7 +291,7 @@
       gap: 0.5mm;
       margin-bottom: 0mm;
     }
-    
+
     .pinyin-cell {
       width: var(--cell-size);
       height: calc(var(--cell-size) * 0.6);
@@ -311,10 +314,21 @@
       border-top: 0.5px dashed var(--grid-line-color);
     }
 
-    .pinyin-line:nth-child(1) { top: 0; }
-    .pinyin-line:nth-child(2) { top: 33.33%; }
-    .pinyin-line:nth-child(3) { top: 66.67%; }
-    .pinyin-line:nth-child(4) { top: 100%; }
+    .pinyin-line:nth-child(1) {
+      top: 0;
+    }
+
+    .pinyin-line:nth-child(2) {
+      top: 33.33%;
+    }
+
+    .pinyin-line:nth-child(3) {
+      top: 66.67%;
+    }
+
+    .pinyin-line:nth-child(4) {
+      top: 100%;
+    }
 
     .pinyin-text {
       position: absolute;
@@ -406,20 +420,57 @@
     }
 
     @media print {
-      body { background: white; }
-      .control-panel { display: none; }
-      .preview-area { padding: 0; margin: 0; background: white; display: block; }
-      .a4-paper { box-shadow: none; padding: 10mm; width: 210mm; height: 297mm; margin: 0; page-break-after: always; }
-      @page { size: A4; margin: 0; }
+      body {
+        background: white;
+      }
+
+      .control-panel {
+        display: none;
+      }
+
+      .preview-area {
+        padding: 0;
+        margin: 0;
+        background: white;
+        display: block;
+      }
+
+      .a4-paper {
+        box-shadow: none;
+        padding: 10mm;
+        width: 210mm;
+        height: 297mm;
+        margin: 0;
+        page-break-after: always;
+      }
+
+      @page {
+        size: A4;
+        margin: 0;
+      }
     }
 
     @media (max-width: 1200px) {
-      .container { flex-direction: column-reverse; }
-      .control-panel { width: 100%; border-left: none; border-top: 1px solid var(--border-color); }
-      .a4-paper { width: 100%; height: auto; aspect-ratio: 210/297; }
+      .container {
+        flex-direction: column-reverse;
+      }
+
+      .control-panel {
+        width: 100%;
+        border-left: none;
+        border-top: 1px solid var(--border-color);
+      }
+
+      .a4-paper {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 210/297;
+      }
     }
+
   </style>
 </head>
+
 <body>
   <div class="container">
     <div class="preview-area">
@@ -527,15 +578,17 @@
       <div class="control-group">
         <label>格子线颜色</label>
         <div class="color-picker">
-          <input type="color" id="gridColor" value="#4c5662">
-          <span id="gridColorValue">#4c5662</span>
+          <input type="color" id="gridColor" value="#0cb300">
+          <span id="gridColorValue">#0cb300</span>
         </div>
       </div>
 
       <div class="control-group">
         <label>字体</label>
         <select id="fontFamily">
-          <option value="KaiTi, 楷体，STKaiti, serif">楷体</option>
+          <option
+            value='楷体_gb2312, 楷体, "Kaiti SC", STKaiti, "AR PL UKai CN", "AR PL UKai HK", "AR PL UKai TW", "AR PL UKai TW MBE", "AR PL KaitiM GB", KaiTi, KaiTi_GB2312, DFKai-SB, TW-Kai;'>
+            楷体</option>
           <option value="SimSun, 宋体，serif">宋体</option>
           <option value="SimHei, 黑体，sans-serif">黑体</option>
           <option value="FangSong, 仿宋，serif">仿宋</option>
@@ -568,17 +621,17 @@
       cellSize: 12,
       textColor: '#000000',
       traceColor: '#cbcfd6',
-      gridColor: '#4c5662',
+      gridColor: '#0cb300',
       gridType: 'tianzige',
-      fontFamily: 'KaiTi, 楷体，STKaiti, serif',
-      showPinyin: false
+      fontFamily: '楷体_gb2312, 楷体, "Kaiti SC", STKaiti, "AR PL UKai CN", "AR PL UKai HK", "AR PL UKai TW", "AR PL UKai TW MBE", "AR PL KaitiM GB", KaiTi, KaiTi_GB2312, DFKai-SB, TW-Kai;',
+      showPinyin: true
     };
 
     function getPinyin(char) {
       if (window.pinyinPro && typeof window.pinyinPro.pinyin === 'function') {
         try {
           return window.pinyinPro.pinyin(char, { toneType: 'symbol' });
-        } catch (e) {}
+        } catch (e) { }
       }
       return pinyinMap[char] || '';
     }
@@ -891,12 +944,12 @@
           }
           if (settings.config) {
             Object.assign(config, settings.config);
-            
+
             const traceInput = document.getElementById('traceCount');
             if (traceInput && settings.config.traceCount) {
               traceInput.value = settings.config.traceCount;
             }
-            
+
             const input = document.getElementById('cellSize');
             if (input && settings.config.cellSize) {
               input.value = settings.config.cellSize;
@@ -938,4 +991,5 @@
     }
   </script>
 </body>
+
 </html>
