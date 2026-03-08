@@ -475,7 +475,7 @@
         size: A4;
         margin: 0;
       }
-      
+
       /* Force mizige diagonal lines to print */
       .mizige .diagonal-1,
       .mizige .diagonal-2 {
@@ -486,7 +486,7 @@
         print-color-adjust: exact !important;
         color-adjust: exact !important;
       }
-      
+
       /* Force grid lines to print */
       .grid-cell::before,
       .grid-cell::after {
@@ -541,6 +541,60 @@
 
     <div class="control-panel">
       <h2>⚙️ 配置</h2>
+
+      <div class="control-group">
+        <label>选择课程</label>
+        <select id="courseSelect" onchange="loadCourseData()">
+          <option value="">-- 自定义输入 --</option>
+          <optgroup label="一年级上册">
+            <option value="1a-1">识字 1 - 天地人</option>
+            <option value="1a-2">识字 2 - 金木水火土</option>
+            <option value="1a-3">识字 3 - 口耳目</option>
+            <option value="1a-4">识字 4 - 日月水火</option>
+            <option value="1a-5">识字 5 - 对韵歌</option>
+            <option value="1a-6">课文 1 - 秋天</option>
+            <option value="1a-7">课文 2 - 小小的船</option>
+            <option value="1a-8">课文 3 - 江南</option>
+            <option value="1a-9">课文 4 - 四季</option>
+          </optgroup>
+          <optgroup label="一年级下册">
+            <option value="1b-1">识字 1 - 春夏秋冬</option>
+            <option value="1b-2">识字 2 - 姓氏歌</option>
+            <option value="1b-3">识字 3 - 小青蛙</option>
+            <option value="1b-4">识字 4 - 猜字谜</option>
+            <option value="1b-5">课文 1 - 吃水不忘挖井人</option>
+            <option value="1b-6">课文 2 - 我多想去看看</option>
+            <option value="1b-7">课文 3 - 一个接一个</option>
+            <option value="1b-8">课文 4 - 四个太阳</option>
+            <option value="1b-9">课文 5 - 小公鸡和小鸭子</option>
+            <option value="1b-10">课文 6 - 树和喜鹊</option>
+            <option value="1b-11">课文 7 - 怎么都快乐</option>
+            <option value="1b-12">课文 8 - 静夜思</option>
+          </optgroup>
+          <optgroup label="二年级上册">
+            <option value="2a-1">课文 1 - 小蝌蚪找妈妈</option>
+            <option value="2a-2">课文 2 - 我是什么</option>
+            <option value="2a-3">课文 3 - 植物妈妈有办法</option>
+            <option value="2a-4">识字 1 - 场景歌</option>
+            <option value="2a-5">识字 2 - 树之歌</option>
+            <option value="2a-6">识字 3 - 拍手歌</option>
+            <option value="2a-7">识字 4 - 田家四季歌</option>
+            <option value="2a-8">课文 4 - 曹冲称象</option>
+            <option value="2a-9">课文 5 - 玲玲的画</option>
+            <option value="2a-10">课文 6 - 一封信</option>
+          </optgroup>
+          <optgroup label="二年级下册">
+            <option value="2b-1">课文 1 - 古诗二首</option>
+            <option value="2b-2">课文 2 - 找春天</option>
+            <option value="2b-3">课文 3 - 开满鲜花的小路</option>
+            <option value="2b-4">课文 4 - 邓小平爷爷植树</option>
+            <option value="2b-5">识字 1 - 神州谣</option>
+            <option value="2b-6">识字 2 - 传统节日</option>
+            <option value="2b-7">识字 3 - 贝的故事</option>
+            <option value="2b-8">识字 4 - 中国美食</option>
+          </optgroup>
+        </select>
+      </div>
 
       <div class="control-group">
         <label>生字 (每行一个新字)</label>
@@ -655,6 +709,57 @@
   </div>
 
   <script>
+    // Course data: 人教版一年级和二年级语文生词
+    // 组词都是两个字，简单易懂，适合 1-2 年级学生
+    const courseData = {
+      // 一年级上册
+      '1a-1': { chars: '天地人你我他', words: '天上|地下|人口|你们|我们|他们' },
+      '1a-2': { chars: '一二三四五上下', words: '一个|二月|三天|四方|五口|上山|下山' },
+      '1a-3': { chars: '口耳目手足站坐', words: '口水|耳朵|目光|小手|足球|站立|坐下' },
+      '1a-4': { chars: '日月水火山石田禾', words: '日月|月亮|口水|火山|山东|石头|田地|禾苗' },
+      '1a-5': { chars: '对云雨风花鸟虫', words: '对错|白云|下雨|大风|花朵|小鸟|虫子' },
+      '1a-6': { chars: '气了树叶片大飞会个的', words: '生气|来了|大树|叶子|一片|大小|飞鸟|开会|一个|好的' },
+      '1a-7': { chars: '船弯两在里看见闪星蓝', words: '小船|弯弯|两个|正在|里面|看见|见到|闪亮|星星|蓝天' },
+      '1a-8': { chars: '江南可采莲鱼东西北', words: '江南|长江|可以|采花|莲花|小鱼|东方|西瓜|北方' },
+      '1a-9': { chars: '尖说春青蛙夏弯地就冬', words: '尖尖|说话|春天|青草|青蛙|夏天|弯腰|土地|就是|冬天' },
+
+      // 一年级下册
+      '1b-1': { chars: '春风冬雪飞入', words: '春天|大风|冬天|雪花|飞鸟|入口' },
+      '1b-2': { chars: '姓什么双国王', words: '姓名|什么|什么|双手|国王|大王' },
+      '1b-3': { chars: '青清气晴情请生', words: '青山|清水|天气|晴天|心情|请问|生气' },
+      '1b-4': { chars: '字左右红时动万', words: '生字|左手|右手|红花|时间|动作|万一' },
+      '1b-5': { chars: '吃叫主江住没以', words: '吃饭|叫声|主人|长江|住下|没有|以为' },
+      '1b-6': { chars: '会走北京门广', words: '开会|走路|北京|南京|城门|广大' },
+      '1b-7': { chars: '过各样伙伴这', words: '过去|各种|样子|伙伴|伴侣|这边' },
+      '1b-8': { chars: '太阳校金秋为', words: '太多|阳光|学校|金色|秋天|因为' },
+      '1b-9': { chars: '他河说也地听哥', words: '他们|河水|说话|也是|大地|听话|哥哥' },
+      '1b-10': { chars: '单居招呼快乐', words: '单独|居住|招呼|呼叫|快乐|可乐' },
+      '1b-11': { chars: '玩很当音讲行许', words: '好玩|很多|当心|音乐|讲话|行走|许多' },
+      '1b-12': { chars: '思床前光低故乡', words: '思念|床前|前面|月光|低头|故乡|乡下' },
+
+      // 二年级上册
+      '2a-1': { chars: '两就哪宽顶睛肚皮孩跳', words: '两个|就是|哪里|宽大|头顶|眼睛|肚皮|皮球|孩子|跳高' },
+      '2a-2': { chars: '变极片傍海洋作坏给带', words: '变化|北极|一片|傍晚|大海|海洋|作业|坏人|送给|带头' },
+      '2a-3': { chars: '法如脚它娃她毛更知识', words: '方法|如果|脚印|它们|娃娃|她们|皮毛|更加|知道|见识' },
+      '2a-4': { chars: '园孔桥群队旗铜号领', words: '花园|孔雀|小桥|一群|队长|红旗|铜号|号角|带领' },
+      '2a-5': { chars: '杨壮桐枫松柏棉杉化桂', words: '杨树|壮大|梧桐|枫叶|松柏|柏树|棉花|杉树|变化|桂花' },
+      '2a-6': { chars: '歌丛深处六熊猫九朋', words: '唱歌|丛林|深处|处所|六个|熊猫|小猫|九个|朋友' },
+      '2a-7': { chars: '季吹肥农事忙归戴辛', words: '四季|吹风|肥沃|农民|事情|忙碌|归来|戴帽|辛苦' },
+      '2a-8': { chars: '候柱底杆秤做岁站船', words: '时候|柱子|海底|笔杆|秤杆|做事|岁月|站立|小船' },
+      '2a-9': { chars: '画幅评奖纸报另及拿', words: '画画|一幅|评比|奖状|白纸|报纸|另外|及时|拿走' },
+      '2a-10': { chars: '今写支圆珠笔灯电影', words: '今天|写字|一支|圆形|珠子|毛笔|灯光|电视|电影' },
+
+      // 二年级下册
+      '2b-1': { chars: '诗村童碧妆绿丝剪', words: '古诗|乡村|儿童|碧绿|化妆|绿叶|丝线|剪刀' },
+      '2b-2': { chars: '冲寻姑娘吐柳荡桃杏', words: '冲动|寻找|姑娘|娘亲|吐气|柳树|荡舟|桃花|杏花' },
+      '2b-3': { chars: '鲜邮递原叔局堆礼', words: '新鲜|邮票|快递|原来|叔叔|邮局|土堆|礼物' },
+      '2b-4': { chars: '邓植格引注满休息', words: '邓家|植树|格子|引导|注意|满意|休息|气息' },
+      '2b-5': { chars: '州湾峡与陆谊齐奋', words: '神州|海湾|峡谷|与其|陆地|友谊|整齐|奋斗' },
+      '2b-6': { chars: '贴街舟艾敬转团热', words: '贴画|街道|小舟|艾草|敬礼|转身|团圆|热闹' },
+      '2b-7': { chars: '贝壳甲钱币与财购', words: '贝壳|贝壳|甲鱼|金钱|钱币|与其|财产|购买' },
+      '2b-8': { chars: '烧茄烤鸭肉鸡蛋炒', words: '烧火|茄子|烤鸭|鸭肉|猪肉|鸡蛋|蛋花|炒饭' }
+    };
+
     const pinyinMap = {
       '河': 'hé', '眼': 'yǎn', '睛': 'jīng', '晴': 'qíng', '保': 'bǎo',
       '护': 'hù', '苗': 'miáo', '吃': 'chī', '事': 'shì', '情': 'qíng',
@@ -681,6 +786,23 @@
         } catch (e) { }
       }
       return pinyinMap[char] || '';
+    }
+
+    function loadCourseData() {
+      const select = document.getElementById('courseSelect');
+      const course = courseData[select.value];
+
+      if (course) {
+        // Convert space-separated chars to newline-separated for display
+        const charsFormatted = course.chars.split('').join('\n');
+        const wordsFormatted = course.words.split('|').join('\n');
+
+        document.getElementById('characterInput').value = charsFormatted;
+        document.getElementById('wordGroupInput').value = wordsFormatted;
+
+        renderGrid();
+        saveSettings();
+      }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
