@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <title>MEET MC WORDS</title>
+  <meta name="description" content="Learn 238 Minecraft English vocabulary words through interactive flashcards">
+  <meta name="keywords" content="Minecraft, English vocabulary, learning, flashcards, kids education">
+  <meta name="theme-color" content="#2d4a1c">
+  <link rel="stylesheet" href="css/mc_words_styles.css">
+</head>
+
+<body>
+  <div id="app">
+    <div class="page page-card-main-container" data-courseid="course4">
+      <div class="top-nav" id="topNav">
+        <div class="nav-left">
+          <button class="nav-back-btn" id="backBtn" aria-label="返回主页">
+            <span class="nav-back-icon">←</span>
+          </button>
+          <span class="nav-app-title" id="appTitle">MEET MC WORDS</span>
+        </div>
+        <div class="nav-right" id="navControls" style="display: none;">
+          <button class="nav-control-btn" id="btnZh" onclick="toggleChinese()" data-active="true">中文</button>
+          <button class="nav-control-btn" id="btnEn" onclick="toggleEnglish()" data-active="true">EN</button>
+          <button class="nav-control-btn nav-control-btn-accent" id="btnAuto" onclick="toggleAutoMode()">▶ 自动</button>
+          <button class="nav-control-btn nav-tts-btn" id="btnTts" onclick="toggleTtsAccent()" title="点击切换发音">
+            <span class="tts-icon">🔊</span>
+            <span class="tts-accent" id="ttsAccentLabel">US</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="maincon">
+        <div class="flashcard-grid" id="cardGrid"></div>
+      </div>
+      <div class="error-modal" id="errorModal" style="display: none;">
+        <div class="modal-content">
+          <h3>提示</h3>
+          <p id="errorModalText"></p>
+          <div class="modal-buttons">
+            <button class="btn-confirm" onclick="closeErrorModal()">确定</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+
+</html>

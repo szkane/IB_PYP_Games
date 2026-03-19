@@ -87,20 +87,74 @@ export default defineConfig({
           }
         }
         
-        // Copy movespelling js directory (non-module scripts)
-        const movespellingJsSrc = resolve(srcDir, 'literacy/movespelling/js');
-        const movespellingJsDest = resolve(distDir, 'literacy/movespelling/js');
-        if (existsSync(movespellingJsSrc)) {
-          copyDir(movespellingJsSrc, movespellingJsDest);
-          console.log('Copied: literacy/movespelling/js/');
-        }
-        
-        // Copy movespelling assets/data directory (words.json)
-        const movespellingDataSrc = resolve(srcDir, 'literacy/movespelling/assets/data');
-        const movespellingDataDest = resolve(distDir, 'literacy/movespelling/assets/data');
-        if (existsSync(movespellingDataSrc)) {
-          copyDir(movespellingDataSrc, movespellingDataDest);
-          console.log('Copied: literacy/movespelling/assets/data/');
+        // Generic: Copy all non-module JS and asset directories for each game
+        const categories = ['Chinese', 'literacy', 'math', 'science'];
+        for (const category of categories) {
+          const categoryPath = resolve(srcDir, category);
+          if (!existsSync(categoryPath)) continue;
+          
+          const gameDirs = readdirSync(categoryPath);
+          for (const gameDir of gameDirs) {
+            const gamePath = resolve(categoryPath, gameDir);
+            if (!statSync(gamePath).isDirectory()) continue;
+            
+            // Skip hidden directories
+            if (gameDir.startsWith('.')) continue;
+            
+            // Copy js directory if exists (for non-module scripts)
+            const jsSrc = resolve(gamePath, 'js');
+            if (existsSync(jsSrc)) {
+              const jsDest = resolve(distDir, category, gameDir, 'js');
+              copyDir(jsSrc, jsDest);
+              console.log(`Copied: ${category}/${gameDir}/js/`);
+            }
+            
+            // Copy css directory if exists
+            const cssSrc = resolve(gamePath, 'css');
+            if (existsSync(cssSrc)) {
+              const cssDest = resolve(distDir, category, gameDir, 'css');
+              copyDir(cssSrc, cssDest);
+              console.log(`Copied: ${category}/${gameDir}/css/`);
+            }
+            
+            // Copy assets directory if exists (generic pattern)
+            const assetsSrc = resolve(gamePath, 'assets');
+            if (existsSync(assetsSrc)) {
+              const assetsDest = resolve(distDir, category, gameDir, 'assets');
+              copyDir(assetsSrc, assetsDest);
+              console.log(`Copied: ${category}/${gameDir}/assets/`);
+            }
+            
+            // Copy res directory if exists (for mc_words and similar games)
+            const resSrc = resolve(gamePath, 'res');
+            if (existsSync(resSrc)) {
+              const resDest = resolve(distDir, category, gameDir, 'res');
+              copyDir(resSrc, resDest);
+              console.log(`Copied: ${category}/${gameDir}/res/`);
+            }
+            
+            // Copy any other directories that might contain assets
+            const gameFiles = readdirSync(gamePath);
+            for (const item of gameFiles) {
+              const itemPath = resolve(gamePath, item);
+              const stat = statSync(itemPath);
+              if (stat.isDirectory() && !['js', 'css', 'assets', 'res'].includes(item)) {
+                // Check if directory contains asset files (not source code)
+                const itemFiles = readdirSync(itemPath);
+                const hasAssets = itemFiles.some(f => {
+                  const ext = f.split('.').pop().toLowerCase();
+                  return ['png', 'jpg', 'jpeg', 'webp', 'gif', 'svg', 'mp3', 'wav', 'ogg', 'mp4', 'webm', 'json', 'xml'].includes(ext);
+                });
+                
+                if (hasAssets) {
+                  const src = resolve(gamePath, item);
+                  const dest = resolve(distDir, category, gameDir, item);
+                  copyDir(src, dest);
+                  console.log(`Copied: ${category}/${gameDir}/${item}/`);
+                }
+              }
+            }
+          }
         }
       },
     },

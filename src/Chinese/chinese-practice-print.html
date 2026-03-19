@@ -469,6 +469,7 @@
           width: 210mm;
           height: 297mm;
           margin: 0;
+          page-break-after: always;
         }
 
         @page {
@@ -692,7 +693,30 @@
           </div>
         </div>
 
-
+        <div class="control-group">
+          <label>格子大小 (mm)</label>
+          <div class="input-with-buttons">
+            <button onclick="adjustValue('cellSize', -1)">−</button>
+            <input
+              type="number"
+              id="cellSize"
+              value="12"
+              min="8"
+              max="20"
+              step="1"
+            />
+            <button onclick="adjustValue('cellSize', 1)">+</button>
+          </div>
+          <small
+            style="
+              color: #666;
+              font-size: 11px;
+              display: block;
+              margin-top: 4px;
+            "
+            >A4 纸建议 10-15mm</small
+          >
+        </div>
 
         <div class="control-group">
           <label>生字颜色</label>
@@ -997,7 +1021,7 @@
             saveSettings();
           });
 
-        ["traceCount"].forEach((id) => {
+        ["traceCount", "cellSize"].forEach((id) => {
           const input = document.getElementById(id);
           if (input) {
             input.addEventListener("input", () => {
@@ -1323,7 +1347,10 @@
                 traceInput.value = settings.config.traceCount;
               }
 
-
+              const input = document.getElementById("cellSize");
+              if (input && settings.config.cellSize) {
+                input.value = settings.config.cellSize;
+              }
 
               ["textColor", "traceColor", "gridColor"].forEach((key) => {
                 const colorInput = document.getElementById(key);
