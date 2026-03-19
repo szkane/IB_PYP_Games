@@ -392,6 +392,308 @@ body {
   text-align: center;
 }
 
+body.quiz-open {
+  overflow: hidden;
+}
+
+.quiz-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(7, 14, 8, 0.68);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 1100;
+}
+
+.quiz-modal {
+  width: min(92vw, 34rem);
+  max-height: min(90vh, 46rem);
+  overflow-y: auto;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(234, 244, 226, 0.98));
+  border: 0.25rem solid #2d4a1c;
+  border-radius: 1rem;
+  box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.4);
+  padding: 1rem;
+}
+
+.quiz-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.quiz-modal-header h3 {
+  color: #243a16;
+  font-size: 1.2rem;
+  margin-bottom: 0.25rem;
+}
+
+.quiz-scene-name,
+.quiz-progress,
+.quiz-prompt {
+  color: #486335;
+  font-weight: 700;
+}
+
+.quiz-score-pill,
+.quiz-progress {
+  background: #5a8a3c;
+  color: #fff;
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.18);
+}
+
+.quiz-progress {
+  margin-bottom: 0.75rem;
+}
+
+.quiz-setup-copy,
+.quiz-tip-note {
+  color: #486335;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.quiz-difficulty-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.quiz-difficulty-btn {
+  border: 0.1875rem solid #2d4a1c;
+  border-radius: 0.75rem;
+  background: linear-gradient(180deg, #f8ed8d, #e2c64f);
+  color: #243a16;
+  padding: 1rem 0.75rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  align-items: center;
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.quiz-difficulty-btn:active {
+  transform: scale(0.97);
+}
+
+.quiz-difficulty-title {
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.quiz-difficulty-desc {
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.quiz-image-wrap {
+  border: 0.2rem solid #2d4a1c;
+  border-radius: 0.8rem;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.quiz-question-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.quiz-masked-word {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.2rem;
+  min-height: 3.2rem;
+  margin: 0.2rem 0 0.8rem;
+  padding: 0.75rem;
+  border: 0.2rem dashed rgba(45, 74, 28, 0.55);
+  border-radius: 0.8rem;
+  background: rgba(255, 255, 255, 0.7);
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #243a16;
+  letter-spacing: 0.02rem;
+}
+
+.quiz-mask-char,
+.quiz-mask-space {
+  min-width: 1.1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quiz-mask-char {
+  min-height: 1.8rem;
+  border-bottom: 0.16rem solid #2d4a1c;
+}
+
+.quiz-mask-char.is-blank {
+  color: #7a5f00;
+}
+
+.quiz-mask-char.is-filled {
+  color: #243a16;
+  background: rgba(90, 138, 60, 0.18);
+  border-radius: 0.25rem;
+}
+
+.quiz-mask-char.is-tip {
+  background: rgba(242, 217, 92, 0.45);
+  box-shadow: 0 0 0 0.12rem rgba(242, 217, 92, 0.85);
+  border-radius: 0.25rem;
+}
+
+.quiz-mask-space {
+  min-width: 0.7rem;
+}
+
+.quiz-image {
+  width: 100%;
+  height: 14rem;
+  object-fit: contain;
+  display: block;
+  image-rendering: pixelated;
+}
+
+.quiz-audio-btn,
+.quiz-tip-btn,
+.quiz-submit-btn,
+.quiz-secondary-btn {
+  border: 0.1875rem solid #2d4a1c;
+  border-radius: 0.625rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+}
+
+.quiz-audio-btn,
+.quiz-tip-btn,
+.quiz-secondary-btn {
+  background: #f2d95c;
+  color: #243a16;
+}
+
+.quiz-submit-btn {
+  background: #5a8a3c;
+  color: #fff;
+}
+
+.quiz-audio-btn {
+  padding: 0.75rem 1rem;
+  flex: 1;
+}
+
+.quiz-tool-row,
+.quiz-form {
+  display: flex;
+  gap: 0.625rem;
+}
+
+.quiz-tool-row {
+  margin-bottom: 0.75rem;
+}
+
+.quiz-form {
+  margin-top: 0;
+  min-height: 0;
+}
+
+.quiz-input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.85rem 1rem;
+  border: 0.1875rem solid #5a8a3c;
+  border-radius: 0.625rem;
+  font-size: 1rem;
+  background: #fff;
+  color: #1f2f16;
+}
+
+.quiz-input-capture {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+
+.quiz-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 0.2rem rgba(90, 138, 60, 0.22);
+}
+
+.quiz-hint {
+  min-height: 1.5rem;
+  margin-top: 0.25rem;
+  color: #725600;
+  font-weight: 800;
+  letter-spacing: 0.15rem;
+}
+
+.quiz-submit-btn,
+.quiz-secondary-btn {
+  padding: 0.85rem 1rem;
+  min-width: 7rem;
+}
+
+.quiz-feedback {
+  min-height: 1.75rem;
+  margin-top: 0.75rem;
+  font-weight: 800;
+}
+
+.quiz-feedback.is-correct {
+  color: #1f7a1f;
+}
+
+.quiz-feedback.is-wrong {
+  color: #a12d2d;
+}
+
+.quiz-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.625rem;
+  margin-top: 1rem;
+}
+
+.quiz-actions .quiz-submit-btn {
+  flex: 1;
+  order: 2;
+}
+
+.quiz-actions .quiz-secondary-btn {
+  order: 1;
+  background: rgba(242, 217, 92, 0.55);
+}
+
+.quiz-audio-btn:active,
+.quiz-tip-btn:active,
+.quiz-submit-btn:active,
+.quiz-secondary-btn:active {
+  transform: scale(0.97);
+}
+
 @keyframes fadeInOut {
   0% {
     opacity: 0;
@@ -512,6 +814,37 @@ body {
   .flashcard-grid {
     grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
     gap: 0.25rem;
+  }
+
+  .quiz-modal {
+    padding: 0.85rem;
+  }
+
+  .quiz-form {
+    flex-direction: column;
+  }
+
+  .quiz-tool-row,
+  .quiz-difficulty-grid {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+  }
+
+  .quiz-actions {
+    flex-direction: column-reverse;
+  }
+
+  .quiz-actions .quiz-submit-btn,
+  .quiz-actions .quiz-secondary-btn {
+    width: 100%;
+  }
+
+  .quiz-image {
+    height: 11rem;
+  }
+
+  .quiz-masked-word {
+    font-size: 1.2rem;
   }
 
   .cpt-pixel-flashcard {

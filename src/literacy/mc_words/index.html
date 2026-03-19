@@ -25,6 +25,7 @@
         <div class="nav-right" id="navControls" style="display: none;">
           <button class="nav-control-btn" id="btnZh" onclick="toggleChinese()" data-active="true">中文</button>
           <button class="nav-control-btn" id="btnEn" onclick="toggleEnglish()" data-active="true">EN</button>
+          <button class="nav-control-btn nav-control-btn-accent" id="btnQuiz" onclick="startQuiz()">📝 测验</button>
           <button class="nav-control-btn nav-control-btn-accent" id="btnAuto" onclick="toggleAutoMode()">▶ 自动</button>
           <button class="nav-control-btn nav-tts-btn" id="btnTts" onclick="toggleTtsAccent()" title="点击切换发音">
             <span class="tts-icon">🔊</span>
@@ -35,6 +36,65 @@
 
       <div class="maincon">
         <div class="flashcard-grid" id="cardGrid"></div>
+      </div>
+      <div class="quiz-overlay" id="quizOverlay" style="display: none;" aria-hidden="true">
+        <div class="quiz-modal" role="dialog" aria-modal="true" aria-labelledby="quizTitle">
+          <div class="quiz-modal-header">
+            <div>
+              <h3 id="quizTitle">场景测验</h3>
+              <p class="quiz-scene-name" id="quizSceneName"></p>
+            </div>
+            <div class="quiz-score-pill" id="quizScore">0 / 0</div>
+          </div>
+          <div class="quiz-progress" id="quizProgress">1 / 10</div>
+          <div class="quiz-setup" id="quizSetup">
+            <p class="quiz-setup-copy">Choose a difficulty to start this scene quiz.</p>
+            <div class="quiz-difficulty-grid">
+              <button class="quiz-difficulty-btn" type="button" data-difficulty="easy">
+                <span class="quiz-difficulty-title">Easy</span>
+                <span class="quiz-difficulty-desc">Show word with 1 missing letter</span>
+              </button>
+              <button class="quiz-difficulty-btn" type="button" data-difficulty="normal">
+                <span class="quiz-difficulty-title">Normal</span>
+                <span class="quiz-difficulty-desc">Show word with 2-3 missing letters</span>
+              </button>
+              <button class="quiz-difficulty-btn" type="button" data-difficulty="hard">
+                <span class="quiz-difficulty-title">Hard</span>
+                <span class="quiz-difficulty-desc">Show only blanks for the whole word</span>
+              </button>
+            </div>
+            <p class="quiz-tip-note">Tip: during the quiz, tap 💡 to highlight the missing positions.</p>
+          </div>
+          <div class="quiz-question-section" id="quizQuestionSection" style="display: none;">
+            <div class="quiz-image-wrap">
+              <img id="quizImage" class="quiz-image" src="" alt="">
+            </div>
+            <div class="quiz-masked-word" id="quizMaskedWord"></div>
+            <div class="quiz-tool-row">
+              <button class="quiz-audio-btn" id="quizReplayBtn" type="button">🔊 Play Word</button>
+              <button class="quiz-tip-btn" id="quizTipBtn" type="button">💡 Tip</button>
+            </div>
+            <p class="quiz-prompt" id="quizPrompt">Type directly into the blanks, then press Enter.</p>
+            <p class="quiz-hint" id="quizHint"></p>
+            <form class="quiz-form" id="quizForm">
+              <input
+                id="quizAnswerInput"
+                class="quiz-input quiz-input-capture"
+                type="text"
+                inputmode="text"
+                autocomplete="off"
+                autocapitalize="none"
+                autocorrect="off"
+                spellcheck="false"
+                placeholder="Type the word in English">
+            </form>
+            <p class="quiz-feedback" id="quizFeedback"></p>
+          </div>
+          <div class="quiz-actions">
+            <button class="quiz-submit-btn" id="quizSubmitBtn" type="submit" form="quizForm">Enter ↵</button>
+            <button class="quiz-secondary-btn" id="quizCancelBtn" type="button">退出测验</button>
+          </div>
+        </div>
       </div>
       <div class="error-modal" id="errorModal" style="display: none;">
         <div class="modal-content">
