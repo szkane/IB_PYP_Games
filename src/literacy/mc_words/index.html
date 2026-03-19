@@ -46,7 +46,6 @@
             </div>
             <div class="quiz-score-pill" id="quizScore">0 / 0</div>
           </div>
-          <div class="quiz-progress" id="quizProgress">1 / 10</div>
           <div class="quiz-setup" id="quizSetup">
             <p class="quiz-setup-copy">Choose a difficulty to start this scene quiz.</p>
             <div class="quiz-difficulty-grid">
@@ -63,19 +62,16 @@
                 <span class="quiz-difficulty-desc">Show only blanks for the whole word</span>
               </button>
             </div>
-            <p class="quiz-tip-note">Tip: during the quiz, tap 💡 to highlight the missing positions.</p>
           </div>
           <div class="quiz-question-section" id="quizQuestionSection" style="display: none;">
             <div class="quiz-image-wrap">
               <img id="quizImage" class="quiz-image" src="" alt="">
             </div>
-            <div class="quiz-masked-word" id="quizMaskedWord"></div>
-            <div class="quiz-tool-row">
-              <button class="quiz-audio-btn" id="quizReplayBtn" type="button">🔊 Play Word</button>
-              <button class="quiz-tip-btn" id="quizTipBtn" type="button">💡 Tip</button>
+            <div class="quiz-word-row">
+              <div class="quiz-masked-word" id="quizMaskedWord"></div>
+              <button class="quiz-replay-icon-btn" id="quizReplayBtn" type="button" title="Replay word">📢</button>
             </div>
             <p class="quiz-prompt" id="quizPrompt">Type directly into the blanks, then press Enter.</p>
-            <p class="quiz-hint" id="quizHint"></p>
             <form class="quiz-form" id="quizForm">
               <input
                 id="quizAnswerInput"

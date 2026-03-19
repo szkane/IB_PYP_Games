@@ -38,7 +38,6 @@ function createQuizState() {
     lastAnswerCorrect: null,
     completed: false,
     difficulty: null,
-    hintVisible: false,
     typedAnswer: '',
     autoAdvanceTimer: null
   };
@@ -66,15 +65,12 @@ function getQuizElements() {
     title: document.getElementById('quizTitle'),
     sceneName: document.getElementById('quizSceneName'),
     score: document.getElementById('quizScore'),
-    progress: document.getElementById('quizProgress'),
     setup: document.getElementById('quizSetup'),
     questionSection: document.getElementById('quizQuestionSection'),
     image: document.getElementById('quizImage'),
     maskedWord: document.getElementById('quizMaskedWord'),
     replayBtn: document.getElementById('quizReplayBtn'),
-    tipBtn: document.getElementById('quizTipBtn'),
     prompt: document.getElementById('quizPrompt'),
-    hint: document.getElementById('quizHint'),
     form: document.getElementById('quizForm'),
     input: document.getElementById('quizAnswerInput'),
     submitBtn: document.getElementById('quizSubmitBtn'),
@@ -89,7 +85,6 @@ function setupQuizModal() {
   quizEls.form.addEventListener('submit', handleQuizSubmit);
   quizEls.cancelBtn.addEventListener('click', closeQuiz);
   quizEls.replayBtn.addEventListener('click', replayQuizAudio);
-  quizEls.tipBtn.addEventListener('click', revealQuizHint);
   quizEls.input.addEventListener('input', handleQuizInput);
   quizEls.maskedWord.addEventListener('click', focusQuizInput);
   quizEls.difficultyButtons.forEach(button => {
@@ -235,18 +230,13 @@ function renderMaskedWord() {
     if (item.hiddenIndexSet.has(index)) {
       const hiddenPosition = item.hiddenIndexes.indexOf(index);
       const typedChar = currentState.quiz.typedAnswer[hiddenPosition];
-      const tipClass = currentState.quiz.hintVisible ? ' is-tip' : '';
       const filledClass = typedChar ? ' is-filled' : '';
       const displayChar = typedChar ? escapeHtml(typedChar) : '_';
-      return `<span class="quiz-mask-char is-blank${tipClass}${filledClass}">${displayChar}</span>`;
+      return `<span class="quiz-mask-char is-blank${filledClass}">${displayChar}</span>`;
     }
 
     return `<span class="quiz-mask-char">${escapeHtml(char)}</span>`;
   }).join('');
-}
-
-function getQuizHintText(item) {
-  return `${item.hiddenIndexes.length} missing position${item.hiddenIndexes.length > 1 ? 's' : ''} highlighted.`;
 }
 
 function clearQuizAutoAdvance() {
@@ -259,15 +249,6 @@ function clearQuizAutoAdvance() {
 function focusQuizInput() {
   const { input } = getQuizElements();
   input.focus();
-}
-
-function revealQuizHint() {
-  const item = getActiveQuizItem();
-  const { hint } = getQuizElements();
-  if (!item || currentState.quiz.completed) return;
-  currentState.quiz.hintVisible = true;
-  renderMaskedWord();
-  hint.textContent = getQuizHintText(item);
 }
 
 function isQuizAnswerLengthValid(answer, item) {
@@ -324,13 +305,11 @@ function resetQuizView() {
   quizEls.questionSection.style.display = 'flex';
   quizEls.form.style.display = '';
   quizEls.replayBtn.style.display = '';
-  quizEls.tipBtn.style.display = '';
   quizEls.input.disabled = false;
   quizEls.input.value = '';
   quizEls.input.removeAttribute('maxlength');
   quizEls.cancelBtn.textContent = '退出测验';
   quizEls.maskedWord.innerHTML = '';
-  quizEls.hint.textContent = '';
   setQuizFeedback('');
 }
 
@@ -358,12 +337,10 @@ function renderQuizQuestion() {
   const difficulty = getQuizDifficultyConfig();
 
   resetQuizView();
-  currentState.quiz.hintVisible = false;
   currentState.quiz.typedAnswer = '';
   quizEls.title.textContent = `场景测验 · ${difficulty.label}`;
   quizEls.sceneName.textContent = `${currentState.currentScene.name} / ${currentState.currentScene.zh}`;
-  quizEls.score.textContent = `${currentState.quiz.score} / ${total}`;
-  quizEls.progress.textContent = `${questionNumber} / ${total}`;
+  quizEls.score.textContent = `✅ ${currentState.quiz.score} ｜ ${questionNumber}/${total}`;
   quizEls.image.src = `res/images/${currentState.currentScene.id}/${item.file}`;
   quizEls.image.alt = item.en;
   renderMaskedWord();
@@ -404,16 +381,13 @@ function showQuizSummary() {
   currentState.quiz.completed = true;
   quizEls.title.textContent = `测验完成 · ${difficulty.label}`;
   quizEls.sceneName.textContent = `${currentState.currentScene.name} / ${currentState.currentScene.zh}`;
-  quizEls.score.textContent = scoreText;
-  quizEls.progress.textContent = `已完成 ${total} 题`;
+  quizEls.score.textContent = `✅ ${currentState.quiz.score} ｜ ${total}/${total}`;
   quizEls.image.src = currentState.currentScene.cover;
   quizEls.image.alt = currentState.currentScene.name;
   quizEls.maskedWord.innerHTML = '';
   quizEls.prompt.textContent = `Final score: ${scoreText}`;
   quizEls.form.style.display = 'none';
   quizEls.replayBtn.style.display = 'none';
-  quizEls.tipBtn.style.display = 'none';
-  quizEls.hint.textContent = '';
   quizEls.cancelBtn.textContent = '关闭';
   setQuizFeedback(summaryText, ratio >= 0.7);
   speakText(`Quiz finished. Your score is ${currentState.quiz.score} out of ${total}.`, {
@@ -479,7 +453,8 @@ function handleQuizSubmit(event) {
     setQuizFeedback(`Incorrect. Expected: ${getQuizCorrectAnswerText(item)}`, false);
   }
 
-  quizEls.score.textContent = `${currentState.quiz.score} / ${currentState.quiz.items.length}`;
+  const currentQuestionNumber = currentState.quiz.currentIndex + 1;
+  quizEls.score.textContent = `✅ ${currentState.quiz.score} ｜ ${currentQuestionNumber}/${currentState.quiz.items.length}`;
   quizEls.input.disabled = true;
   quizEls.submitBtn.textContent = currentState.quiz.currentIndex >= currentState.quiz.items.length - 1
     ? 'Scoring...'
@@ -690,8 +665,7 @@ function renderQuizSetup() {
   quizEls.questionSection.style.display = 'none';
   quizEls.title.textContent = '场景测验';
   quizEls.sceneName.textContent = `${currentState.currentScene.name} / ${currentState.currentScene.zh}`;
-  quizEls.score.textContent = 'Ready';
-  quizEls.progress.textContent = '选择难度';
+  quizEls.score.textContent = '✅ 0 ｜ 0/10';
   quizEls.cancelBtn.textContent = '退出测验';
   setQuizFeedback('');
 }
@@ -706,7 +680,6 @@ function beginQuiz(difficultyKey) {
   currentState.quiz.awaitingNext = false;
   currentState.quiz.completed = false;
   currentState.quiz.lastAnswerCorrect = null;
-  currentState.quiz.hintVisible = false;
 
   if (!currentState.quiz.items.length) {
     showToast('当前场景没有可测验的词汇');
