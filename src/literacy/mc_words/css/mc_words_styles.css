@@ -276,7 +276,7 @@ body {
 .cpt-pixel-flashcard {
   position: relative;
   width: 100%;
-  background: wheat;
+  background: rgba(255, 255, 255, 0.59);
   border: 0.1875rem solid #2e4a1a;
   border-radius: 1rem;
   cursor: pointer;
@@ -338,7 +338,8 @@ body {
 
 /* 卡片图片 */
 .cpt-pixel-flashcard .pixel-cover {
-  width: 100%;
+  width: 95%;
+  height: 10rem;
   object-fit: contain;
   border-radius: 0.625rem 0.625rem 0 0;
   margin-bottom: 0.625rem;
@@ -351,8 +352,8 @@ body {
 /* 英文文本 */
 .cpt-pixel-flashcard .pixel-en {
   font-weight: 700;
-  font-size: 1rem;
-  color: #61371f;
+  font-size: 1.1rem;
+  color: #000000;
   text-align: center;
   letter-spacing: 0.0625rem;
   word-break: break-all;
