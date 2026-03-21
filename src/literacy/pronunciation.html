@@ -266,6 +266,39 @@
       }
     }
 
+    const PREFERRED_VOICES = {
+      'en-US': [
+        'Samantha',
+        'Alex',
+        'Microsoft Jenny Online (Natural) - English (United States)',
+        'Google US English'
+      ],
+      'en-GB': [
+        'Google UK English 2 (Natural)',
+        'Serena',
+        'Daniel',
+        'Microsoft Sonia Online (Natural) - English (United Kingdom)',
+        'Google UK English Female',
+        'Google UK English Male'
+      ]
+    };
+
+    function findPreferredVoice(accent) {
+      const voices = speechSynthesis.getVoices();
+      const preferredNames = PREFERRED_VOICES[accent] || [];
+
+      for (const name of preferredNames) {
+        const match = voices.find((voice) => voice.name === name);
+        if (match) {
+          return match;
+        }
+      }
+
+      return voices.find((voice) => voice.lang === accent)
+        || voices.find((voice) => voice.lang.startsWith(accent.split('-')[0]))
+        || null;
+    }
+
     function getAudio(accent) {
       const word = document.getElementById('wordInput').value.trim();
       if (!word) {
@@ -276,13 +309,26 @@
       document.getElementById('status').textContent = '正在播放发音...';
 
       try {
+        speechSynthesis.cancel();
+
         const utterance = new SpeechSynthesisUtterance(word);
-        utterance.lang = accent;
+        const preferredVoice = findPreferredVoice(accent);
+
+        if (preferredVoice) {
+          utterance.voice = preferredVoice;
+          utterance.lang = preferredVoice.lang;
+        } else {
+          utterance.lang = accent;
+        }
+
         utterance.rate = 0.8;
 
-        // 添加播放结束事件处理
         utterance.onend = function () {
           document.getElementById('status').textContent = '';
+        };
+
+        utterance.onerror = function () {
+          document.getElementById('status').textContent = '播放发音时出错，请重试';
         };
 
         speechSynthesis.speak(utterance);
