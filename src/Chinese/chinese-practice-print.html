@@ -1,608 +1,611 @@
 <!doctype html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>中文练习打印 - Chinese Character Practice</title>
-    <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.19.0/dist/index.min.js"></script>
-    <style>
-      :root {
-        --bg-primary: #f5f5f5;
-        --bg-panel: #ffffff;
-        --border-color: #d9d9d9;
-        --text-primary: #262626;
-        --text-secondary: #595959;
-        --accent-color: #1890ff;
-        --grid-line-color: #4c5662;
-        --trace-color: #cbcfd6;
-        --character-color: #000000;
-        --cell-size: 12mm;
-      }
 
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>中文练习打印 - Chinese Character Practice</title>
+  <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.19.0/dist/index.min.js"></script>
+  <style>
+    :root {
+      --bg-primary: #f5f5f5;
+      --bg-panel: #ffffff;
+      --border-color: #d9d9d9;
+      --text-primary: #262626;
+      --text-secondary: #595959;
+      --accent-color: #1890ff;
+      --grid-line-color: #4c5662;
+      --trace-color: #cbcfd6;
+      --character-color: #000000;
+      --cell-size: 12mm;
+    }
 
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family:
+        -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei",
+        sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .control-panel {
+      width: 320px;
+      background: var(--bg-panel);
+      border-left: 1px solid var(--border-color);
+      padding: 20px;
+      overflow-y: auto;
+      flex-shrink: 0;
+      order: 2;
+    }
+
+    .control-panel h2 {
+      font-size: 18px;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--accent-color);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .control-group {
+      margin-bottom: 20px;
+    }
+
+    .control-group label {
+      display: block;
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .control-group textarea {
+      width: 100%;
+      min-height: 150px;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: "KaiTi", "楷体", "STKaiti", serif;
+      resize: vertical;
+      transition: border-color 0.3s;
+    }
+
+    .control-group textarea:focus {
+      outline: none;
+      border-color: var(--accent-color);
+    }
+
+    .radio-group,
+    .checkbox-group {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .radio-group label,
+    .checkbox-group label {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      font-size: 13px;
+      margin: 0;
+    }
+
+    .input-with-buttons {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .input-with-buttons input[type="number"] {
+      width: 70px;
+      padding: 6px 8px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      text-align: center;
+      font-size: 13px;
+    }
+
+    .input-with-buttons button {
+      width: 28px;
+      height: 28px;
+      border: 1px solid var(--border-color);
+      background: #fafafa;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .input-with-buttons button:hover {
+      background: var(--accent-color);
+      color: white;
+      border-color: var(--accent-color);
+    }
+
+    .color-picker {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .color-picker input[type="color"] {
+      width: 40px;
+      height: 32px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      cursor: pointer;
+      padding: 2px;
+    }
+
+    .color-picker span {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-family: monospace;
+    }
+
+    select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      font-size: 13px;
+      background: white;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 12px;
+      background: var(--accent-color);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.3s;
+      margin-top: 10px;
+    }
+
+    .btn-primary:hover {
+      background: #40a9ff;
+    }
+
+    .btn-secondary {
+      width: 100%;
+      padding: 10px;
+      background: white;
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 8px;
+    }
+
+    .btn-secondary:hover {
+      background: #fafafa;
+    }
+
+    .preview-area {
+      flex: 1;
+      padding: 30px;
+      overflow: auto;
+      background: #e8e8e8;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      order: 1;
+    }
+
+    .a4-paper {
+      background: white;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      width: 210mm;
+      height: 297mm;
+      padding: 10mm;
+      box-sizing: border-box;
+      position: relative;
+      flex-shrink: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .paper-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2mm;
+      font-size: 10px;
+      color: #666;
+      flex-shrink: 0;
+    }
+
+    .paper-header .field {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .paper-header .field-label {
+      font-weight: 500;
+    }
+
+    .paper-header .field-line {
+      display: inline-block;
+      width: 80px;
+      border-bottom: 1px solid #999;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: repeat(14, 1fr);
+      gap: 2mm;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .character-area {
+      grid-column: span 10;
+      display: flex;
+      flex-direction: column;
+      gap: 1mm;
+      overflow: hidden;
+    }
+
+    .word-group-area {
+      grid-column: span 4;
+      display: flex;
+      flex-direction: column;
+      gap: 1mm;
+      overflow: hidden;
+    }
+
+    .grid-row {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .pinyin-wrapper {
+      display: flex;
+      gap: 0.5mm;
+      margin-bottom: 0mm;
+    }
+
+    .pinyin-cell {
+      width: var(--cell-size);
+      height: calc(var(--cell-size) * 0.6);
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .pinyin-lines {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 100%;
+    }
+
+    .pinyin-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      border-top: 0.5px dashed var(--grid-line-color);
+    }
+
+    .pinyin-line:nth-child(1) {
+      top: 0;
+    }
+
+    .pinyin-line:nth-child(2) {
+      top: 33.33%;
+    }
+
+    .pinyin-line:nth-child(3) {
+      top: 66.67%;
+    }
+
+    .pinyin-line:nth-child(4) {
+      top: 100%;
+    }
+
+    .pinyin-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: calc(var(--cell-size) * 0.35);
+      color: var(--text-secondary);
+      white-space: nowrap;
+      font-family: Arial, sans-serif;
+      line-height: 1;
+      z-index: 10;
+    }
+
+    .grid-cell {
+      width: var(--cell-size);
+      height: var(--cell-size);
+      position: relative;
+      border: 1px solid var(--grid-line-color);
+      background: white;
+      flex-shrink: 0;
+    }
+
+    .tianzige::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 0.5px;
+      border-top: 0.5px dashed var(--grid-line-color);
+      transform: translateY(-50%);
+      opacity: 0.5;
+    }
+
+    .tianzige::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 0.5px;
+      border-left: 0.5px dashed var(--grid-line-color);
+      transform: translateX(-50%);
+      opacity: 0.5;
+    }
+
+    .mizige::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 0.5px;
+      border-top: 0.5px dashed var(--grid-line-color);
+      transform: translateY(-50%);
+      opacity: 0.5;
+      z-index: 1;
+    }
+
+    .mizige::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 0.5px;
+      border-left: 0.5px dashed var(--grid-line-color);
+      transform: translateX(-50%);
+      opacity: 0.5;
+      z-index: 1;
+    }
+
+    .mizige .diagonal-1,
+    .mizige .diagonal-2 {
+      display: block !important;
+      position: absolute;
+      background: var(--grid-line-color);
+      opacity: 0.3;
+      z-index: 2;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .diagonal-1 {
+      width: 0.5px;
+      height: 141%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(45deg);
+      transform-origin: center;
+    }
+
+    .diagonal-2 {
+      width: 0.5px;
+      height: 141%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-45deg);
+      transform-origin: center;
+    }
+
+    .character {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: calc(var(--cell-size) * 0.7);
+      font-family: "KaiTi", "楷体", "STKaiti", serif;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .character.trace {
+      color: var(--trace-color);
+    }
+
+    @media print {
       body {
-        font-family:
-          -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei",
-          sans-serif;
-        background: var(--bg-primary);
-        color: var(--text-primary);
-        line-height: 1.6;
-        min-height: 100vh;
-      }
-
-      .container {
-        display: flex;
-        min-height: 100vh;
+        background: white;
       }
 
       .control-panel {
-        width: 320px;
-        background: var(--bg-panel);
-        border-left: 1px solid var(--border-color);
-        padding: 20px;
-        overflow-y: auto;
-        flex-shrink: 0;
-        order: 2;
-      }
-
-      .control-panel h2 {
-        font-size: 18px;
-        margin-bottom: 20px;
-        padding-bottom: 10px;
-        border-bottom: 2px solid var(--accent-color);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .control-group {
-        margin-bottom: 20px;
-      }
-
-      .control-group label {
-        display: block;
-        font-size: 13px;
-        color: var(--text-secondary);
-        margin-bottom: 8px;
-        font-weight: 500;
-      }
-
-      .control-group textarea {
-        width: 100%;
-        min-height: 150px;
-        padding: 10px;
-        border: 1px solid var(--border-color);
-        border-radius: 4px;
-        font-size: 14px;
-        font-family: "KaiTi", "楷体", "STKaiti", serif;
-        resize: vertical;
-        transition: border-color 0.3s;
-      }
-
-      .control-group textarea:focus {
-        outline: none;
-        border-color: var(--accent-color);
-      }
-
-      .radio-group,
-      .checkbox-group {
-        display: flex;
-        gap: 15px;
-        flex-wrap: wrap;
-      }
-
-      .radio-group label,
-      .checkbox-group label {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        cursor: pointer;
-        font-size: 13px;
-        margin: 0;
-      }
-
-      .input-with-buttons {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .input-with-buttons input[type="number"] {
-        width: 70px;
-        padding: 6px 8px;
-        border: 1px solid var(--border-color);
-        border-radius: 4px;
-        text-align: center;
-        font-size: 13px;
-      }
-
-      .input-with-buttons button {
-        width: 28px;
-        height: 28px;
-        border: 1px solid var(--border-color);
-        background: #fafafa;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s;
-      }
-
-      .input-with-buttons button:hover {
-        background: var(--accent-color);
-        color: white;
-        border-color: var(--accent-color);
-      }
-
-      .color-picker {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-
-      .color-picker input[type="color"] {
-        width: 40px;
-        height: 32px;
-        border: 1px solid var(--border-color);
-        border-radius: 4px;
-        cursor: pointer;
-        padding: 2px;
-      }
-
-      .color-picker span {
-        font-size: 12px;
-        color: var(--text-secondary);
-        font-family: monospace;
-      }
-
-      select {
-        width: 100%;
-        padding: 8px;
-        border: 1px solid var(--border-color);
-        border-radius: 4px;
-        font-size: 13px;
-        background: white;
-        cursor: pointer;
-      }
-
-      .btn-primary {
-        width: 100%;
-        padding: 12px;
-        background: var(--accent-color);
-        color: white;
-        border: none;
-        border-radius: 4px;
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: background 0.3s;
-        margin-top: 10px;
-      }
-
-      .btn-primary:hover {
-        background: #40a9ff;
-      }
-
-      .btn-secondary {
-        width: 100%;
-        padding: 10px;
-        background: white;
-        color: var(--text-primary);
-        border: 1px solid var(--border-color);
-        border-radius: 4px;
-        font-size: 14px;
-        cursor: pointer;
-        transition: all 0.3s;
-        margin-top: 8px;
-      }
-
-      .btn-secondary:hover {
-        background: #fafafa;
+        display: none;
       }
 
       .preview-area {
-        flex: 1;
-        padding: 30px;
-        overflow: auto;
-        background: #e8e8e8;
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
-        order: 1;
+        padding: 0;
+        margin: 0;
+        background: white;
+        display: block;
       }
 
       .a4-paper {
-        background: white;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        box-shadow: none;
+        padding: 10mm;
         width: 210mm;
         height: 297mm;
-        padding: 10mm;
-        box-sizing: border-box;
-        position: relative;
-        flex-shrink: 0;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
+        margin: 0;
+        page-break-after: always;
       }
 
-      .paper-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2mm;
-        font-size: 10px;
-        color: #666;
-        flex-shrink: 0;
+      .a4-paper:last-child {
+        page-break-after: avoid;
       }
 
-      .paper-header .field {
-        display: flex;
-        align-items: center;
-        gap: 4px;
+      @page {
+        size: A4;
+        margin: 0;
       }
 
-      .paper-header .field-label {
-        font-weight: 500;
-      }
-
-      .paper-header .field-line {
-        display: inline-block;
-        width: 80px;
-        border-bottom: 1px solid #999;
-      }
-
-      .main-grid {
-        display: grid;
-        grid-template-columns: repeat(14, 1fr);
-        gap: 2mm;
-        flex: 1;
-        overflow: hidden;
-      }
-
-      .character-area {
-        grid-column: span 10;
-        display: flex;
-        flex-direction: column;
-        gap: 1mm;
-        overflow: hidden;
-      }
-
-      .word-group-area {
-        grid-column: span 4;
-        display: flex;
-        flex-direction: column;
-        gap: 1mm;
-        overflow: hidden;
-      }
-
-      .grid-row {
-        display: flex;
-        flex-direction: column;
-      }
-
-      .pinyin-wrapper {
-        display: flex;
-        gap: 0.5mm;
-        margin-bottom: 0mm;
-      }
-
-      .pinyin-cell {
-        width: var(--cell-size);
-        height: calc(var(--cell-size) * 0.6);
-        position: relative;
-        flex-shrink: 0;
-      }
-
-      .pinyin-lines {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 100%;
-      }
-
-      .pinyin-line {
-        position: absolute;
-        left: 0;
-        right: 0;
-        border-top: 0.5px dashed var(--grid-line-color);
-      }
-
-      .pinyin-line:nth-child(1) {
-        top: 0;
-      }
-
-      .pinyin-line:nth-child(2) {
-        top: 33.33%;
-      }
-
-      .pinyin-line:nth-child(3) {
-        top: 66.67%;
-      }
-
-      .pinyin-line:nth-child(4) {
-        top: 100%;
-      }
-
-      .pinyin-text {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-size: calc(var(--cell-size) * 0.35);
-        color: var(--text-secondary);
-        white-space: nowrap;
-        font-family: Arial, sans-serif;
-        line-height: 1;
-        z-index: 10;
-      }
-
-      .grid-cell {
-        width: var(--cell-size);
-        height: var(--cell-size);
-        position: relative;
-        border: 1px solid var(--grid-line-color);
-        background: white;
-        flex-shrink: 0;
-      }
-
-      .tianzige::before {
-        content: "";
-        position: absolute;
-        top: 50%;
-        left: 0;
-        right: 0;
-        height: 0.5px;
-        border-top: 0.5px dashed var(--grid-line-color);
-        transform: translateY(-50%);
-        opacity: 0.5;
-      }
-
-      .tianzige::after {
-        content: "";
-        position: absolute;
-        left: 50%;
-        top: 0;
-        bottom: 0;
-        width: 0.5px;
-        border-left: 0.5px dashed var(--grid-line-color);
-        transform: translateX(-50%);
-        opacity: 0.5;
-      }
-
-      .mizige::before {
-        content: "";
-        position: absolute;
-        top: 50%;
-        left: 0;
-        right: 0;
-        height: 0.5px;
-        border-top: 0.5px dashed var(--grid-line-color);
-        transform: translateY(-50%);
-        opacity: 0.5;
-        z-index: 1;
-      }
-
-      .mizige::after {
-        content: "";
-        position: absolute;
-        left: 50%;
-        top: 0;
-        bottom: 0;
-        width: 0.5px;
-        border-left: 0.5px dashed var(--grid-line-color);
-        transform: translateX(-50%);
-        opacity: 0.5;
-        z-index: 1;
-      }
-
+      /* Force mizige diagonal lines to print */
       .mizige .diagonal-1,
       .mizige .diagonal-2 {
         display: block !important;
-        position: absolute;
-        background: var(--grid-line-color);
-        opacity: 0.3;
-        z-index: 2;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
+        visibility: visible !important;
+        opacity: 0.5 !important;
       }
 
-      .diagonal-1 {
-        width: 0.5px;
-        height: 141%;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%) rotate(45deg);
-        transform-origin: center;
+      /* Force grid lines to print */
+      .grid-cell::before,
+      .grid-cell::after {
+        display: block !important;
+        visibility: visible !important;
       }
 
-      .diagonal-2 {
-        width: 0.5px;
-        height: 141%;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%) rotate(-45deg);
-        transform-origin: center;
+      /* 打印时降低描红和对应拼音的透明度，使其颜色变浅 */
+      .character.trace,
+      .pinyin-text.trace {
+        opacity: 0.4 !important;
+      }
+    }
+
+    @media (max-width: 1200px) {
+      .container {
+        flex-direction: column-reverse;
       }
 
-      .character {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-size: calc(var(--cell-size) * 0.7);
-        font-family: "KaiTi", "楷体", "STKaiti", serif;
-        z-index: 1;
-        pointer-events: none;
+      .control-panel {
+        width: 100%;
+        border-left: none;
+        border-top: 1px solid var(--border-color);
       }
 
-      .character.trace {
-        color: var(--trace-color);
+      .a4-paper {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 210/297;
       }
+    }
 
-      @media print {
-        body {
-          background: white;
-        }
+  </style>
+</head>
 
-        .control-panel {
-          display: none;
-        }
-
-        .preview-area {
-          padding: 0;
-          margin: 0;
-          background: white;
-          display: block;
-        }
-
-        .a4-paper {
-          box-shadow: none;
-          padding: 10mm;
-          width: 210mm;
-          height: 297mm;
-          margin: 0;
-          page-break-after: always;
-        }
-
-        @page {
-          size: A4;
-          margin: 0;
-        }
-
-        /* Force mizige diagonal lines to print */
-        .mizige .diagonal-1,
-        .mizige .diagonal-2 {
-          display: block !important;
-          visibility: visible !important;
-          opacity: 0.5 !important;
-        }
-
-        /* Force grid lines to print */
-        .grid-cell::before,
-        .grid-cell::after {
-          display: block !important;
-          visibility: visible !important;
-        }
-
-        /* 打印时降低描红和对应拼音的透明度，使其颜色变浅 */
-        .character.trace,
-        .pinyin-text.trace {
-          opacity: 0.4 !important;
-        }
-      }
-
-      @media (max-width: 1200px) {
-        .container {
-          flex-direction: column-reverse;
-        }
-
-        .control-panel {
-          width: 100%;
-          border-left: none;
-          border-top: 1px solid var(--border-color);
-        }
-
-        .a4-paper {
-          width: 100%;
-          height: auto;
-          aspect-ratio: 210/297;
-        }
-      }
-    </style>
-  </head>
-
-  <body>
-    <div class="container">
-      <div class="preview-area">
-        <div class="a4-paper">
-          <div class="paper-header">
-            <div class="field">
-              <span class="field-label">姓名：</span>
-              <span class="field-line"></span>
-            </div>
-            <div class="field">
-              <span class="field-label">时间：</span>
-              <span class="field-line"></span>
-            </div>
+<body>
+  <div class="container">
+    <div class="preview-area">
+      <div class="a4-paper">
+        <div class="paper-header">
+          <div class="field">
+            <span class="field-label">姓名：</span>
+            <span class="field-line"></span>
           </div>
-          <div class="main-grid">
-            <div class="character-area" id="characterArea"></div>
-            <div class="word-group-area" id="wordGroupArea"></div>
+          <div class="field">
+            <span class="field-label">时间：</span>
+            <span class="field-line"></span>
           </div>
+        </div>
+        <div class="main-grid">
+          <div class="character-area" id="characterArea"></div>
+          <div class="word-group-area" id="wordGroupArea"></div>
         </div>
       </div>
+    </div>
 
-      <div class="control-panel">
-        <h2>⚙️ 配置</h2>
+    <div class="control-panel">
+      <h2>⚙️ 配置</h2>
 
-        <div class="control-group">
-          <label>选择课程</label>
-          <select id="courseSelect" onchange="loadCourseData()">
-            <option value="">-- 自定义输入 --</option>
-            <optgroup label="一年级上册">
-              <option value="1a-1">识字 1 - 天地人</option>
-              <option value="1a-2">识字 2 - 金木水火土</option>
-              <option value="1a-3">识字 3 - 口耳目</option>
-              <option value="1a-4">识字 4 - 日月水火</option>
-              <option value="1a-5">识字 5 - 对韵歌</option>
-              <option value="1a-6">课文 1 - 秋天</option>
-              <option value="1a-7">课文 2 - 小小的船</option>
-              <option value="1a-8">课文 3 - 江南</option>
-              <option value="1a-9">课文 4 - 四季</option>
-            </optgroup>
-            <optgroup label="一年级下册">
-              <option value="1b-1">识字 1 - 春夏秋冬</option>
-              <option value="1b-2">识字 2 - 姓氏歌</option>
-              <option value="1b-3">识字 3 - 小青蛙</option>
-              <option value="1b-4">识字 4 - 猜字谜</option>
-              <option value="1b-5">课文 1 - 吃水不忘挖井人</option>
-              <option value="1b-6">课文 2 - 我多想去看看</option>
-              <option value="1b-7">课文 3 - 一个接一个</option>
-              <option value="1b-8">课文 4 - 四个太阳</option>
-              <option value="1b-9">课文 5 - 小公鸡和小鸭子</option>
-              <option value="1b-10">课文 6 - 树和喜鹊</option>
-              <option value="1b-11">课文 7 - 怎么都快乐</option>
-              <option value="1b-12">课文 8 - 静夜思</option>
-            </optgroup>
-            <optgroup label="二年级上册">
-              <option value="2a-1">课文 1 - 小蝌蚪找妈妈</option>
-              <option value="2a-2">课文 2 - 我是什么</option>
-              <option value="2a-3">课文 3 - 植物妈妈有办法</option>
-              <option value="2a-4">识字 1 - 场景歌</option>
-              <option value="2a-5">识字 2 - 树之歌</option>
-              <option value="2a-6">识字 3 - 拍手歌</option>
-              <option value="2a-7">识字 4 - 田家四季歌</option>
-              <option value="2a-8">课文 4 - 曹冲称象</option>
-              <option value="2a-9">课文 5 - 玲玲的画</option>
-              <option value="2a-10">课文 6 - 一封信</option>
-            </optgroup>
-            <optgroup label="二年级下册">
-              <option value="2b-1">课文 1 - 古诗二首</option>
-              <option value="2b-2">课文 2 - 找春天</option>
-              <option value="2b-3">课文 3 - 开满鲜花的小路</option>
-              <option value="2b-4">课文 4 - 邓小平爷爷植树</option>
-              <option value="2b-5">识字 1 - 神州谣</option>
-              <option value="2b-6">识字 2 - 传统节日</option>
-              <option value="2b-7">识字 3 - 贝的故事</option>
-              <option value="2b-8">识字 4 - 中国美食</option>
-            </optgroup>
-          </select>
-        </div>
+      <div class="control-group">
+        <label>选择课程</label>
+        <select id="courseSelect" onchange="loadCourseData()">
+          <option value="">-- 自定义输入 --</option>
+          <optgroup label="一年级上册">
+            <option value="1a-1">识字 1 - 天地人</option>
+            <option value="1a-2">识字 2 - 金木水火土</option>
+            <option value="1a-3">识字 3 - 口耳目</option>
+            <option value="1a-4">识字 4 - 日月水火</option>
+            <option value="1a-5">识字 5 - 对韵歌</option>
+            <option value="1a-6">课文 1 - 秋天</option>
+            <option value="1a-7">课文 2 - 小小的船</option>
+            <option value="1a-8">课文 3 - 江南</option>
+            <option value="1a-9">课文 4 - 四季</option>
+          </optgroup>
+          <optgroup label="一年级下册">
+            <option value="1b-1">识字 1 - 春夏秋冬</option>
+            <option value="1b-2">识字 2 - 姓氏歌</option>
+            <option value="1b-3">识字 3 - 小青蛙</option>
+            <option value="1b-4">识字 4 - 猜字谜</option>
+            <option value="1b-5">课文 1 - 吃水不忘挖井人</option>
+            <option value="1b-6">课文 2 - 我多想去看看</option>
+            <option value="1b-7">课文 3 - 一个接一个</option>
+            <option value="1b-8">课文 4 - 四个太阳</option>
+            <option value="1b-9">课文 5 - 小公鸡和小鸭子</option>
+            <option value="1b-10">课文 6 - 树和喜鹊</option>
+            <option value="1b-11">课文 7 - 怎么都快乐</option>
+            <option value="1b-12">课文 8 - 静夜思</option>
+          </optgroup>
+          <optgroup label="二年级上册">
+            <option value="2a-1">课文 1 - 小蝌蚪找妈妈</option>
+            <option value="2a-2">课文 2 - 我是什么</option>
+            <option value="2a-3">课文 3 - 植物妈妈有办法</option>
+            <option value="2a-4">识字 1 - 场景歌</option>
+            <option value="2a-5">识字 2 - 树之歌</option>
+            <option value="2a-6">识字 3 - 拍手歌</option>
+            <option value="2a-7">识字 4 - 田家四季歌</option>
+            <option value="2a-8">课文 4 - 曹冲称象</option>
+            <option value="2a-9">课文 5 - 玲玲的画</option>
+            <option value="2a-10">课文 6 - 一封信</option>
+          </optgroup>
+          <optgroup label="二年级下册">
+            <option value="2b-1">课文 1 - 古诗二首</option>
+            <option value="2b-2">课文 2 - 找春天</option>
+            <option value="2b-3">课文 3 - 开满鲜花的小路</option>
+            <option value="2b-4">课文 4 - 邓小平爷爷植树</option>
+            <option value="2b-5">识字 1 - 神州谣</option>
+            <option value="2b-6">识字 2 - 传统节日</option>
+            <option value="2b-7">识字 3 - 贝的故事</option>
+            <option value="2b-8">识字 4 - 中国美食</option>
+          </optgroup>
+        </select>
+      </div>
 
-        <div class="control-group">
-          <label>生字 (每行一个新字)</label>
-          <textarea
-            id="characterInput"
-            placeholder="每行输入一个新字，系统会自动描红..."
-          >
+      <div class="control-group">
+        <label>生字 (每行一个新字)</label>
+        <textarea id="characterInput" placeholder="每行输入一个新字，系统会自动描红...">
 河
 眼
 睛
@@ -615,50 +618,33 @@
 情
 请
 让
-清</textarea
-          >
-          <small
-            style="
+清</textarea>
+        <small style="
               color: #666;
               font-size: 11px;
               display: block;
               margin-top: 4px;
-            "
-            >每行一个字，自动显示描红效果</small
-          >
-        </div>
+            ">每行一个字，自动显示描红效果</small>
+      </div>
 
-        <div class="control-group">
-          <label>描红数量 (每个生字后的描红个数)</label>
-          <div class="input-with-buttons">
-            <button onclick="adjustValue('traceCount', -1)">−</button>
-            <input
-              type="number"
-              id="traceCount"
-              value="2"
-              min="1"
-              max="9"
-              step="1"
-            />
-            <button onclick="adjustValue('traceCount', 1)">+</button>
-          </div>
-          <small
-            style="
+      <div class="control-group">
+        <label>描红数量 (每个生字后的描红个数)</label>
+        <div class="input-with-buttons">
+          <button onclick="adjustValue('traceCount', -1)">−</button>
+          <input type="number" id="traceCount" value="2" min="1" max="9" step="1" />
+          <button onclick="adjustValue('traceCount', 1)">+</button>
+        </div>
+        <small style="
               color: #666;
               font-size: 11px;
               display: block;
               margin-top: 4px;
-            "
-            >第 1 个字是生字 (黑色)，后面跟描红 (灰色)</small
-          >
-        </div>
+            ">第 1 个字是生字 (黑色)，后面跟描红 (灰色)</small>
+      </div>
 
-        <div class="control-group">
-          <label>组词 (每行对应上方生字)</label>
-          <textarea
-            id="wordGroupInput"
-            placeholder="输入组词，每行对应上方生字..."
-          >
+      <div class="control-group">
+        <label>组词 (每行对应上方生字)</label>
+        <textarea id="wordGroupInput" placeholder="输入组词，每行对应上方生字...">
 河水
 眼睛
 睛光
@@ -671,723 +657,706 @@
 请假
 请坐
 让开
-清水</textarea
-          >
-        </div>
+清水</textarea>
+      </div>
 
-        <div class="control-group">
-          <label>空白格类型</label>
-          <div class="radio-group">
-            <label
-              ><input type="radio" name="gridType" value="tianzige" checked />
-              田字格</label
-            >
-            <label
-              ><input type="radio" name="gridType" value="mizige" />
-              米字格</label
-            >
-            <label
-              ><input type="radio" name="gridType" value="blank" />
-              空白格</label
-            >
-          </div>
+      <div class="control-group">
+        <label>空白格类型</label>
+        <div class="radio-group">
+          <label><input type="radio" name="gridType" value="tianzige" checked />
+            田字格</label>
+          <label><input type="radio" name="gridType" value="mizige" />
+            米字格</label>
+          <label><input type="radio" name="gridType" value="blank" />
+            空白格</label>
         </div>
+      </div>
 
-        <div class="control-group">
-          <label>格子大小 (mm)</label>
-          <div class="input-with-buttons">
-            <button onclick="adjustValue('cellSize', -1)">−</button>
-            <input
-              type="number"
-              id="cellSize"
-              value="12"
-              min="8"
-              max="20"
-              step="1"
-            />
-            <button onclick="adjustValue('cellSize', 1)">+</button>
-          </div>
-          <small
-            style="
+      <div class="control-group">
+        <label>格子大小 (mm)</label>
+        <div class="input-with-buttons">
+          <button onclick="adjustValue('cellSize', -1)">−</button>
+          <input type="number" id="cellSize" value="12" min="8" max="20" step="1" />
+          <button onclick="adjustValue('cellSize', 1)">+</button>
+        </div>
+        <small style="
               color: #666;
               font-size: 11px;
               display: block;
               margin-top: 4px;
-            "
-            >A4 纸建议 10-15mm</small
-          >
-        </div>
-
-        <div class="control-group">
-          <label>生字颜色</label>
-          <div class="color-picker">
-            <input type="color" id="textColor" value="#000000" />
-            <span id="textColorValue">#000000</span>
-          </div>
-        </div>
-
-        <div class="control-group">
-          <label>描红颜色</label>
-          <div class="color-picker">
-            <input type="color" id="traceColor" value="#cbcfd6" />
-            <span id="traceColorValue">#cbcfd6</span>
-          </div>
-        </div>
-
-        <div class="control-group">
-          <label>格子线颜色</label>
-          <div class="color-picker">
-            <input type="color" id="gridColor" value="#0cb300" />
-            <span id="gridColorValue">#0cb300</span>
-          </div>
-        </div>
-
-        <div class="control-group">
-          <label>字体</label>
-          <select id="fontFamily">
-            <option
-              value='楷体_gb2312, 楷体, "Kaiti SC", STKaiti, "AR PL UKai CN", "AR PL UKai HK", "AR PL UKai TW", "AR PL UKai TW MBE", "AR PL KaitiM GB", KaiTi, KaiTi_GB2312, DFKai-SB, TW-Kai;'
-            >
-              楷体
-            </option>
-            <option value="SimSun, 宋体, serif">宋体</option>
-            <option value="SimHei, 黑体, sans-serif">黑体</option>
-            <option value="FangSong, 仿宋, serif">仿宋</option>
-          </select>
-        </div>
-
-        <div class="control-group checkbox-group">
-          <label>
-            <input type="checkbox" id="showPinyin" checked />
-            <span>显示拼音和 4 线格</span>
-          </label>
-        </div>
-
-        <button class="btn-primary" onclick="window.print()">🖨️ 打印</button>
-        <button class="btn-secondary" onclick="resetSettings()">🔄 重置</button>
+            ">A4 纸建议 10-15mm</small>
       </div>
+
+      <div class="control-group">
+        <label>生字颜色</label>
+        <div class="color-picker">
+          <input type="color" id="textColor" value="#000000" />
+          <span id="textColorValue">#000000</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>描红颜色</label>
+        <div class="color-picker">
+          <input type="color" id="traceColor" value="#cbcfd6" />
+          <span id="traceColorValue">#cbcfd6</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>格子线颜色</label>
+        <div class="color-picker">
+          <input type="color" id="gridColor" value="#0cb300" />
+          <span id="gridColorValue">#0cb300</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>字体</label>
+        <select id="fontFamily">
+          <option
+            value='楷体_gb2312, 楷体, "Kaiti SC", STKaiti, "AR PL UKai CN", "AR PL UKai HK", "AR PL UKai TW", "AR PL UKai TW MBE", "AR PL KaitiM GB", KaiTi, KaiTi_GB2312, DFKai-SB, TW-Kai;'>
+            楷体
+          </option>
+          <option value="SimSun, 宋体, serif">宋体</option>
+          <option value="SimHei, 黑体, sans-serif">黑体</option>
+          <option value="FangSong, 仿宋, serif">仿宋</option>
+        </select>
+      </div>
+
+      <div class="control-group checkbox-group">
+        <label>
+          <input type="checkbox" id="showPinyin" checked />
+          <span>显示拼音和 4 线格</span>
+        </label>
+      </div>
+
+      <button class="btn-primary" onclick="window.print()">🖨️ 打印</button>
+      <button class="btn-secondary" onclick="resetSettings()">🔄 重置</button>
     </div>
+  </div>
 
-    <script>
-      // Course data: 人教版一年级和二年级语文生词
-      // 组词都是两个字，简单易懂，适合 1-2 年级学生
-      const courseData = {
-        // 一年级上册
-        "1a-1": {
-          chars: "天地人你我他",
-          words: "天上|地下|人口|你们|我们|他们",
-        },
-        "1a-2": {
-          chars: "一二三四五上下",
-          words: "一个|二月|三天|四方|五口|上山|下山",
-        },
-        "1a-3": {
-          chars: "口耳目手足站坐",
-          words: "口水|耳朵|目光|小手|足球|站立|坐下",
-        },
-        "1a-4": {
-          chars: "日月水火山石田禾",
-          words: "日月|月亮|口水|火山|山东|石头|田地|禾苗",
-        },
-        "1a-5": {
-          chars: "对云雨风花鸟虫",
-          words: "对错|白云|下雨|大风|花朵|小鸟|虫子",
-        },
-        "1a-6": {
-          chars: "气了树叶片大飞会个的",
-          words: "生气|来了|大树|叶子|一片|大小|飞鸟|开会|一个|好的",
-        },
-        "1a-7": {
-          chars: "船弯两在里看见闪星蓝",
-          words: "小船|弯弯|两个|正在|里面|看见|见到|闪亮|星星|蓝天",
-        },
-        "1a-8": {
-          chars: "江南可采莲鱼东西北",
-          words: "江南|长江|可以|采花|莲花|小鱼|东方|西瓜|北方",
-        },
-        "1a-9": {
-          chars: "尖说春青蛙夏弯地就冬",
-          words: "尖尖|说话|春天|青草|青蛙|夏天|弯腰|土地|就是|冬天",
-        },
+  <script>
+    // Course data: 人教版一年级和二年级语文生词
+    // 组词都是两个字，简单易懂，适合 1-2 年级学生
+    const courseData = {
+      // 一年级上册
+      "1a-1": {
+        chars: "天地人你我他",
+        words: "天上|地下|人口|你们|我们|他们",
+      },
+      "1a-2": {
+        chars: "一二三四五上下",
+        words: "一个|二月|三天|四方|五口|上山|下山",
+      },
+      "1a-3": {
+        chars: "口耳目手足站坐",
+        words: "口水|耳朵|目光|小手|足球|站立|坐下",
+      },
+      "1a-4": {
+        chars: "日月水火山石田禾",
+        words: "日月|月亮|口水|火山|山东|石头|田地|禾苗",
+      },
+      "1a-5": {
+        chars: "对云雨风花鸟虫",
+        words: "对错|白云|下雨|大风|花朵|小鸟|虫子",
+      },
+      "1a-6": {
+        chars: "气了树叶片大飞会个的",
+        words: "生气|来了|大树|叶子|一片|大小|飞鸟|开会|一个|好的",
+      },
+      "1a-7": {
+        chars: "船弯两在里看见闪星蓝",
+        words: "小船|弯弯|两个|正在|里面|看见|见到|闪亮|星星|蓝天",
+      },
+      "1a-8": {
+        chars: "江南可采莲鱼东西北",
+        words: "江南|长江|可以|采花|莲花|小鱼|东方|西瓜|北方",
+      },
+      "1a-9": {
+        chars: "尖说春青蛙夏弯地就冬",
+        words: "尖尖|说话|春天|青草|青蛙|夏天|弯腰|土地|就是|冬天",
+      },
 
-        // 一年级下册
-        "1b-1": {
-          chars: "春风冬雪飞入",
-          words: "春天|大风|冬天|雪花|飞鸟|入口",
-        },
-        "1b-2": {
-          chars: "姓什么双国王",
-          words: "姓名|什么|什么|双手|国王|大王",
-        },
-        "1b-3": {
-          chars: "青清气晴情请生",
-          words: "青山|清水|天气|晴天|心情|请问|生气",
-        },
-        "1b-4": {
-          chars: "字左右红时动万",
-          words: "生字|左手|右手|红花|时间|动作|万一",
-        },
-        "1b-5": {
-          chars: "吃叫主江住没以",
-          words: "吃饭|叫声|主人|长江|住下|没有|以为",
-        },
-        "1b-6": {
-          chars: "会走北京门广",
-          words: "开会|走路|北京|南京|城门|广大",
-        },
-        "1b-7": {
-          chars: "过各样伙伴这",
-          words: "过去|各种|样子|伙伴|伴侣|这边",
-        },
-        "1b-8": {
-          chars: "太阳校金秋为",
-          words: "太多|阳光|学校|金色|秋天|因为",
-        },
-        "1b-9": {
-          chars: "他河说也地听哥",
-          words: "他们|河水|说话|也是|大地|听话|哥哥",
-        },
-        "1b-10": {
-          chars: "单居招呼快乐",
-          words: "单独|居住|招呼|呼叫|快乐|可乐",
-        },
-        "1b-11": {
-          chars: "玩很当音讲行许",
-          words: "好玩|很多|当心|音乐|讲话|行走|许多",
-        },
-        "1b-12": {
-          chars: "思床前光低故乡",
-          words: "思念|床前|前面|月光|低头|故乡|乡下",
-        },
+      // 一年级下册
+      "1b-1": {
+        chars: "春风冬雪飞入",
+        words: "春天|大风|冬天|雪花|飞鸟|入口",
+      },
+      "1b-2": {
+        chars: "姓什么双国王",
+        words: "姓名|什么|什么|双手|国王|大王",
+      },
+      "1b-3": {
+        chars: "青清气晴情请生",
+        words: "青山|清水|天气|晴天|心情|请问|生气",
+      },
+      "1b-4": {
+        chars: "字左右红时动万",
+        words: "生字|左手|右手|红花|时间|动作|万一",
+      },
+      "1b-5": {
+        chars: "吃叫主江住没以",
+        words: "吃饭|叫声|主人|长江|住下|没有|以为",
+      },
+      "1b-6": {
+        chars: "会走北京门广",
+        words: "开会|走路|北京|南京|城门|广大",
+      },
+      "1b-7": {
+        chars: "过各样伙伴这",
+        words: "过去|各种|样子|伙伴|伴侣|这边",
+      },
+      "1b-8": {
+        chars: "太阳校金秋为",
+        words: "太多|阳光|学校|金色|秋天|因为",
+      },
+      "1b-9": {
+        chars: "他河说也地听哥",
+        words: "他们|河水|说话|也是|大地|听话|哥哥",
+      },
+      "1b-10": {
+        chars: "单居招呼快乐",
+        words: "单独|居住|招呼|呼叫|快乐|可乐",
+      },
+      "1b-11": {
+        chars: "玩很当音讲行许",
+        words: "好玩|很多|当心|音乐|讲话|行走|许多",
+      },
+      "1b-12": {
+        chars: "思床前光低故乡",
+        words: "思念|床前|前面|月光|低头|故乡|乡下",
+      },
 
-        // 二年级上册
-        "2a-1": {
-          chars: "两就哪宽顶睛肚皮孩跳",
-          words: "两个|就是|哪里|宽大|头顶|眼睛|肚皮|皮球|孩子|跳高",
-        },
-        "2a-2": {
-          chars: "变极片傍海洋作坏给带",
-          words: "变化|北极|一片|傍晚|大海|海洋|作业|坏人|送给|带头",
-        },
-        "2a-3": {
-          chars: "法如脚它娃她毛更知识",
-          words: "方法|如果|脚印|它们|娃娃|她们|皮毛|更加|知道|见识",
-        },
-        "2a-4": {
-          chars: "园孔桥群队旗铜号领",
-          words: "花园|孔雀|小桥|一群|队长|红旗|铜号|号角|带领",
-        },
-        "2a-5": {
-          chars: "杨壮桐枫松柏棉杉化桂",
-          words: "杨树|壮大|梧桐|枫叶|松柏|柏树|棉花|杉树|变化|桂花",
-        },
-        "2a-6": {
-          chars: "歌丛深处六熊猫九朋",
-          words: "唱歌|丛林|深处|处所|六个|熊猫|小猫|九个|朋友",
-        },
-        "2a-7": {
-          chars: "季吹肥农事忙归戴辛",
-          words: "四季|吹风|肥沃|农民|事情|忙碌|归来|戴帽|辛苦",
-        },
-        "2a-8": {
-          chars: "候柱底杆秤做岁站船",
-          words: "时候|柱子|海底|笔杆|秤杆|做事|岁月|站立|小船",
-        },
-        "2a-9": {
-          chars: "画幅评奖纸报另及拿",
-          words: "画画|一幅|评比|奖状|白纸|报纸|另外|及时|拿走",
-        },
-        "2a-10": {
-          chars: "今写支圆珠笔灯电影",
-          words: "今天|写字|一支|圆形|珠子|毛笔|灯光|电视|电影",
-        },
+      // 二年级上册
+      "2a-1": {
+        chars: "两就哪宽顶睛肚皮孩跳",
+        words: "两个|就是|哪里|宽大|头顶|眼睛|肚皮|皮球|孩子|跳高",
+      },
+      "2a-2": {
+        chars: "变极片傍海洋作坏给带",
+        words: "变化|北极|一片|傍晚|大海|海洋|作业|坏人|送给|带头",
+      },
+      "2a-3": {
+        chars: "法如脚它娃她毛更知识",
+        words: "方法|如果|脚印|它们|娃娃|她们|皮毛|更加|知道|见识",
+      },
+      "2a-4": {
+        chars: "园孔桥群队旗铜号领",
+        words: "花园|孔雀|小桥|一群|队长|红旗|铜号|号角|带领",
+      },
+      "2a-5": {
+        chars: "杨壮桐枫松柏棉杉化桂",
+        words: "杨树|壮大|梧桐|枫叶|松柏|柏树|棉花|杉树|变化|桂花",
+      },
+      "2a-6": {
+        chars: "歌丛深处六熊猫九朋",
+        words: "唱歌|丛林|深处|处所|六个|熊猫|小猫|九个|朋友",
+      },
+      "2a-7": {
+        chars: "季吹肥农事忙归戴辛",
+        words: "四季|吹风|肥沃|农民|事情|忙碌|归来|戴帽|辛苦",
+      },
+      "2a-8": {
+        chars: "候柱底杆秤做岁站船",
+        words: "时候|柱子|海底|笔杆|秤杆|做事|岁月|站立|小船",
+      },
+      "2a-9": {
+        chars: "画幅评奖纸报另及拿",
+        words: "画画|一幅|评比|奖状|白纸|报纸|另外|及时|拿走",
+      },
+      "2a-10": {
+        chars: "今写支圆珠笔灯电影",
+        words: "今天|写字|一支|圆形|珠子|毛笔|灯光|电视|电影",
+      },
 
-        // 二年级下册
-        "2b-1": {
-          chars: "诗村童碧妆绿丝剪",
-          words: "古诗|乡村|儿童|碧绿|化妆|绿叶|丝线|剪刀",
-        },
-        "2b-2": {
-          chars: "冲寻姑娘吐柳荡桃杏",
-          words: "冲动|寻找|姑娘|娘亲|吐气|柳树|荡舟|桃花|杏花",
-        },
-        "2b-3": {
-          chars: "鲜邮递原叔局堆礼",
-          words: "新鲜|邮票|快递|原来|叔叔|邮局|土堆|礼物",
-        },
-        "2b-4": {
-          chars: "邓植格引注满休息",
-          words: "邓家|植树|格子|引导|注意|满意|休息|气息",
-        },
-        "2b-5": {
-          chars: "州湾峡与陆谊齐奋",
-          words: "神州|海湾|峡谷|与其|陆地|友谊|整齐|奋斗",
-        },
-        "2b-6": {
-          chars: "贴街舟艾敬转团热",
-          words: "贴画|街道|小舟|艾草|敬礼|转身|团圆|热闹",
-        },
-        "2b-7": {
-          chars: "贝壳甲钱币与财购",
-          words: "贝壳|贝壳|甲鱼|金钱|钱币|与其|财产|购买",
-        },
-        "2b-8": {
-          chars: "烧茄烤鸭肉鸡蛋炒",
-          words: "烧火|茄子|烤鸭|鸭肉|猪肉|鸡蛋|蛋花|炒饭",
-        },
-      };
+      // 二年级下册
+      "2b-1": {
+        chars: "诗村童碧妆绿丝剪",
+        words: "古诗|乡村|儿童|碧绿|化妆|绿叶|丝线|剪刀",
+      },
+      "2b-2": {
+        chars: "冲寻姑娘吐柳荡桃杏",
+        words: "冲动|寻找|姑娘|娘亲|吐气|柳树|荡舟|桃花|杏花",
+      },
+      "2b-3": {
+        chars: "鲜邮递原叔局堆礼",
+        words: "新鲜|邮票|快递|原来|叔叔|邮局|土堆|礼物",
+      },
+      "2b-4": {
+        chars: "邓植格引注满休息",
+        words: "邓家|植树|格子|引导|注意|满意|休息|气息",
+      },
+      "2b-5": {
+        chars: "州湾峡与陆谊齐奋",
+        words: "神州|海湾|峡谷|与其|陆地|友谊|整齐|奋斗",
+      },
+      "2b-6": {
+        chars: "贴街舟艾敬转团热",
+        words: "贴画|街道|小舟|艾草|敬礼|转身|团圆|热闹",
+      },
+      "2b-7": {
+        chars: "贝壳甲钱币与财购",
+        words: "贝壳|贝壳|甲鱼|金钱|钱币|与其|财产|购买",
+      },
+      "2b-8": {
+        chars: "烧茄烤鸭肉鸡蛋炒",
+        words: "烧火|茄子|烤鸭|鸭肉|猪肉|鸡蛋|蛋花|炒饭",
+      },
+    };
 
-      const pinyinMap = {
-        河: "hé",
-        眼: "yǎn",
-        睛: "jīng",
-        晴: "qíng",
-        保: "bǎo",
-        护: "hù",
-        苗: "miáo",
-        吃: "chī",
-        事: "shì",
-        情: "qíng",
-        请: "qǐng",
-        让: "ràng",
-        清: "qīng",
-        水: "shuǐ",
-        光: "guāng",
-        天: "tiān",
-        木: "mù",
-        饭: "fàn",
-        工: "gōng",
-        假: "jià",
-        坐: "zuò",
-        开: "kāi",
-      };
+    const pinyinMap = {
+      河: "hé",
+      眼: "yǎn",
+      睛: "jīng",
+      晴: "qíng",
+      保: "bǎo",
+      护: "hù",
+      苗: "miáo",
+      吃: "chī",
+      事: "shì",
+      情: "qíng",
+      请: "qǐng",
+      让: "ràng",
+      清: "qīng",
+      水: "shuǐ",
+      光: "guāng",
+      天: "tiān",
+      木: "mù",
+      饭: "fàn",
+      工: "gōng",
+      假: "jià",
+      坐: "zuò",
+      开: "kāi",
+    };
 
-      let config = {
-        traceCount: 2,
-        cellSize: 12,
-        textColor: "#000000",
-        traceColor: "#cbcfd6",
-        gridColor: "#0cb300",
-        gridType: "tianzige",
-        fontFamily:
-          '楷体_gb2312, 楷体, "Kaiti SC", STKaiti, "AR PL UKai CN", "AR PL UKai HK", "AR PL UKai TW", "AR PL UKai TW MBE", "AR PL KaitiM GB", KaiTi, KaiTi_GB2312, DFKai-SB, TW-Kai;',
-        showPinyin: true,
-      };
+    let config = {
+      traceCount: 2,
+      cellSize: 12,
+      textColor: "#000000",
+      traceColor: "#cbcfd6",
+      gridColor: "#0cb300",
+      gridType: "tianzige",
+      fontFamily:
+        '楷体_gb2312, 楷体, "Kaiti SC", STKaiti, "AR PL UKai CN", "AR PL UKai HK", "AR PL UKai TW", "AR PL UKai TW MBE", "AR PL KaitiM GB", KaiTi, KaiTi_GB2312, DFKai-SB, TW-Kai;',
+      showPinyin: true,
+    };
 
-      function getPinyin(char) {
-        if (window.pinyinPro && typeof window.pinyinPro.pinyin === "function") {
-          try {
-            return window.pinyinPro.pinyin(char, { toneType: "symbol" });
-          } catch (e) {}
-        }
-        return pinyinMap[char] || "";
+    function getPinyin(char) {
+      if (window.pinyinPro && typeof window.pinyinPro.pinyin === "function") {
+        try {
+          return window.pinyinPro.pinyin(char, { toneType: "symbol" });
+        } catch (e) { }
       }
+      return pinyinMap[char] || "";
+    }
 
-      function loadCourseData() {
-        const select = document.getElementById("courseSelect");
-        const course = courseData[select.value];
+    function loadCourseData() {
+      const select = document.getElementById("courseSelect");
+      const course = courseData[select.value];
 
-        if (course) {
-          // Convert space-separated chars to newline-separated for display
-          const charsFormatted = course.chars.split("").join("\n");
-          const wordsFormatted = course.words.split("|").join("\n");
+      if (course) {
+        // Convert space-separated chars to newline-separated for display
+        const charsFormatted = course.chars.split("").join("\n");
+        const wordsFormatted = course.words.split("|").join("\n");
 
-          document.getElementById("characterInput").value = charsFormatted;
-          document.getElementById("wordGroupInput").value = wordsFormatted;
+        document.getElementById("characterInput").value = charsFormatted;
+        document.getElementById("wordGroupInput").value = wordsFormatted;
 
+        renderGrid();
+        saveSettings();
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadSettings();
+      renderGrid();
+      setupEventListeners();
+    });
+
+    function setupEventListeners() {
+      document
+        .getElementById("characterInput")
+        .addEventListener("input", () => {
           renderGrid();
           saveSettings();
-        }
-      }
-
-      document.addEventListener("DOMContentLoaded", () => {
-        loadSettings();
-        renderGrid();
-        setupEventListeners();
-      });
-
-      function setupEventListeners() {
-        document
-          .getElementById("characterInput")
-          .addEventListener("input", () => {
-            renderGrid();
-            saveSettings();
-          });
-
-        document
-          .getElementById("wordGroupInput")
-          .addEventListener("input", () => {
-            renderGrid();
-            saveSettings();
-          });
-
-        ["traceCount", "cellSize"].forEach((id) => {
-          const input = document.getElementById(id);
-          if (input) {
-            input.addEventListener("input", () => {
-              config[id] = parseFloat(input.value);
-              updateCSSVariables();
-              renderGrid();
-              saveSettings();
-            });
-          }
         });
 
-        ["textColor", "traceColor", "gridColor"].forEach((id) => {
-          const input = document.getElementById(id);
-          if (input) {
-            input.addEventListener("input", (e) => {
-              config[id] = e.target.value;
-              document.getElementById(id + "Value").textContent =
-                e.target.value;
-              updateCSSVariables();
-              renderGrid();
-              saveSettings();
-            });
-          }
+      document
+        .getElementById("wordGroupInput")
+        .addEventListener("input", () => {
+          renderGrid();
+          saveSettings();
         });
 
-        document.querySelectorAll('input[name="gridType"]').forEach((radio) => {
-          radio.addEventListener("change", (e) => {
-            config.gridType = e.target.value;
-            renderGrid();
-            saveSettings();
-          });
-        });
-
-        document
-          .getElementById("fontFamily")
-          .addEventListener("change", (e) => {
-            config.fontFamily = e.target.value;
-            renderGrid();
-            saveSettings();
-          });
-
-        document
-          .getElementById("showPinyin")
-          .addEventListener("change", (e) => {
-            config.showPinyin = e.target.checked;
+      ["traceCount", "cellSize"].forEach((id) => {
+        const input = document.getElementById(id);
+        if (input) {
+          input.addEventListener("input", () => {
+            config[id] = parseFloat(input.value);
             updateCSSVariables();
             renderGrid();
             saveSettings();
           });
-      }
+        }
+      });
 
-      function adjustValue(inputId, delta) {
-        const input = document.getElementById(inputId);
-        const step = parseFloat(input.step) || 1;
-        let value = parseFloat(input.value) || 0;
-        value += delta * step;
-        const min = parseFloat(input.min) || -Infinity;
-        const max = parseFloat(input.max) || Infinity;
-        value = Math.max(min, Math.min(max, value));
-        input.value = value;
-        config[inputId] = value;
-        updateCSSVariables();
-        renderGrid();
-        saveSettings();
-      }
+      ["textColor", "traceColor", "gridColor"].forEach((id) => {
+        const input = document.getElementById(id);
+        if (input) {
+          input.addEventListener("input", (e) => {
+            config[id] = e.target.value;
+            document.getElementById(id + "Value").textContent =
+              e.target.value;
+            updateCSSVariables();
+            renderGrid();
+            saveSettings();
+          });
+        }
+      });
 
-      function updateCSSVariables() {
-        const root = document.documentElement;
-        root.style.setProperty("--cell-size", `${config.cellSize}mm`);
-        root.style.setProperty("--character-color", config.textColor);
-        root.style.setProperty("--trace-color", config.traceColor);
-        root.style.setProperty("--grid-line-color", config.gridColor);
-      }
+      document.querySelectorAll('input[name="gridType"]').forEach((radio) => {
+        radio.addEventListener("change", (e) => {
+          config.gridType = e.target.value;
+          renderGrid();
+          saveSettings();
+        });
+      });
 
-      function renderGrid() {
-        const charArea = document.getElementById("characterArea");
-        const wordArea = document.getElementById("wordGroupArea");
-        charArea.innerHTML = "";
-        wordArea.innerHTML = "";
+      document
+        .getElementById("fontFamily")
+        .addEventListener("change", (e) => {
+          config.fontFamily = e.target.value;
+          renderGrid();
+          saveSettings();
+        });
 
-        const charsInput = document.getElementById("characterInput").value;
-        const wordGroups = document
-          .getElementById("wordGroupInput")
-          .value.trim()
-          .split("\n")
-          .filter((w) => w.trim());
-        const lines = charsInput.split("\n");
-        const totalCells = 10; // Fixed 10 cells per row
+      document
+        .getElementById("showPinyin")
+        .addEventListener("change", (e) => {
+          config.showPinyin = e.target.checked;
+          updateCSSVariables();
+          renderGrid();
+          saveSettings();
+        });
+    }
 
-        lines.forEach((line, lineIndex) => {
-          const trimmedLine = line.trim();
-          if (!trimmedLine) return;
+    function adjustValue(inputId, delta) {
+      const input = document.getElementById(inputId);
+      const step = parseFloat(input.step) || 1;
+      let value = parseFloat(input.value) || 0;
+      value += delta * step;
+      const min = parseFloat(input.min) || -Infinity;
+      const max = parseFloat(input.max) || Infinity;
+      value = Math.max(min, Math.min(max, value));
+      input.value = value;
+      config[inputId] = value;
+      updateCSSVariables();
+      renderGrid();
+      saveSettings();
+    }
 
-          const charRow = document.createElement("div");
-          charRow.className = "grid-row";
+    function updateCSSVariables() {
+      const root = document.documentElement;
+      root.style.setProperty("--cell-size", `${config.cellSize}mm`);
+      root.style.setProperty("--character-color", config.textColor);
+      root.style.setProperty("--trace-color", config.traceColor);
+      root.style.setProperty("--grid-line-color", config.gridColor);
+    }
 
-          // Check if line has multiple characters (no tracing for multi-char lines)
-          const isMultiChar = trimmedLine.length > 1;
-          const chars = trimmedLine.split("");
+    function renderGrid() {
+      const charArea = document.getElementById("characterArea");
+      const wordArea = document.getElementById("wordGroupArea");
+      charArea.innerHTML = "";
+      wordArea.innerHTML = "";
 
-          // Create pinyin wrapper if enabled
-          if (config.showPinyin) {
-            const pinyinWrapper = document.createElement("div");
-            pinyinWrapper.className = "pinyin-wrapper";
+      const charsInput = document.getElementById("characterInput").value;
+      const wordGroups = document
+        .getElementById("wordGroupInput")
+        .value.trim()
+        .split("\n")
+        .filter((w) => w.trim());
+      const lines = charsInput.split("\n");
+      const totalCells = 10; // Fixed 10 cells per row
 
-            for (let i = 0; i < totalCells; i++) {
-              const pinyinCell = document.createElement("div");
-              pinyinCell.className = "pinyin-cell";
+      lines.forEach((line, lineIndex) => {
+        const trimmedLine = line.trim();
+        if (!trimmedLine) return;
 
-              const pinyinLines = document.createElement("div");
-              pinyinLines.className = "pinyin-lines";
+        const charRow = document.createElement("div");
+        charRow.className = "grid-row";
 
-              for (let j = 0; j < 4; j++) {
-                const pline = document.createElement("div");
-                pline.className = "pinyin-line";
-                pinyinLines.appendChild(pline);
-              }
+        // Check if line has multiple characters (no tracing for multi-char lines)
+        const isMultiChar = trimmedLine.length > 1;
+        const chars = trimmedLine.split("");
 
-              // Add pinyin for cells that have characters
-              let hasChar = false;
-              let isTracePinyin = false;
-              if (!isMultiChar) {
-                if (i === 0) {
-                  hasChar = true;
-                  isTracePinyin = false;
-                } else if (i < 1 + config.traceCount) {
-                  hasChar = true;
-                  isTracePinyin = true;
-                }
-              } else if (isMultiChar && i < chars.length) {
-                hasChar = true;
-                isTracePinyin = false;
-              }
-
-              if (hasChar && chars[Math.min(i, chars.length - 1)]) {
-                const pinyinText = document.createElement("div");
-                const charIndex = isMultiChar ? i : 0;
-                pinyinText.textContent = getPinyin(chars[charIndex]);
-                if (isTracePinyin) {
-                  pinyinText.className = "pinyin-text trace";
-                  pinyinText.style.color = "var(--trace-color)";
-                } else {
-                  pinyinText.className = "pinyin-text";
-                  pinyinText.style.color = "var(--character-color)";
-                }
-                pinyinLines.appendChild(pinyinText);
-              }
-
-              pinyinCell.appendChild(pinyinLines);
-              pinyinWrapper.appendChild(pinyinCell);
-            }
-
-            charRow.appendChild(pinyinWrapper);
-          }
-
-          const cellsContainer = document.createElement("div");
-          cellsContainer.style.display = "flex";
-          cellsContainer.style.gap = "0.5mm";
+        // Create pinyin wrapper if enabled
+        if (config.showPinyin) {
+          const pinyinWrapper = document.createElement("div");
+          pinyinWrapper.className = "pinyin-wrapper";
 
           for (let i = 0; i < totalCells; i++) {
-            const cell = document.createElement("div");
-            cell.className = `grid-cell ${config.gridType}`;
+            const pinyinCell = document.createElement("div");
+            pinyinCell.className = "pinyin-cell";
 
-            if (config.gridType === "mizige") {
-              const diag1 = document.createElement("div");
-              diag1.className = "diagonal-1";
-              cell.appendChild(diag1);
-              const diag2 = document.createElement("div");
-              diag2.className = "diagonal-2";
-              cell.appendChild(diag2);
+            const pinyinLines = document.createElement("div");
+            pinyinLines.className = "pinyin-lines";
+
+            for (let j = 0; j < 4; j++) {
+              const pline = document.createElement("div");
+              pline.className = "pinyin-line";
+              pinyinLines.appendChild(pline);
             }
 
-            // Determine if this cell should have a character
+            // Add pinyin for cells that have characters
             let hasChar = false;
-            let charIndex = 0;
-            let isTrace = false;
-
+            let isTracePinyin = false;
             if (!isMultiChar) {
-              // Single char with tracing
               if (i === 0) {
                 hasChar = true;
-                isTrace = false;
-              } else if (i <= config.traceCount) {
+                isTracePinyin = false;
+              } else if (i < 1 + config.traceCount) {
                 hasChar = true;
-                isTrace = true;
+                isTracePinyin = true;
               }
-              charIndex = 0;
-            } else {
-              // Multi-char, no tracing
-              if (i < chars.length) {
-                hasChar = true;
-                isTrace = false;
-                charIndex = i;
-              }
+            } else if (isMultiChar && i < chars.length) {
+              hasChar = true;
+              isTracePinyin = false;
             }
 
-            if (hasChar && chars[charIndex]) {
-              const charEl = document.createElement("div");
-              if (isMultiChar) {
-                charEl.className = "character";
-                charEl.style.color = config.textColor;
-              } else if (isTrace) {
-                charEl.className = "character trace";
-              } else {
-                charEl.className = "character";
-                charEl.style.color = config.textColor;
-              }
-              charEl.textContent = chars[charIndex];
-              charEl.style.fontFamily = config.fontFamily;
-              cell.appendChild(charEl);
-            }
-            // Empty cells remain empty
-
-            cellsContainer.appendChild(cell);
-          }
-
-          charRow.appendChild(cellsContainer);
-          charArea.appendChild(charRow);
-
-          // Create word group row (4 cells)
-          const wordRow = document.createElement("div");
-          wordRow.className = "grid-row";
-          const wordGroup = wordGroups[lineIndex] || "";
-          const wordChars = wordGroup.split("").slice(0, 4);
-
-          if (config.showPinyin) {
-            const wordPinyinWrapper = document.createElement("div");
-            wordPinyinWrapper.className = "pinyin-wrapper";
-
-            for (let i = 0; i < 4; i++) {
-              const pinyinCell = document.createElement("div");
-              pinyinCell.className = "pinyin-cell";
-
-              const pinyinLines = document.createElement("div");
-              pinyinLines.className = "pinyin-lines";
-
-              for (let j = 0; j < 4; j++) {
-                const pline = document.createElement("div");
-                pline.className = "pinyin-line";
-                pinyinLines.appendChild(pline);
-              }
-
-              if (i < wordChars.length) {
-                const pinyinText = document.createElement("div");
+            if (hasChar && chars[Math.min(i, chars.length - 1)]) {
+              const pinyinText = document.createElement("div");
+              const charIndex = isMultiChar ? i : 0;
+              pinyinText.textContent = getPinyin(chars[charIndex]);
+              if (isTracePinyin) {
                 pinyinText.className = "pinyin-text trace";
                 pinyinText.style.color = "var(--trace-color)";
-                pinyinText.textContent = getPinyin(wordChars[i]);
-                pinyinLines.appendChild(pinyinText);
+              } else {
+                pinyinText.className = "pinyin-text";
+                pinyinText.style.color = "var(--character-color)";
               }
-
-              pinyinCell.appendChild(pinyinLines);
-              wordPinyinWrapper.appendChild(pinyinCell);
+              pinyinLines.appendChild(pinyinText);
             }
 
-            wordRow.appendChild(wordPinyinWrapper);
+            pinyinCell.appendChild(pinyinLines);
+            pinyinWrapper.appendChild(pinyinCell);
           }
 
-          const wordCellsContainer = document.createElement("div");
-          wordCellsContainer.style.display = "flex";
-          wordCellsContainer.style.gap = "0.5mm";
+          charRow.appendChild(pinyinWrapper);
+        }
+
+        const cellsContainer = document.createElement("div");
+        cellsContainer.style.display = "flex";
+        cellsContainer.style.gap = "0.5mm";
+
+        for (let i = 0; i < totalCells; i++) {
+          const cell = document.createElement("div");
+          cell.className = `grid-cell ${config.gridType}`;
+
+          if (config.gridType === "mizige") {
+            const diag1 = document.createElement("div");
+            diag1.className = "diagonal-1";
+            cell.appendChild(diag1);
+            const diag2 = document.createElement("div");
+            diag2.className = "diagonal-2";
+            cell.appendChild(diag2);
+          }
+
+          // Determine if this cell should have a character
+          let hasChar = false;
+          let charIndex = 0;
+          let isTrace = false;
+
+          if (!isMultiChar) {
+            // Single char with tracing
+            if (i === 0) {
+              hasChar = true;
+              isTrace = false;
+            } else if (i <= config.traceCount) {
+              hasChar = true;
+              isTrace = true;
+            }
+            charIndex = 0;
+          } else {
+            // Multi-char, no tracing
+            if (i < chars.length) {
+              hasChar = true;
+              isTrace = false;
+              charIndex = i;
+            }
+          }
+
+          if (hasChar && chars[charIndex]) {
+            const charEl = document.createElement("div");
+            if (isMultiChar) {
+              charEl.className = "character";
+              charEl.style.color = config.textColor;
+            } else if (isTrace) {
+              charEl.className = "character trace";
+            } else {
+              charEl.className = "character";
+              charEl.style.color = config.textColor;
+            }
+            charEl.textContent = chars[charIndex];
+            charEl.style.fontFamily = config.fontFamily;
+            cell.appendChild(charEl);
+          }
+          // Empty cells remain empty
+
+          cellsContainer.appendChild(cell);
+        }
+
+        charRow.appendChild(cellsContainer);
+        charArea.appendChild(charRow);
+
+        // Create word group row (4 cells)
+        const wordRow = document.createElement("div");
+        wordRow.className = "grid-row";
+        const wordGroup = wordGroups[lineIndex] || "";
+        const wordChars = wordGroup.split("").slice(0, 4);
+
+        if (config.showPinyin) {
+          const wordPinyinWrapper = document.createElement("div");
+          wordPinyinWrapper.className = "pinyin-wrapper";
 
           for (let i = 0; i < 4; i++) {
-            const cell = document.createElement("div");
-            cell.className = `grid-cell ${config.gridType}`;
+            const pinyinCell = document.createElement("div");
+            pinyinCell.className = "pinyin-cell";
 
-            if (config.gridType === "mizige") {
-              const diag1 = document.createElement("div");
-              diag1.className = "diagonal-1";
-              cell.appendChild(diag1);
-              const diag2 = document.createElement("div");
-              diag2.className = "diagonal-2";
-              cell.appendChild(diag2);
+            const pinyinLines = document.createElement("div");
+            pinyinLines.className = "pinyin-lines";
+
+            for (let j = 0; j < 4; j++) {
+              const pline = document.createElement("div");
+              pline.className = "pinyin-line";
+              pinyinLines.appendChild(pline);
             }
 
             if (i < wordChars.length) {
-              const charEl = document.createElement("div");
-              charEl.className = "character trace";
-              charEl.textContent = wordChars[i];
-              charEl.style.fontFamily = config.fontFamily;
-              cell.appendChild(charEl);
+              const pinyinText = document.createElement("div");
+              pinyinText.className = "pinyin-text trace";
+              pinyinText.style.color = "var(--trace-color)";
+              pinyinText.textContent = getPinyin(wordChars[i]);
+              pinyinLines.appendChild(pinyinText);
             }
 
-            wordCellsContainer.appendChild(cell);
+            pinyinCell.appendChild(pinyinLines);
+            wordPinyinWrapper.appendChild(pinyinCell);
           }
 
-          wordRow.appendChild(wordCellsContainer);
-          wordArea.appendChild(wordRow);
-        });
+          wordRow.appendChild(wordPinyinWrapper);
+        }
 
-        updateCSSVariables();
-      }
+        const wordCellsContainer = document.createElement("div");
+        wordCellsContainer.style.display = "flex";
+        wordCellsContainer.style.gap = "0.5mm";
 
-      function saveSettings() {
-        const settings = {
-          characters: document.getElementById("characterInput").value,
-          wordGroups: document.getElementById("wordGroupInput").value,
-          config: config,
-        };
-        localStorage.setItem(
-          "chinesePracticeSettings",
-          JSON.stringify(settings),
-        );
-      }
+        for (let i = 0; i < 4; i++) {
+          const cell = document.createElement("div");
+          cell.className = `grid-cell ${config.gridType}`;
 
-      function loadSettings() {
-        const saved = localStorage.getItem("chinesePracticeSettings");
-        if (saved) {
-          try {
-            const settings = JSON.parse(saved);
-            if (settings.characters) {
-              document.getElementById("characterInput").value =
-                settings.characters;
-            }
-            if (settings.wordGroups) {
-              document.getElementById("wordGroupInput").value =
-                settings.wordGroups;
-            }
-            if (settings.config) {
-              Object.assign(config, settings.config);
-
-              const traceInput = document.getElementById("traceCount");
-              if (traceInput && settings.config.traceCount) {
-                traceInput.value = settings.config.traceCount;
-              }
-
-              const input = document.getElementById("cellSize");
-              if (input && settings.config.cellSize) {
-                input.value = settings.config.cellSize;
-              }
-
-              ["textColor", "traceColor", "gridColor"].forEach((key) => {
-                const colorInput = document.getElementById(key);
-                const display = document.getElementById(key + "Value");
-                if (colorInput && settings.config[key]) {
-                  colorInput.value = settings.config[key];
-                  if (display) display.textContent = settings.config[key];
-                }
-              });
-
-              const fontInput = document.getElementById("fontFamily");
-              if (fontInput && settings.config.fontFamily) {
-                fontInput.value = settings.config.fontFamily;
-              }
-
-              const pinyinCheckbox = document.getElementById("showPinyin");
-              if (pinyinCheckbox) {
-                pinyinCheckbox.checked = settings.config.showPinyin || false;
-              }
-
-              const gridTypeRadio = document.querySelector(
-                `input[name="gridType"][value="${settings.config.gridType}"]`,
-              );
-              if (gridTypeRadio) {
-                gridTypeRadio.checked = true;
-              }
-            }
-          } catch (e) {
-            console.error("Failed to load settings:", e);
+          if (config.gridType === "mizige") {
+            const diag1 = document.createElement("div");
+            diag1.className = "diagonal-1";
+            cell.appendChild(diag1);
+            const diag2 = document.createElement("div");
+            diag2.className = "diagonal-2";
+            cell.appendChild(diag2);
           }
+
+          if (i < wordChars.length) {
+            const charEl = document.createElement("div");
+            charEl.className = "character trace";
+            charEl.textContent = wordChars[i];
+            charEl.style.fontFamily = config.fontFamily;
+            cell.appendChild(charEl);
+          }
+
+          wordCellsContainer.appendChild(cell);
+        }
+
+        wordRow.appendChild(wordCellsContainer);
+        wordArea.appendChild(wordRow);
+      });
+
+      updateCSSVariables();
+    }
+
+    function saveSettings() {
+      const settings = {
+        characters: document.getElementById("characterInput").value,
+        wordGroups: document.getElementById("wordGroupInput").value,
+        config: config,
+      };
+      localStorage.setItem(
+        "chinesePracticeSettings",
+        JSON.stringify(settings),
+      );
+    }
+
+    function loadSettings() {
+      const saved = localStorage.getItem("chinesePracticeSettings");
+      if (saved) {
+        try {
+          const settings = JSON.parse(saved);
+          if (settings.characters) {
+            document.getElementById("characterInput").value =
+              settings.characters;
+          }
+          if (settings.wordGroups) {
+            document.getElementById("wordGroupInput").value =
+              settings.wordGroups;
+          }
+          if (settings.config) {
+            Object.assign(config, settings.config);
+
+            const traceInput = document.getElementById("traceCount");
+            if (traceInput && settings.config.traceCount) {
+              traceInput.value = settings.config.traceCount;
+            }
+
+            const input = document.getElementById("cellSize");
+            if (input && settings.config.cellSize) {
+              input.value = settings.config.cellSize;
+            }
+
+            ["textColor", "traceColor", "gridColor"].forEach((key) => {
+              const colorInput = document.getElementById(key);
+              const display = document.getElementById(key + "Value");
+              if (colorInput && settings.config[key]) {
+                colorInput.value = settings.config[key];
+                if (display) display.textContent = settings.config[key];
+              }
+            });
+
+            const fontInput = document.getElementById("fontFamily");
+            if (fontInput && settings.config.fontFamily) {
+              fontInput.value = settings.config.fontFamily;
+            }
+
+            const pinyinCheckbox = document.getElementById("showPinyin");
+            if (pinyinCheckbox) {
+              pinyinCheckbox.checked = settings.config.showPinyin || false;
+            }
+
+            const gridTypeRadio = document.querySelector(
+              `input[name="gridType"][value="${settings.config.gridType}"]`,
+            );
+            if (gridTypeRadio) {
+              gridTypeRadio.checked = true;
+            }
+          }
+        } catch (e) {
+          console.error("Failed to load settings:", e);
         }
       }
+    }
 
-      function resetSettings() {
-        localStorage.removeItem("chinesePracticeSettings");
-        location.reload();
-      }
-    </script>
-  </body>
+    function resetSettings() {
+      localStorage.removeItem("chinesePracticeSettings");
+      location.reload();
+    }
+  </script>
+</body>
+
 </html>
