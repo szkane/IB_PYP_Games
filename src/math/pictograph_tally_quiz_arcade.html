@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz Arcade: Pictograph and Tally Sprint</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;700;800&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --bg1: #fff5e6;
+      --bg2: #ffe0cc;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --pink: #ec4899;
+      --orange: #f97316;
+      --cyan: #06b6d4;
+      --ok: #16a34a;
+      --bad: #dc2626;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Nunito", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 80% 15%, rgba(236, 72, 153, 0.22), transparent 25%),
+        radial-gradient(circle at 10% 90%, rgba(6, 182, 212, 0.2), transparent 30%),
+        linear-gradient(145deg, var(--bg1), var(--bg2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+
+    .app {
+      position: relative;
+      width: min(920px, 100%);
+      background: var(--panel);
+      border: 4px solid #ffd9bd;
+      border-radius: 26px;
+      box-shadow: 0 18px 48px rgba(249, 115, 22, 0.18);
+      padding: 16px;
+    }
+
+    .lang-switch {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 2;
+      border: 2px solid #fed7aa;
+      border-radius: 999px;
+      background: #fff7ed;
+      min-height: 42px;
+      min-width: 42px;
+      padding: 0 12px;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .arcade-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .h1 {
+      font-family: "Baloo 2", sans-serif;
+      margin: 0;
+      font-size: clamp(1.45rem, 3vw, 2rem);
+      color: #be185d;
+    }
+
+    .meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      border-radius: 999px;
+      border: 2px solid #fed7aa;
+      background: #fff7ed;
+      padding: 6px 12px;
+      font-weight: 800;
+    }
+
+    .bar {
+      margin: 12px 0;
+      height: 12px;
+      border-radius: 999px;
+      background: #ffedd5;
+      overflow: hidden;
+    }
+
+    .bar>div {
+      width: 0;
+      height: 100%;
+      background: linear-gradient(90deg, var(--pink), var(--orange));
+      transition: width 0.35s ease;
+    }
+
+    .card {
+      border: 2px solid #ffe7d3;
+      background: #fffdfa;
+      border-radius: 18px;
+      padding: 14px;
+    }
+
+    .question {
+      margin: 2px 0 12px;
+      font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+      font-weight: 800;
+    }
+
+    .legend {
+      font-size: 0.97rem;
+      font-weight: 800;
+      color: #7c2d12;
+      margin-bottom: 8px;
+    }
+
+    .chart {
+      display: grid;
+      gap: 9px;
+      margin-bottom: 12px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .label {
+      font-weight: 800;
+    }
+
+    .cells {
+      min-height: 44px;
+      border-radius: 10px;
+      background: #fff7ed;
+      border: 2px solid #ffedd5;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 5px 8px;
+      font-size: 1.35rem;
+    }
+
+    .tally {
+      letter-spacing: 2px;
+      font-weight: 900;
+      font-size: 1.2rem;
+    }
+
+    .choices {
+      display: grid;
+      gap: 9px;
+    }
+
+    .choice {
+      min-height: 50px;
+      border-radius: 14px;
+      border: 3px solid #bae6fd;
+      background: #f8fdff;
+      font-size: 1.1rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .choice:disabled {
+      cursor: default;
+    }
+
+    .choice.ok {
+      border-color: #86efac;
+      background: #dcfce7;
+    }
+
+    .choice.bad {
+      border-color: #fca5a5;
+      background: #fee2e2;
+    }
+
+    .feedback {
+      min-height: 28px;
+      margin-top: 10px;
+      font-weight: 800;
+    }
+
+    .oktext {
+      color: var(--ok);
+    }
+
+    .badtext {
+      color: var(--bad);
+    }
+
+    .foot {
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 11px 16px;
+      min-height: 44px;
+      background: linear-gradient(130deg, #f472b6, #fb923c);
+      color: white;
+      font-family: "Baloo 2", sans-serif;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .screen {
+      text-align: center;
+      padding: 24px 10px;
+    }
+
+    .big {
+      font-family: "Baloo 2", sans-serif;
+      font-size: clamp(1.7rem, 4vw, 2.4rem);
+      margin: 0 0 6px;
+      color: #be185d;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 700px) {
+      .row {
+        grid-template-columns: 1fr;
+      }
+
+      .arcade-top,
+      .foot {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+  <main class="app">
+    <button id="langBtn" class="lang-switch" aria-label="Switch language">🌐 EN</button>
+    <section id="start" class="screen">
+      <h1 id="startTitle" class="big">Quiz Arcade</h1>
+      <p id="startDesc">Solve 10 quick chart questions.</p>
+      <button id="startBtn" class="btn">Start Arcade</button>
+    </section>
+
+    <section id="game" class="hidden">
+      <div class="arcade-top">
+        <h2 id="gameTitle" class="h1">Pictograph + Tally Sprint</h2>
+        <div class="meta">
+          <div id="scoreChip" class="chip">Score: 0</div>
+          <div id="comboChip" class="chip">Combo: 0</div>
+        </div>
+      </div>
+      <div class="bar">
+        <div id="barFill"></div>
+      </div>
+
+      <article class="card">
+        <p id="question" class="question"></p>
+        <div id="legend" class="legend"></div>
+        <div id="chart" class="chart"></div>
+        <div id="choices" class="choices"></div>
+        <div id="feedback" class="feedback"></div>
+        <div class="foot">
+          <div id="progress">Q 1 / 10</div>
+          <button id="nextBtn" class="btn hidden">Next</button>
+        </div>
+      </article>
+    </section>
+
+    <section id="end" class="screen hidden">
+      <h2 id="endTitle" class="big">Arcade Complete!</h2>
+      <p id="result"></p>
+      <p id="endDesc">You are a chart-reading star.</p>
+      <button id="againBtn" class="btn">Play Again</button>
+    </section>
+  </main>
+
+  <script>
+    const TOTAL = 10;
+    const sets = [
+      { en: "Fish", zh: "鱼", icon: "🐟" },
+      { en: "Ball", zh: "球", icon: "⚽" },
+      { en: "Book", zh: "书", icon: "📘" },
+      { en: "Star", zh: "星星", icon: "⭐" },
+      { en: "Car", zh: "小车", icon: "🚗" }
+    ];
+
+    let state = { idx: 0, score: 0, combo: 0, questions: [], answered: false };
+
+    const start = document.getElementById("start");
+    const game = document.getElementById("game");
+    const end = document.getElementById("end");
+    const scoreChip = document.getElementById("scoreChip");
+    const comboChip = document.getElementById("comboChip");
+    const barFill = document.getElementById("barFill");
+    const questionEl = document.getElementById("question");
+    const legendEl = document.getElementById("legend");
+    const chartEl = document.getElementById("chart");
+    const choicesEl = document.getElementById("choices");
+    const feedbackEl = document.getElementById("feedback");
+    const progressEl = document.getElementById("progress");
+    const nextBtn = document.getElementById("nextBtn");
+    const resultEl = document.getElementById("result");
+    const langBtn = document.getElementById("langBtn");
+
+    let currentLang = "en";
+    const textMap = {
+      en: {
+        startTitle: "Quiz Arcade",
+        startDesc: "Solve 10 quick chart questions.",
+        startBtn: "Start Arcade",
+        gameTitle: "Pictograph + Tally Sprint",
+        nextBtn: "Next",
+        endTitle: "Arcade Complete!",
+        endDesc: "You are a chart-reading star.",
+        againBtn: "Play Again",
+        score: "Score",
+        combo: "Combo",
+        questionShort: "Q"
+      },
+      zh: {
+        startTitle: "闯关问答",
+        startDesc: "快速完成 10 道统计图题目。",
+        startBtn: "开始闯关",
+        gameTitle: "象形图 + 计数线冲刺",
+        nextBtn: "下一题",
+        endTitle: "闯关完成！",
+        endDesc: "你是读图小高手。",
+        againBtn: "再玩一次",
+        score: "分数",
+        combo: "连击",
+        questionShort: "题"
+      }
+    };
+
+    function pickLang(rawText) {
+      if (!rawText.includes("|")) return rawText;
+      const [enText, zhText] = rawText.split("|").map((s) => s.trim());
+      if (currentLang === "zh") return zhText.replace(/^中文:\s*/, "");
+      return enText.replace(/^EN:\s*/, "");
+    }
+
+    function displayItemName(item) {
+      return currentLang === "zh" ? item.zh : item.en;
+    }
+
+    function applyLanguage() {
+      const t = textMap[currentLang];
+      document.getElementById("startTitle").textContent = t.startTitle;
+      document.getElementById("startDesc").textContent = t.startDesc;
+      document.getElementById("startBtn").textContent = t.startBtn;
+      document.getElementById("gameTitle").textContent = t.gameTitle;
+      document.getElementById("nextBtn").textContent = t.nextBtn;
+      document.getElementById("endTitle").textContent = t.endTitle;
+      document.getElementById("endDesc").textContent = t.endDesc;
+      document.getElementById("againBtn").textContent = t.againBtn;
+      langBtn.textContent = currentLang === "en" ? "🌐 EN" : "🌐 中文";
+
+      if (!game.classList.contains("hidden") && state.questions.length > 0) {
+        render();
+      }
+      if (!end.classList.contains("hidden")) {
+        finish();
+      }
+    }
+
+    function pick3() {
+      return [...sets].sort(() => Math.random() - 0.5).slice(0, 3);
+    }
+
+    function tally(n) {
+      const groupsOfFive = Math.floor(n / 5);
+      const remainder = n % 5;
+      const chunks = [];
+
+      for (let i = 0; i < groupsOfFive; i++) {
+        chunks.push("||||/");
+      }
+
+      if (remainder > 0) {
+        chunks.push("|".repeat(remainder));
+      }
+
+      return chunks.join(" ");
+    }
+
+    function optionsNumber(ans) {
+      const s = new Set([ans]);
+      while (s.size < 3) s.add(Math.max(0, ans + Math.floor(Math.random() * 5) - 2));
+      return [...s].sort(() => Math.random() - 0.5);
+    }
+
+    function gen(i) {
+      const items = pick3();
+      const counts = items.map(() => 1 + Math.floor(Math.random() * 8));
+      const type = i % 4;
+
+      if (type === 0) {
+        const t = 0;
+        return {
+          mode: "pictograph",
+          items,
+          counts,
+          legend: "EN: 1 icon = 1 item | 中文: 1 个图标 = 1 个物品",
+          prompt: `EN: How many ${items[t].en.toLowerCase()}? | 中文: ${items[t].zh}有多少个？`,
+          answer: counts[t],
+          options: optionsNumber(counts[t]),
+          labelAnswer: false
+        };
+      }
+
+      if (type === 1) {
+        const t = 1;
+        return {
+          mode: "tally",
+          items,
+          counts,
+          legend: "EN: Count tally marks. | 中文: 数一数计数线。",
+          prompt: `EN: What number is this tally for ${items[t].en}? | 中文: ${items[t].zh}的计数线是几？`,
+          answer: counts[t],
+          options: optionsNumber(counts[t]),
+          labelAnswer: false
+        };
+      }
+
+      if (type === 2) {
+        const ans = counts[0] < counts[2] ? 0 : 2;
+        return {
+          mode: "pictograph",
+          items,
+          counts,
+          legend: "EN: Compare amounts. | 中文: 比较数量。",
+          prompt: "EN: Which has fewer? | 中文: 哪个更少？",
+          answer: ans,
+          options: [0, 1, 2].sort(() => Math.random() - 0.5),
+          labelAnswer: true
+        };
+      }
+
+      const ans = counts.indexOf(Math.max(...counts));
+      return {
+        mode: "tally",
+        items,
+        counts,
+        legend: "EN: Find the largest tally. | 中文: 找到最多的计数线。",
+        prompt: "EN: Which has the most? | 中文: 哪个最多？",
+        answer: ans,
+        options: [0, 1, 2].sort(() => Math.random() - 0.5),
+        labelAnswer: true
+      };
+    }
+
+    function build() {
+      const q = [];
+      for (let i = 0; i < TOTAL; i++) q.push(gen(i));
+      return q;
+    }
+
+    function renderChart(q) {
+      chartEl.innerHTML = "";
+      q.items.forEach((it, i) => {
+        const row = document.createElement("div");
+        row.className = "row";
+        const label = document.createElement("div");
+        label.className = "label";
+        label.textContent = `${it.icon} ${displayItemName(it)}`;
+        const cells = document.createElement("div");
+        cells.className = "cells";
+        if (q.mode === "pictograph") {
+          cells.textContent = it.icon.repeat(q.counts[i]);
+        } else {
+          const t = document.createElement("span");
+          t.className = "tally";
+          t.textContent = tally(q.counts[i]);
+          cells.appendChild(t);
+        }
+        row.appendChild(label);
+        row.appendChild(cells);
+        chartEl.appendChild(row);
+      });
+    }
+
+    function optionText(q, o) {
+      if (!q.labelAnswer) return String(o);
+      const item = q.items[o];
+      return `${item.icon} ${displayItemName(item)}`;
+    }
+
+    function render() {
+      const q = state.questions[state.idx];
+      state.answered = false;
+      questionEl.textContent = pickLang(q.prompt);
+      legendEl.textContent = pickLang(q.legend);
+      renderChart(q);
+      feedbackEl.textContent = "";
+      feedbackEl.className = "feedback";
+      nextBtn.classList.add("hidden");
+
+      choicesEl.innerHTML = "";
+      q.options.forEach((o) => {
+        const b = document.createElement("button");
+        b.className = "choice";
+        b.textContent = optionText(q, o);
+        b.addEventListener("click", () => submit(o, b));
+        choicesEl.appendChild(b);
+      });
+
+      const t = textMap[currentLang];
+      scoreChip.textContent = `${t.score}: ${state.score}`;
+      comboChip.textContent = `${t.combo}: ${state.combo}`;
+      progressEl.textContent = `${t.questionShort} ${state.idx + 1} / ${TOTAL}`;
+      barFill.style.width = `${((state.idx + 1) / TOTAL) * 100}%`;
+    }
+
+    function submit(o, btn) {
+      if (state.answered) return;
+      state.answered = true;
+      const q = state.questions[state.idx];
+      const buttons = [...document.querySelectorAll(".choice")];
+      buttons.forEach((b) => (b.disabled = true));
+
+      if (o === q.answer) {
+        state.combo += 1;
+        state.score += 8 + Math.min(4, state.combo);
+        btn.classList.add("ok");
+        feedbackEl.textContent = currentLang === "zh" ? "很棒！保持连击！" : "Nice! Keep the combo!";
+        feedbackEl.classList.add("oktext");
+      } else {
+        state.combo = 0;
+        btn.classList.add("bad");
+        const rightText = optionText(q, q.answer);
+        buttons.forEach((b) => {
+          if (b.textContent === rightText) b.classList.add("ok");
+        });
+        feedbackEl.textContent = currentLang === "zh"
+          ? `做得不错！答案：${rightText}`
+          : `Good try! Answer: ${rightText}`;
+        feedbackEl.classList.add("badtext");
+      }
+
+      scoreChip.textContent = `${textMap[currentLang].score}: ${state.score}`;
+      comboChip.textContent = `${textMap[currentLang].combo}: ${state.combo}`;
+      nextBtn.classList.remove("hidden");
+    }
+
+    function launch() {
+      state = { idx: 0, score: 0, combo: 0, questions: build(), answered: false };
+      start.classList.add("hidden");
+      end.classList.add("hidden");
+      game.classList.remove("hidden");
+      render();
+    }
+
+    function finish() {
+      game.classList.add("hidden");
+      end.classList.remove("hidden");
+      resultEl.textContent = currentLang === "zh"
+        ? `最终分数：${state.score}`
+        : `Final Score: ${state.score}`;
+    }
+
+    document.getElementById("startBtn").addEventListener("click", launch);
+    document.getElementById("againBtn").addEventListener("click", launch);
+    langBtn.addEventListener("click", () => {
+      currentLang = currentLang === "en" ? "zh" : "en";
+      applyLanguage();
+    });
+    nextBtn.addEventListener("click", () => {
+      state.idx += 1;
+      if (state.idx >= TOTAL) finish();
+      else render();
+    });
+
+    applyLanguage();
+  </script>
+</body>
+
+</html>

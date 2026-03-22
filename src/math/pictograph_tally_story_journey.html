@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Story Journey: Pictograph and Tally Adventure</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;700;800&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --sky: #e6fbff;
+      --mint: #d7ffd9;
+      --sun: #ffe08a;
+      --orange: #ff8a3d;
+      --teal: #0f766e;
+      --ink: #1f2937;
+      --card: #ffffff;
+      --ok: #22c55e;
+      --bad: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Nunito", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 15% 20%, rgba(255, 224, 138, 0.7), transparent 30%),
+        radial-gradient(circle at 85% 80%, rgba(215, 255, 217, 0.8), transparent 35%),
+        linear-gradient(140deg, var(--sky), #f8fffb);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+
+    .app {
+      position: relative;
+      width: min(980px, 100%);
+      background: var(--card);
+      border: 4px solid #d8f4f7;
+      border-radius: 28px;
+      box-shadow: 0 16px 45px rgba(15, 118, 110, 0.15);
+      padding: 18px;
+    }
+
+    .lang-switch {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 2;
+      border: 2px solid #99f6e4;
+      border-radius: 999px;
+      background: #ecfeff;
+      min-height: 42px;
+      min-width: 42px;
+      padding: 0 12px;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .title {
+      font-family: "Baloo 2", sans-serif;
+      font-size: clamp(1.35rem, 3vw, 2rem);
+      margin: 0;
+      color: #0d9488;
+    }
+
+    .sub {
+      margin: 4px 0 0;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    .badge {
+      background: #ecfeff;
+      border: 2px solid #99f6e4;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-weight: 800;
+    }
+
+    .progress {
+      height: 14px;
+      border-radius: 999px;
+      background: #eef2ff;
+      overflow: hidden;
+      margin: 10px 0 16px;
+    }
+
+    .progress>div {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, #22d3ee, #14b8a6);
+      transition: width 0.35s ease;
+    }
+
+    .card {
+      background: #fcfffe;
+      border: 2px solid #d9f9f3;
+      border-radius: 20px;
+      padding: 16px;
+    }
+
+    .question {
+      font-size: clamp(1.1rem, 2.7vw, 1.45rem);
+      font-weight: 800;
+      margin: 4px 0 14px;
+    }
+
+    .chart {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 105px 1fr;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .label {
+      font-weight: 800;
+    }
+
+    .symbols {
+      background: #f0fdfa;
+      border-radius: 12px;
+      min-height: 44px;
+      padding: 6px 10px;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 1.45rem;
+    }
+
+    .tally {
+      font-size: 1.3rem;
+      letter-spacing: 2px;
+      font-weight: 800;
+    }
+
+    .choices {
+      display: grid;
+      gap: 10px;
+    }
+
+    .choice {
+      border: 3px solid #bae6fd;
+      border-radius: 16px;
+      background: #f8fdff;
+      min-height: 52px;
+      font-size: 1.15rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .choice:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 16px rgba(56, 189, 248, 0.18);
+    }
+
+    .choice:disabled {
+      cursor: default;
+      opacity: 0.95;
+    }
+
+    .correct {
+      border-color: #4ade80;
+      background: #dcfce7;
+    }
+
+    .wrong {
+      border-color: #fda4af;
+      background: #ffe4e6;
+    }
+
+    .feedback {
+      margin-top: 12px;
+      min-height: 30px;
+      font-weight: 800;
+    }
+
+    .ok {
+      color: #166534;
+    }
+
+    .bad {
+      color: #991b1b;
+    }
+
+    .footer {
+      margin-top: 14px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+    }
+
+    button.primary {
+      border: none;
+      border-radius: 999px;
+      min-height: 46px;
+      padding: 0 18px;
+      font-family: "Baloo 2", sans-serif;
+      font-size: 1.05rem;
+      font-weight: 800;
+      background: linear-gradient(130deg, #fb923c, #f97316);
+      color: white;
+      cursor: pointer;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .start,
+    .end {
+      text-align: center;
+      padding: 28px 14px;
+    }
+
+    .big {
+      font-family: "Baloo 2", sans-serif;
+      font-size: clamp(1.7rem, 4vw, 2.5rem);
+      margin: 0 0 8px;
+      color: #0f766e;
+    }
+
+    .stars {
+      font-size: 2rem;
+      margin: 10px 0;
+    }
+
+    @media (max-width: 700px) {
+      .row {
+        grid-template-columns: 1fr;
+      }
+
+      .top {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .footer {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+  <main class="app">
+    <button id="langBtn" class="lang-switch" aria-label="Switch language">🌐 EN</button>
+    <section id="start" class="start">
+      <h1 id="startTitle" class="big">Picnic Story Journey</h1>
+      <p id="startDesc">Help Mia read charts to prepare for class picnic.</p>
+      <p id="startMission">Mission: 10 questions</p>
+      <button id="startBtn" class="primary">Start Journey</button>
+    </section>
+
+    <section id="game" class="hidden">
+      <div class="top">
+        <div>
+          <h2 id="gameTitle" class="title">Story Journey: Pictograph + Tally</h2>
+          <p id="gameSub" class="sub">Read the chart, choose the answer.</p>
+        </div>
+        <div class="badge" id="scoreBadge">Score: 0</div>
+      </div>
+      <div class="progress">
+        <div id="bar"></div>
+      </div>
+
+      <article class="card">
+        <div id="questionText" class="question"></div>
+        <div id="chart" class="chart"></div>
+        <div id="choices" class="choices"></div>
+        <div id="feedback" class="feedback"></div>
+        <div class="footer">
+          <div id="progressText">Question 1 / 10</div>
+          <button id="nextBtn" class="primary hidden">Next</button>
+        </div>
+      </article>
+    </section>
+
+    <section id="end" class="end hidden">
+      <h2 id="endTitle" class="big">Mission Complete!</h2>
+      <div id="finalStars" class="stars">⭐ ⭐ ⭐</div>
+      <p id="finalScore"></p>
+      <p id="endDesc">Great reading and counting!</p>
+      <button id="replayBtn" class="primary">Play Again</button>
+    </section>
+  </main>
+
+  <script>
+    const TOTAL = 10;
+    let state = {
+      idx: 0,
+      score: 0,
+      answered: false,
+      questions: []
+    };
+
+    const iconSets = [
+      { nameEn: "Apple", nameZh: "苹果", icon: "🍎" },
+      { nameEn: "Sandwich", nameZh: "三明治", icon: "🥪" },
+      { nameEn: "Juice", nameZh: "果汁", icon: "🧃" },
+      { nameEn: "Cookie", nameZh: "饼干", icon: "🍪" },
+      { nameEn: "Banana", nameZh: "香蕉", icon: "🍌" }
+    ];
+
+    const start = document.getElementById("start");
+    const game = document.getElementById("game");
+    const end = document.getElementById("end");
+    const qText = document.getElementById("questionText");
+    const chart = document.getElementById("chart");
+    const choices = document.getElementById("choices");
+    const feedback = document.getElementById("feedback");
+    const nextBtn = document.getElementById("nextBtn");
+    const scoreBadge = document.getElementById("scoreBadge");
+    const progressText = document.getElementById("progressText");
+    const bar = document.getElementById("bar");
+    const finalScore = document.getElementById("finalScore");
+    const finalStars = document.getElementById("finalStars");
+    const langBtn = document.getElementById("langBtn");
+
+    let currentLang = "en";
+    const textMap = {
+      en: {
+        startTitle: "Picnic Story Journey",
+        startDesc: "Help Mia read charts to prepare for class picnic.",
+        startMission: "Mission: 10 questions",
+        startBtn: "Start Journey",
+        gameTitle: "Story Journey: Pictograph + Tally",
+        gameSub: "Read the chart, choose the answer.",
+        nextBtn: "Next",
+        endTitle: "Mission Complete!",
+        endDesc: "Great reading and counting!",
+        replayBtn: "Play Again",
+        score: "Score",
+        question: "Question"
+      },
+      zh: {
+        startTitle: "野餐冒险",
+        startDesc: "帮助 Mia 读懂统计图和计数表，准备野餐。",
+        startMission: "任务：10 题",
+        startBtn: "开始冒险",
+        gameTitle: "冒险闯关：象形图和计数线",
+        gameSub: "看图并选择答案。",
+        nextBtn: "下一题",
+        endTitle: "任务完成！",
+        endDesc: "你很会读图和数数！",
+        replayBtn: "再玩一次",
+        score: "分数",
+        question: "题目"
+      }
+    };
+
+    function pickLang(rawText) {
+      if (!rawText.includes("|")) return rawText;
+      const [enText, zhText] = rawText.split("|").map((s) => s.trim());
+      if (currentLang === "zh") return zhText.replace(/^中文:\s*/, "");
+      return enText.replace(/^EN:\s*/, "");
+    }
+
+    function displayItemName(item) {
+      return currentLang === "zh" ? item.nameZh : item.nameEn;
+    }
+
+    function applyLanguage() {
+      const t = textMap[currentLang];
+      document.getElementById("startTitle").textContent = t.startTitle;
+      document.getElementById("startDesc").textContent = t.startDesc;
+      document.getElementById("startMission").textContent = t.startMission;
+      document.getElementById("startBtn").textContent = t.startBtn;
+      document.getElementById("gameTitle").textContent = t.gameTitle;
+      document.getElementById("gameSub").textContent = t.gameSub;
+      document.getElementById("nextBtn").textContent = t.nextBtn;
+      document.getElementById("endTitle").textContent = t.endTitle;
+      document.getElementById("endDesc").textContent = t.endDesc;
+      document.getElementById("replayBtn").textContent = t.replayBtn;
+      langBtn.textContent = currentLang === "en" ? "🌐 EN" : "🌐 中文";
+
+      if (!game.classList.contains("hidden") && state.questions.length > 0) {
+        renderQuestion();
+      }
+      if (!end.classList.contains("hidden")) {
+        toEnd();
+      }
+    }
+
+    function sampleThree() {
+      const copy = [...iconSets].sort(() => Math.random() - 0.5);
+      return copy.slice(0, 3);
+    }
+
+    function makeTallies(n) {
+      const groupsOfFive = Math.floor(n / 5);
+      const remainder = n % 5;
+      const chunks = [];
+
+      for (let i = 0; i < groupsOfFive; i++) {
+        chunks.push("||||/");
+      }
+
+      if (remainder > 0) {
+        chunks.push("|".repeat(remainder));
+      }
+
+      return chunks.join(" ");
+    }
+
+    function uniqueOptions(answer) {
+      const opts = new Set([answer]);
+      while (opts.size < 3) {
+        const candidate = Math.max(0, answer + Math.floor(Math.random() * 5) - 2);
+        opts.add(candidate);
+      }
+      return [...opts].sort(() => Math.random() - 0.5);
+    }
+
+    function genQuestion(i) {
+      const items = sampleThree();
+      const counts = items.map(() => 2 + Math.floor(Math.random() * 7));
+      const type = i % 4;
+
+      if (type === 0) {
+        const target = 0;
+        return {
+          mode: "pictograph",
+          items,
+          counts,
+          prompt: `EN: How many ${items[target].nameEn.toLowerCase()} are there? | 中文: 有多少个${items[target].nameZh}？`,
+          answer: counts[target],
+          options: uniqueOptions(counts[target])
+        };
+      }
+
+      if (type === 1) {
+        const target = 1;
+        return {
+          mode: "tally",
+          items,
+          counts,
+          prompt: `EN: Read the tally for ${items[target].nameEn}. How many? | 中文: 读${items[target].nameZh}的计数线，有多少？`,
+          answer: counts[target],
+          options: uniqueOptions(counts[target])
+        };
+      }
+
+      if (type === 2) {
+        const answer = counts[0] > counts[2] ? 0 : 2;
+        return {
+          mode: "pictograph",
+          items,
+          counts,
+          prompt: `EN: Which has more? | 中文: 哪个更多？`,
+          answer: answer,
+          options: [0, 1, 2].sort(() => Math.random() - 0.5),
+          isLabelAnswer: true
+        };
+      }
+
+      const max = counts.indexOf(Math.max(...counts));
+      return {
+        mode: "tally",
+        items,
+        counts,
+        prompt: `EN: Which has the most? | 中文: 哪个最多？`,
+        answer: max,
+        options: [0, 1, 2].sort(() => Math.random() - 0.5),
+        isLabelAnswer: true
+      };
+    }
+
+    function buildQuestions() {
+      const arr = [];
+      for (let i = 0; i < TOTAL; i++) arr.push(genQuestion(i));
+      return arr;
+    }
+
+    function renderChart(q) {
+      chart.innerHTML = "";
+      q.items.forEach((item, idx) => {
+        const row = document.createElement("div");
+        row.className = "row";
+        const label = document.createElement("div");
+        label.className = "label";
+        label.textContent = `${item.icon} ${displayItemName(item)}`;
+        const symbols = document.createElement("div");
+        symbols.className = "symbols";
+
+        if (q.mode === "pictograph") {
+          symbols.textContent = item.icon.repeat(q.counts[idx]);
+        } else {
+          const t = document.createElement("span");
+          t.className = "tally";
+          t.textContent = makeTallies(q.counts[idx]);
+          symbols.appendChild(t);
+        }
+
+        row.appendChild(label);
+        row.appendChild(symbols);
+        chart.appendChild(row);
+      });
+    }
+
+    function formatOption(q, value) {
+      if (!q.isLabelAnswer) return String(value);
+      const item = q.items[value];
+      return `${item.icon} ${displayItemName(item)}`;
+    }
+
+    function renderQuestion() {
+      const q = state.questions[state.idx];
+      state.answered = false;
+      qText.textContent = pickLang(q.prompt);
+      feedback.textContent = "";
+      feedback.className = "feedback";
+      nextBtn.classList.add("hidden");
+      renderChart(q);
+
+      choices.innerHTML = "";
+      q.options.forEach((opt) => {
+        const btn = document.createElement("button");
+        btn.className = "choice";
+        btn.textContent = formatOption(q, opt);
+        btn.addEventListener("click", () => answer(opt, btn));
+        choices.appendChild(btn);
+      });
+
+      const t = textMap[currentLang];
+      scoreBadge.textContent = `${t.score}: ${state.score}`;
+      progressText.textContent = `${t.question} ${state.idx + 1} / ${TOTAL}`;
+      bar.style.width = `${((state.idx + 1) / TOTAL) * 100}%`;
+    }
+
+    function answer(opt, btn) {
+      if (state.answered) return;
+      state.answered = true;
+      const q = state.questions[state.idx];
+      const all = [...document.querySelectorAll(".choice")];
+      all.forEach((b) => (b.disabled = true));
+
+      const correct = opt === q.answer;
+      if (correct) {
+        state.score += 10;
+        btn.classList.add("correct");
+        feedback.textContent = currentLang === "zh" ? "太棒了！" : "Great job!";
+        feedback.classList.add("ok");
+      } else {
+        btn.classList.add("wrong");
+        const rightText = formatOption(q, q.answer);
+        all.forEach((b) => {
+          if (b.textContent === rightText) b.classList.add("correct");
+        });
+        feedback.textContent = currentLang === "zh"
+          ? `再试试！正确答案是：${rightText}`
+          : `Nice try! Correct: ${rightText}`;
+        feedback.classList.add("bad");
+      }
+
+      scoreBadge.textContent = `${textMap[currentLang].score}: ${state.score}`;
+      nextBtn.classList.remove("hidden");
+    }
+
+    function toEnd() {
+      game.classList.add("hidden");
+      end.classList.remove("hidden");
+      finalScore.textContent = currentLang === "zh"
+        ? `分数：${state.score} / ${TOTAL * 10}`
+        : `Score: ${state.score} / ${TOTAL * 10}`;
+      const ratio = state.score / (TOTAL * 10);
+      finalStars.textContent = ratio >= 0.9 ? "⭐ ⭐ ⭐" : ratio >= 0.6 ? "⭐ ⭐" : "⭐";
+    }
+
+    function resetGame() {
+      state = {
+        idx: 0,
+        score: 0,
+        answered: false,
+        questions: buildQuestions()
+      };
+      start.classList.add("hidden");
+      end.classList.add("hidden");
+      game.classList.remove("hidden");
+      renderQuestion();
+    }
+
+    document.getElementById("startBtn").addEventListener("click", resetGame);
+    document.getElementById("replayBtn").addEventListener("click", resetGame);
+    langBtn.addEventListener("click", () => {
+      currentLang = currentLang === "en" ? "zh" : "en";
+      applyLanguage();
+    });
+    nextBtn.addEventListener("click", () => {
+      state.idx += 1;
+      if (state.idx >= TOTAL) {
+        toEnd();
+      } else {
+        renderQuestion();
+      }
+    });
+
+    applyLanguage();
+  </script>
+</body>
+
+</html>
