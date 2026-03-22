@@ -72,6 +72,7 @@
       gap: 12px;
       align-items: center;
       margin-bottom: 12px;
+      padding-right: 110px;
     }
 
     .title {
@@ -259,6 +260,8 @@
       .top {
         flex-direction: column;
         align-items: flex-start;
+        padding-right: 0;
+        margin-top: 40px;
       }
 
       .footer {
@@ -442,11 +445,11 @@
 
     function genQuestion(i) {
       const items = sampleThree();
-      const counts = items.map(() => 2 + Math.floor(Math.random() * 7));
       const type = i % 4;
 
       if (type === 0) {
         const target = 0;
+        const counts = items.map(() => 2 + Math.floor(Math.random() * 7));
         return {
           mode: "pictograph",
           items,
@@ -459,6 +462,7 @@
 
       if (type === 1) {
         const target = 1;
+        const counts = items.map(() => 2 + Math.floor(Math.random() * 7));
         return {
           mode: "tally",
           items,
@@ -470,19 +474,30 @@
       }
 
       if (type === 2) {
+        const counts = items.map(() => 2 + Math.floor(Math.random() * 7));
+        while (counts[0] === counts[2]) {
+          counts[2] = 2 + Math.floor(Math.random() * 7);
+        }
         const answer = counts[0] > counts[2] ? 0 : 2;
         return {
           mode: "pictograph",
           items,
           counts,
-          prompt: `EN: Which has more? | 中文: 哪个更多？`,
+          prompt: `EN: Which has more, ${items[0].nameEn} or ${items[2].nameEn}? | 中文: ${items[0].nameZh}和${items[2].nameZh}，哪个更多？`,
           answer: answer,
-          options: [0, 1, 2].sort(() => Math.random() - 0.5),
+          options: [0, 2].sort(() => Math.random() - 0.5),
           isLabelAnswer: true
         };
       }
 
-      const max = counts.indexOf(Math.max(...counts));
+      let counts;
+      let max;
+      do {
+        counts = items.map(() => 2 + Math.floor(Math.random() * 7));
+        const maxValue = Math.max(...counts);
+        max = counts.indexOf(maxValue);
+      } while (counts.filter((value) => value === counts[max]).length > 1);
+
       return {
         mode: "tally",
         items,

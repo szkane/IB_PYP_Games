@@ -71,6 +71,7 @@
       justify-content: space-between;
       align-items: center;
       gap: 8px;
+      padding-right: 110px;
     }
 
     .h1 {
@@ -255,6 +256,11 @@
         flex-direction: column;
         align-items: stretch;
       }
+
+      .arcade-top {
+        padding-right: 0;
+        margin-top: 40px;
+      }
     }
 
   </style>
@@ -419,11 +425,11 @@
 
     function gen(i) {
       const items = pick3();
-      const counts = items.map(() => 1 + Math.floor(Math.random() * 8));
       const type = i % 4;
 
       if (type === 0) {
         const t = 0;
+        const counts = items.map(() => 1 + Math.floor(Math.random() * 8));
         return {
           mode: "pictograph",
           items,
@@ -438,6 +444,7 @@
 
       if (type === 1) {
         const t = 1;
+        const counts = items.map(() => 1 + Math.floor(Math.random() * 8));
         return {
           mode: "tally",
           items,
@@ -451,20 +458,31 @@
       }
 
       if (type === 2) {
+        const counts = items.map(() => 1 + Math.floor(Math.random() * 8));
+        while (counts[0] === counts[2]) {
+          counts[2] = 1 + Math.floor(Math.random() * 8);
+        }
         const ans = counts[0] < counts[2] ? 0 : 2;
         return {
           mode: "pictograph",
           items,
           counts,
           legend: "EN: Compare amounts. | 中文: 比较数量。",
-          prompt: "EN: Which has fewer? | 中文: 哪个更少？",
+          prompt: `EN: Which has fewer, ${items[0].en} or ${items[2].en}? | 中文: ${items[0].zh}和${items[2].zh}，哪个更少？`,
           answer: ans,
-          options: [0, 1, 2].sort(() => Math.random() - 0.5),
+          options: [0, 2].sort(() => Math.random() - 0.5),
           labelAnswer: true
         };
       }
 
-      const ans = counts.indexOf(Math.max(...counts));
+      let counts;
+      let ans;
+      do {
+        counts = items.map(() => 1 + Math.floor(Math.random() * 8));
+        const maxValue = Math.max(...counts);
+        ans = counts.indexOf(maxValue);
+      } while (counts.filter((value) => value === counts[ans]).length > 1);
+
       return {
         mode: "tally",
         items,
