@@ -1,0 +1,918 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eco Detective Mission</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@500;700;800&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --bg-a: #e9fff2;
+      --bg-b: #e6f7ff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --mint: #22c55e;
+      --teal: #0ea5a4;
+      --amber: #f59e0b;
+      --sky: #38bdf8;
+      --rose: #fb7185;
+      --line: #d1fae5;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Nunito", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 10%, rgba(34, 197, 94, 0.22), transparent 28%),
+        radial-gradient(circle at 90% 90%, rgba(56, 189, 248, 0.2), transparent 30%),
+        linear-gradient(140deg, var(--bg-a), var(--bg-b));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .app {
+      width: min(980px, 100%);
+      background: var(--panel);
+      border: 4px solid var(--line);
+      border-radius: 24px;
+      box-shadow: 0 18px 44px rgba(14, 165, 164, 0.2);
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .lang-btn {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      border: 2px solid #86efac;
+      border-radius: 999px;
+      background: #f0fdf4;
+      min-height: 42px;
+      min-width: 42px;
+      padding: 0 12px;
+      font-weight: 800;
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .center-screen {
+      min-height: 65vh;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 14px;
+    }
+
+    .title {
+      font-family: "Baloo 2", sans-serif;
+      margin: 0 0 10px;
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      color: #047857;
+    }
+
+    .subtitle {
+      margin: 0 0 8px;
+      font-size: clamp(1rem, 2.2vw, 1.2rem);
+      font-weight: 800;
+    }
+
+    .mission-note {
+      margin: 0 0 18px;
+      font-weight: 700;
+      color: #0f766e;
+    }
+
+    .primary {
+      border: none;
+      border-radius: 999px;
+      min-height: 48px;
+      padding: 0 20px;
+      font-family: "Baloo 2", sans-serif;
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: white;
+      background: linear-gradient(130deg, var(--mint), var(--teal));
+      cursor: pointer;
+    }
+
+    .secondary {
+      border: none;
+      border-radius: 999px;
+      min-height: 44px;
+      padding: 0 16px;
+      font-weight: 800;
+      color: white;
+      background: linear-gradient(130deg, var(--amber), #fb923c);
+      cursor: pointer;
+    }
+
+    .hud {
+      display: grid;
+      grid-template-columns: 1fr auto auto auto;
+      gap: 8px;
+      align-items: center;
+      padding-right: 112px;
+      margin-bottom: 10px;
+    }
+
+    .hud-title {
+      margin: 0;
+      font-family: "Baloo 2", sans-serif;
+      color: #0f766e;
+      font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+    }
+
+    .chip {
+      border: 2px solid #a7f3d0;
+      border-radius: 999px;
+      background: #ecfdf5;
+      padding: 6px 10px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .progress {
+      height: 12px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .progress>div {
+      width: 0;
+      height: 100%;
+      background: linear-gradient(90deg, var(--sky), var(--teal));
+      transition: width 0.3s ease;
+    }
+
+    .card {
+      border: 2px solid #d1fae5;
+      border-radius: 16px;
+      background: #fafffd;
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+
+    .prompt {
+      margin: 0 0 10px;
+      font-size: clamp(1.05rem, 2.3vw, 1.3rem);
+      font-weight: 800;
+    }
+
+    .scene {
+      border: 2px dashed #a7f3d0;
+      border-radius: 12px;
+      background: #f0fdf4;
+      padding: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      min-height: 62px;
+      margin-bottom: 10px;
+    }
+
+    .emoji-chip {
+      min-width: 44px;
+      min-height: 44px;
+      border: 2px solid #bbf7d0;
+      background: white;
+      border-radius: 12px;
+      font-size: 1.6rem;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      user-select: none;
+    }
+
+    .emoji-chip.selected {
+      border-color: var(--teal);
+      box-shadow: inset 0 0 0 2px rgba(14, 165, 164, 0.2);
+      transform: translateY(-1px);
+    }
+
+    .chart {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 100px 1fr;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .row-label {
+      font-weight: 800;
+    }
+
+    .row-value {
+      border: 2px solid #d1fae5;
+      border-radius: 10px;
+      background: #f0fdf4;
+      min-height: 42px;
+      padding: 6px 8px;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 1.3rem;
+    }
+
+    .tally {
+      font-size: 1.2rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+    }
+
+    .choices {
+      display: grid;
+      gap: 8px;
+    }
+
+    .choice {
+      min-height: 48px;
+      border-radius: 12px;
+      border: 3px solid #bfdbfe;
+      background: #f8fafc;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .choice.correct {
+      border-color: #86efac;
+      background: #dcfce7;
+    }
+
+    .choice.wrong {
+      border-color: #fda4af;
+      background: #ffe4e6;
+    }
+
+    .builder {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+      margin: 10px 0;
+      flex-wrap: wrap;
+    }
+
+    .counter {
+      border: 2px solid #a7f3d0;
+      background: #f0fdf4;
+      border-radius: 10px;
+      min-width: 120px;
+      min-height: 44px;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      padding: 0 8px;
+    }
+
+    .feedback {
+      min-height: 28px;
+      margin-top: 8px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .feedback.good {
+      color: #166534;
+    }
+
+    .feedback.bad {
+      color: #9f1239;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .stars {
+      font-size: 2rem;
+      margin: 8px 0;
+    }
+
+    @media (max-width: 760px) {
+      .hud {
+        grid-template-columns: 1fr;
+        padding-right: 0;
+        margin-top: 44px;
+      }
+
+      .row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+  <main class="app">
+    <button id="langBtn" class="lang-btn">🌐 EN</button>
+
+    <section id="startScreen" class="center-screen">
+      <div>
+        <h1 id="startTitle" class="title"></h1>
+        <p id="startSubtitle" class="subtitle"></p>
+        <p id="startNote" class="mission-note"></p>
+        <button id="startBtn" class="primary"></button>
+      </div>
+    </section>
+
+    <section id="gameScreen" class="hidden">
+      <div class="hud">
+        <h2 id="hudTitle" class="hud-title"></h2>
+        <div id="modeChip" class="chip"></div>
+        <div id="progressChip" class="chip"></div>
+        <div id="scoreChip" class="chip"></div>
+      </div>
+
+      <div class="progress">
+        <div id="progressFill"></div>
+      </div>
+
+      <article class="card">
+        <p id="prompt" class="prompt"></p>
+        <div id="scene" class="scene"></div>
+        <div id="dynamicArea"></div>
+        <p id="feedback" class="feedback"></p>
+
+        <div class="actions">
+          <button id="submitBtn" class="secondary"></button>
+          <button id="nextBtn" class="primary hidden"></button>
+        </div>
+      </article>
+    </section>
+
+    <section id="endScreen" class="center-screen hidden">
+      <div>
+        <h2 id="endTitle" class="title"></h2>
+        <div id="stars" class="stars">⭐</div>
+        <p id="endScore" class="subtitle"></p>
+        <p id="endText" class="mission-note"></p>
+        <button id="replayBtn" class="primary"></button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const text = {
+      en: {
+        startTitle: "Eco Detective Mission",
+        startSubtitle: "Classify living things, then count them with charts and tallies.",
+        startNote: "10 rounds: 5 classify + 5 count",
+        startBtn: "Start Mission",
+        hudTitle: "Living Things Lab",
+        modeClassify: "Mode: Classify",
+        modePictograph: "Mode: Count (Pictograph)",
+        modeTallyRead: "Mode: Count (Tally Read)",
+        modeTallyBuild: "Mode: Count (Tally Build)",
+        progress: "Round",
+        score: "Score",
+        promptClassify: "Tap all living things.",
+        promptPictograph: "In this mixed chart, how many living items are there in total?",
+        promptTallyRead: "Read the living tally from this mixed chart. What is the total?",
+        promptTallyBuild: "Build a tally for the total number of living items in this mixed chart.",
+        submit: "Check",
+        next: "Next",
+        plus: "+",
+        minus: "-",
+        builtTally: "Your tally",
+        great: "Great detective work!",
+        tryAgain: "Good try. Check the highlighted answer.",
+        correctTally: "Correct tally",
+        endTitle: "Mission Complete!",
+        endText: "You can classify and count living things.",
+        replay: "Play Again",
+        finalScore: "Final Score"
+      },
+      zh: {
+        startTitle: "生态小侦探任务",
+        startSubtitle: "先分类生物与非生物，再用图表和计数线统计。",
+        startNote: "共 10 回合：5 次分类 + 5 次计数",
+        startBtn: "开始任务",
+        hudTitle: "生物统计实验室",
+        modeClassify: "模式：分类",
+        modePictograph: "模式：计数（象形图）",
+        modeTallyRead: "模式：计数（读计数线）",
+        modeTallyBuild: "模式：计数（搭计数线）",
+        progress: "回合",
+        score: "分数",
+        promptClassify: "点选所有生物。",
+        promptPictograph: "在这个混合图表中，生物总数是多少？",
+        promptTallyRead: "根据这个混合图表读取生物计数线，总数是多少？",
+        promptTallyBuild: "根据这个混合图表，搭出生物总数对应的计数线。",
+        submit: "检查",
+        next: "下一题",
+        plus: "+",
+        minus: "-",
+        builtTally: "你的计数线",
+        great: "太棒了，小侦探！",
+        tryAgain: "做得不错，再看看高亮答案。",
+        correctTally: "正确计数线",
+        endTitle: "任务完成！",
+        endText: "你会分类并统计生物了。",
+        replay: "再玩一次",
+        finalScore: "最终分数"
+      }
+    };
+
+    const livingPool = ["🐶", "🐟", "🐦", "🐢", "🐝", "🌳", "🌻", "🍄", "🌱"];
+    const nonLivingPool = ["🚗", "🪑", "⚽", "📘", "🧱", "⌛", "✏️", "🧸", "🧢"];
+
+    const plan = [
+      "classify",
+      "pictograph",
+      "classify",
+      "tally-read",
+      "classify",
+      "pictograph",
+      "classify",
+      "tally-build",
+      "classify",
+      "pictograph"
+    ];
+
+    const state = {
+      lang: "en",
+      idx: 0,
+      score: 0,
+      streak: 0,
+      rounds: [],
+      selected: new Set(),
+      answered: false,
+      tallyBuild: 0
+    };
+
+    const startScreen = document.getElementById("startScreen");
+    const gameScreen = document.getElementById("gameScreen");
+    const endScreen = document.getElementById("endScreen");
+    const langBtn = document.getElementById("langBtn");
+    const modeChip = document.getElementById("modeChip");
+    const progressChip = document.getElementById("progressChip");
+    const scoreChip = document.getElementById("scoreChip");
+    const progressFill = document.getElementById("progressFill");
+    const promptEl = document.getElementById("prompt");
+    const sceneEl = document.getElementById("scene");
+    const dynamicArea = document.getElementById("dynamicArea");
+    const feedbackEl = document.getElementById("feedback");
+    const submitBtn = document.getElementById("submitBtn");
+    const nextBtn = document.getElementById("nextBtn");
+
+    function t(key) {
+      return text[state.lang][key];
+    }
+
+    function sample(pool, n) {
+      const copy = [...pool].sort(() => Math.random() - 0.5);
+      return copy.slice(0, n);
+    }
+
+    function shuffle(arr) {
+      return [...arr].sort(() => Math.random() - 0.5);
+    }
+
+    function formatTally(n) {
+      const groups = Math.floor(n / 5);
+      const rem = n % 5;
+      const chunks = [];
+      for (let i = 0; i < groups; i++) chunks.push("||||/");
+      if (rem > 0) chunks.push("|".repeat(rem));
+      return chunks.join(" ");
+    }
+
+    function uniqueOptions(answer, min = 0, max = 15) {
+      const s = new Set([answer]);
+      while (s.size < 3) {
+        const candidate = Math.max(min, Math.min(max, answer + Math.floor(Math.random() * 7) - 3));
+        s.add(candidate);
+      }
+      return shuffle([...s]);
+    }
+
+    function createMixedScene(total = 8) {
+      const livingCount = 3 + Math.floor(Math.random() * 3);
+      const nonLivingCount = total - livingCount;
+      const living = sample(livingPool, Math.min(livingCount, livingPool.length));
+      const nonLiving = sample(nonLivingPool, Math.min(nonLivingCount, nonLivingPool.length));
+      const items = [
+        ...living.map((emoji) => ({ emoji, living: true })),
+        ...nonLiving.map((emoji) => ({ emoji, living: false }))
+      ];
+      return shuffle(items);
+    }
+
+    function buildMixedCountGroups() {
+      for (let i = 0; i < 40; i++) {
+        const livingKinds = 2 + Math.floor(Math.random() * 2);
+        const nonLivingKinds = 1 + Math.floor(Math.random() * 2);
+        const living = sample(livingPool, livingKinds).map((emoji) => ({
+          emoji,
+          living: true,
+          count: 2 + Math.floor(Math.random() * 6)
+        }));
+        const nonLiving = sample(nonLivingPool, nonLivingKinds).map((emoji) => ({
+          emoji,
+          living: false,
+          count: 1 + Math.floor(Math.random() * 6)
+        }));
+        const groups = shuffle([...living, ...nonLiving]);
+        const livingTotal = living.reduce((sum, item) => sum + item.count, 0);
+        if (livingTotal >= 6 && livingTotal <= 20) {
+          return { groups, livingTotal };
+        }
+      }
+
+      const fallback = [
+        { emoji: "🐝", living: true, count: 5 },
+        { emoji: "🌱", living: true, count: 3 },
+        { emoji: "📘", living: false, count: 5 }
+      ];
+      return { groups: fallback, livingTotal: 8 };
+    }
+
+    function buildClassificationRound() {
+      const scene = createMixedScene(8);
+      return { type: "classify", scene };
+    }
+
+    function buildPictographRound() {
+      const { groups, livingTotal } = buildMixedCountGroups();
+      return {
+        type: "pictograph",
+        groups,
+        answer: livingTotal,
+        options: uniqueOptions(livingTotal, 3, 20)
+      };
+    }
+
+    function buildTallyReadRound() {
+      const { groups, livingTotal } = buildMixedCountGroups();
+      return {
+        type: "tally-read",
+        groups,
+        answer: livingTotal,
+        options: uniqueOptions(livingTotal, 3, 20)
+      };
+    }
+
+    function buildTallyBuildRound() {
+      const { groups, livingTotal } = buildMixedCountGroups();
+      return {
+        type: "tally-build",
+        groups,
+        answer: livingTotal
+      };
+    }
+
+    function renderMixedGroupChart(groups, mode = "pictograph") {
+      const chart = document.createElement("div");
+      chart.className = "chart";
+      groups.forEach((entry) => {
+        const row = document.createElement("div");
+        row.className = "row";
+        const label = document.createElement("div");
+        label.className = "row-label";
+        label.textContent = entry.emoji;
+        const value = document.createElement("div");
+        value.className = "row-value";
+        if (mode === "tally") {
+          value.innerHTML = `<span class="tally">${formatTally(entry.count)}</span>`;
+        } else {
+          value.textContent = entry.emoji.repeat(entry.count);
+        }
+        row.appendChild(label);
+        row.appendChild(value);
+        chart.appendChild(row);
+      });
+      return chart;
+    }
+
+    function buildRounds() {
+      const rounds = plan.map((type) => {
+        if (type === "classify") return buildClassificationRound();
+        if (type === "pictograph") return buildPictographRound();
+        if (type === "tally-read") return buildTallyReadRound();
+        return buildTallyBuildRound();
+      });
+
+      // Round 10 reuses Round 8 answer/data so learners rebuild the same living total with tallies.
+      if (rounds[7] && rounds[7].type === "tally-build") {
+        rounds[9] = {
+          type: "tally-build",
+          groups: rounds[7].groups.map((entry) => ({ ...entry })),
+          answer: rounds[7].answer
+        };
+      }
+
+      return rounds;
+    }
+
+    function getModeLabel(type) {
+      if (type === "classify") return t("modeClassify");
+      if (type === "pictograph") return t("modePictograph");
+      if (type === "tally-read") return t("modeTallyRead");
+      return t("modeTallyBuild");
+    }
+
+    function resetTransient() {
+      state.selected = new Set();
+      state.answered = false;
+      state.tallyBuild = 0;
+      feedbackEl.textContent = "";
+      feedbackEl.className = "feedback";
+      nextBtn.classList.add("hidden");
+      submitBtn.disabled = false;
+    }
+
+    function renderStaticText() {
+      document.getElementById("startTitle").textContent = t("startTitle");
+      document.getElementById("startSubtitle").textContent = t("startSubtitle");
+      document.getElementById("startNote").textContent = t("startNote");
+      document.getElementById("startBtn").textContent = t("startBtn");
+      document.getElementById("hudTitle").textContent = t("hudTitle");
+      document.getElementById("endTitle").textContent = t("endTitle");
+      document.getElementById("endText").textContent = t("endText");
+      document.getElementById("replayBtn").textContent = t("replay");
+      submitBtn.textContent = t("submit");
+      nextBtn.textContent = t("next");
+      langBtn.textContent = state.lang === "en" ? "🌐 EN" : "🌐 中文";
+    }
+
+    function renderScene(scene, clickable = false) {
+      sceneEl.innerHTML = "";
+      scene.forEach((item, idx) => {
+        const btn = document.createElement(clickable ? "button" : "div");
+        btn.className = "emoji-chip";
+        btn.textContent = item.emoji;
+        if (clickable) {
+          if (state.selected.has(idx)) btn.classList.add("selected");
+          btn.addEventListener("click", () => {
+            if (state.answered) return;
+            if (state.selected.has(idx)) state.selected.delete(idx);
+            else state.selected.add(idx);
+            renderCurrentRound();
+          });
+        }
+        sceneEl.appendChild(btn);
+      });
+    }
+
+    function renderCurrentRound() {
+      const round = state.rounds[state.idx];
+      if (!round) return;
+
+      sceneEl.classList.remove("hidden");
+
+      modeChip.textContent = getModeLabel(round.type);
+      progressChip.textContent = `${t("progress")}: ${state.idx + 1}/10`;
+      scoreChip.textContent = `${t("score")}: ${state.score}`;
+      progressFill.style.width = `${((state.idx + 1) / 10) * 100}%`;
+
+      dynamicArea.innerHTML = "";
+
+      if (round.type === "classify") {
+        promptEl.textContent = t("promptClassify");
+        renderScene(round.scene, true);
+        return;
+      }
+
+      if (round.type === "pictograph") {
+        promptEl.textContent = t("promptPictograph");
+        sceneEl.classList.add("hidden");
+        sceneEl.innerHTML = "";
+
+        dynamicArea.appendChild(renderMixedGroupChart(round.groups, "pictograph"));
+
+        const choices = document.createElement("div");
+        choices.className = "choices";
+        round.options.forEach((opt) => {
+          const btn = document.createElement("button");
+          btn.className = "choice";
+          btn.textContent = String(opt);
+          btn.disabled = state.answered;
+          btn.addEventListener("click", () => {
+            if (state.answered) return;
+            submitCountingAnswer(opt, btn, round.answer, choices);
+          });
+          choices.appendChild(btn);
+        });
+        dynamicArea.appendChild(choices);
+        return;
+      }
+
+      if (round.type === "tally-read") {
+        promptEl.textContent = t("promptTallyRead");
+        sceneEl.classList.add("hidden");
+        sceneEl.innerHTML = "";
+
+        dynamicArea.appendChild(renderMixedGroupChart(round.groups, "tally"));
+
+        const choices = document.createElement("div");
+        choices.className = "choices";
+        choices.style.marginTop = "10px";
+        round.options.forEach((opt) => {
+          const btn = document.createElement("button");
+          btn.className = "choice";
+          btn.textContent = String(opt);
+          btn.disabled = state.answered;
+          btn.addEventListener("click", () => {
+            if (state.answered) return;
+            submitCountingAnswer(opt, btn, round.answer, choices);
+          });
+          choices.appendChild(btn);
+        });
+        dynamicArea.appendChild(choices);
+        return;
+      }
+
+      promptEl.textContent = t("promptTallyBuild");
+      sceneEl.classList.add("hidden");
+      sceneEl.innerHTML = "";
+
+      dynamicArea.appendChild(renderMixedGroupChart(round.groups, "pictograph"));
+
+      const builder = document.createElement("div");
+      builder.className = "builder";
+      const minus = document.createElement("button");
+      minus.className = "secondary";
+      minus.textContent = t("minus");
+      minus.disabled = state.answered;
+      minus.addEventListener("click", () => {
+        if (state.answered) return;
+        state.tallyBuild = Math.max(0, state.tallyBuild - 1);
+        renderCurrentRound();
+      });
+      const plus = document.createElement("button");
+      plus.className = "secondary";
+      plus.textContent = t("plus");
+      plus.disabled = state.answered;
+      plus.addEventListener("click", () => {
+        if (state.answered) return;
+        state.tallyBuild = Math.min(20, state.tallyBuild + 1);
+        renderCurrentRound();
+      });
+      const tally = document.createElement("div");
+      tally.className = "counter";
+      tally.innerHTML = `${t("builtTally")}: <span class="tally">${formatTally(state.tallyBuild) || "-"}</span>`;
+      builder.appendChild(minus);
+      builder.appendChild(tally);
+      builder.appendChild(plus);
+      dynamicArea.appendChild(builder);
+    }
+
+    function addScore(correct) {
+      if (!correct) {
+        state.streak = 0;
+        return;
+      }
+
+      state.streak += 1;
+      const bonus = state.streak >= 2 ? 2 : 0;
+      state.score += 10 + bonus;
+    }
+
+    function submitCountingAnswer(value, clickedButton, answer, choiceContainer) {
+      state.answered = true;
+      const correct = value === answer;
+      addScore(correct);
+
+      [...choiceContainer.querySelectorAll(".choice")].forEach((btn) => {
+        btn.disabled = true;
+        if (Number(btn.textContent) === answer) btn.classList.add("correct");
+      });
+      if (!correct) clickedButton.classList.add("wrong");
+
+      feedbackEl.textContent = correct ? t("great") : t("tryAgain");
+      feedbackEl.className = `feedback ${correct ? "good" : "bad"}`;
+      scoreChip.textContent = `${t("score")}: ${state.score}`;
+      submitBtn.disabled = true;
+      nextBtn.classList.remove("hidden");
+    }
+
+    function submitRound() {
+      if (state.answered) return;
+      const round = state.rounds[state.idx];
+      let correct = false;
+
+      if (round.type === "classify") {
+        const livingIndexes = new Set(
+          round.scene
+            .map((item, idx) => ({ item, idx }))
+            .filter((x) => x.item.living)
+            .map((x) => x.idx)
+        );
+        correct = livingIndexes.size === state.selected.size && [...livingIndexes].every((idx) => state.selected.has(idx));
+
+        addScore(correct);
+        state.answered = true;
+
+        [...sceneEl.children].forEach((el, idx) => {
+          if (livingIndexes.has(idx)) el.classList.add("correct");
+          if (state.selected.has(idx) && !livingIndexes.has(idx)) el.classList.add("wrong");
+        });
+
+        feedbackEl.textContent = correct ? t("great") : t("tryAgain");
+        feedbackEl.className = `feedback ${correct ? "good" : "bad"}`;
+        submitBtn.disabled = true;
+        nextBtn.classList.remove("hidden");
+        scoreChip.textContent = `${t("score")}: ${state.score}`;
+        return;
+      }
+
+      if (round.type === "tally-build") {
+        correct = state.tallyBuild === round.answer;
+        addScore(correct);
+        state.answered = true;
+        feedbackEl.textContent = correct
+          ? t("great")
+          : `${t("tryAgain")} ${t("correctTally")}: ${formatTally(round.answer)}`;
+        feedbackEl.className = `feedback ${correct ? "good" : "bad"}`;
+        submitBtn.disabled = true;
+        nextBtn.classList.remove("hidden");
+        scoreChip.textContent = `${t("score")}: ${state.score}`;
+      }
+    }
+
+    function showEnd() {
+      gameScreen.classList.add("hidden");
+      endScreen.classList.remove("hidden");
+      const ratio = state.score / 120;
+      const stars = ratio >= 0.9 ? "⭐ ⭐ ⭐" : ratio >= 0.6 ? "⭐ ⭐" : "⭐";
+      document.getElementById("stars").textContent = stars;
+      document.getElementById("endScore").textContent = `${t("finalScore")}: ${state.score}`;
+    }
+
+    function nextRound() {
+      state.idx += 1;
+      if (state.idx >= state.rounds.length) {
+        showEnd();
+        return;
+      }
+      resetTransient();
+      renderCurrentRound();
+    }
+
+    function startMission() {
+      state.idx = 0;
+      state.score = 0;
+      state.streak = 0;
+      state.rounds = buildRounds();
+      resetTransient();
+      startScreen.classList.add("hidden");
+      endScreen.classList.add("hidden");
+      gameScreen.classList.remove("hidden");
+      renderCurrentRound();
+    }
+
+    function applyLanguage() {
+      renderStaticText();
+      if (!gameScreen.classList.contains("hidden") && state.rounds.length > 0) {
+        renderCurrentRound();
+      }
+      if (!endScreen.classList.contains("hidden")) {
+        document.getElementById("endScore").textContent = `${t("finalScore")}: ${state.score}`;
+      }
+    }
+
+    document.getElementById("startBtn").addEventListener("click", startMission);
+    document.getElementById("replayBtn").addEventListener("click", startMission);
+    submitBtn.addEventListener("click", submitRound);
+    nextBtn.addEventListener("click", nextRound);
+    langBtn.addEventListener("click", () => {
+      state.lang = state.lang === "en" ? "zh" : "en";
+      applyLanguage();
+    });
+
+    applyLanguage();
+  </script>
+</body>
+
+</html>
