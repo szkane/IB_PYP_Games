@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moon Phases Flashcards</title>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
+      background-color: #0f172a;
+      color: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      text-align: center;
+    }
+
+    h1 {
+      color: #fde047;
+      margin-bottom: 20px;
+      font-size: 2.5rem;
+    }
+
+    .flashcard {
+      background:
+        radial-gradient(circle at 15% 50%, rgba(255, 255, 255, 0.8) 1px, transparent 1px),
+        radial-gradient(circle at 85% 30%, rgba(255, 255, 255, 0.6) 1.5px, transparent 1.5px),
+        radial-gradient(circle at 50% 80%, rgba(255, 255, 255, 0.9) 1px, transparent 1px),
+        radial-gradient(circle at 20% 10%, rgba(255, 255, 255, 0.4) 2px, transparent 2px),
+        radial-gradient(circle at 80% 15%, rgba(255, 255, 255, 0.8) 1px, transparent 1px),
+        linear-gradient(to bottom, #020617, #1e1b4b);
+      border: 4px solid #a855f7;
+      border-radius: 24px;
+      padding: 40px 20px;
+      width: 360px;
+      box-shadow: 0 0 25px rgba(168, 85, 247, 0.3), inset 0 0 20px rgba(0, 0, 0, 0.8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 0.2s ease-in-out;
+    }
+
+    .emoji-display {
+      font-size: 11rem;
+      margin-bottom: 10px;
+      text-shadow: 0 0 30px rgba(253, 224, 71, 0.3);
+    }
+
+    .phase-name {
+      font-size: 2rem;
+      color: #60a5fa;
+      margin: 0 0 15px 0;
+    }
+
+    .phase-text {
+      font-size: 1.4rem;
+      line-height: 1.4;
+      margin-bottom: 30px;
+      min-height: 60px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    button {
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 24px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    button:hover {
+      background-color: #2563eb;
+    }
+
+    button:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .tts-button {
+      background-color: #f59e0b;
+      width: 100%;
+      margin-bottom: 15px;
+      font-size: 1.5rem;
+    }
+
+    .tts-button:hover {
+      background-color: #d97706;
+    }
+
+    .settings {
+      margin-top: 25px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: sans-serif;
+      font-size: 0.9rem;
+      color: #94a3b8;
+    }
+
+    select {
+      background-color: #1e293b;
+      color: #f8fafc;
+      border: 1px solid #475569;
+      border-radius: 8px;
+      padding: 8px;
+      font-size: 0.9rem;
+      outline: none;
+      cursor: pointer;
+      max-width: 250px;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <h1>Hilson's Moon Phases</h1>
+
+  <div class="flashcard" id="card">
+    <div class="emoji-display" id="emoji">🌑</div>
+    <h2 class="phase-name" id="name">New Moon</h2>
+    <p class="phase-text" id="text">The moon is hiding in the dark.</p>
+
+    <button class="tts-button" onclick="speakText()">🔊 Read to me</button>
+  </div>
+
+  <div class="controls">
+    <button onclick="prevCard()">⬅️ Back</button>
+    <button onclick="nextCard()">Next ➡️</button>
+  </div>
+
+  <div class="settings">
+    <label for="voice-select">Voice:</label>
+    <select id="voice-select"></select>
+  </div>
+
+  <script>
+    const phases = [
+      { emoji: '🌑', name: 'New Moon', text: 'The moon is hiding in the dark.' },
+      { emoji: '🌒', name: 'Crescent Moon', text: 'It looks like a thin banana.' },
+      { emoji: '🌓', name: 'Quarter Moon', text: 'It is half of a circle.' },
+      { emoji: '🌔', name: 'Gibbous Moon', text: 'It is almost full.' },
+      { emoji: '🌕', name: 'Full Moon', text: 'It is a big, round ball!' },
+      { emoji: '🌖', name: 'Waning Moon', text: 'It is getting smaller now.' },
+      { emoji: '🌗', name: 'Last Quarter', text: 'It is a half circle again.' },
+      { emoji: '🌘', name: 'Old Crescent', text: 'It is a thin smile.' }
+    ];
+
+    let currentIndex = 0;
+
+    const emojiEl = document.getElementById('emoji');
+    const nameEl = document.getElementById('name');
+    const textEl = document.getElementById('text');
+    const voiceSelect = document.getElementById('voice-select');
+
+    let allVoices = [];
+    let preferredVoice = null;
+
+    function loadVoices() {
+      allVoices = window.speechSynthesis.getVoices();
+
+      // Clear existing options
+      voiceSelect.innerHTML = '';
+
+      if (allVoices.length === 0) return;
+
+      // Populate the dropdown menu
+      allVoices.forEach((voice, index) => {
+        const option = document.createElement('option');
+        option.textContent = `${voice.name} (${voice.lang})`;
+        option.value = index;
+        voiceSelect.appendChild(option);
+      });
+
+      // Prioritized logic to auto-select the best available voice
+      let targetIndex = allVoices.findIndex(v => v.name.toLowerCase().includes('google us english 2') && v.name.toLowerCase().includes('natural'));
+
+      if (targetIndex === -1) {
+        targetIndex = allVoices.findIndex(v => v.name.toLowerCase().includes('google us english') && v.name.toLowerCase().includes('natural'));
+      }
+      if (targetIndex === -1) {
+        targetIndex = allVoices.findIndex(v => v.name.includes('Google US English'));
+      }
+      if (targetIndex === -1) {
+        targetIndex = allVoices.findIndex(v => v.lang === 'en-US' && v.name.toLowerCase().includes('google'));
+      }
+      if (targetIndex === -1) {
+        targetIndex = allVoices.findIndex(v => v.lang.startsWith('en-US'));
+      }
+      if (targetIndex === -1) {
+        targetIndex = 0; // Absolute fallback
+      }
+
+      voiceSelect.selectedIndex = targetIndex;
+      preferredVoice = allVoices[targetIndex];
+    }
+
+    // Handle manual user selection
+    voiceSelect.addEventListener('change', (e) => {
+      preferredVoice = allVoices[e.target.value];
+    });
+
+    // Browsers load voices asynchronously, so we must listen for when they are ready
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+      speechSynthesis.onvoiceschanged = loadVoices;
+    }
+    // Also run once immediately in case they are already cached
+    loadVoices();
+
+    function updateCard() {
+      emojiEl.innerText = phases[currentIndex].emoji;
+      nameEl.innerText = phases[currentIndex].name;
+      textEl.innerText = phases[currentIndex].text;
+
+      // Add a small animation effect
+      const card = document.getElementById('card');
+      card.style.transform = 'scale(0.98)';
+      setTimeout(() => {
+        card.style.transform = 'scale(1)';
+      }, 100);
+    }
+
+    function nextCard() {
+      currentIndex = (currentIndex + 1) % phases.length;
+      updateCard();
+      speakText();
+    }
+
+    function prevCard() {
+      currentIndex = (currentIndex - 1 + phases.length) % phases.length;
+      updateCard();
+      speakText();
+    }
+
+    function speakText() {
+      // Stop any current speech
+      window.speechSynthesis.cancel();
+
+      const currentPhase = phases[currentIndex];
+      const textToRead = currentPhase.name + ". " + currentPhase.text;
+
+      const utterance = new SpeechSynthesisUtterance(textToRead);
+
+      // Apply the natural voice if we successfully loaded it
+      if (preferredVoice) {
+        utterance.voice = preferredVoice;
+      }
+
+      // Slightly slower rate for early readers
+      utterance.rate = 0.85;
+      utterance.pitch = 1.1;
+
+      window.speechSynthesis.speak(utterance);
+    }
+  </script>
+</body>
+
+</html>
