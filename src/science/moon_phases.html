@@ -6,23 +6,78 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Moon Phases Flashcards</title>
   <style>
+    :root {
+      --page-padding: clamp(16px, 3vw, 32px);
+      --panel-gap: clamp(16px, 2.5vw, 28px);
+      --bg-deep: #07111f;
+      --bg-mid: #0f1b33;
+      --panel: rgba(10, 20, 40, 0.82);
+      --panel-edge: rgba(148, 163, 184, 0.24);
+      --moon-glow: rgba(250, 204, 21, 0.28);
+      --active-ring: #f8fafc;
+      --text-main: #f8fafc;
+      --text-soft: #cbd5e1;
+      --accent-blue: #7dd3fc;
+      --action-blue: #2563eb;
+      --action-gold: #f59e0b;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
-      background-color: #0f172a;
-      color: #f8fafc;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.18) 1px, transparent 1.5px),
+        radial-gradient(circle at 78% 32%, rgba(255, 255, 255, 0.14) 1px, transparent 1.5px),
+        radial-gradient(circle at 42% 76%, rgba(255, 255, 255, 0.2) 1px, transparent 1.5px),
+        linear-gradient(180deg, var(--bg-deep), var(--bg-mid));
+      color: var(--text-main);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      min-height: 100vh;
       margin: 0;
+      padding: var(--page-padding);
       text-align: center;
+    }
+
+    .page-shell {
+      width: min(100%, 1080px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .title-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
     }
 
     h1 {
       color: #fde047;
-      margin-bottom: 20px;
-      font-size: 2.5rem;
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 2.7rem);
+      letter-spacing: 0.02em;
+    }
+
+    .title-block p {
+      margin: 0;
+      color: var(--text-soft);
+      font-size: 1rem;
+    }
+
+    .learning-board {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--panel-gap);
     }
 
     .flashcard {
@@ -33,10 +88,10 @@
         radial-gradient(circle at 20% 10%, rgba(255, 255, 255, 0.4) 2px, transparent 2px),
         radial-gradient(circle at 80% 15%, rgba(255, 255, 255, 0.8) 1px, transparent 1px),
         linear-gradient(to bottom, #020617, #1e1b4b);
-      border: 4px solid #a855f7;
+      border: 2px solid var(--panel-edge);
       border-radius: 24px;
-      padding: 40px 20px;
-      width: 360px;
+      padding: clamp(24px, 4vw, 40px) clamp(18px, 3vw, 28px);
+      width: 100%;
       box-shadow: 0 0 25px rgba(168, 85, 247, 0.3), inset 0 0 20px rgba(0, 0, 0, 0.8);
       display: flex;
       flex-direction: column;
@@ -45,40 +100,36 @@
     }
 
     .emoji-display {
-      font-size: 11rem;
+      font-size: clamp(7rem, 14vw, 11rem);
       margin-bottom: 10px;
       text-shadow: 0 0 30px rgba(253, 224, 71, 0.3);
+      line-height: 1;
     }
 
     .phase-name {
-      font-size: 2rem;
-      color: #60a5fa;
+      font-size: clamp(1.7rem, 3vw, 2.2rem);
+      color: var(--accent-blue);
       margin: 0 0 15px 0;
     }
 
     .phase-text {
-      font-size: 1.4rem;
+      font-size: clamp(1.15rem, 2.5vw, 1.45rem);
       line-height: 1.4;
-      margin-bottom: 30px;
+      margin-bottom: 24px;
       min-height: 60px;
-    }
-
-    .controls {
-      display: flex;
-      gap: 15px;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-top: 20px;
+      color: var(--text-soft);
     }
 
     button {
-      background-color: #3b82f6;
+      background-color: var(--action-blue);
       color: white;
       border: none;
       border-radius: 12px;
       padding: 12px 24px;
       font-size: 1.2rem;
       font-weight: bold;
+      min-width: 44px;
+      min-height: 44px;
       cursor: pointer;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
       transition: background-color 0.2s, transform 0.1s;
@@ -94,9 +145,8 @@
     }
 
     .tts-button {
-      background-color: #f59e0b;
+      background-color: var(--action-gold);
       width: 100%;
-      margin-bottom: 15px;
       font-size: 1.5rem;
     }
 
@@ -104,52 +154,157 @@
       background-color: #d97706;
     }
 
-    .settings {
-      margin-top: 25px;
+    .voice-controls {
       display: flex;
       align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
       gap: 10px;
       font-family: sans-serif;
       font-size: 0.9rem;
       color: #94a3b8;
+      width: 100%;
+      margin-top: 4px;
     }
 
-    select {
-      background-color: #1e293b;
-      color: #f8fafc;
+    #voice-select {
+      background-color: var(--panel);
+      color: var(--text-main);
       border: 1px solid #475569;
       border-radius: 8px;
       padding: 8px;
       font-size: 0.9rem;
       outline: none;
       cursor: pointer;
-      max-width: 250px;
+      min-height: 44px;
+      width: min(100%, 260px);
+      max-width: 260px;
+    }
+
+    .cycle-strip {
+      width: 100%;
+      border-radius: 20px;
+      border: 1px solid var(--panel-edge);
+      background: var(--panel);
+      padding: 12px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 10px;
+    }
+
+    .cycle-phase {
+      border-radius: 20px;
+      border: 1px solid var(--panel-edge);
+      background: rgba(2, 6, 23, 0.75);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 4px;
+      min-width: 44px;
+      min-height: 64px;
+      padding: 8px;
+      font-size: 0.9rem;
+    }
+
+    .cycle-phase-emoji {
+      font-size: 1.35rem;
+      line-height: 1;
+    }
+
+    .cycle-phase-label {
+      color: var(--accent-blue);
+      font-size: 0.78rem;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .cycle-phase.is-active {
+      border: 2px solid var(--active-ring);
+      box-shadow: 0 0 18px var(--moon-glow);
+      transform: translateY(-4px) scale(1.06);
+    }
+
+    @media (orientation: landscape) and (min-width: 900px) {
+      .page-shell {
+        gap: 24px;
+      }
+
+      .learning-board {
+        display: block;
+      }
+
+      .voice-controls {
+        justify-content: center;
+      }
+
+      #voice-select {
+        max-width: 320px;
+      }
+
+      .cycle-strip {
+        grid-template-columns: repeat(8, minmax(80px, 1fr));
+      }
+    }
+
+    @media (max-height: 834px) and (orientation: landscape) {
+      body {
+        justify-content: flex-start;
+      }
+
+      .page-shell {
+        gap: 16px;
+      }
+
+      .flashcard {
+        padding-top: 20px;
+        padding-bottom: 20px;
+      }
+
+      .emoji-display {
+        font-size: clamp(5.5rem, 11vw, 8rem);
+      }
+
+      .phase-text {
+        min-height: 0;
+        margin-bottom: 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .cycle-strip {
+        grid-template-columns: repeat(2, minmax(100px, 1fr));
+      }
     }
 
   </style>
 </head>
 
 <body>
+  <main class="page-shell">
+    <header class="title-block">
+      <h1>Hilson's Moon Phases</h1>
+      <p>Flip through the moon cycle and hear each phase out loud.</p>
+    </header>
 
-  <h1>Hilson's Moon Phases</h1>
+    <section class="cycle-strip" id="cycle-strip"></section>
 
-  <div class="flashcard" id="card">
-    <div class="emoji-display" id="emoji">🌑</div>
-    <h2 class="phase-name" id="name">New Moon</h2>
-    <p class="phase-text" id="text">The moon is hiding in the dark.</p>
+    <section class="learning-board">
+      <article class="flashcard" id="card">
+        <div class="emoji-display" id="emoji">🌑</div>
+        <h2 class="phase-name" id="name">New Moon</h2>
+        <p class="phase-text" id="text">The moon is hiding in the dark.</p>
 
-    <button class="tts-button" onclick="speakText()">🔊 Read to me</button>
-  </div>
+        <button class="tts-button" type="button" onclick="speakText()">🔊 Read to me</button>
+      </article>
+    </section>
 
-  <div class="controls">
-    <button onclick="prevCard()">⬅️ Back</button>
-    <button onclick="nextCard()">Next ➡️</button>
-  </div>
-
-  <div class="settings">
-    <label for="voice-select">Voice:</label>
-    <select id="voice-select"></select>
-  </div>
+    <div class="voice-controls">
+      <label for="voice-select">Voice:</label>
+      <select id="voice-select"></select>
+    </div>
+  </main>
 
   <script>
     const phases = [
@@ -168,6 +323,7 @@
     const emojiEl = document.getElementById('emoji');
     const nameEl = document.getElementById('name');
     const textEl = document.getElementById('text');
+    const cycleStrip = document.getElementById('cycle-strip');
     const voiceSelect = document.getElementById('voice-select');
 
     let allVoices = [];
@@ -224,29 +380,49 @@
     // Also run once immediately in case they are already cached
     loadVoices();
 
+    function renderCycleStrip() {
+      cycleStrip.innerHTML = '';
+
+      phases.forEach((phase, index) => {
+        const button = document.createElement('button');
+        button.className = 'cycle-phase';
+        button.type = 'button';
+        button.dataset.index = String(index);
+        button.setAttribute('aria-label', phase.name);
+        button.setAttribute('aria-pressed', 'false');
+        button.innerHTML = `<span class="cycle-phase-emoji">${phase.emoji}</span><span class="cycle-phase-label">${phase.name.replace(' Moon', '')}</span>`;
+        button.addEventListener('click', () => {
+          setCurrentPhase(index);
+          speakText();
+        });
+        cycleStrip.appendChild(button);
+      });
+    }
+
     function updateCard() {
       emojiEl.innerText = phases[currentIndex].emoji;
       nameEl.innerText = phases[currentIndex].name;
       textEl.innerText = phases[currentIndex].text;
-
-      // Add a small animation effect
-      const card = document.getElementById('card');
-      card.style.transform = 'scale(0.98)';
-      setTimeout(() => {
-        card.style.transform = 'scale(1)';
-      }, 100);
     }
 
-    function nextCard() {
-      currentIndex = (currentIndex + 1) % phases.length;
-      updateCard();
-      speakText();
+    function updateCycleStrip() {
+      const phaseButtons = cycleStrip.querySelectorAll('.cycle-phase');
+
+      phaseButtons.forEach((button, index) => {
+        const isActive = index === currentIndex;
+        button.classList.toggle('is-active', isActive);
+        button.setAttribute('aria-pressed', String(isActive));
+      });
     }
 
-    function prevCard() {
-      currentIndex = (currentIndex - 1 + phases.length) % phases.length;
+    function updatePhaseUI() {
       updateCard();
-      speakText();
+      updateCycleStrip();
+    }
+
+    function setCurrentPhase(index) {
+      currentIndex = (index + phases.length) % phases.length;
+      updatePhaseUI();
     }
 
     function speakText() {
@@ -269,6 +445,9 @@
 
       window.speechSynthesis.speak(utterance);
     }
+
+    renderCycleStrip();
+    updatePhaseUI();
   </script>
 </body>
 
