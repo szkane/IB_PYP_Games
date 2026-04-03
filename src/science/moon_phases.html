@@ -108,11 +108,28 @@
       border-radius: 24px;
       padding: clamp(24px, 4vw, 40px) clamp(18px, 3vw, 28px);
       width: 100%;
+      position: relative;
+      overflow: hidden;
       box-shadow: 0 0 25px rgba(168, 85, 247, 0.3), inset 0 0 20px rgba(0, 0, 0, 0.8);
       display: flex;
       flex-direction: column;
       align-items: center;
       transition: transform 0.2s ease-in-out;
+    }
+
+    .card-star {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      animation: twinkle var(--twinkle-duration, 3s) ease-in-out infinite;
+      animation-delay: var(--twinkle-delay, 0s);
+    }
+
+    .flashcard > *:not(.card-star) {
+      position: relative;
+      z-index: 1;
     }
 
     .emoji-display {
@@ -464,6 +481,27 @@
 
     renderCycleStrip();
     updatePhaseUI();
+
+    (function generateCardStars(count) {
+      const card = document.getElementById('card');
+      const fragment = document.createDocumentFragment();
+      for (let i = 0; i < count; i++) {
+        const star = document.createElement('div');
+        star.className = 'card-star';
+        const size = Math.random() * 2 + 0.5;
+        star.style.cssText = [
+          `left:${(Math.random() * 100).toFixed(2)}%`,
+          `top:${(Math.random() * 100).toFixed(2)}%`,
+          `width:${size.toFixed(2)}px`,
+          `height:${size.toFixed(2)}px`,
+          `opacity:${(Math.random() * 0.5 + 0.3).toFixed(2)}`,
+          `--twinkle-duration:${(Math.random() * 3 + 2).toFixed(1)}s`,
+          `--twinkle-delay:${(Math.random() * 6).toFixed(2)}s`
+        ].join(';');
+        fragment.appendChild(star);
+      }
+      card.prepend(fragment);
+    })(60);
 
     (function generateStars(count) {
       const fragment = document.createDocumentFragment();
