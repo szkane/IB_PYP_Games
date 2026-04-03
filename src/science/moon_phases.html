@@ -28,11 +28,7 @@
 
     body {
       font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
-      background:
-        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.18) 1px, transparent 1.5px),
-        radial-gradient(circle at 78% 32%, rgba(255, 255, 255, 0.14) 1px, transparent 1.5px),
-        radial-gradient(circle at 42% 76%, rgba(255, 255, 255, 0.2) 1px, transparent 1.5px),
-        linear-gradient(180deg, var(--bg-deep), var(--bg-mid));
+      background: linear-gradient(180deg, var(--bg-deep), var(--bg-mid));
       color: var(--text-main);
       display: flex;
       flex-direction: column;
@@ -44,7 +40,33 @@
       text-align: center;
     }
 
+    @keyframes twinkle {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.15;
+        transform: scale(0.6);
+      }
+    }
+
+    .star {
+      position: fixed;
+      background: white;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      animation: twinkle var(--twinkle-duration, 3s) ease-in-out infinite;
+      animation-delay: var(--twinkle-delay, 0s);
+    }
+
     .page-shell {
+      position: relative;
+      z-index: 1;
       width: min(100%, 1080px);
       display: flex;
       flex-direction: column;
@@ -81,22 +103,33 @@
     }
 
     .flashcard {
-      background:
-        radial-gradient(circle at 15% 50%, rgba(255, 255, 255, 0.8) 1px, transparent 1px),
-        radial-gradient(circle at 85% 30%, rgba(255, 255, 255, 0.6) 1.5px, transparent 1.5px),
-        radial-gradient(circle at 50% 80%, rgba(255, 255, 255, 0.9) 1px, transparent 1px),
-        radial-gradient(circle at 20% 10%, rgba(255, 255, 255, 0.4) 2px, transparent 2px),
-        radial-gradient(circle at 80% 15%, rgba(255, 255, 255, 0.8) 1px, transparent 1px),
-        linear-gradient(to bottom, #020617, #1e1b4b);
+      background: linear-gradient(to bottom, #020617, #1e1b4b);
       border: 2px solid var(--panel-edge);
       border-radius: 24px;
       padding: clamp(24px, 4vw, 40px) clamp(18px, 3vw, 28px);
       width: 100%;
+      position: relative;
+      overflow: hidden;
       box-shadow: 0 0 25px rgba(168, 85, 247, 0.3), inset 0 0 20px rgba(0, 0, 0, 0.8);
       display: flex;
       flex-direction: column;
       align-items: center;
       transition: transform 0.2s ease-in-out;
+    }
+
+    .card-star {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      animation: twinkle var(--twinkle-duration, 3s) ease-in-out infinite;
+      animation-delay: var(--twinkle-delay, 0s);
+    }
+
+    .flashcard > *:not(.card-star) {
+      position: relative;
+      z-index: 1;
     }
 
     .emoji-display {
@@ -221,8 +254,8 @@
     }
 
     .cycle-phase.is-active {
-      border: 2px solid var(--active-ring);
-      box-shadow: 0 0 18px var(--moon-glow);
+      border-color: transparent;
+      filter: drop-shadow(0 0 6px rgba(250, 204, 21, 0.9)) drop-shadow(0 0 16px rgba(250, 204, 21, 0.5));
       transform: translateY(-4px) scale(1.06);
     }
 
@@ -309,13 +342,13 @@
   <script>
     const phases = [
       { emoji: '🌑', name: 'New Moon', text: 'The moon is hiding in the dark.' },
-      { emoji: '🌒', name: 'Crescent Moon', text: 'It looks like a thin banana.' },
-      { emoji: '🌓', name: 'Quarter Moon', text: 'It is half of a circle.' },
-      { emoji: '🌔', name: 'Gibbous Moon', text: 'It is almost full.' },
-      { emoji: '🌕', name: 'Full Moon', text: 'It is a big, round ball!' },
-      { emoji: '🌖', name: 'Waning Moon', text: 'It is getting smaller now.' },
-      { emoji: '🌗', name: 'Last Quarter', text: 'It is a half circle again.' },
-      { emoji: '🌘', name: 'Old Crescent', text: 'It is a thin smile.' }
+      { emoji: '🌒', name: 'Waxing Crescent', text: 'A thin sliver of light appears on the right.' },
+      { emoji: '🌓', name: 'First Quarter', text: 'Half the moon is lit up on the right side.' },
+      { emoji: '🌔', name: 'Waxing Gibbous', text: 'More than half the moon is glowing brightly.' },
+      { emoji: '🌕', name: 'Full Moon', text: 'The whole moon shines like a big bright ball!' },
+      { emoji: '🌖', name: 'Waning Gibbous', text: 'The light slowly shrinks on the left side.' },
+      { emoji: '🌗', name: 'Last Quarter', text: 'Half the moon is lit up on the left side.' },
+      { emoji: '🌘', name: 'Waning Crescent', text: 'Just a thin sliver remains before the dark.' }
     ];
 
     let currentIndex = 0;
@@ -390,7 +423,7 @@
         button.dataset.index = String(index);
         button.setAttribute('aria-label', phase.name);
         button.setAttribute('aria-pressed', 'false');
-        button.innerHTML = `<span class="cycle-phase-emoji">${phase.emoji}</span><span class="cycle-phase-label">${phase.name.replace(' Moon', '')}</span>`;
+        button.innerHTML = `<span class="cycle-phase-emoji">${phase.emoji}</span><span class="cycle-phase-label">${phase.name}</span>`;
         button.addEventListener('click', () => {
           setCurrentPhase(index);
           speakText();
@@ -448,6 +481,47 @@
 
     renderCycleStrip();
     updatePhaseUI();
+
+    (function generateCardStars(count) {
+      const card = document.getElementById('card');
+      const fragment = document.createDocumentFragment();
+      for (let i = 0; i < count; i++) {
+        const star = document.createElement('div');
+        star.className = 'card-star';
+        const size = Math.random() * 2 + 0.5;
+        star.style.cssText = [
+          `left:${(Math.random() * 100).toFixed(2)}%`,
+          `top:${(Math.random() * 100).toFixed(2)}%`,
+          `width:${size.toFixed(2)}px`,
+          `height:${size.toFixed(2)}px`,
+          `opacity:${(Math.random() * 0.5 + 0.3).toFixed(2)}`,
+          `--twinkle-duration:${(Math.random() * 3 + 2).toFixed(1)}s`,
+          `--twinkle-delay:${(Math.random() * 6).toFixed(2)}s`
+        ].join(';');
+        fragment.appendChild(star);
+      }
+      card.prepend(fragment);
+    })(60);
+
+    (function generateStars(count) {
+      const fragment = document.createDocumentFragment();
+      for (let i = 0; i < count; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        const size = Math.random() * 2.5 + 0.5;
+        star.style.cssText = [
+          `left:${(Math.random() * 100).toFixed(2)}vw`,
+          `top:${(Math.random() * 100).toFixed(2)}vh`,
+          `width:${size.toFixed(2)}px`,
+          `height:${size.toFixed(2)}px`,
+          `opacity:${(Math.random() * 0.6 + 0.4).toFixed(2)}`,
+          `--twinkle-duration:${(Math.random() * 3 + 2).toFixed(1)}s`,
+          `--twinkle-delay:${(Math.random() * 5).toFixed(2)}s`
+        ].join(';');
+        fragment.appendChild(star);
+      }
+      document.body.appendChild(fragment);
+    })(180);
   </script>
 </body>
 
