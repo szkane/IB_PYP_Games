@@ -41,8 +41,17 @@
     }
 
     @keyframes twinkle {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.15; transform: scale(0.6); }
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.15;
+        transform: scale(0.6);
+      }
     }
 
     .star {
@@ -94,13 +103,7 @@
     }
 
     .flashcard {
-      background:
-        radial-gradient(circle at 15% 50%, rgba(255, 255, 255, 0.8) 1px, transparent 1px),
-        radial-gradient(circle at 85% 30%, rgba(255, 255, 255, 0.6) 1.5px, transparent 1.5px),
-        radial-gradient(circle at 50% 80%, rgba(255, 255, 255, 0.9) 1px, transparent 1px),
-        radial-gradient(circle at 20% 10%, rgba(255, 255, 255, 0.4) 2px, transparent 2px),
-        radial-gradient(circle at 80% 15%, rgba(255, 255, 255, 0.8) 1px, transparent 1px),
-        linear-gradient(to bottom, #020617, #1e1b4b);
+      background: linear-gradient(to bottom, #020617, #1e1b4b);
       border: 2px solid var(--panel-edge);
       border-radius: 24px;
       padding: clamp(24px, 4vw, 40px) clamp(18px, 3vw, 28px);
@@ -321,13 +324,13 @@
 
   <script>
     const phases = [
-      { emoji: '🌑', name: 'New Moon',        text: 'The moon is hiding in the dark.' },
+      { emoji: '🌑', name: 'New Moon', text: 'The moon is hiding in the dark.' },
       { emoji: '🌒', name: 'Waxing Crescent', text: 'A thin sliver of light appears on the right.' },
-      { emoji: '🌓', name: 'First Quarter',   text: 'Half the moon is lit up on the right side.' },
-      { emoji: '🌔', name: 'Waxing Gibbous',  text: 'More than half the moon is glowing brightly.' },
-      { emoji: '🌕', name: 'Full Moon',       text: 'The whole moon shines like a big bright ball!' },
-      { emoji: '🌖', name: 'Waning Gibbous',  text: 'The light slowly shrinks on the left side.' },
-      { emoji: '🌗', name: 'Last Quarter',    text: 'Half the moon is lit up on the left side.' },
+      { emoji: '🌓', name: 'First Quarter', text: 'Half the moon is lit up on the right side.' },
+      { emoji: '🌔', name: 'Waxing Gibbous', text: 'More than half the moon is glowing brightly.' },
+      { emoji: '🌕', name: 'Full Moon', text: 'The whole moon shines like a big bright ball!' },
+      { emoji: '🌖', name: 'Waning Gibbous', text: 'The light slowly shrinks on the left side.' },
+      { emoji: '🌗', name: 'Last Quarter', text: 'Half the moon is lit up on the left side.' },
       { emoji: '🌘', name: 'Waning Crescent', text: 'Just a thin sliver remains before the dark.' }
     ];
 
