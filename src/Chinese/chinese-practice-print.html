@@ -208,6 +208,68 @@
       background: #fafafa;
     }
 
+    .dictation-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.98);
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .dictation-panel {
+      width: min(560px, 100%);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      background: var(--bg-panel);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18);
+      padding: 24px;
+      text-align: center;
+    }
+
+    .dictation-title {
+      font-size: 24px;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+    }
+
+    .dictation-status {
+      min-height: 26px;
+      margin-bottom: 18px;
+      color: var(--text-secondary);
+      font-size: 15px;
+    }
+
+    .dictation-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .dictation-actions button {
+      min-width: 120px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background: #fff;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .dictation-actions button.primary {
+      background: var(--accent-color);
+      color: #fff;
+      border-color: var(--accent-color);
+    }
+
+    .dictation-actions button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
     .preview-area {
       flex: 1;
       padding: 30px;
@@ -475,6 +537,10 @@
 
       .a4-paper:last-child {
         page-break-after: avoid;
+      }
+
+      .dictation-overlay {
+        display: none !important;
       }
 
       @page {
@@ -776,6 +842,19 @@
 
       <button class="btn-primary" onclick="window.print()">🖨️ 打印</button>
       <button class="btn-secondary" onclick="resetSettings()">🔄 重置</button>
+      <button class="btn-secondary" onclick="openDictationOverlay()">🎧 听写</button>
+    </div>
+  </div>
+
+  <div class="dictation-overlay" id="dictationOverlay">
+    <div class="dictation-panel">
+      <h3 class="dictation-title">听写模式</h3>
+      <p class="dictation-status" id="dictationStatus">点击“开始播放”开始听写。</p>
+      <div class="dictation-actions">
+        <button class="primary" id="dictationStartBtn" onclick="startDictation()">▶️ 开始播放</button>
+        <button id="dictationStopBtn" onclick="stopDictation()">⏹ 停止</button>
+        <button onclick="closeDictationOverlay()">✖ 关闭</button>
+      </div>
     </div>
   </div>
 
@@ -1125,6 +1204,14 @@
       showPinyin: true,
     };
 
+    const DICTATION_REPEAT_COUNT = 3;
+    const DICTATION_INTERVAL_MS = 5000;
+    let dictationState = {
+      isPlaying: false,
+      shouldStop: false,
+      timerId: null,
+    };
+
     function getPinyin(char) {
       if (window.pinyinPro && typeof window.pinyinPro.pinyin === "function") {
         try {
@@ -1222,6 +1309,190 @@
           renderGrid();
           saveSettings();
         });
+
+      const overlay = document.getElementById("dictationOverlay");
+      if (overlay) {
+        overlay.addEventListener("click", (e) => {
+          if (e.target === overlay) {
+            closeDictationOverlay();
+          }
+        });
+      }
+    }
+
+    function getCurrentDictationWords() {
+      const input = document.getElementById("wordGroupInput");
+      if (!input) return [];
+
+      const words = input.value
+        .split("\n")
+        .map((w) => w.trim())
+        .filter(Boolean);
+
+      if (words.length > 0) {
+        return words;
+      }
+
+      const select = document.getElementById("courseSelect");
+      const selectedCourse = select ? courseData[select.value] : null;
+      if (selectedCourse && selectedCourse.words) {
+        return selectedCourse.words
+          .split("|")
+          .map((w) => w.trim())
+          .filter(Boolean);
+      }
+
+      return [];
+    }
+
+    function updateDictationStatus(text) {
+      const el = document.getElementById("dictationStatus");
+      if (el) {
+        el.textContent = text;
+      }
+    }
+
+    function setDictationButtonState(isPlaying) {
+      const startBtn = document.getElementById("dictationStartBtn");
+      if (startBtn) {
+        startBtn.disabled = isPlaying;
+      }
+    }
+
+    function waitWithStop(ms) {
+      return new Promise((resolve) => {
+        dictationState.timerId = window.setTimeout(() => {
+          dictationState.timerId = null;
+          resolve(!dictationState.shouldStop);
+        }, ms);
+      });
+    }
+
+    function speakWord(word) {
+      return new Promise((resolve) => {
+        if (!("speechSynthesis" in window) || !window.SpeechSynthesisUtterance) {
+          resolve(false);
+          return;
+        }
+
+        const utterance = new SpeechSynthesisUtterance(word);
+        utterance.lang = "zh-CN";
+        utterance.rate = 0.9;
+        utterance.pitch = 1;
+
+        const voices = window.speechSynthesis.getVoices();
+        const preferredVoice = voices.find(
+          (v) =>
+            v.name === "Google 普通话（中国大陆）" &&
+            v.lang &&
+            v.lang.toLowerCase() === "zh-cn",
+        );
+        const fallbackZhCnVoice = voices.find(
+          (v) => v.lang && v.lang.toLowerCase() === "zh-cn",
+        );
+        const fallbackZhVoice = voices.find(
+          (v) => v.lang && v.lang.toLowerCase().startsWith("zh"),
+        );
+
+        if (preferredVoice || fallbackZhCnVoice || fallbackZhVoice) {
+          utterance.voice = preferredVoice || fallbackZhCnVoice || fallbackZhVoice;
+        }
+
+        utterance.onend = () => resolve(true);
+        utterance.onerror = () => resolve(false);
+
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(utterance);
+      });
+    }
+
+    function openDictationOverlay() {
+      const overlay = document.getElementById("dictationOverlay");
+      if (!overlay) return;
+      overlay.style.display = "flex";
+      updateDictationStatus("点击“开始播放”开始听写。");
+      setDictationButtonState(false);
+    }
+
+    function stopDictation() {
+      dictationState.shouldStop = true;
+      dictationState.isPlaying = false;
+      if (dictationState.timerId) {
+        clearTimeout(dictationState.timerId);
+        dictationState.timerId = null;
+      }
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+      setDictationButtonState(false);
+      updateDictationStatus("已停止。点击“开始播放”可重新开始。");
+    }
+
+    function closeDictationOverlay() {
+      stopDictation();
+      const overlay = document.getElementById("dictationOverlay");
+      if (overlay) {
+        overlay.style.display = "none";
+      }
+    }
+
+    async function startDictation() {
+      if (dictationState.isPlaying) {
+        return;
+      }
+
+      const words = getCurrentDictationWords();
+      if (words.length === 0) {
+        updateDictationStatus("当前没有可听写的组词，请先填写组词内容。");
+        return;
+      }
+
+      if (!("speechSynthesis" in window) || !window.SpeechSynthesisUtterance) {
+        updateDictationStatus("当前浏览器不支持语音播放，请换用 Chrome / Edge / Safari。");
+        return;
+      }
+
+      dictationState.isPlaying = true;
+      dictationState.shouldStop = false;
+      setDictationButtonState(true);
+
+      for (let i = 0; i < words.length; i++) {
+        const word = words[i];
+
+        for (let count = 1; count <= DICTATION_REPEAT_COUNT; count++) {
+          if (dictationState.shouldStop) {
+            dictationState.isPlaying = false;
+            setDictationButtonState(false);
+            return;
+          }
+
+          updateDictationStatus(
+            `第 ${i + 1}/${words.length} 个词：${word}（第 ${count}/${DICTATION_REPEAT_COUNT} 次）`,
+          );
+
+          await speakWord(word);
+
+          if (dictationState.shouldStop) {
+            dictationState.isPlaying = false;
+            setDictationButtonState(false);
+            return;
+          }
+
+          const isLastPlay = i === words.length - 1 && count === DICTATION_REPEAT_COUNT;
+          if (!isLastPlay) {
+            const shouldContinue = await waitWithStop(DICTATION_INTERVAL_MS);
+            if (!shouldContinue) {
+              dictationState.isPlaying = false;
+              setDictationButtonState(false);
+              return;
+            }
+          }
+        }
+      }
+
+      dictationState.isPlaying = false;
+      setDictationButtonState(false);
+      updateDictationStatus("听写完成。点击“开始播放”可再次播放。");
     }
 
     function adjustValue(inputId, delta) {
