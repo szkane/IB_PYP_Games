@@ -1611,7 +1611,12 @@
       dictationState.shouldStop = false;
       setDictationButtonState(true);
 
-      for (let i = 0; i < words.length; i++) {
+      const startIndex = Math.max(
+        0,
+        Math.min(dictationState.currentWordIndex, words.length - 1),
+      );
+
+      for (let i = startIndex; i < words.length; i++) {
         dictationState.currentWordIndex = i;
         updateDictationNavigationState();
         const word = words[i];
