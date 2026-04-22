@@ -242,6 +242,23 @@
       font-size: 15px;
     }
 
+    .dictation-voice {
+      margin-bottom: 16px;
+      text-align: left;
+    }
+
+    .dictation-voice label {
+      display: block;
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    .dictation-voice select {
+      width: 100%;
+    }
+
     .dictation-actions {
       display: flex;
       gap: 10px;
@@ -850,6 +867,12 @@
     <div class="dictation-panel">
       <h3 class="dictation-title">听写模式</h3>
       <p class="dictation-status" id="dictationStatus">点击“开始播放”开始听写。</p>
+      <div class="dictation-voice">
+        <label for="dictationVoiceSelect">中文语音</label>
+        <select id="dictationVoiceSelect">
+          <option value="">自动（优先 Google 普通话（中国大陆））</option>
+        </select>
+      </div>
       <div class="dictation-actions">
         <button class="primary" id="dictationStartBtn" onclick="startDictation()">▶️ 开始播放</button>
         <button id="dictationStopBtn" onclick="stopDictation()">⏹ 停止</button>
@@ -1318,6 +1341,56 @@
           }
         });
       }
+
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.onvoiceschanged = () => {
+          refreshDictationVoiceOptions();
+        };
+      }
+
+      refreshDictationVoiceOptions();
+    }
+
+    function getChineseVoices() {
+      if (!("speechSynthesis" in window)) {
+        return [];
+      }
+      return window.speechSynthesis
+        .getVoices()
+        .filter((v) => v.lang && v.lang.toLowerCase().startsWith("zh"));
+    }
+
+    function refreshDictationVoiceOptions() {
+      const select = document.getElementById("dictationVoiceSelect");
+      if (!select) return;
+
+      const selectedValue = select.value;
+      const voices = getChineseVoices();
+
+      select.innerHTML =
+        '<option value="">自动（优先 Google 普通话（中国大陆））</option>';
+
+      voices.forEach((voice) => {
+        const option = document.createElement("option");
+        option.value = voice.voiceURI;
+        option.textContent = `${voice.name} (${voice.lang})`;
+        select.appendChild(option);
+      });
+
+      if (selectedValue && voices.some((v) => v.voiceURI === selectedValue)) {
+        select.value = selectedValue;
+      }
+    }
+
+    function getSelectedDictationVoice() {
+      const select = document.getElementById("dictationVoiceSelect");
+      const selectedVoiceUri = select ? select.value : "";
+      if (!selectedVoiceUri) {
+        return null;
+      }
+
+      const voices = getChineseVoices();
+      return voices.find((voice) => voice.voiceURI === selectedVoiceUri) || null;
     }
 
     function getCurrentDictationWords() {
@@ -1380,6 +1453,7 @@
         utterance.rate = 0.9;
         utterance.pitch = 1;
 
+        const selectedVoice = getSelectedDictationVoice();
         const voices = window.speechSynthesis.getVoices();
         const preferredVoice = voices.find(
           (v) =>
@@ -1394,8 +1468,9 @@
           (v) => v.lang && v.lang.toLowerCase().startsWith("zh"),
         );
 
-        if (preferredVoice || fallbackZhCnVoice || fallbackZhVoice) {
-          utterance.voice = preferredVoice || fallbackZhCnVoice || fallbackZhVoice;
+        if (selectedVoice || preferredVoice || fallbackZhCnVoice || fallbackZhVoice) {
+          utterance.voice =
+            selectedVoice || preferredVoice || fallbackZhCnVoice || fallbackZhVoice;
         }
 
         utterance.onend = () => resolve(true);
@@ -1409,6 +1484,7 @@
     function openDictationOverlay() {
       const overlay = document.getElementById("dictationOverlay");
       if (!overlay) return;
+      refreshDictationVoiceOptions();
       overlay.style.display = "flex";
       updateDictationStatus("点击“开始播放”开始听写。");
       setDictationButtonState(false);
