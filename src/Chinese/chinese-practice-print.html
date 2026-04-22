@@ -266,6 +266,14 @@
       flex-wrap: wrap;
     }
 
+    .dictation-nav {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
     .dictation-actions button {
       min-width: 120px;
       padding: 10px 14px;
@@ -873,6 +881,10 @@
           <option value="">自动（优先 Google 普通话（中国大陆））</option>
         </select>
       </div>
+      <div class="dictation-nav">
+        <button id="dictationPrevBtn" onclick="playPreviousWord()">⏮ 上一个</button>
+        <button id="dictationNextBtn" onclick="playNextWord()">⏭ 下一个</button>
+      </div>
       <div class="dictation-actions">
         <button class="primary" id="dictationStartBtn" onclick="startDictation()">▶️ 开始播放</button>
         <button id="dictationStopBtn" onclick="stopDictation()">⏹ 停止</button>
@@ -1233,6 +1245,7 @@
       isPlaying: false,
       shouldStop: false,
       timerId: null,
+      currentWordIndex: 0,
     };
 
     function getPinyin(char) {
@@ -1333,15 +1346,6 @@
           saveSettings();
         });
 
-      const overlay = document.getElementById("dictationOverlay");
-      if (overlay) {
-        overlay.addEventListener("click", (e) => {
-          if (e.target === overlay) {
-            closeDictationOverlay();
-          }
-        });
-      }
-
       if ("speechSynthesis" in window) {
         window.speechSynthesis.onvoiceschanged = () => {
           refreshDictationVoiceOptions();
@@ -1425,11 +1429,67 @@
       }
     }
 
+    function updateDictationNavigationState() {
+      const words = getCurrentDictationWords();
+      const prevBtn = document.getElementById("dictationPrevBtn");
+      const nextBtn = document.getElementById("dictationNextBtn");
+
+      if (words.length === 0) {
+        dictationState.currentWordIndex = 0;
+      } else {
+        dictationState.currentWordIndex = Math.max(
+          0,
+          Math.min(dictationState.currentWordIndex, words.length - 1),
+        );
+      }
+
+      const canOperate = !dictationState.isPlaying && words.length > 0;
+      if (prevBtn) {
+        prevBtn.disabled = !canOperate || dictationState.currentWordIndex <= 0;
+      }
+      if (nextBtn) {
+        nextBtn.disabled =
+          !canOperate || dictationState.currentWordIndex >= words.length - 1;
+      }
+    }
+
+    async function playWordAtIndex(index) {
+      if (dictationState.isPlaying) {
+        return;
+      }
+
+      const words = getCurrentDictationWords();
+      if (words.length === 0) {
+        updateDictationStatus("当前没有可听写的组词，请先填写组词内容。");
+        updateDictationNavigationState();
+        return;
+      }
+
+      const clampedIndex = Math.max(0, Math.min(index, words.length - 1));
+      dictationState.currentWordIndex = clampedIndex;
+      updateDictationNavigationState();
+
+      const word = words[clampedIndex];
+      updateDictationStatus(
+        `预听：第 ${clampedIndex + 1}/${words.length} 个词：${word}`,
+      );
+      await speakWord(word);
+    }
+
+    function playPreviousWord() {
+      playWordAtIndex(dictationState.currentWordIndex - 1);
+    }
+
+    function playNextWord() {
+      playWordAtIndex(dictationState.currentWordIndex + 1);
+    }
+
     function setDictationButtonState(isPlaying) {
       const startBtn = document.getElementById("dictationStartBtn");
       if (startBtn) {
         startBtn.disabled = isPlaying;
       }
+      updateDictationNavigationState();
     }
 
     function waitWithStop(ms) {
@@ -1485,8 +1545,22 @@
       const overlay = document.getElementById("dictationOverlay");
       if (!overlay) return;
       refreshDictationVoiceOptions();
+
+      const words = getCurrentDictationWords();
+      if (words.length > 0) {
+        dictationState.currentWordIndex = Math.max(
+          0,
+          Math.min(dictationState.currentWordIndex, words.length - 1),
+        );
+        updateDictationStatus(
+          `当前词：第 ${dictationState.currentWordIndex + 1}/${words.length} 个（${words[dictationState.currentWordIndex]}）`,
+        );
+      } else {
+        dictationState.currentWordIndex = 0;
+        updateDictationStatus("点击“开始播放”开始听写。");
+      }
+
       overlay.style.display = "flex";
-      updateDictationStatus("点击“开始播放”开始听写。");
       setDictationButtonState(false);
     }
 
@@ -1520,6 +1594,7 @@
       const words = getCurrentDictationWords();
       if (words.length === 0) {
         updateDictationStatus("当前没有可听写的组词，请先填写组词内容。");
+        updateDictationNavigationState();
         return;
       }
 
@@ -1533,6 +1608,8 @@
       setDictationButtonState(true);
 
       for (let i = 0; i < words.length; i++) {
+        dictationState.currentWordIndex = i;
+        updateDictationNavigationState();
         const word = words[i];
 
         for (let count = 1; count <= DICTATION_REPEAT_COUNT; count++) {
