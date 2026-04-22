@@ -1443,7 +1443,7 @@
         );
       }
 
-      const canOperate = !dictationState.isPlaying && words.length > 0;
+      const canOperate = words.length > 0;
       if (prevBtn) {
         prevBtn.disabled = !canOperate || dictationState.currentWordIndex <= 0;
       }
@@ -1453,9 +1453,22 @@
       }
     }
 
+    function interruptDictationPlayback() {
+      dictationState.shouldStop = true;
+      dictationState.isPlaying = false;
+      if (dictationState.timerId) {
+        clearTimeout(dictationState.timerId);
+        dictationState.timerId = null;
+      }
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+      setDictationButtonState(false);
+    }
+
     async function playWordAtIndex(index) {
       if (dictationState.isPlaying) {
-        return;
+        interruptDictationPlayback();
       }
 
       const words = getCurrentDictationWords();
@@ -1565,16 +1578,7 @@
     }
 
     function stopDictation() {
-      dictationState.shouldStop = true;
-      dictationState.isPlaying = false;
-      if (dictationState.timerId) {
-        clearTimeout(dictationState.timerId);
-        dictationState.timerId = null;
-      }
-      if ("speechSynthesis" in window) {
-        window.speechSynthesis.cancel();
-      }
-      setDictationButtonState(false);
+      interruptDictationPlayback();
       updateDictationStatus("已停止。点击“开始播放”可重新开始。");
     }
 
