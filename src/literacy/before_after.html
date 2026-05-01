@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hilson's Time Train - Before & After</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Lexend:wght@400;700;900&display=swap");
+
+      body {
+        font-family: "Lexend", sans-serif;
+        /* Kid-friendly sky background */
+        background: linear-gradient(180deg, #38bdf8 0%, #e0f2fe 100%);
+        touch-action: manipulation;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+      }
+
+      /* Cloud decorations */
+      .bg-clouds {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: -1;
+        background-image: 
+          radial-gradient(circle at 10% 20%, white 30px, transparent 31px),
+          radial-gradient(circle at 15% 25%, white 40px, transparent 41px),
+          radial-gradient(circle at 20% 20%, white 35px, transparent 36px),
+          radial-gradient(circle at 80% 15%, white 40px, transparent 41px),
+          radial-gradient(circle at 85% 20%, white 50px, transparent 51px),
+          radial-gradient(circle at 90% 15%, white 35px, transparent 36px);
+        opacity: 0.6;
+      }
+
+      .train-track {
+        background: #bae6fd;
+        border-radius: 30px;
+        padding: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 180px;
+        overflow-x: auto;
+        margin: 1.5rem 0;
+        border: 4px dashed #7dd3fc;
+        box-shadow: inset 0 4px 10px rgba(0,0,0,0.05);
+      }
+
+      .car {
+        flex-shrink: 0;
+        width: 120px;
+        height: 80px;
+        background: #ff7e5f;
+        color: white;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 1.25rem;
+        margin: 0 8px;
+        position: relative;
+        box-shadow: 0 6px 0 #d4664d;
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.3s, box-shadow 0.3s;
+      }
+
+      .car.current {
+        background: #4ade80;
+        box-shadow: 0 6px 0 #22c55e;
+        transform: scale(1.15) translateY(-5px);
+        z-index: 10;
+        border: 4px solid white;
+      }
+
+      /* Wheels */
+      .car::before,
+      .car::after {
+        content: "";
+        position: absolute;
+        bottom: -16px;
+        width: 24px;
+        height: 24px;
+        background: #334155;
+        border-radius: 50%;
+        border: 3px solid #cbd5e1;
+      }
+      .car::before { left: 16px; }
+      .car::after { right: 16px; }
+
+      .engine {
+        flex-shrink: 0;
+        width: 140px;
+        height: 110px;
+        background: #3b82f6;
+        border-radius: 20px 50px 15px 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 900;
+        font-size: 1.2rem;
+        position: relative;
+        box-shadow: 0 6px 0 #2563eb;
+        margin-right: 12px;
+        border: 4px solid #1d4ed8;
+      }
+
+      .engine-smoke {
+        position: absolute;
+        top: -30px;
+        left: 25px;
+        width: 35px;
+        height: 45px;
+        background: white;
+        border-radius: 10px 10px 0 0;
+        opacity: 0.8;
+      }
+
+      .engine::before,
+      .engine::after {
+        content: "";
+        position: absolute;
+        bottom: -16px;
+        width: 28px;
+        height: 28px;
+        background: #334155;
+        border-radius: 50%;
+        border: 3px solid #cbd5e1;
+      }
+      .engine::before { left: 20px; }
+      .engine::after { right: 30px; }
+
+      .btn-option {
+        background: white;
+        border: 4px solid #e2e8f0;
+        border-bottom-width: 8px;
+        transition: transform 0.1s, border-width 0.1s, background-color 0.2s, color 0.2s, box-shadow 0.2s;
+        border-radius: 24px;
+        font-weight: 900;
+        font-size: 2rem;
+        color: #475569;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 80px;
+        cursor: pointer;
+        padding: 1rem;
+      }
+
+      .btn-option:active {
+        transform: translateY(4px);
+        border-bottom-width: 4px;
+      }
+
+      /* Focus states */
+      .btn-option:focus-visible, .nav-btn:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 4px white, 0 0 0 8px #3b82f6;
+      }
+
+      .nav-btn {
+        transition: transform 0.1s, background-color 0.2s, border-width 0.1s, box-shadow 0.2s;
+        border-bottom-width: 4px;
+        cursor: pointer;
+      }
+      .nav-btn:active {
+        transform: translateY(2px);
+        border-bottom-width: 2px;
+      }
+
+      @keyframes successPop {
+        0% { transform: scale(0.5); opacity: 0; }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); opacity: 1; }
+      }
+      .pop {
+        animation: successPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      }
+
+      @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        20%, 60% { transform: translateX(-10px); }
+        40%, 80% { transform: translateX(10px); }
+      }
+      .shake {
+        animation: shake 0.4s ease-in-out;
+      }
+    </style>
+  </head>
+  <body class="flex flex-col items-center min-h-screen p-4 md:p-8">
+    <div class="bg-clouds"></div>
+
+    <!-- Top Bar Navigation (Moved from bottom) -->
+    <div class="w-full max-w-5xl flex justify-between items-center mb-6 bg-white/60 backdrop-blur-md rounded-3xl p-3 shadow-sm border-2 border-white/80">
+      <div class="flex gap-3">
+        <button
+          onclick="changeMode('numbers')"
+          id="btn-numbers"
+          aria-label="Numbers Mode"
+          class="nav-btn bg-blue-500 text-white px-6 py-3 rounded-2xl shadow-sm font-bold text-lg md:text-xl border-blue-700"
+        >
+          123
+        </button>
+        <button
+          onclick="changeMode('days')"
+          id="btn-days"
+          aria-label="Days Mode"
+          class="nav-btn bg-white text-slate-600 px-6 py-3 rounded-2xl shadow-sm font-bold text-lg md:text-xl border-slate-300"
+        >
+          DAYS
+        </button>
+        <button
+          onclick="changeMode('months')"
+          id="btn-months"
+          aria-label="Months Mode"
+          class="nav-btn bg-white text-slate-600 px-6 py-3 rounded-2xl shadow-sm font-bold text-lg md:text-xl border-slate-300"
+        >
+          MONTHS
+        </button>
+      </div>
+      <div class="bg-yellow-400 border-b-4 border-yellow-600 px-6 py-2 rounded-2xl font-black text-white text-xl md:text-2xl shadow-sm flex items-center gap-2">
+        <span>⭐ Score:</span>
+        <span id="score">0</span>
+      </div>
+    </div>
+
+    <!-- Main Game Container -->
+    <div
+      id="game-container"
+      class="w-full max-w-5xl flex-grow bg-white rounded-[3rem] shadow-2xl p-8 border-[8px] border-blue-100 flex flex-col justify-between"
+    >
+      <!-- Header Area inside container -->
+      <div class="text-center mb-4">
+        <span id="level-name" class="inline-block bg-sky-100 text-sky-600 px-6 py-2 rounded-full font-black uppercase text-lg border-2 border-sky-200">
+          Numbers
+        </span>
+      </div>
+
+      <!-- Train Track -->
+      <div class="train-track">
+        <div class="flex items-end">
+          <!-- Engine -->
+          <div class="engine">
+            <div class="engine-smoke"></div>
+            FRONT
+          </div>
+          <!-- Cars go here -->
+          <div id="train-cars" class="flex items-end"></div>
+        </div>
+      </div>
+
+      <!-- Question -->
+      <div
+        class="text-center my-6 min-h-[100px] flex items-center justify-center"
+      >
+        <h2
+          id="question-text"
+          class="text-3xl md:text-5xl font-black text-slate-800 leading-snug"
+        >
+          Loading game...
+        </h2>
+      </div>
+
+      <!-- Options -->
+      <div id="options" class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-auto">
+        <!-- Buttons go here -->
+      </div>
+
+      <!-- Feedback (aria-live polite for accessibility) -->
+      <div
+        id="feedback"
+        aria-live="polite"
+        class="mt-8 text-center font-black text-3xl md:text-4xl min-h-[48px] opacity-0 transition-opacity duration-300"
+      >
+        EXCELLENT!
+      </div>
+    </div>
+
+    <script>
+      // --- Web Audio API for Sound Effects ---
+      let audioCtx;
+      function initAudio() {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+      }
+
+      function playSound(type) {
+        if (!audioCtx) return;
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        const now = audioCtx.currentTime;
+
+        if (type === 'correct') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(523.25, now); // C5
+          osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+          osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+          osc.frequency.setValueAtTime(1046.50, now + 0.3); // C6
+          
+          gainNode.gain.setValueAtTime(0, now);
+          gainNode.gain.linearRampToValueAtTime(0.3, now + 0.05);
+          gainNode.gain.linearRampToValueAtTime(0, now + 0.5);
+          
+          osc.start(now);
+          osc.stop(now + 0.5);
+        } else if (type === 'incorrect') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(300, now);
+          osc.frequency.exponentialRampToValueAtTime(100, now + 0.3);
+          
+          gainNode.gain.setValueAtTime(0, now);
+          gainNode.gain.linearRampToValueAtTime(0.3, now + 0.05);
+          gainNode.gain.linearRampToValueAtTime(0, now + 0.3);
+          
+          osc.start(now);
+          osc.stop(now + 0.3);
+        }
+      }
+
+      // Unlock audio on first interaction (iOS Safari requirement)
+      document.body.addEventListener('click', initAudio, { once: true });
+      document.body.addEventListener('touchstart', initAudio, { once: true });
+      // --- End Web Audio API ---
+
+      const data = {
+        numbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+        days: [
+          "Sunday",
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+        ],
+        months: [
+          "January",
+          "February",
+          "March",
+          "April",
+          "May",
+          "June",
+          "July",
+          "August",
+          "September",
+          "October",
+          "November",
+          "December",
+        ],
+      };
+
+      let currentMode = "numbers";
+      let score = 0;
+      let currentQuestion = {};
+      let isAnimating = false; // Prevent multiple clicks during animation
+
+      function initGame() {
+        updateNavUI();
+        generateQuestion();
+      }
+
+      function updateNavUI() {
+        const modes = ['numbers', 'days', 'months'];
+        const colors = {
+          numbers: 'bg-blue-500 text-white border-blue-700',
+          days: 'bg-green-500 text-white border-green-700',
+          months: 'bg-purple-500 text-white border-purple-700'
+        };
+
+        modes.forEach(mode => {
+          const btn = document.getElementById(`btn-${mode}`);
+          // Reset to default
+          btn.className = "nav-btn bg-white text-slate-600 px-6 py-3 rounded-2xl shadow-sm font-bold text-lg md:text-xl border-slate-300";
+          if (mode === currentMode) {
+            btn.className = `nav-btn ${colors[mode]} px-6 py-3 rounded-2xl shadow-sm font-bold text-lg md:text-xl`;
+          }
+        });
+      }
+
+      function changeMode(mode) {
+        currentMode = mode;
+        const modeDisplay =
+          mode === "numbers" ? "Numbers" : mode === "days" ? "Days" : "Months";
+        document.getElementById("level-name").innerText = modeDisplay;
+        
+        // Update styling of mode buttons
+        updateNavUI();
+        generateQuestion();
+      }
+
+      function generateQuestion() {
+        isAnimating = false;
+        const list = data[currentMode];
+        // Pick a random target index that allows for before/after neighbors
+        const randomIndex = Math.floor(Math.random() * (list.length - 2)) + 1;
+        const target = list[randomIndex];
+
+        const typeRand = Math.random();
+        let answer, sentence;
+
+        if (typeRand < 0.35) {
+          // target comes after [answer] -> answer is index - 1
+          answer = list[randomIndex - 1];
+          sentence = `${target} comes after ____.`;
+        } else if (typeRand < 0.7) {
+          // target comes before [answer] -> answer is index + 1
+          answer = list[randomIndex + 1];
+          sentence = `${target} comes before ____.`;
+        } else {
+          // target is 2 steps after [answer] -> answer is index - 2
+          const jumpIdx = Math.max(0, randomIndex - 2);
+          answer = list[jumpIdx];
+          const unit =
+            currentMode === "numbers"
+              ? ""
+              : currentMode === "days"
+                ? " days"
+                : " months";
+          sentence = `${target} is ${randomIndex - jumpIdx}${unit} after ____.`;
+        }
+
+        currentQuestion = { answer, target };
+
+        document.getElementById("question-text").innerText = sentence;
+        const feedback = document.getElementById("feedback");
+        feedback.style.opacity = "0";
+        feedback.classList.remove("pop");
+
+        renderTrain(target);
+        renderOptions(answer);
+      }
+
+      function renderTrain(activeItem) {
+        const list = data[currentMode];
+        const container = document.getElementById("train-cars");
+        container.innerHTML = "";
+
+        const idx = list.indexOf(activeItem);
+        const start = Math.max(0, idx - 1);
+        const end = Math.min(list.length, idx + 2);
+
+        for (let i = start; i < end; i++) {
+          const div = document.createElement("div");
+          div.className = `car ${list[i] === activeItem ? "current" : ""}`;
+          div.innerText = list[i];
+          container.appendChild(div);
+        }
+      }
+
+      function renderOptions(correctAnswer) {
+        const list = data[currentMode];
+        const container = document.getElementById("options");
+        container.innerHTML = "";
+
+        let choices = [correctAnswer];
+        while (choices.length < 4) {
+          let r = list[Math.floor(Math.random() * list.length)];
+          if (!choices.includes(r)) choices.push(r);
+        }
+        choices.sort(() => Math.random() - 0.5);
+
+        choices.forEach((val) => {
+          const btn = document.createElement("button");
+          btn.className = "btn-option";
+          // Better text sizing for longer words like "Wednesday"
+          if (typeof val === 'string' && val.length > 6) {
+             btn.classList.add("text-xl", "md:text-2xl");
+          }
+          btn.innerText = val;
+          btn.onclick = () => check(val, btn);
+          container.appendChild(btn);
+        });
+      }
+
+      function check(val, btn) {
+        if (isAnimating) return;
+        
+        const feedback = document.getElementById("feedback");
+        
+        if (val === currentQuestion.answer) {
+          isAnimating = true;
+          score += 10;
+          document.getElementById("score").innerText = score;
+          
+          playSound('correct');
+          
+          feedback.innerText = "🌟 GREAT JOB! 🌟";
+          feedback.className = "mt-8 text-center font-black text-3xl md:text-4xl min-h-[48px] text-green-500 pop";
+          feedback.style.opacity = "1";
+          
+          btn.classList.add("bg-green-400", "text-white", "border-green-600");
+          btn.classList.remove("text-slate-700");
+
+          setTimeout(generateQuestion, 1500);
+        } else {
+          playSound('incorrect');
+          feedback.innerText = "Look at the train! 🚂";
+          feedback.className = "mt-8 text-center font-black text-2xl md:text-3xl min-h-[48px] text-red-500";
+          feedback.style.opacity = "1";
+          
+          btn.classList.add("shake", "bg-red-100", "border-red-300", "text-red-600");
+          setTimeout(() => {
+            btn.classList.remove("shake");
+          }, 400);
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", initGame);
+      if (document.readyState === "complete" || document.readyState === "interactive") {
+        initGame();
+      }
+    </script>
+  </body>
+</html>
