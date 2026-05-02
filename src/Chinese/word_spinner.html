@@ -1,0 +1,974 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>汉字偏旁旋转转盘</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <style>
+      /* ===== Design Tokens (Claymorphism · Children's Education) ===== */
+      :root {
+        --bg-from: #e0f0ff;
+        --bg-to: #fde8f5;
+        --surface: #ffffff;
+        --surface-2: #f8faff;
+        --primary: #2563eb;
+        --primary-light: #dbeafe;
+        --accent: #f97316;
+        --accent-light: #ffedd5;
+        --text-main: #1e293b;
+        --text-muted: #64748b;
+        --success: #22c55e;
+        --radius-lg: 20px;
+        --radius-xl: 28px;
+        --shadow-clay:
+          0 6px 0 rgba(0, 0, 0, 0.12), 0 12px 24px rgba(0, 0, 0, 0.1);
+        --shadow-inset: inset 0 2px 4px rgba(255, 255, 255, 0.7);
+        --font-main: "Baloo 2", "PingFang SC", "Microsoft YaHei", sans-serif;
+        --duration-fast: 180ms;
+        --duration-med: 280ms;
+        --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* ===== Base ===== */
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100dvh;
+        background: linear-gradient(
+          135deg,
+          var(--bg-from) 0%,
+          var(--bg-to) 100%
+        );
+        font-family: var(--font-main);
+        color: var(--text-main);
+        /* Decorative blobs */
+        position: relative;
+      }
+
+      /* Background decorative circles */
+      body::before,
+      body::after {
+        content: "";
+        position: fixed;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 0;
+      }
+      body::before {
+        width: 320px;
+        height: 320px;
+        background: radial-gradient(
+          circle,
+          rgba(37, 99, 235, 0.12),
+          transparent 70%
+        );
+        top: -80px;
+        left: -80px;
+      }
+      body::after {
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(
+          circle,
+          rgba(249, 115, 22, 0.1),
+          transparent 70%
+        );
+        bottom: -100px;
+        right: -100px;
+      }
+
+      /* ===== Main Layout — iPad Landscape: side-by-side ===== */
+      .main-container {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        /* Left panel: char selector + wheel; Right panel: combo result */
+        grid-template-columns: 1fr auto;
+        grid-template-rows: auto 1fr;
+        grid-template-areas:
+          "selector selector"
+          "wheel    result";
+        gap: 16px 24px;
+        width: 100%;
+        max-width: 980px;
+        padding: 16px 24px;
+        padding-left: max(24px, env(safe-area-inset-left));
+        padding-right: max(24px, env(safe-area-inset-right));
+        padding-bottom: max(16px, env(safe-area-inset-bottom));
+      }
+
+      /* ===== Character Selector (top full-width) ===== */
+      .char-selector-wrap {
+        grid-area: selector;
+      }
+
+      .char-selector {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        background: var(--surface);
+        padding: 12px 16px;
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-clay);
+        border: 3px solid rgba(255, 255, 255, 0.8);
+      }
+
+      .char-btn {
+        min-width: 52px;
+        height: 52px;
+        padding: 0 10px;
+        border: 3px solid #e2e8f0;
+        border-radius: 14px;
+        background: var(--surface-2);
+        font-family: var(--font-main);
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--text-muted);
+        cursor: pointer;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+        /* Clay press effect */
+        box-shadow:
+          0 4px 0 #cbd5e1,
+          var(--shadow-inset);
+        transition:
+          transform var(--duration-fast) var(--ease-out),
+          box-shadow var(--duration-fast) var(--ease-out),
+          border-color var(--duration-fast) var(--ease-out),
+          background var(--duration-fast) var(--ease-out),
+          color var(--duration-fast) var(--ease-out);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .char-btn:focus-visible {
+        outline: 3px solid var(--primary);
+        outline-offset: 2px;
+      }
+
+      .char-btn:hover:not(.active) {
+        border-color: var(--primary);
+        color: var(--primary);
+        transform: translateY(-2px);
+        box-shadow:
+          0 6px 0 #93c5fd,
+          var(--shadow-inset);
+      }
+
+      .char-btn:active {
+        transform: translateY(2px);
+        box-shadow: 0 1px 0 #cbd5e1;
+      }
+
+      .char-btn.active {
+        border-color: var(--primary);
+        background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+        color: #ffffff;
+        box-shadow:
+          0 4px 0 #1d4ed8,
+          var(--shadow-inset);
+        transform: translateY(0);
+      }
+
+      /* ===== Wheel Area ===== */
+      .wheel-area {
+        grid-area: wheel;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+      }
+
+      .wheel-wrapper {
+        position: relative;
+        width: clamp(280px, 38vw, 420px);
+        height: clamp(280px, 38vw, 420px);
+        cursor: pointer;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+        /* Clay outer ring */
+        border-radius: 50%;
+        box-shadow: var(--shadow-clay);
+        transition: transform var(--duration-fast) var(--ease-out);
+      }
+
+      .wheel-wrapper:hover {
+        transform: scale(1.02);
+      }
+
+      .wheel-wrapper:active {
+        transform: scale(0.97);
+      }
+
+      .wheel-wrapper:focus-visible {
+        outline: 4px solid var(--accent);
+        outline-offset: 4px;
+      }
+
+      canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        border-radius: 50%;
+        width: 100%;
+        height: 100%;
+      }
+
+      #bottom-canvas {
+        z-index: 1;
+      }
+
+      #middle-canvas {
+        z-index: 2;
+        pointer-events: none;
+      }
+
+      #radical-display {
+        position: absolute;
+        inset: 0;
+        z-index: 3;
+        pointer-events: none;
+      }
+
+      #radical-text {
+        position: absolute;
+        left: calc(50% + 130px * cos(210deg) - 30px);
+        top: calc(50% + 130px * sin(210deg) - 30px);
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 48px;
+        font-weight: 800;
+        color: #374151;
+        font-family: var(--font-main);
+        transition:
+          opacity var(--duration-fast) var(--ease-out),
+          transform var(--duration-fast) var(--ease-out);
+      }
+
+      /* Spin hint below wheel */
+      .spin-hint {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--text-muted);
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        background: var(--surface);
+        padding: 8px 18px;
+        border-radius: 999px;
+        box-shadow: 0 3px 0 #e2e8f0;
+        border: 2px solid #e2e8f0;
+      }
+
+      .spin-hint svg {
+        animation: spin-icon 2s linear infinite;
+      }
+
+      @keyframes spin-icon {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .spin-hint svg {
+          animation: none;
+        }
+      }
+
+      /* ===== Result Panel (right side) ===== */
+      .result-panel {
+        grid-area: result;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        min-width: 200px;
+        max-width: 260px;
+      }
+
+      /* Big formula card */
+      #combo-display {
+        background: var(--surface);
+        padding: 24px 28px;
+        border-radius: var(--radius-xl);
+        border: 3px solid #e2e8f0;
+        box-shadow: var(--shadow-clay);
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--primary);
+        letter-spacing: 0.05em;
+        text-align: center;
+        width: 100%;
+        min-height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition:
+          transform var(--duration-med) var(--ease-out),
+          box-shadow var(--duration-med) var(--ease-out);
+      }
+
+      #combo-display.animate {
+        transform: scale(1.06);
+        box-shadow:
+          0 8px 0 #1d4ed8,
+          0 16px 32px rgba(37, 99, 235, 0.22);
+      }
+
+      /* Result character showcase */
+      .result-char {
+        background: linear-gradient(135deg, #fef9c3 0%, #fde68a 100%);
+        border: 3px solid #fbbf24;
+        border-radius: var(--radius-xl);
+        box-shadow:
+          0 5px 0 #d97706,
+          var(--shadow-inset);
+        width: 100%;
+        height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 72px;
+        font-weight: 800;
+        color: #92400e;
+        transition:
+          opacity var(--duration-fast) var(--ease-out),
+          transform var(--duration-fast) var(--ease-out);
+      }
+
+      .result-char.pop {
+        animation: char-pop var(--duration-med) var(--ease-out);
+      }
+
+      @keyframes char-pop {
+        0% {
+          transform: scale(0.8);
+          opacity: 0.5;
+        }
+        60% {
+          transform: scale(1.12);
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .result-char.pop {
+          animation: none;
+        }
+        #combo-display.animate {
+          transform: none;
+        }
+        .char-btn {
+          transition: none;
+        }
+        .wheel-wrapper {
+          transition: none;
+        }
+      }
+
+      /* Stars / celebration dots */
+      .stars {
+        display: flex;
+        gap: 10px;
+      }
+
+      .star {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: #fbbf24;
+        box-shadow: 0 2px 0 #d97706;
+        transition:
+          background var(--duration-fast) var(--ease-out),
+          transform var(--duration-fast) var(--ease-out);
+      }
+
+      .star.lit {
+        background: #f97316;
+        transform: scale(1.25);
+      }
+
+      /* ===== Responsive: small screens fall back to column ===== */
+      @media (max-width: 640px) {
+        body {
+          overflow-y: auto;
+        }
+
+        .main-container {
+          grid-template-columns: 1fr;
+          grid-template-areas:
+            "selector"
+            "wheel"
+            "result";
+          padding: 12px 16px;
+          gap: 14px;
+        }
+
+        .result-panel {
+          max-width: 100%;
+          flex-direction: row;
+          flex-wrap: wrap;
+          justify-content: center;
+        }
+
+        #combo-display {
+          font-size: 20px;
+        }
+
+        .result-char {
+          height: 90px;
+          font-size: 52px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="main-container" role="main">
+      <!-- ① Character family selector -->
+      <div class="char-selector-wrap">
+        <div
+          class="char-selector"
+          id="char-selector"
+          role="group"
+          aria-label="选择汉字字族"
+        ></div>
+      </div>
+
+      <!-- ② Spinner wheel + hint -->
+      <div class="wheel-area">
+        <div
+          class="wheel-wrapper"
+          id="wheel-container"
+          role="button"
+          tabindex="0"
+          aria-label="旋转转盘，学习偏旁组合"
+        >
+          <canvas
+            id="bottom-canvas"
+            width="420"
+            height="420"
+            aria-hidden="true"
+          ></canvas>
+          <canvas
+            id="middle-canvas"
+            width="420"
+            height="420"
+            aria-hidden="true"
+          ></canvas>
+          <div id="radical-display" aria-hidden="true">
+            <div id="radical-text"></div>
+          </div>
+        </div>
+
+        <div class="spin-hint" aria-hidden="true">
+          <!-- Spin arrow icon -->
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M21 12a9 9 0 1 1-2.636-6.364" />
+            <polyline points="21 3 21 9 15 9" />
+          </svg>
+          点击转盘旋转
+        </div>
+      </div>
+
+      <!-- ③ Result panel -->
+      <div class="result-panel">
+        <div
+          id="combo-display"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          加载中…
+        </div>
+
+        <div class="result-char" id="result-char" aria-hidden="true">？</div>
+
+        <div class="stars" aria-hidden="true">
+          <div class="star" id="star-0"></div>
+          <div class="star" id="star-1"></div>
+          <div class="star" id="star-2"></div>
+          <div class="star" id="star-3"></div>
+          <div class="star" id="star-4"></div>
+          <div class="star" id="star-5"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        // ============ 字族数据库 ============
+        const CHAR_FAMILIES = {
+          包: {
+            radicals: ["饣", "扌", "⻊", "氵", "火", "衤"],
+            combos: {
+              饣: "饱",
+              扌: "抱",
+              "⻊": "跑",
+              氵: "泡",
+              火: "炮",
+              衤: "袍",
+            },
+          },
+          中: {
+            radicals: ["禾", "钅", "亻", "月", "犭", "心"],
+            combos: {
+              禾: "种",
+              钅: "钟",
+              亻: "仲",
+              月: "肿",
+              犭: "狆",
+              心: "忠",
+            },
+          },
+          丁: {
+            radicals: ["讠", "目", "钅", "田", "口", "亻"],
+            combos: {
+              讠: "订",
+              目: "盯",
+              钅: "钉",
+              田: "町",
+              口: "叮",
+              亻: "仃",
+            },
+          },
+          青: {
+            radicals: ["氵", "忄", "日", "目", "讠", "米"],
+            combos: {
+              氵: "清",
+              忄: "情",
+              日: "晴",
+              目: "睛",
+              讠: "请",
+              米: "精",
+            },
+          },
+          马: {
+            radicals: ["女", "石", "王", "虫", "口", "马"],
+            combos: {
+              女: "妈",
+              石: "码",
+              王: "玛",
+              虫: "蚂",
+              口: "吗",
+              马: "骂",
+            },
+          },
+          方: {
+            radicals: ["户", "攵", "阝", "讠", "亻", "纟"],
+            combos: {
+              户: "房",
+              攵: "放",
+              阝: "防",
+              讠: "访",
+              亻: "仿",
+              纟: "纺",
+            },
+          },
+          工: {
+            radicals: ["纟", "氵", "扌", "力", "攵", "木"],
+            combos: {
+              纟: "红",
+              氵: "江",
+              扌: "扛",
+              力: "功",
+              攵: "攻",
+              木: "杠",
+            },
+          },
+          也: {
+            radicals: ["亻", "土", "氵", "马", "弓", "女"],
+            combos: {
+              亻: "他",
+              土: "地",
+              氵: "池",
+              马: "驰",
+              弓: "弛",
+              女: "她",
+            },
+          },
+          可: {
+            radicals: ["氵", "亻", "木", "艹", "口", "土"],
+            combos: {
+              氵: "河",
+              亻: "何",
+              木: "柯",
+              艹: "苛",
+              口: "呵",
+              土: "坷",
+            },
+          },
+          每: {
+            radicals: ["氵", "木", "艹", "忄", "讠", "日"],
+            combos: {
+              氵: "海",
+              木: "梅",
+              艹: "莓",
+              忄: "悔",
+              讠: "诲",
+              日: "晦",
+            },
+          },
+          少: {
+            radicals: ["氵", "石", "扌", "口", "女", "禾"],
+            combos: {
+              氵: "沙",
+              石: "砂",
+              扌: "抄",
+              口: "吵",
+              女: "妙",
+              禾: "秒",
+            },
+          },
+          交: {
+            radicals: ["木", "车", "月", "阝", "纟", "饣"],
+            combos: {
+              木: "校",
+              车: "较",
+              月: "胶",
+              阝: "郊",
+              纟: "绞",
+              饣: "饺",
+            },
+          },
+          主: {
+            radicals: ["亻", "氵", "马", "虫", "木", "扌"],
+            combos: {
+              亻: "住",
+              氵: "注",
+              马: "驻",
+              虫: "蛀",
+              木: "柱",
+              扌: "拄",
+            },
+          },
+          台: {
+            radicals: ["扌", "月", "艹", "氵", "女", "心"],
+            combos: {
+              扌: "抬",
+              月: "胎",
+              艹: "苔",
+              氵: "治",
+              女: "始",
+              心: "怠",
+            },
+          },
+          皮: {
+            radicals: ["氵", "石", "土", "王", "扌", "疒"],
+            combos: {
+              氵: "波",
+              石: "破",
+              土: "坡",
+              王: "玻",
+              扌: "披",
+              疒: "疲",
+            },
+          },
+          白: {
+            radicals: ["亻", "氵", "木", "扌", "辶", "钅"],
+            combos: {
+              亻: "伯",
+              氵: "泊",
+              木: "柏",
+              扌: "拍",
+              辶: "迫",
+              钅: "铂",
+            },
+          },
+          令: {
+            radicals: ["冫", "山", "钅", "亻", "王", "页"],
+            combos: {
+              冫: "冷",
+              山: "岭",
+              钅: "铃",
+              亻: "伶",
+              王: "玲",
+              页: "领",
+            },
+          },
+        };
+
+        const bottomCanvas = document.getElementById("bottom-canvas");
+        const middleCanvas = document.getElementById("middle-canvas");
+        const radicalTextEl = document.getElementById("radical-text");
+        const comboEl = document.getElementById("combo-display");
+        const resultCharEl = document.getElementById("result-char");
+        const selectorEl = document.getElementById("char-selector");
+        const bCtx = bottomCanvas.getContext("2d");
+        const mCtx = middleCanvas.getContext("2d");
+
+        // Canvas logical size (keep drawing at 420 for crisp rendering)
+        const SIZE = 420;
+        const CX = SIZE / 2;
+        const CY = SIZE / 2;
+        const RADIUS = 190;
+        const SECTOR_COUNT = 6;
+        const SECTOR_ANGLE = (Math.PI * 2) / SECTOR_COUNT;
+
+        // Vibrant sector colors (clay-style, child-friendly)
+        const COLORS = [
+          "#dbeafe", // blue-100
+          "#d1fae5", // green-100
+          "#fef9c3", // yellow-100
+          "#ede9fe", // violet-100
+          "#ffe4e6", // rose-100
+          "#dcfce7", // emerald-100
+        ];
+        const BORDER_COLORS = [
+          "#93c5fd",
+          "#6ee7b7",
+          "#fde047",
+          "#c4b5fd",
+          "#fca5a5",
+          "#86efac",
+        ];
+
+        let currentChar = "包";
+        let currentData = CHAR_FAMILIES[currentChar];
+        let currentRotate = -120;
+        let isAnimating = false;
+        let spinCount = 0; // for star progression
+
+        // ================= 1. 初始化切换按钮 =================
+        function initSelector() {
+          Object.keys(CHAR_FAMILIES).forEach((char) => {
+            const btn = document.createElement("button");
+            btn.className = `char-btn ${char === currentChar ? "active" : ""}`;
+            btn.textContent = char;
+            btn.setAttribute(
+              "aria-pressed",
+              char === currentChar ? "true" : "false",
+            );
+            btn.setAttribute("aria-label", `字族：${char}`);
+            btn.onclick = () => switchChar(char);
+            selectorEl.appendChild(btn);
+          });
+        }
+
+        // ================= 2. 切换字族 =================
+        function switchChar(char) {
+          if (isAnimating || char === currentChar) return;
+
+          currentChar = char;
+          currentData = CHAR_FAMILIES[char];
+          currentRotate = -120;
+          spinCount = 0;
+          updateStars(0);
+
+          document.querySelectorAll(".char-btn").forEach((btn) => {
+            const isActive = btn.textContent === char;
+            btn.classList.toggle("active", isActive);
+            btn.setAttribute("aria-pressed", isActive ? "true" : "false");
+          });
+
+          drawMiddleCanvas();
+          drawBottomCanvas();
+          const rad = updateRadicalDisplay();
+          updateComboDisplay(rad, false);
+        }
+
+        // ================= 3. 更新偏旁文字显示 =================
+        function updateRadicalDisplay() {
+          let rawIndex = (((3 - currentRotate / 60) % 6) + 6) % 6;
+          let idx = Math.round(rawIndex) % 6;
+          const rad = currentData.radicals[idx];
+          radicalTextEl.textContent = rad;
+          return rad;
+        }
+
+        // ================= 4. 更新组合展示 =================
+        function updateComboDisplay(radical, animate = true) {
+          const combo = currentData.combos[radical] || "？";
+
+          comboEl.textContent = `${radical} + ${currentChar} = ${combo}`;
+
+          // Update big character card
+          resultCharEl.textContent = combo;
+
+          if (animate) {
+            comboEl.classList.remove("animate");
+            void comboEl.offsetWidth; // force reflow
+            comboEl.classList.add("animate");
+            setTimeout(() => comboEl.classList.remove("animate"), 350);
+
+            // Pop animation on result char
+            resultCharEl.classList.remove("pop");
+            void resultCharEl.offsetWidth;
+            resultCharEl.classList.add("pop");
+            setTimeout(() => resultCharEl.classList.remove("pop"), 350);
+          }
+        }
+
+        // ================= 5. Stars progression =================
+        function updateStars(count) {
+          for (let i = 0; i < 6; i++) {
+            const star = document.getElementById(`star-${i}`);
+            star.classList.toggle("lit", i < count);
+          }
+        }
+
+        // ================= 6. 中层 Canvas =================
+        function drawMiddleCanvas() {
+          mCtx.clearRect(0, 0, SIZE, SIZE);
+
+          // White mask — upper half + left-upper sector (reveals the pointer sector)
+          mCtx.fillStyle = "#ffffff";
+          mCtx.beginPath();
+          mCtx.moveTo(CX, CY);
+          mCtx.arc(CX, CY, RADIUS, 0, Math.PI);
+          mCtx.closePath();
+          mCtx.fill();
+          mCtx.beginPath();
+          mCtx.moveTo(CX, CY);
+          mCtx.arc(CX, CY, RADIUS, (Math.PI * 4) / 3, Math.PI * 2);
+          mCtx.closePath();
+          mCtx.fill();
+
+          // Center character
+          mCtx.fillStyle = "#1e293b";
+          mCtx.font = 'bold 56px "PingFang SC", "Microsoft YaHei", sans-serif';
+          mCtx.textAlign = "center";
+          mCtx.textBaseline = "middle";
+          mCtx.fillText(currentChar, CX, 115);
+
+          // Center dot
+          mCtx.fillStyle = "#22c55e";
+          mCtx.shadowColor = "rgba(34,197,94,0.4)";
+          mCtx.shadowBlur = 8;
+          mCtx.beginPath();
+          mCtx.arc(CX, CY, 9, 0, Math.PI * 2);
+          mCtx.fill();
+          mCtx.shadowBlur = 0;
+        }
+
+        // ================= 7. 下层 Canvas =================
+        function drawBottomCanvas() {
+          bCtx.clearRect(0, 0, SIZE, SIZE);
+          const rotateRad = currentRotate * (Math.PI / 180);
+
+          for (let i = 0; i < SECTOR_COUNT; i++) {
+            const startA = i * SECTOR_ANGLE + rotateRad;
+            const endA = startA + SECTOR_ANGLE;
+
+            // Fill
+            bCtx.fillStyle = COLORS[i];
+            bCtx.beginPath();
+            bCtx.moveTo(CX, CY);
+            bCtx.arc(CX, CY, RADIUS, startA, endA);
+            bCtx.closePath();
+            bCtx.fill();
+
+            // Sector border
+            bCtx.strokeStyle = BORDER_COLORS[i];
+            bCtx.lineWidth = 2;
+            bCtx.stroke();
+          }
+
+          // Outer ring
+          bCtx.strokeStyle = "rgba(255,255,255,0.6)";
+          bCtx.lineWidth = 6;
+          bCtx.beginPath();
+          bCtx.arc(CX, CY, RADIUS - 3, 0, Math.PI * 2);
+          bCtx.stroke();
+        }
+
+        // ================= 8. 交互与 GSAP 动画 =================
+        function startSpin() {
+          if (isAnimating) return;
+          isAnimating = true;
+
+          const startAngle = currentRotate;
+          const targetAngle = currentRotate - 60;
+          const interpolate = gsap.utils.interpolate(startAngle, targetAngle);
+
+          gsap.to(
+            { progress: 0 },
+            {
+              progress: 1,
+              duration: 0.75,
+              ease: "power3.out",
+              onUpdate: function () {
+                currentRotate = interpolate(this.targets()[0].progress);
+                drawBottomCanvas();
+                updateRadicalDisplay();
+              },
+              onComplete: () => {
+                currentRotate = targetAngle;
+                drawBottomCanvas();
+                const rad = updateRadicalDisplay();
+                updateComboDisplay(rad, true);
+                spinCount = Math.min(spinCount + 1, 6);
+                updateStars(spinCount);
+                isAnimating = false;
+              },
+            },
+          );
+        }
+
+        // Click and keyboard (Enter/Space) on wheel
+        const wheelEl = document.getElementById("wheel-container");
+        wheelEl.addEventListener("click", startSpin);
+        wheelEl.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            startSpin();
+          }
+        });
+
+        // ================= 初始化 =================
+        initSelector();
+        drawMiddleCanvas();
+        drawBottomCanvas();
+        const initialRad = updateRadicalDisplay();
+        updateComboDisplay(initialRad, false);
+      })();
+    </script>
+  </body>
+</html>
