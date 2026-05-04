@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day and Night Detectives</title>
+  <meta name="theme-color" content="#102a43">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='32' height='64' fill='%23f7c948'/%3E%3Crect x='32' width='32' height='64' fill='%2316284a'/%3E%3Ccircle cx='32' cy='32' r='22' fill='none' stroke='white' stroke-width='5'/%3E%3C/svg%3E">
+  <style>
+    :root {
+      --ink: #17324d;
+      --paper: #fff9ec;
+      --paper-soft: #fff2d2;
+      --sky: #7fc8d8;
+      --sea: #1f6f8b;
+      --night: #16284a;
+      --night-deep: #0d1830;
+      --sun: #f7c948;
+      --sun-hot: #f9703e;
+      --grass: #65a765;
+      --coral: #e45f5f;
+      --line: rgba(23, 50, 77, 0.18);
+      --shadow: rgba(20, 42, 67, 0.2);
+      --radius: 8px;
+      --earth-texture: url("https://cdn.jsdelivr.net/gh/mrdoob/three.js@r163/examples/textures/planets/earth_atmos_2048.jpg");
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+      background: var(--night-deep);
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      font-family: "Trebuchet MS", "Avenir Next", sans-serif;
+      background:
+        radial-gradient(circle at 8% 12%, rgba(247, 201, 72, 0.35) 0 7rem, transparent 7.2rem),
+        linear-gradient(115deg, #94dbe4 0%, #f7dc93 42%, #295174 42.5%, #0f2345 100%);
+      overflow-x: hidden;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        radial-gradient(circle, rgba(255, 255, 255, 0.86) 0 2px, transparent 2.5px),
+        radial-gradient(circle, rgba(255, 234, 145, 0.8) 0 1.5px, transparent 2px);
+      background-size: 160px 130px, 220px 190px;
+      background-position: 78% 10%, 88% 48%;
+      opacity: 0.58;
+      mask-image: linear-gradient(100deg, transparent 0 45%, black 57% 100%);
+    }
+
+    .app {
+      position: relative;
+      width: min(1160px, calc(100% - 28px));
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: clamp(18px, 3vw, 32px) 0;
+      display: grid;
+      gap: clamp(14px, 2vw, 20px);
+    }
+
+    .top-bar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: center;
+      color: #ffffff;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.15rem, 5vw, 4.4rem);
+      line-height: 0.9;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      max-width: 760px;
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .score-board {
+      min-width: 176px;
+      padding: 14px 16px;
+      border: 2px solid rgba(255, 255, 255, 0.48);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      text-align: center;
+    }
+
+    .score-board span {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      opacity: 0.82;
+    }
+
+    .score-board strong {
+      display: block;
+      margin-top: 4px;
+      font-size: clamp(1.55rem, 3vw, 2.25rem);
+      line-height: 1;
+    }
+
+    .investigation {
+      display: grid;
+      grid-template-columns: minmax(310px, 0.95fr) minmax(360px, 1.05fr);
+      gap: clamp(14px, 2vw, 22px);
+      align-items: stretch;
+    }
+
+    .earth-lab,
+    .places-lab,
+    .journal {
+      border: 2px solid rgba(255, 255, 255, 0.72);
+      border-radius: var(--radius);
+      background: rgba(255, 249, 236, 0.94);
+      box-shadow: 0 22px 60px var(--shadow);
+    }
+
+    .earth-lab {
+      position: relative;
+      min-height: 520px;
+      padding: clamp(16px, 2vw, 22px);
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 14px;
+    }
+
+    .round-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    button {
+      min-height: 48px;
+      border: 0;
+      border-radius: var(--radius);
+      font: inherit;
+      font-weight: 900;
+      color: var(--ink);
+      cursor: pointer;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+      touch-action: manipulation;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:focus-visible {
+      outline: 4px solid rgba(249, 112, 62, 0.45);
+      outline-offset: 3px;
+    }
+
+    .round-tab {
+      background: #ffffff;
+      border: 2px solid var(--line);
+      box-shadow: inset 0 -3px 0 rgba(23, 50, 77, 0.08);
+    }
+
+    .round-tab.active {
+      background: var(--sun);
+      border-color: #d68a00;
+    }
+
+    .globe-wrap {
+      position: relative;
+      min-height: 350px;
+      display: grid;
+      place-items: center;
+    }
+
+    .sun-beam {
+      position: absolute;
+      left: -18%;
+      top: 18%;
+      width: 36%;
+      height: 64%;
+      background: linear-gradient(90deg, rgba(247, 201, 72, 0), rgba(247, 201, 72, 0.34), rgba(247, 201, 72, 0));
+      transform: skewX(-10deg);
+    }
+
+    .sun-icon {
+      position: absolute;
+      left: 0;
+      top: 10px;
+      width: clamp(74px, 12vw, 118px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: radial-gradient(circle, #fff7ad 0 28%, var(--sun) 29% 64%, transparent 65%);
+      filter: drop-shadow(0 0 22px rgba(247, 201, 72, 0.7));
+      animation: floatSun 5s ease-in-out infinite;
+    }
+
+    .sun-icon::before {
+      content: "";
+      position: absolute;
+      inset: 2%;
+      background: conic-gradient(from 0deg, var(--sun-hot) 0 7deg, transparent 7deg 23deg, var(--sun-hot) 23deg 31deg, transparent 31deg 45deg);
+      border-radius: 50%;
+      animation: spin 18s linear infinite;
+    }
+
+    .globe {
+      position: relative;
+      width: min(92%, 350px);
+      aspect-ratio: 1;
+      border: 5px solid #ffffff;
+      border-radius: 50%;
+      background: #0a3159;
+      overflow: hidden;
+      box-shadow:
+        inset -28px 0 54px rgba(5, 16, 31, 0.32),
+        inset 20px 0 42px rgba(255, 248, 191, 0.48),
+        0 26px 50px rgba(22, 40, 74, 0.22);
+    }
+
+    .globe::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background:
+        linear-gradient(90deg, rgba(255, 223, 93, 0.16) 0 47%, rgba(255, 255, 255, 0.18) 49% 51%, rgba(5, 13, 33, 0.78) 53% 100%);
+      mix-blend-mode: multiply;
+      pointer-events: none;
+    }
+
+    .globe::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 6;
+      background:
+        linear-gradient(90deg, rgba(255, 255, 255, 0.32), transparent 28%, transparent 72%, rgba(0, 0, 0, 0.24)),
+        radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.18), transparent 34%);
+      pointer-events: none;
+    }
+
+    .map-strip {
+      position: absolute;
+      inset: 0;
+      background-image: var(--earth-texture);
+      background-size: 260% 100%;
+      background-position: var(--earth-position, 97%) center;
+      transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .latitude-line,
+    .longitude-line {
+      position: absolute;
+      border-color: rgba(255, 255, 255, 0.35);
+      pointer-events: none;
+    }
+
+    .latitude-line {
+      left: 6%;
+      right: 6%;
+      height: 1px;
+      border-top: 1px dashed rgba(255, 255, 255, 0.42);
+    }
+
+    .latitude-line.one {
+      top: 34%;
+    }
+
+    .latitude-line.two {
+      top: 50%;
+    }
+
+    .latitude-line.three {
+      top: 66%;
+    }
+
+    .longitude-line {
+      top: 6%;
+      bottom: 6%;
+      width: 1px;
+      border-left: 1px dashed rgba(255, 255, 255, 0.32);
+    }
+
+    .longitude-line.one {
+      left: 28%;
+    }
+
+    .longitude-line.two {
+      left: 50%;
+    }
+
+    .longitude-line.three {
+      left: 72%;
+    }
+
+    .city-dot {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border: 3px solid #ffffff;
+      border-radius: 50%;
+      background: var(--coral);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+      transform: translate(-50%, -50%);
+      transition: left 0.7s cubic-bezier(0.22, 1, 0.36, 1), top 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+      z-index: 5;
+    }
+
+    .city-dot::after {
+      content: attr(data-label);
+      position: absolute;
+      left: 12px;
+      top: 8px;
+      min-width: 74px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.88);
+      color: var(--ink);
+      font-size: 0.74rem;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .city-dot[data-city="mexico"]::after {
+      left: auto;
+      right: 12px;
+      top: -28px;
+    }
+
+    .terminator {
+      position: absolute;
+      left: 50%;
+      top: -4%;
+      width: 7px;
+      height: 108%;
+      background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.75), transparent);
+      box-shadow: 0 0 22px rgba(255, 255, 255, 0.64);
+      transform: translateX(-50%);
+      z-index: 4;
+    }
+
+    .lab-controls {
+      display: grid;
+      gap: 10px;
+    }
+
+    .fact-line {
+      margin: 0;
+      padding: 12px 14px;
+      border: 2px dashed rgba(31, 111, 139, 0.4);
+      border-radius: var(--radius);
+      background: rgba(127, 200, 216, 0.18);
+      font-size: 1rem;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .action-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .primary-action {
+      background: var(--sea);
+      color: #ffffff;
+      box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.16);
+    }
+
+    .secondary-action {
+      background: #ffffff;
+      border: 2px solid var(--line);
+    }
+
+    .places-lab {
+      min-height: 520px;
+      padding: clamp(16px, 2vw, 22px);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 14px;
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: clamp(1.35rem, 3vw, 2rem);
+      line-height: 1.05;
+    }
+
+    .round-prompt {
+      margin: 6px 0 0;
+      color: #466078;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .place-grid {
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+
+    .place-card {
+      display: grid;
+      grid-template-columns: minmax(90px, 132px) 1fr;
+      gap: 12px;
+      padding: 12px;
+      border: 2px solid var(--line);
+      border-radius: var(--radius);
+      background: #ffffff;
+      box-shadow: 0 8px 20px rgba(20, 42, 67, 0.08);
+    }
+
+    .mini-map {
+      position: relative;
+      min-height: 104px;
+      border-radius: var(--radius);
+      overflow: hidden;
+      background-image: var(--earth-texture);
+      background-size: 260% 100%;
+      background-position: var(--earth-position) center;
+      border: 2px solid rgba(23, 50, 77, 0.14);
+    }
+
+    .mini-map::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(247, 201, 72, 0.78) 0 var(--light-edge), rgba(13, 24, 48, 0.8) var(--light-edge) 100%);
+      mix-blend-mode: multiply;
+      transition: background 0.35s ease;
+    }
+
+    .mini-dot {
+      position: absolute;
+      left: var(--dot-x);
+      top: var(--dot-y);
+      width: 13px;
+      height: 13px;
+      border: 3px solid #ffffff;
+      border-radius: 50%;
+      background: var(--coral);
+      transform: translate(-50%, -50%);
+      z-index: 2;
+    }
+
+    .place-info {
+      min-width: 0;
+      display: grid;
+      gap: 10px;
+      align-content: center;
+    }
+
+    .place-name {
+      margin: 0;
+      font-size: 1.24rem;
+      line-height: 1;
+    }
+
+    .place-name span {
+      display: block;
+      margin-top: 4px;
+      color: #637b90;
+      font-size: 0.84rem;
+      line-height: 1.15;
+    }
+
+    .choice-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .choice {
+      border: 2px solid transparent;
+      background: #edf6f8;
+    }
+
+    .choice.day {
+      background: #fff3b8;
+    }
+
+    .choice.night {
+      background: #dbe5ff;
+    }
+
+    .choice.selected {
+      border-color: var(--ink);
+      box-shadow: 0 0 0 4px rgba(23, 50, 77, 0.1);
+    }
+
+    .place-card.correct {
+      border-color: #3f9142;
+      background: #f1fff0;
+    }
+
+    .place-card.incorrect {
+      border-color: #c24040;
+      background: #fff1ef;
+      animation: shake 0.25s linear;
+    }
+
+    .feedback {
+      min-height: 52px;
+      margin: 0;
+      padding: 12px 14px;
+      border-radius: var(--radius);
+      background: var(--paper-soft);
+      font-weight: 900;
+      line-height: 1.35;
+    }
+
+    .journal {
+      padding: clamp(16px, 2vw, 22px);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .journal p {
+      margin: 5px 0 0;
+      color: #466078;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .badge {
+      min-width: 66px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 2px solid var(--line);
+      text-align: center;
+      font-weight: 900;
+    }
+
+    .badge.complete {
+      background: var(--sun);
+      border-color: #d68a00;
+    }
+
+    .celebration {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 20;
+    }
+
+    .spark {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--spark-color);
+      animation: pop 900ms ease-out forwards;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(1turn);
+      }
+    }
+
+    @keyframes floatSun {
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(10px);
+      }
+    }
+
+    @keyframes shake {
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      30% {
+        transform: translateX(-5px);
+      }
+
+      70% {
+        transform: translateX(5px);
+      }
+    }
+
+    @keyframes pop {
+      0% {
+        transform: translate(0, 0) scale(0.8);
+        opacity: 1;
+      }
+
+      100% {
+        transform: translate(var(--spark-x), var(--spark-y)) scale(0);
+        opacity: 0;
+      }
+    }
+
+    @media (max-width: 840px) {
+      .top-bar,
+      .investigation,
+      .journal {
+        grid-template-columns: 1fr;
+      }
+
+      .score-board {
+        width: 100%;
+      }
+
+      .earth-lab,
+      .places-lab {
+        min-height: auto;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .app {
+        width: min(100% - 18px, 1160px);
+        padding-top: 12px;
+      }
+
+      .round-tabs {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .place-card {
+        grid-template-columns: 1fr;
+      }
+
+      .mini-map {
+        min-height: 128px;
+      }
+
+      .action-row {
+        grid-template-columns: 1fr;
+      }
+
+      .badge-row {
+        justify-content: flex-start;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app">
+    <header class="top-bar">
+      <div>
+        <h1>Day and Night Detectives</h1>
+        <p class="subtitle">Investigate Shenzhen, Cairo, and Mexico City. The sunny half is daytime; the shaded half is nighttime.</p>
+      </div>
+      <div class="score-board" aria-live="polite">
+        <span>Investigation Score</span>
+        <strong id="score">0 / 12</strong>
+      </div>
+    </header>
+
+    <section class="investigation" aria-label="Day and night investigation game">
+      <div class="earth-lab">
+        <nav class="round-tabs" aria-label="Investigation rounds" id="roundTabs"></nav>
+
+        <div class="globe-wrap" aria-label="Earth model showing day and night">
+          <div class="sun-beam"></div>
+          <div class="sun-icon" aria-hidden="true"></div>
+          <div class="globe">
+            <div class="map-strip" id="mapStrip">
+              <div class="latitude-line one"></div>
+              <div class="latitude-line two"></div>
+              <div class="latitude-line three"></div>
+              <div class="longitude-line one"></div>
+              <div class="longitude-line two"></div>
+              <div class="longitude-line three"></div>
+              <span class="city-dot" data-city="mexico" data-label="Mexico City"></span>
+              <span class="city-dot" data-city="cairo" data-label="Cairo"></span>
+              <span class="city-dot" data-city="shenzhen" data-label="Shenzhen"></span>
+            </div>
+            <div class="terminator" aria-hidden="true"></div>
+          </div>
+        </div>
+
+        <div class="lab-controls">
+          <p class="fact-line" id="roundFact">Earth keeps turning, so places move into sunlight and shadow.</p>
+          <div class="action-row">
+            <button class="secondary-action" id="rotateBtn" type="button">Turn Earth</button>
+            <button class="primary-action" id="checkBtn" type="button">Check Round</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="places-lab">
+        <div>
+          <h2 class="section-title" id="roundTitle">Round 1</h2>
+          <p class="round-prompt" id="roundPrompt">Color each place by choosing Day or Night.</p>
+        </div>
+        <div class="place-grid" id="placeGrid"></div>
+        <p class="feedback" id="feedback" aria-live="polite">Start with Round 1. Look at each city dot before choosing.</p>
+      </div>
+    </section>
+
+    <section class="journal" aria-label="Observation journal">
+      <div>
+        <h2 class="section-title">What Changed?</h2>
+        <p id="observation">Watch how Shenzhen, Cairo, and Mexico City do not all match. Day and night depend on where each place is as Earth turns.</p>
+      </div>
+      <div class="badge-row" id="badgeRow" aria-label="Completed rounds"></div>
+    </section>
+  </main>
+
+  <div class="celebration" id="celebration" aria-hidden="true"></div>
+
+  <script>
+    const places = [
+      {
+        id: "shenzhen",
+        name: "Shenzhen",
+        location: "China",
+        longitude: 114,
+        latitude: 22.5,
+        dotX: "50%",
+        dotY: "41%"
+      },
+      {
+        id: "cairo",
+        name: "Cairo",
+        location: "Egypt",
+        longitude: 31,
+        latitude: 30,
+        dotX: "50%",
+        dotY: "38%"
+      },
+      {
+        id: "mexico",
+        name: "Mexico City",
+        location: "Mexico",
+        longitude: -99,
+        latitude: 19.4,
+        dotX: "50%",
+        dotY: "42%"
+      }
+    ];
+
+    const rounds = [
+      {
+        title: "Round 1",
+        sunCenter: 105,
+        fact: "The sunlight is centered near East Asia, so Shenzhen is easy to spot in the day side.",
+        prompt: "Use the lit and shaded halves to decide what time each place has."
+      },
+      {
+        title: "Round 2",
+        sunCenter: 35,
+        fact: "Earth has turned. Egypt is now close to the middle of the sunny side.",
+        prompt: "Compare each city with the bright half of Earth."
+      },
+      {
+        title: "Round 3",
+        sunCenter: -100,
+        fact: "The sunny side has moved to Mexico. Places far away may be in shadow.",
+        prompt: "Choose day or night for all three places."
+      },
+      {
+        title: "Round 4",
+        sunCenter: -165,
+        fact: "One more turn makes a new pattern. The same city can change from day to night.",
+        prompt: "Finish the investigation and look for the pattern."
+      }
+    ];
+
+    const state = {
+      roundIndex: 0,
+      choices: {},
+      completed: new Set(),
+      correct: 0
+    };
+
+    const roundTabs = document.getElementById("roundTabs");
+    const placeGrid = document.getElementById("placeGrid");
+    const badgeRow = document.getElementById("badgeRow");
+    const feedback = document.getElementById("feedback");
+    const score = document.getElementById("score");
+    const mapStrip = document.getElementById("mapStrip");
+    const roundTitle = document.getElementById("roundTitle");
+    const roundPrompt = document.getElementById("roundPrompt");
+    const roundFact = document.getElementById("roundFact");
+    const observation = document.getElementById("observation");
+    const celebration = document.getElementById("celebration");
+
+    function normalizeLongitude(value) {
+      return ((((value + 180) % 360) + 360) % 360) - 180;
+    }
+
+    function longitudeDistance(a, b) {
+      return Math.abs(normalizeLongitude(a - b));
+    }
+
+    function getAnswer(place, round) {
+      return longitudeDistance(place.longitude, round.sunCenter) <= 90 ? "day" : "night";
+    }
+
+    function getLightAmount(place, round) {
+      const distance = longitudeDistance(place.longitude, round.sunCenter);
+      return Math.max(0, Math.round((1 - distance / 180) * 100));
+    }
+
+    function getEarthPosition(longitude) {
+      const textureScale = 2.6;
+      const position = ((((longitude + 180) / 360) * textureScale) - 0.5) / (textureScale - 1);
+      return Math.max(0, Math.min(100, Math.round(position * 100)));
+    }
+
+    function getGlobePosition(place, round) {
+      const relative = normalizeLongitude(place.longitude - round.sunCenter);
+      const x = 50 + (relative / 180) * 46;
+      return {
+        x: Math.max(6, Math.min(94, x)),
+        y: 50 - (place.latitude / 90) * 38
+      };
+    }
+
+    function renderRoundTabs() {
+      roundTabs.innerHTML = "";
+      rounds.forEach((round, index) => {
+        const tab = document.createElement("button");
+        tab.type = "button";
+        tab.className = `round-tab${index === state.roundIndex ? " active" : ""}`;
+        tab.textContent = round.title;
+        tab.setAttribute("aria-pressed", String(index === state.roundIndex));
+        tab.addEventListener("click", () => {
+          state.roundIndex = index;
+          render();
+        });
+        roundTabs.appendChild(tab);
+      });
+    }
+
+    function renderBadges() {
+      badgeRow.innerHTML = "";
+      rounds.forEach((round, index) => {
+        const badge = document.createElement("span");
+        badge.className = `badge${state.completed.has(index) ? " complete" : ""}`;
+        badge.textContent = state.completed.has(index) ? `${round.title} done` : round.title;
+        badgeRow.appendChild(badge);
+      });
+    }
+
+    function renderPlaces() {
+      const round = rounds[state.roundIndex];
+      placeGrid.innerHTML = "";
+
+      places.forEach((place) => {
+        const card = document.createElement("article");
+        card.className = "place-card";
+        card.dataset.place = place.id;
+
+        const choiceKey = `${state.roundIndex}-${place.id}`;
+        const selected = state.choices[choiceKey];
+        const light = getLightAmount(place, round);
+        const edge = `${Math.max(8, Math.min(92, light))}%`;
+
+        card.innerHTML = `
+          <div class="mini-map" style="--light-edge: ${edge}; --earth-position: ${getEarthPosition(place.longitude)}%">
+            <span class="mini-dot" style="--dot-x: ${place.dotX}; --dot-y: ${place.dotY}"></span>
+          </div>
+          <div class="place-info">
+            <h3 class="place-name">${place.name}<span>${place.location}</span></h3>
+            <div class="choice-row" role="group" aria-label="${place.name} choice">
+              <button class="choice day${selected === "day" ? " selected" : ""}" type="button" data-choice="day">Day</button>
+              <button class="choice night${selected === "night" ? " selected" : ""}" type="button" data-choice="night">Night</button>
+            </div>
+          </div>
+        `;
+
+        card.querySelectorAll(".choice").forEach((button) => {
+          button.addEventListener("click", () => {
+            state.choices[choiceKey] = button.dataset.choice;
+            feedback.textContent = `${place.name} marked as ${button.dataset.choice}. Check all three when you are ready.`;
+            renderPlaces();
+          });
+        });
+
+        placeGrid.appendChild(card);
+      });
+    }
+
+    function renderGlobe() {
+      const round = rounds[state.roundIndex];
+      mapStrip.style.setProperty("--earth-position", `${getEarthPosition(round.sunCenter)}%`);
+      mapStrip.style.transform = "none";
+
+      places.forEach((place) => {
+        const dot = document.querySelector(`.city-dot[data-city="${place.id}"]`);
+        const position = getGlobePosition(place, round);
+        dot.style.left = `${position.x}%`;
+        dot.style.top = `${position.y}%`;
+      });
+    }
+
+    function updateScore() {
+      let correct = 0;
+      rounds.forEach((round, roundIndex) => {
+        places.forEach((place) => {
+          const key = `${roundIndex}-${place.id}`;
+          if (state.choices[key] === getAnswer(place, round)) {
+            correct += 1;
+          }
+        });
+      });
+      state.correct = correct;
+      score.textContent = `${correct} / ${rounds.length * places.length}`;
+    }
+
+    function render() {
+      const round = rounds[state.roundIndex];
+      renderRoundTabs();
+      renderPlaces();
+      renderBadges();
+      renderGlobe();
+      updateScore();
+
+      roundTitle.textContent = round.title;
+      roundPrompt.textContent = round.prompt;
+      roundFact.textContent = round.fact;
+      observation.textContent = getObservation();
+    }
+
+    function getObservation() {
+      if (state.completed.size === 0) {
+        return "Watch how Shenzhen, Cairo, and Mexico City do not all match. Day and night depend on where each place is as Earth turns.";
+      }
+
+      if (state.completed.size < rounds.length) {
+        return "Good investigation. Each completed round gives a different pattern because Earth keeps rotating under the sunlight.";
+      }
+
+      return "You found the pattern: the Sun lights one half of Earth at a time. As Earth rotates, each place takes turns having day and night.";
+    }
+
+    function checkRound() {
+      const round = rounds[state.roundIndex];
+      let missing = [];
+      let wrong = [];
+
+      places.forEach((place) => {
+        const key = `${state.roundIndex}-${place.id}`;
+        const card = document.querySelector(`.place-card[data-place="${place.id}"]`);
+        card.classList.remove("correct", "incorrect");
+
+        if (!state.choices[key]) {
+          missing.push(place.name);
+          return;
+        }
+
+        if (state.choices[key] === getAnswer(place, round)) {
+          card.classList.add("correct");
+        } else {
+          card.classList.add("incorrect");
+          wrong.push(place.name);
+        }
+      });
+
+      if (missing.length > 0) {
+        feedback.textContent = `Choose Day or Night for ${missing.join(", ")}.`;
+        return;
+      }
+
+      if (wrong.length > 0) {
+        feedback.textContent = `Look again at ${wrong.join(", ")}. Is the city dot on the bright side or the shaded side?`;
+        updateScore();
+        return;
+      }
+
+      state.completed.add(state.roundIndex);
+      feedback.textContent = `${round.title} complete. The pattern changed because Earth turned.`;
+      celebrate();
+      updateScore();
+      renderBadges();
+      observation.textContent = getObservation();
+
+      if (state.completed.size < rounds.length) {
+        setTimeout(() => {
+          state.roundIndex = (state.roundIndex + 1) % rounds.length;
+          while (state.completed.has(state.roundIndex) && state.completed.size < rounds.length) {
+            state.roundIndex = (state.roundIndex + 1) % rounds.length;
+          }
+          render();
+          feedback.textContent = "New round ready. Compare the city dots with the sunlight.";
+        }, 900);
+      } else {
+        feedback.textContent = "Investigation complete. Every place changes as Earth rotates.";
+      }
+    }
+
+    function rotateEarth() {
+      state.roundIndex = (state.roundIndex + 1) % rounds.length;
+      feedback.textContent = "Earth turned. The day and night pattern changed.";
+      render();
+    }
+
+    function celebrate() {
+      const colors = ["#f7c948", "#f9703e", "#65a765", "#1f6f8b", "#e45f5f"];
+      for (let i = 0; i < 26; i += 1) {
+        const spark = document.createElement("span");
+        const angle = (Math.PI * 2 * i) / 26;
+        const distance = 80 + Math.random() * 120;
+        spark.className = "spark";
+        spark.style.left = `${50 + Math.random() * 8 - 4}%`;
+        spark.style.top = `${42 + Math.random() * 10 - 5}%`;
+        spark.style.setProperty("--spark-x", `${Math.cos(angle) * distance}px`);
+        spark.style.setProperty("--spark-y", `${Math.sin(angle) * distance}px`);
+        spark.style.setProperty("--spark-color", colors[i % colors.length]);
+        celebration.appendChild(spark);
+        setTimeout(() => spark.remove(), 950);
+      }
+    }
+
+    document.getElementById("checkBtn").addEventListener("click", checkRound);
+    document.getElementById("rotateBtn").addEventListener("click", rotateEarth);
+
+    render();
+  </script>
+</body>
+
+</html>
