@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Position explorer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #87CEEB;
+      font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
+      touch-action: none;
+    }
+
+    #canvas-container {
+      width: 100vw;
+      height: 100vh;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+
+    #ui-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .hud-element {
+      pointer-events: auto;
+    }
+
+    .banner {
+      background: rgba(255, 255, 255, 0.95);
+      border-bottom: 6px solid #4ade80;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+      border-radius: 0 0 20px 20px;
+    }
+
+    .vocab-word {
+      color: #ef4444;
+      font-weight: 900;
+      text-transform: uppercase;
+      text-shadow: 1px 1px 0px #fca5a5;
+    }
+
+    .instructions {
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      margin-top: 10px;
+      display: inline-block;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <div id="canvas-container"></div>
+
+  <div id="ui-layer" class="pb-6">
+    <div class="banner hud-element w-full max-w-4xl mx-auto py-4 px-6 text-center">
+
+      <h1 id="sentence-container" class="text-3xl md:text-5xl text-gray-800 transition-all duration-300">
+        ✨ Tap around the room to discover new places! ✨
+      </h1>
+
+      <div class="flex justify-center gap-4 mt-3">
+        <button id="speak-btn"
+          class="bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-bold py-2 px-6 rounded-full shadow-md transition-all active:scale-95 text-lg">
+          🔊 Read to me
+        </button>
+      </div>
+      <div class="instructions">👆 Tap the grid or objects to move! Drag to rotate camera.</div>
+    </div>
+  </div>
+
+  <!-- External Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
+
+  <script>
+    // --- 1. CORE SETUP ---
+    const container = document.getElementById('canvas-container');
+
+    let width = container.clientWidth || window.innerWidth || 800;
+    let height = container.clientHeight || window.innerHeight || 600;
+    if (width === 0) width = 800;
+    if (height === 0) height = 600;
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x87CEEB);
+
+    const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 100);
+    camera.position.set(8, 8, 12);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    container.appendChild(renderer.domElement);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.maxPolarAngle = Math.PI / 2 + 0.1;
+
+    // Lights
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 0.6));
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    dirLight.position.set(10, 15, 10);
+    dirLight.castShadow = true;
+    dirLight.shadow.camera.left = -10; dirLight.shadow.camera.right = 10;
+    dirLight.shadow.camera.top = 10; dirLight.shadow.camera.bottom = -10;
+    scene.add(dirLight);
+
+    // --- 2. ENVIRONMENT & ANCHORS ---
+    const voxelSize = 1;
+    const objectsToIntersect = [];
+
+    // The 4 Color-Coded Floor Quadrants
+    const qGeo = new THREE.PlaneGeometry(10, 10);
+
+    const greenMat = new THREE.MeshStandardMaterial({ color: 0xbbf7d0, roughness: 1.0 });
+    const q1 = new THREE.Mesh(qGeo, greenMat);
+    q1.rotation.x = -Math.PI / 2; q1.position.set(5, -0.4, -5); q1.receiveShadow = true;
+    scene.add(q1); objectsToIntersect.push(q1);
+
+    const blueMat = new THREE.MeshStandardMaterial({ color: 0xbfdbfe, roughness: 1.0 });
+    const q2 = new THREE.Mesh(qGeo, blueMat);
+    q2.rotation.x = -Math.PI / 2; q2.position.set(-5, -0.4, -5); q2.receiveShadow = true;
+    scene.add(q2); objectsToIntersect.push(q2);
+
+    const yellowMat = new THREE.MeshStandardMaterial({ color: 0xfef08a, roughness: 1.0 });
+    const q3 = new THREE.Mesh(qGeo, yellowMat);
+    q3.rotation.x = -Math.PI / 2; q3.position.set(-5, -0.4, 5); q3.receiveShadow = true;
+    scene.add(q3); objectsToIntersect.push(q3);
+
+    const purpleMat = new THREE.MeshStandardMaterial({ color: 0xe9d5ff, roughness: 1.0 });
+    const q4 = new THREE.Mesh(qGeo, purpleMat);
+    q4.rotation.x = -Math.PI / 2; q4.position.set(5, -0.4, 5); q4.receiveShadow = true;
+    scene.add(q4); objectsToIntersect.push(q4);
+
+    const gridHelper = new THREE.GridHelper(20, 20, 0x9ca3af, 0x6b7280);
+    gridHelper.position.y = -0.39;
+    gridHelper.material.opacity = 0.5;
+    gridHelper.material.transparent = true;
+    scene.add(gridHelper);
+
+    // --- Zone 1 (Green): Table, Chair, & Door ---
+    const woodMat = new THREE.MeshStandardMaterial({ color: 0x8B5A2B, roughness: 0.8 });
+    const tableTop = new THREE.Mesh(new THREE.BoxGeometry(3, 0.2, 3), woodMat);
+    tableTop.position.set(5, 1.5, -5);
+    tableTop.castShadow = true; tableTop.receiveShadow = true;
+    scene.add(tableTop); objectsToIntersect.push(tableTop);
+
+    const legGeo = new THREE.CylinderGeometry(0.08, 0.05, 1.8);
+    [[3.7, -6.3], [6.3, -6.3], [3.7, -3.7], [6.3, -3.7]].forEach(pos => {
+      const leg = new THREE.Mesh(legGeo, woodMat);
+      leg.position.set(pos[0], 0.5, pos[1]);
+      leg.castShadow = true; scene.add(leg); objectsToIntersect.push(leg);
+    });
+
+    const cushionMat = new THREE.MeshStandardMaterial({ color: 0xef4444, roughness: 0.9 });
+    const chairSeat = new THREE.Mesh(new THREE.BoxGeometry(1, 0.2, 1), cushionMat);
+    chairSeat.position.set(5, 0.5, -2);
+    chairSeat.castShadow = true; scene.add(chairSeat); objectsToIntersect.push(chairSeat);
+
+    const chairBack = new THREE.Mesh(new THREE.BoxGeometry(1, 0.8, 0.1), woodMat);
+    chairBack.position.set(5, 1.0, -1.55);
+    chairBack.castShadow = true; scene.add(chairBack); objectsToIntersect.push(chairBack);
+
+    const cLegGeo = new THREE.CylinderGeometry(0.04, 0.03, 0.8);
+    [[4.6, -2.4], [5.4, -2.4], [4.6, -1.6], [5.4, -1.6]].forEach(pos => {
+      const leg = new THREE.Mesh(cLegGeo, woodMat);
+      leg.position.set(pos[0], 0.0, pos[1]);
+      leg.castShadow = true; scene.add(leg); objectsToIntersect.push(leg);
+    });
+
+    // The Door & Welcome Mat (Exclusively for "AT")
+    const doorMat = new THREE.MeshStandardMaterial({ color: 0x8B4513, roughness: 0.9 });
+    const door = new THREE.Mesh(new THREE.BoxGeometry(2, 3, 0.2), doorMat);
+    door.position.set(8, 1.1, -8);
+    door.castShadow = true; scene.add(door); objectsToIntersect.push(door);
+
+    const knobGeo = new THREE.SphereGeometry(0.15);
+    const knob = new THREE.Mesh(knobGeo, new THREE.MeshStandardMaterial({ color: 0xfacc15 }));
+    knob.position.set(7.3, 1, -7.85);
+    scene.add(knob);
+
+    const welcomeMat = new THREE.Mesh(new THREE.BoxGeometry(2, 0.05, 1.5), new THREE.MeshStandardMaterial({ color: 0x333333 }));
+    welcomeMat.position.set(8, -0.37, -7);
+    welcomeMat.receiveShadow = true; scene.add(welcomeMat); objectsToIntersect.push(welcomeMat);
+
+    // --- Zone 2 (Blue): Wooden Box & Water Puddle ---
+    const boxMat = new THREE.MeshStandardMaterial({ color: 0xA0522D, roughness: 0.9 });
+    const bFloor = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.1, 1.8), boxMat);
+    bFloor.position.set(-5, -0.45, -5);
+    bFloor.receiveShadow = true; scene.add(bFloor); objectsToIntersect.push(bFloor);
+
+    const wFB = new THREE.BoxGeometry(1.8, 1, 0.1);
+    const wLR = new THREE.BoxGeometry(0.1, 1, 1.6);
+    const wFront = new THREE.Mesh(wFB, boxMat); wFront.position.set(-5, 0.1, -4.15);
+    const wBack = new THREE.Mesh(wFB, boxMat); wBack.position.set(-5, 0.1, -5.85);
+    const wLeft = new THREE.Mesh(wLR, boxMat); wLeft.position.set(-5.85, 0.1, -5);
+    const wRight = new THREE.Mesh(wLR, boxMat); wRight.position.set(-4.15, 0.1, -5);
+
+    [wFront, wBack, wLeft, wRight].forEach(w => {
+      w.castShadow = true; w.receiveShadow = true; scene.add(w); objectsToIntersect.push(w);
+    });
+
+    // The Water Puddle (For "IN")
+    const waterMat = new THREE.MeshStandardMaterial({ color: 0x3b82f6, transparent: true, opacity: 0.7, roughness: 0.1 });
+    const pond = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 1.4, 0.1, 32), waterMat);
+    pond.position.set(-5, -0.4, -2);
+    pond.receiveShadow = true;
+    scene.add(pond); objectsToIntersect.push(pond);
+
+    // --- Zone 3 (Yellow): Rocks ---
+    const stoneMat = new THREE.MeshStandardMaterial({ color: 0x9ca3af, roughness: 0.7 });
+    const rocks = [[-4, 4], [-5, 5], [-3, 5], [-4, 6], [-5, 3], [-3, 3]];
+    rocks.forEach(pos => {
+      const rockGeo = new THREE.DodecahedronGeometry(Math.random() * 0.3 + 0.3);
+      const rock = new THREE.Mesh(rockGeo, stoneMat);
+      rock.position.set(pos[0], -0.2, pos[1]);
+      rock.rotation.set(Math.random(), Math.random(), Math.random());
+      rock.castShadow = true; scene.add(rock); objectsToIntersect.push(rock);
+    });
+
+    // --- Zone 4 (Purple): Pillars & Fence ---
+    const pillarGeo = new THREE.CylinderGeometry(0.3, 0.4, 2, 16);
+    const p1 = new THREE.Mesh(pillarGeo, stoneMat); p1.position.set(4, 0.6, 5); p1.castShadow = true; scene.add(p1); objectsToIntersect.push(p1);
+    const p2 = new THREE.Mesh(pillarGeo, stoneMat); p2.position.set(6, 0.6, 5); p2.castShadow = true; scene.add(p2); objectsToIntersect.push(p2);
+
+    // NEW: The Fence (Exclusively for "OVER")
+    const fenceMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 });
+    for (let fx = 4; fx <= 6; fx++) {
+      const post = new THREE.Mesh(new THREE.BoxGeometry(0.2, 1, 0.2), fenceMat);
+      post.position.set(fx, 0.1, 8);
+      post.castShadow = true; scene.add(post); objectsToIntersect.push(post);
+    }
+    const rail = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.2, 0.1), fenceMat);
+    rail.position.set(5, 0.4, 8);
+    rail.castShadow = true; scene.add(rail); objectsToIntersect.push(rail);
+
+    // --- 3. THE PLAYER (DIAMOND) & GHOST BOX ---
+    const diamondGeo = new THREE.OctahedronGeometry(0.4);
+    const diamondMat = new THREE.MeshStandardMaterial({ color: 0x22d3ee, flatShading: true });
+    const diamond = new THREE.Mesh(diamondGeo, diamondMat);
+    diamond.castShadow = true;
+    scene.add(diamond);
+
+    const ghostGeo = new THREE.BoxGeometry(1, 1, 1);
+    const ghostEdges = new THREE.EdgesGeometry(ghostGeo);
+    const ghostBox = new THREE.LineSegments(ghostEdges, new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 2 }));
+    scene.add(ghostBox);
+
+
+    // --- 4. INTERACTION (Raycasting) ---
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    let currentX = 5, currentY = 2, currentZ = -5; // Start ON the table
+    diamond.position.set(currentX, currentY, currentZ);
+
+    function getGridIntersect(event) {
+      const rect = renderer.domElement.getBoundingClientRect();
+      let clientX = event.clientX; let clientY = event.clientY;
+
+      if (event.changedTouches && event.changedTouches.length > 0) {
+        clientX = event.changedTouches[0].clientX; clientY = event.changedTouches[0].clientY;
+      }
+
+      mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects(objectsToIntersect);
+
+      if (intersects.length > 0) {
+        const intersect = intersects[0];
+        const normal = intersect.face.normal.clone();
+        const pos = intersect.point.clone().add(normal.multiplyScalar(0.5));
+        return {
+          x: Math.round(pos.x),
+          y: Math.max(0, Math.round(pos.y)),
+          z: Math.round(pos.z)
+        };
+      }
+      return null;
+    }
+
+    renderer.domElement.addEventListener('pointermove', (e) => {
+      if (e.isPrimary === false) return;
+      const target = getGridIntersect(e);
+      if (target) {
+        ghostBox.position.set(target.x, target.y, target.z);
+        ghostBox.visible = true;
+      } else {
+        ghostBox.visible = false;
+      }
+    });
+
+    renderer.domElement.addEventListener('pointerdown', (e) => {
+      const target = getGridIntersect(e);
+      if (target) {
+        currentX = target.x; currentY = target.y; currentZ = target.z;
+
+        new TWEEN.Tween(diamond.position)
+          .to({ x: currentX, y: currentY, z: currentZ }, 400)
+          .easing(TWEEN.Easing.Quadratic.Out)
+          .onComplete(updateUI)
+          .start();
+      }
+    });
+
+    // --- 5. LINGUISTIC LOGIC ENGINE (1-to-1 Mapping) ---
+    function updateUI() {
+      let sentenceHTML = "✨ Tap around the room to discover new places! ✨";
+      let word = "";
+      let rel = "";
+
+      // ZONE 1 (GREEN): Table, Chair, & Door Area
+      const isTableX = Math.abs(currentX - 5) <= 1;
+      const isTableZ = Math.abs(currentZ - -5) <= 1;
+
+      // Door Logic
+      if (Math.abs(currentX - 8) <= 1 && currentZ === -7 && currentY === 0) { word = "AT"; rel = "the door"; }
+
+      // Table Logic
+      else if (isTableX && isTableZ && currentY === 2) { word = "ON"; rel = "the table"; }
+      else if (isTableX && isTableZ && (currentY === 0 || currentY === 1)) { word = "UNDER"; rel = "the table"; }
+      else if (isTableX && isTableZ && currentY > 2) { word = "ABOVE"; rel = "the table"; }
+      else if (isTableX && currentZ === -3 && currentY <= 1) { word = "IN FRONT OF"; rel = "the table"; }
+      else if (isTableX && currentZ === -7 && currentY <= 1) { word = "BEHIND"; rel = "the table"; }
+      else if ((currentX === 3 || currentX === 7) && isTableZ && currentY <= 1) { word = "BESIDE"; rel = "the table"; }
+
+      // Chair Logic
+      else if (isTableX && currentZ === -8 && currentY <= 1) { word = "OPPOSITE"; rel = "the red chair"; }
+      else if (isTableX && currentZ === -2 && currentY === 1) { word = "ON"; rel = "the red chair"; }
+      else if (isTableX && currentZ === -2 && currentY === 0) { word = "UNDER"; rel = "the red chair"; } // Updated from Underneath
+      else if (isTableX && currentZ === -1 && currentY <= 1) { word = "BEHIND"; rel = "the red chair"; }
+
+      // ZONE 2 (BLUE): Wooden Box & Pond
+      else if (currentX === -5 && currentZ === -5 && currentY === 0) { word = "INSIDE"; rel = "the wooden box"; }
+      else if ((currentX === -3 || currentX === -7) && Math.abs(currentZ - -5) <= 1 && currentY === 0) { word = "NEXT TO"; rel = "the wooden box"; }
+      else if (Math.abs(currentX - -5) <= 1 && Math.abs(currentZ - -2) <= 1 && currentY === 0) { word = "IN"; rel = "the water"; }
+
+      // ZONE 3 (YELLOW): Rocks
+      else if (currentX >= -5 && currentX <= -3 && currentZ >= 3 && currentZ <= 5 && currentY === 0) { word = "AMONG"; rel = "the rocks"; }
+      else if ((currentX === -2 || currentX === -6) && Math.abs(currentZ - 4) <= 1 && currentY === 0) { word = "BY"; rel = "the rocks"; }
+
+      // ZONE 4 (PURPLE): Pillars & Fence
+      else if (currentX === 5 && currentZ === 5 && currentY <= 1) { word = "BETWEEN"; rel = "the stone pillars"; }
+      else if (currentX === 5 && (currentZ === 3 || currentZ === 7) && currentY === 0) { word = "NEAR"; rel = "the stone pillars"; }
+      else if (currentX >= 4 && currentX <= 6 && currentZ === 8 && currentY >= 1) { word = "OVER"; rel = "the fence"; } // New OVER logic
+
+      // Apply to UI
+      if (word !== "") {
+        sentenceHTML = `The diamond is <span id="word-display" class="vocab-word">${word}</span> <span id="rel-display">${rel}</span>.`;
+      }
+
+      document.getElementById('sentence-container').innerHTML = sentenceHTML;
+    }
+
+    // --- 6. AUDIO & ANIMATION ---
+    function readAloud() {
+      if ('speechSynthesis' in window) {
+        const wordEl = document.getElementById('word-display');
+        const relEl = document.getElementById('rel-display');
+        let sentence = "Tap around the room to discover new places!";
+
+        if (wordEl && relEl) {
+          sentence = `The diamond is ${wordEl.innerText} ${relEl.innerText}.`;
+        }
+
+        window.speechSynthesis.cancel();
+        const msg = new SpeechSynthesisUtterance(sentence);
+        msg.rate = 0.85;
+        msg.pitch = 1.1;
+        window.speechSynthesis.speak(msg);
+      }
+    }
+    document.getElementById('speak-btn').addEventListener('click', readAloud);
+
+    function animate(time) {
+      requestAnimationFrame(animate);
+      const t = time || performance.now();
+      TWEEN.update(t);
+      controls.update();
+
+      if (diamond) {
+        diamond.rotation.y += 0.02;
+        if (TWEEN.getAll().length === 0) {
+          diamond.position.y = currentY + Math.sin(t * 0.003) * 0.05;
+        }
+      }
+      renderer.render(scene, camera);
+    }
+
+    window.addEventListener('resize', () => {
+      const w = container.clientWidth || window.innerWidth;
+      const h = container.clientHeight || window.innerHeight;
+      if (w === 0 || h === 0) return;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    });
+
+    updateUI();
+    requestAnimationFrame(animate); 
+  </script>
+</body>
+
+</html>
