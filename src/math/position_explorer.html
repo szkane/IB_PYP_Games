@@ -342,6 +342,9 @@
     let currentX = 5, currentY = 2, currentZ = -5; // Start ON the table
     diamond.position.set(currentX, currentY, currentZ);
 
+    // NEW: State flag to track browser audio permission
+    let hasInteracted = false;
+
     // --- NEW: SCAVENGER HUNT LOGIC ---
     const totalVocab = ["IN", "UNDER", "NEAR", "AT", "ON", "ABOVE", "IN FRONT OF", "BEHIND", "BESIDE", "OPPOSITE", "INSIDE", "NEXT TO", "AMONG", "BY", "BETWEEN"];
     const foundWords = new Set();
@@ -425,6 +428,9 @@
     });
 
     renderer.domElement.addEventListener('pointerdown', (e) => {
+      // NEW: Unlock the audio engine upon first tap
+      hasInteracted = true;
+
       const target = getGridIntersect(e);
       if (target) {
         currentX = target.x; currentY = target.y; currentZ = target.z;
@@ -497,8 +503,12 @@
       document.getElementById('sentence-container').innerHTML = sentenceHTML;
 
       if (word !== "") {
-        trackWord(word); // Call tracking before reading
-        readAloud();
+        trackWord(word);
+
+        // NEW: Only trigger auto-read if user has clicked the canvas
+        if (hasInteracted) {
+          readAloud();
+        }
       }
     }
 
