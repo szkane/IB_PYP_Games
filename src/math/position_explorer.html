@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Position explorer</title>
+  <title>Position Explorer</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
@@ -41,13 +41,6 @@
       pointer-events: auto;
     }
 
-    .banner {
-      background: rgba(255, 255, 255, 0.95);
-      border-bottom: 6px solid #4ade80;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-      border-radius: 0 0 20px 20px;
-    }
-
     .vocab-word {
       color: #ef4444;
       font-weight: 900;
@@ -55,14 +48,23 @@
       text-shadow: 1px 1px 0px #fca5a5;
     }
 
-    .instructions {
-      background: rgba(0, 0, 0, 0.5);
-      color: white;
-      padding: 5px 15px;
-      border-radius: 20px;
-      font-size: 0.9rem;
-      margin-top: 10px;
-      display: inline-block;
+    /* Badge Animations */
+    .badge-found {
+      animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    @keyframes popIn {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.2);
+      }
+
+      100% {
+        transform: scale(1.05);
+      }
     }
 
   </style>
@@ -72,21 +74,40 @@
 
   <div id="canvas-container"></div>
 
-  <div id="ui-layer" class="pb-6">
-    <div class="banner hud-element w-full max-w-4xl mx-auto py-4 px-6 text-center">
+  <div id="ui-layer">
 
-      <h1 id="sentence-container" class="text-3xl md:text-5xl text-gray-800 transition-all duration-300">
-        ✨ Tap around the room to discover new places! ✨
-      </h1>
-
-      <div class="flex justify-center gap-4 mt-3">
+    <!-- TOP: The Floating Sentence Pill -->
+    <div class="w-full max-w-4xl mx-auto pt-4 px-3 sm:px-6 pointer-events-none flex flex-col items-center z-20">
+      <div
+        class="hud-element bg-white/95 backdrop-blur-md shadow-lg rounded-3xl border-b-4 border-green-400 px-4 py-3 md:py-4 flex flex-col sm:flex-row items-center gap-3 w-full">
+        <h1 id="sentence-container"
+          class="text-2xl md:text-4xl text-gray-800 transition-all duration-300 flex-1 text-center font-bold">
+          ✨ Tap the room to explore! ✨
+        </h1>
         <button id="speak-btn"
-          class="bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-bold py-2 px-6 rounded-full shadow-md transition-all active:scale-95 text-lg">
-          🔊 Read to me
+          class="shrink-0 bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-bold py-2 px-5 rounded-full shadow-md transition-all active:scale-95 text-sm md:text-lg whitespace-nowrap">
+          🔊 Read
         </button>
       </div>
-      <div class="instructions">👆 Tap the grid or objects to move! Drag to rotate camera.</div>
+
+      <!-- Instructions Floating Bubble -->
+      <div
+        class="hud-element mt-3 bg-black/40 backdrop-blur-sm text-white px-5 py-1.5 rounded-full text-xs md:text-sm font-medium tracking-wide">
+        👆 Tap grid or objects to move! Drag to rotate.
+      </div>
     </div>
+
+    <!-- BOTTOM: The Progress Tracker Drawer -->
+    <div
+      class="hud-element absolute bottom-0 w-full bg-white/90 backdrop-blur-lg border-t-4 border-blue-400 shadow-[0_-4px_15px_rgba(0,0,0,0.1)] p-3 pb-6 md:pb-4 max-h-[35vh] overflow-y-auto z-20">
+      <p class="text-xs md:text-sm font-extrabold text-gray-500 mb-2 text-center uppercase tracking-widest">
+        Scavenger Hunt: Find all 15 words!
+      </p>
+      <div id="vocab-tracker" class="flex flex-wrap justify-center gap-2 max-w-5xl mx-auto">
+        <!-- Badges injected here via JS -->
+      </div>
+    </div>
+
   </div>
 
   <!-- External Libraries -->
@@ -160,6 +181,34 @@
     gridHelper.material.opacity = 0.5;
     gridHelper.material.transparent = true;
     scene.add(gridHelper);
+
+    // --- Central Anchor: The 3D Tree (Center 0, 0) ---
+    const treeGroup = new THREE.Group();
+
+    // Tree Trunk
+    const trunkMat = new THREE.MeshStandardMaterial({ color: 0x5c4033, roughness: 0.9 });
+    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.4, 2, 8), trunkMat);
+    trunk.position.set(0, 0.6, 0); // Spans from floor (-0.4) up to 1.6
+    trunk.castShadow = true; trunk.receiveShadow = true;
+    treeGroup.add(trunk);
+    objectsToIntersect.push(trunk);
+
+    // Tree Canopy (Merged Dodecahedrons for a "Real" low-poly leafy look)
+    const leafMat = new THREE.MeshStandardMaterial({ color: 0x22c55e, roughness: 0.8 });
+
+    const canopy1 = new THREE.Mesh(new THREE.DodecahedronGeometry(1.5), leafMat);
+    canopy1.position.set(0, 2.5, 0);
+    canopy1.castShadow = true; treeGroup.add(canopy1); objectsToIntersect.push(canopy1);
+
+    const canopy2 = new THREE.Mesh(new THREE.DodecahedronGeometry(1.2), leafMat);
+    canopy2.position.set(0.8, 1.8, 0.5);
+    canopy2.castShadow = true; treeGroup.add(canopy2); objectsToIntersect.push(canopy2);
+
+    const canopy3 = new THREE.Mesh(new THREE.DodecahedronGeometry(1.3), leafMat);
+    canopy3.position.set(-0.7, 2.0, -0.8);
+    canopy3.castShadow = true; treeGroup.add(canopy3); objectsToIntersect.push(canopy3);
+
+    scene.add(treeGroup);
 
     // --- Zone 1 (Green): Table, Chair, & Door ---
     const woodMat = new THREE.MeshStandardMaterial({ color: 0x8B5A2B, roughness: 0.8 });
@@ -241,21 +290,37 @@
       rock.castShadow = true; scene.add(rock); objectsToIntersect.push(rock);
     });
 
-    // --- Zone 4 (Purple): Pillars & Fence ---
+    // --- Zone 4 (Purple): Pillars & Flowers ---
     const pillarGeo = new THREE.CylinderGeometry(0.3, 0.4, 2, 16);
     const p1 = new THREE.Mesh(pillarGeo, stoneMat); p1.position.set(4, 0.6, 5); p1.castShadow = true; scene.add(p1); objectsToIntersect.push(p1);
     const p2 = new THREE.Mesh(pillarGeo, stoneMat); p2.position.set(6, 0.6, 5); p2.castShadow = true; scene.add(p2); objectsToIntersect.push(p2);
 
-    // NEW: The Fence (Exclusively for "OVER")
-    const fenceMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 });
-    for (let fx = 4; fx <= 6; fx++) {
-      const post = new THREE.Mesh(new THREE.BoxGeometry(0.2, 1, 0.2), fenceMat);
-      post.position.set(fx, 0.1, 8);
-      post.castShadow = true; scene.add(post); objectsToIntersect.push(post);
+    // NEW: Grass and Flowers (Exclusively for "ABOVE")
+    const dirtMat = new THREE.MeshStandardMaterial({ color: 0x5c4033, roughness: 0.9 });
+    const dirt = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.2, 1), dirtMat);
+    dirt.position.set(5, -0.3, 8);
+    dirt.receiveShadow = true; scene.add(dirt); objectsToIntersect.push(dirt);
+
+    const grassMat = new THREE.MeshStandardMaterial({ color: 0x22c55e, roughness: 0.8 });
+    const grassBox = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.1, 1), grassMat);
+    grassBox.position.set(5, -0.15, 8);
+    grassBox.receiveShadow = true; scene.add(grassBox); objectsToIntersect.push(grassBox);
+
+    // Add 3 bright flowers
+    const stemMat = new THREE.MeshStandardMaterial({ color: 0x16a34a });
+    const flowerColors = [0xec4899, 0xfacc15, 0xa855f7]; // Pink, Yellow, Purple
+    for (let i = 0; i < 3; i++) {
+      const fX = 4 + i;
+
+      const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.4), stemMat);
+      stem.position.set(fX, 0.05, 8);
+      stem.castShadow = true; scene.add(stem); objectsToIntersect.push(stem);
+
+      const petalMat = new THREE.MeshStandardMaterial({ color: flowerColors[i] });
+      const flower = new THREE.Mesh(new THREE.DodecahedronGeometry(0.25), petalMat);
+      flower.position.set(fX, 0.3, 8);
+      flower.castShadow = true; scene.add(flower); objectsToIntersect.push(flower);
     }
-    const rail = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.2, 0.1), fenceMat);
-    rail.position.set(5, 0.4, 8);
-    rail.castShadow = true; scene.add(rail); objectsToIntersect.push(rail);
 
     // --- 3. THE PLAYER (DIAMOND) & GHOST BOX ---
     const diamondGeo = new THREE.OctahedronGeometry(0.4);
@@ -276,6 +341,50 @@
 
     let currentX = 5, currentY = 2, currentZ = -5; // Start ON the table
     diamond.position.set(currentX, currentY, currentZ);
+
+    // --- NEW: SCAVENGER HUNT LOGIC ---
+    const totalVocab = ["IN", "UNDER", "NEAR", "AT", "ON", "ABOVE", "IN FRONT OF", "BEHIND", "BESIDE", "OPPOSITE", "INSIDE", "NEXT TO", "AMONG", "BY", "BETWEEN"];
+    const foundWords = new Set();
+
+    function initTracker() {
+      const tracker = document.getElementById('vocab-tracker');
+      totalVocab.forEach(word => {
+        const badge = document.createElement('span');
+        // Replace spaces with dashes for clean HTML IDs
+        badge.id = `badge-${word.replace(/\s+/g, '-')}`;
+        badge.innerText = word;
+        // Greyed out "undiscovered" state
+        badge.className = "px-3 py-1 bg-gray-100 text-gray-400 font-bold rounded-full text-xs md:text-sm border-2 border-gray-200 transition-all duration-300";
+        tracker.appendChild(badge);
+      });
+    }
+
+    function trackWord(newWord) {
+      if (newWord && !foundWords.has(newWord)) {
+        foundWords.add(newWord);
+        const badgeId = `badge-${newWord.replace(/\s+/g, '-')}`;
+        const badge = document.getElementById(badgeId);
+
+        if (badge) {
+          // Update to vibrant "discovered" state
+          badge.className = "badge-found px-3 py-1 bg-green-100 text-green-700 font-bold rounded-full text-xs md:text-sm border-2 border-green-500 shadow-sm";
+        }
+
+        // Check for Win State
+        if (foundWords.size === totalVocab.length) {
+          setTimeout(() => {
+            document.getElementById('sentence-container').innerHTML = "🎉 <span class='text-yellow-500 font-bold'>YOU FOUND EVERY WORD!</span> 🎉";
+            if ('speechSynthesis' in window) {
+              window.speechSynthesis.cancel();
+              const msg = new SpeechSynthesisUtterance("Congratulations! You are a master explorer!");
+              msg.rate = 0.9; msg.pitch = 1.1;
+              window.speechSynthesis.speak(msg);
+            }
+          }, 1500); // Wait 1.5s for the normal word to finish reading
+        }
+      }
+    }
+    // ---------------------------------
 
     function getGridIntersect(event) {
       const rect = renderer.domElement.getBoundingClientRect();
@@ -334,12 +443,22 @@
       let word = "";
       let rel = "";
 
-      // ZONE 1 (GREEN): Table, Chair, & Door Area
+      // Pre-calculate zone variables so they don't break the if/else chain
+      const isTreeX = Math.abs(currentX) <= 1;
+      const isTreeZ = Math.abs(currentZ) <= 1;
+      const isNearTreeX = Math.abs(currentX) <= 2;
+      const isNearTreeZ = Math.abs(currentZ) <= 2;
       const isTableX = Math.abs(currentX - 5) <= 1;
       const isTableZ = Math.abs(currentZ - -5) <= 1;
 
-      // Door Logic
-      if (Math.abs(currentX - 8) <= 1 && currentZ === -7 && currentY === 0) { word = "AT"; rel = "the door"; }
+      // CENTRAL LOGIC: The 3D Tree
+      if (isTreeX && isTreeZ && currentY >= 2 && currentY <= 4) { word = "IN"; rel = "the tree"; }
+      else if (isTreeX && isTreeZ && (currentY === 0 || currentY === 1) && !(currentX === 0 && currentZ === 0)) { word = "UNDER"; rel = "the tree"; }
+      else if (isNearTreeX && isNearTreeZ && currentY === 0 && !(isTreeX && isTreeZ)) { word = "NEAR"; rel = "the tree"; }
+
+      // ZONE 1 (GREEN): Door, Table, & Chair
+      // Door Logic (Restored)
+      else if (Math.abs(currentX - 8) <= 1 && currentZ === -7 && currentY === 0) { word = "AT"; rel = "the door"; }
 
       // Table Logic
       else if (isTableX && isTableZ && currentY === 2) { word = "ON"; rel = "the table"; }
@@ -349,11 +468,11 @@
       else if (isTableX && currentZ === -7 && currentY <= 1) { word = "BEHIND"; rel = "the table"; }
       else if ((currentX === 3 || currentX === 7) && isTableZ && currentY <= 1) { word = "BESIDE"; rel = "the table"; }
 
-      // Chair Logic
-      else if (isTableX && currentZ === -8 && currentY <= 1) { word = "OPPOSITE"; rel = "the red chair"; }
-      else if (isTableX && currentZ === -2 && currentY === 1) { word = "ON"; rel = "the red chair"; }
-      else if (isTableX && currentZ === -2 && currentY === 0) { word = "UNDER"; rel = "the red chair"; } // Updated from Underneath
-      else if (isTableX && currentZ === -1 && currentY <= 1) { word = "BEHIND"; rel = "the red chair"; }
+      // Chair Logic (Strictly constrained to X=5)
+      else if (currentX === 5 && currentZ === -8 && currentY <= 1) { word = "OPPOSITE"; rel = "the red chair"; }
+      else if (currentX === 5 && currentZ === -2 && currentY === 1) { word = "ON"; rel = "the red chair"; }
+      else if (currentX === 5 && currentZ === -2 && currentY === 0) { word = "UNDER"; rel = "the red chair"; }
+      else if (currentX === 5 && currentZ === -1 && currentY <= 1) { word = "BEHIND"; rel = "the red chair"; }
 
       // ZONE 2 (BLUE): Wooden Box & Pond
       else if (currentX === -5 && currentZ === -5 && currentY === 0) { word = "INSIDE"; rel = "the wooden box"; }
@@ -364,10 +483,11 @@
       else if (currentX >= -5 && currentX <= -3 && currentZ >= 3 && currentZ <= 5 && currentY === 0) { word = "AMONG"; rel = "the rocks"; }
       else if ((currentX === -2 || currentX === -6) && Math.abs(currentZ - 4) <= 1 && currentY === 0) { word = "BY"; rel = "the rocks"; }
 
-      // ZONE 4 (PURPLE): Pillars & Fence
+      // ZONE 4 (PURPLE): Pillars & Flowers
+      else if ((currentX === 4 || currentX === 6) && currentZ === 5 && currentY >= 2) { word = "ON"; rel = "the stone pillar"; }
       else if (currentX === 5 && currentZ === 5 && currentY <= 1) { word = "BETWEEN"; rel = "the stone pillars"; }
-      else if (currentX === 5 && (currentZ === 3 || currentZ === 7) && currentY === 0) { word = "NEAR"; rel = "the stone pillars"; }
-      else if (currentX >= 4 && currentX <= 6 && currentZ === 8 && currentY >= 1) { word = "OVER"; rel = "the fence"; } // New OVER logic
+      else if (Math.abs(currentX - 5) <= 2 && Math.abs(currentZ - 5) <= 2 && currentY === 0 && !(currentX === 5 && currentZ === 5)) { word = "NEAR"; rel = "the stone pillars"; }
+      else if (currentX >= 4 && currentX <= 6 && currentZ === 8 && currentY >= 1) { word = "ABOVE"; rel = "the flowers"; }
 
       // Apply to UI
       if (word !== "") {
@@ -375,6 +495,11 @@
       }
 
       document.getElementById('sentence-container').innerHTML = sentenceHTML;
+
+      if (word !== "") {
+        trackWord(word); // Call tracking before reading
+        readAloud();
+      }
     }
 
     // --- 6. AUDIO & ANIMATION ---
@@ -421,6 +546,7 @@
       renderer.setSize(w, h);
     });
 
+    initTracker(); // Initialize the badge board on load
     updateUI();
     requestAnimationFrame(animate); 
   </script>
