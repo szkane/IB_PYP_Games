@@ -111,7 +111,7 @@ function generateIndexHtml(pages) {
       
       const gameCards = grouped[cat].map((p, i) => {
         const delay = (cardIndex + i) * 0.1;
-        return `                <a href="${p.path}" class="game-card" style="animation-delay: ${delay}s">
+        return `                <a href="${p.path}" class="game-card" style="animation-delay: ${delay}s" target="_blank">
                     <span class="card-icon">${meta.icon}</span>
                     <span class="card-title">${p.title}</span>
                     <span class="card-arrow">→</span>
