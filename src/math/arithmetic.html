@@ -876,6 +876,21 @@
       return Math.floor(Math.random() * max) + 1;
     }
 
+    // Get minimum operand value based on range to enforce digit requirements
+    // Range 200/300/500 → 3-digit numbers (min 100)
+    // Range 1000 → 4-digit numbers (min 1000)
+    function minOperand(range) {
+      if (range === 1000) return 1000;
+      if (range >= 200) return 100;
+      return 1;
+    }
+
+    // Generate random number between min and max (inclusive)
+    function randomNumInRange(min, max) {
+      if (max < min) return min;
+      return min + Math.floor(Math.random() * (max - min + 1));
+    }
+
     // Generate a single problem based on difficulty
     function generateProblem() {
       const { type, range, difficulty } = settings;
@@ -894,6 +909,10 @@
         operator = Math.random() < 0.5 ? "+" : "-";
       }
 
+      const minOp = minOperand(range);
+      // For addition with large ranges, allow sum to exceed range so both operands can meet min
+      const addMax = range >= 200 ? minOp * 10 - 1 : range; // e.g. 999 for 200/300/500, 9999 for 1000
+
       if (operator === "+") {
         // Addition based on difficulty
         if (difficulty === "easy") {
@@ -904,9 +923,9 @@
           // Hard: requires carrying (e.g., 28 + 15, ones digits sum >= 10)
           [a, b] = generateHardAdditionPair(range);
         } else {
-          // Medium: random
-          a = randomNum(range - 1);
-          b = randomNum(range - a);
+          // Medium: random – both operands must meet minimum digit requirement
+          a = randomNumInRange(minOp, addMax);
+          b = randomNumInRange(minOp, addMax);
         }
         result = a + b;
       } else {
@@ -918,9 +937,11 @@
           // Hard: requires borrowing (e.g., 43 - 19, ones digit of a < b)
           [a, b] = generateHardSubtractionPair(range);
         } else {
-          // Medium: random
-          a = randomNum(range);
-          b = randomNum(a);
+          // Medium: random – both operands must meet minimum digit requirement
+          const subMax = range >= 200 ? minOp * 10 - 1 : range;
+          a = randomNumInRange(minOp, subMax);
+          b = randomNumInRange(minOp, a);
+          if (b > a) [a, b] = [b, a]; // ensure a >= b
         }
         result = a - b;
       }
@@ -956,20 +977,22 @@
 
     // Helper: Generate easy addition number
     function generateEasyAdditionNumber(range) {
-      return randomNum(Math.min(range - 1, range));
+      const minOp = minOperand(range);
+      const max = range >= 200 ? minOp * 10 - 1 : range - 1;
+      return randomNumInRange(minOp, max);
     }
 
     // Helper: Generate easy addition pair (no carrying)
     function generateEasyAdditionPair(a, range) {
+      const minOp = minOperand(range);
       const aOnes = a % 10;
       const maxBOnes = 9 - aOnes; // Ones that don't cause carry
-      const maxB = range - a;
-      if (maxB <= 0) return 1;
+      const upperB = range >= 200 ? minOp * 10 - 1 : range;
 
-      // Try to find b where ones don't carry
+      // Try to find b where ones don't carry and b meets minimum
       let b;
-      for (let i = 0; i < 10; i++) {
-        b = randomNum(maxB);
+      for (let i = 0; i < 20; i++) {
+        b = randomNumInRange(minOp, upperB);
         if ((a % 10) + (b % 10) < 10) return b;
       }
       return b;
@@ -977,53 +1000,61 @@
 
     // Helper: Generate hard addition pair (requires carrying)
     function generateHardAdditionPair(range) {
+      const minOp = minOperand(range);
+      const upperLimit = range >= 200 ? minOp * 10 - 1 : range;
       let a, b;
-      for (let i = 0; i < 20; i++) {
-        a = randomNum(range - 10);
+      for (let i = 0; i < 30; i++) {
+        a = randomNumInRange(minOp, upperLimit - 10);
         const aOnes = a % 10;
         const minBOnes = aOnes < 9 ? 10 - aOnes : 1;
-        const maxB = range - a;
-        if (maxB <= minBOnes) continue;
 
-        // Generate b where ones sum >= 10
-        b = randomNum(maxB);
+        // Generate b where ones sum >= 10 and b meets minimum
+        b = randomNumInRange(minOp, upperLimit);
         const bOnes = b % 10;
         if (aOnes + bOnes >= 10) return [a, b];
       }
-      // Fallback
-      return [randomNum(range - 1), randomNum(range - a)];
+      // Fallback: force carrying with valid operands
+      a = randomNumInRange(minOp, upperLimit);
+      b = randomNumInRange(minOp, upperLimit);
+      return [a, b];
     }
 
     // Helper: Generate easy subtraction pair (no borrowing)
     function generateEasySubtractionPair(range) {
+      const minOp = minOperand(range);
+      const upperLimit = range >= 200 ? minOp * 10 - 1 : range;
       let a, b;
-      for (let i = 0; i < 20; i++) {
-        a = randomNum(range);
-        b = randomNum(a);
+      for (let i = 0; i < 30; i++) {
+        a = randomNumInRange(minOp, upperLimit);
+        b = randomNumInRange(minOp, a);
+        if (b > a) [a, b] = [b, a];
         const aOnes = a % 10;
         const bOnes = b % 10;
         // No borrowing: ones digit of a >= ones digit of b
-        if (aOnes >= bOnes) return [a, b];
+        if (aOnes >= bOnes && a >= b) return [a, b];
       }
       return [a, b];
     }
 
     // Helper: Generate hard subtraction pair (requires borrowing)
     function generateHardSubtractionPair(range) {
+      const minOp = minOperand(range);
+      const upperLimit = range >= 200 ? minOp * 10 - 1 : range;
       let a, b;
-      for (let i = 0; i < 20; i++) {
-        a = 10 + randomNum(range - 10); // At least 10 to allow borrowing
-        b = randomNum(a - 1);
+      for (let i = 0; i < 30; i++) {
+        a = randomNumInRange(Math.max(minOp, minOp + 10), upperLimit);
+        b = randomNumInRange(minOp, a - 1);
+        if (b > a) [a, b] = [b, a];
         const aOnes = a % 10;
         const bOnes = b % 10;
         // Requires borrowing: ones digit of a < ones digit of b
-        if (aOnes < bOnes && b > 0) return [a, b];
+        if (aOnes < bOnes && b > 0 && a > b) return [a, b];
       }
-      // Fallback: force a borrowing scenario
-      a = 20 + randomNum(Math.min(range - 20, 80));
-      b = 10 + randomNum(9); // Something like 13-19
-      if (b < a) return [a, b];
-      return [a, Math.floor(a / 2)];
+      // Fallback: force a borrowing scenario with valid minimums
+      a = randomNumInRange(minOp + 20, upperLimit);
+      b = randomNumInRange(minOp, a - 1);
+      if (b > a) [a, b] = [b, a];
+      return [a, b];
     }
 
     // Render calculation format
