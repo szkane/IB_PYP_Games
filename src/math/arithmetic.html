@@ -388,7 +388,7 @@
     /* Problem Item - Place Value Subtraction Format */
     .placevalue-pair {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 2fr 3fr;
       gap: 8px;
       align-items: stretch;
     }
@@ -666,7 +666,7 @@
       }
 
       .placevalue-pair {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 2fr 3fr;
         gap: 8px;
       }
 
@@ -877,12 +877,20 @@
     }
 
     // Get minimum operand value based on range to enforce digit requirements
-    // Range 200/300/500 → 3-digit numbers (min 100)
+    // Range 200/500 → 3-digit numbers (min 100)
     // Range 1000 → 4-digit numbers (min 1000)
     function minOperand(range) {
       if (range === 1000) return 1000;
       if (range >= 200) return 100;
       return 1;
+    }
+
+    // Get maximum operand value based on range
+    // Range 200/500 → capped at range (e.g. 200, 500)
+    // Range 1000 → expanded to 9999 for 4-digit numbers
+    function maxOperand(range) {
+      if (range === 1000) return 9999;
+      return range;
     }
 
     // Generate random number between min and max (inclusive)
@@ -910,8 +918,7 @@
       }
 
       const minOp = minOperand(range);
-      // For addition with large ranges, allow sum to exceed range so both operands can meet min
-      const addMax = range >= 200 ? minOp * 10 - 1 : range; // e.g. 999 for 200/300/500, 9999 for 1000
+      const maxOp = maxOperand(range);
 
       if (operator === "+") {
         // Addition based on difficulty
@@ -924,8 +931,8 @@
           [a, b] = generateHardAdditionPair(range);
         } else {
           // Medium: random – both operands must meet minimum digit requirement
-          a = randomNumInRange(minOp, addMax);
-          b = randomNumInRange(minOp, addMax);
+          a = randomNumInRange(minOp, maxOp);
+          b = randomNumInRange(minOp, maxOp);
         }
         result = a + b;
       } else {
@@ -938,8 +945,7 @@
           [a, b] = generateHardSubtractionPair(range);
         } else {
           // Medium: random – both operands must meet minimum digit requirement
-          const subMax = range >= 200 ? minOp * 10 - 1 : range;
-          a = randomNumInRange(minOp, subMax);
+          a = randomNumInRange(minOp, maxOp);
           b = randomNumInRange(minOp, a);
           if (b > a) [a, b] = [b, a]; // ensure a >= b
         }
@@ -949,22 +955,26 @@
       return { a, b, operator, result };
     }
 
-    // Helper: Generate subtraction problems specifically for tens/ones place-value format
+    // Helper: Generate subtraction problems specifically for place-value format
     function generatePlaceValueSubtractionProblem(range, difficulty) {
-      const limitedRange = Math.max(20, Math.min(99, range));
+      const minOp = Math.max(10, minOperand(range)); // At least 2-digit for place value
+      const maxOp = maxOperand(range);
       let a, b;
 
       if (difficulty === "easy") {
-        [a, b] = generateEasySubtractionPair(limitedRange);
-        if (b < 10) b += 10;
+        [a, b] = generateEasySubtractionPair(range);
+        if (a < minOp) a = randomNumInRange(minOp, maxOp);
+        if (b < minOp) b = randomNumInRange(minOp, a);
+        if (b > a) [a, b] = [b, a];
       } else if (difficulty === "hard") {
-        [a, b] = generateHardSubtractionPair(limitedRange);
-        if (a < 20) a += 20;
-        if (b < 10) b += 10;
-        if (b >= a) b = Math.max(10, a - 1);
+        [a, b] = generateHardSubtractionPair(range);
+        if (a < minOp) a = randomNumInRange(minOp + 10, maxOp);
+        if (b < minOp) b = randomNumInRange(minOp, a - 1);
+        if (b >= a) b = Math.max(minOp, a - 1);
       } else {
-        a = 10 + randomNum(limitedRange - 10);
-        b = 10 + randomNum(a - 10);
+        a = randomNumInRange(minOp, maxOp);
+        b = randomNumInRange(minOp, a);
+        if (b > a) [a, b] = [b, a];
       }
 
       return {
@@ -978,7 +988,7 @@
     // Helper: Generate easy addition number
     function generateEasyAdditionNumber(range) {
       const minOp = minOperand(range);
-      const max = range >= 200 ? minOp * 10 - 1 : range - 1;
+      const max = maxOperand(range);
       return randomNumInRange(minOp, max);
     }
 
@@ -987,7 +997,7 @@
       const minOp = minOperand(range);
       const aOnes = a % 10;
       const maxBOnes = 9 - aOnes; // Ones that don't cause carry
-      const upperB = range >= 200 ? minOp * 10 - 1 : range;
+      const upperB = maxOperand(range);
 
       // Try to find b where ones don't carry and b meets minimum
       let b;
@@ -1001,7 +1011,7 @@
     // Helper: Generate hard addition pair (requires carrying)
     function generateHardAdditionPair(range) {
       const minOp = minOperand(range);
-      const upperLimit = range >= 200 ? minOp * 10 - 1 : range;
+      const upperLimit = maxOperand(range);
       let a, b;
       for (let i = 0; i < 30; i++) {
         a = randomNumInRange(minOp, upperLimit - 10);
@@ -1022,7 +1032,7 @@
     // Helper: Generate easy subtraction pair (no borrowing)
     function generateEasySubtractionPair(range) {
       const minOp = minOperand(range);
-      const upperLimit = range >= 200 ? minOp * 10 - 1 : range;
+      const upperLimit = maxOperand(range);
       let a, b;
       for (let i = 0; i < 30; i++) {
         a = randomNumInRange(minOp, upperLimit);
@@ -1039,7 +1049,7 @@
     // Helper: Generate hard subtraction pair (requires borrowing)
     function generateHardSubtractionPair(range) {
       const minOp = minOperand(range);
-      const upperLimit = range >= 200 ? minOp * 10 - 1 : range;
+      const upperLimit = maxOperand(range);
       let a, b;
       for (let i = 0; i < 30; i++) {
         a = randomNumInRange(Math.max(minOp, minOp + 10), upperLimit);
@@ -1090,14 +1100,28 @@
       `;
     }
 
-    // Render place-value subtraction format (tens and ones)
+    // Render place-value subtraction format (dynamic columns based on digit count)
     function renderPlaceValue(problem) {
-      const top = problem.a.toString().padStart(2, "0");
-      const bottom = problem.b.toString().padStart(2, "0");
-      const topTens = top[0];
-      const topOnes = top[1];
-      const bottomTens = bottom[0];
-      const bottomOnes = bottom[1];
+      const numDigits = Math.max(
+        problem.a.toString().length,
+        problem.b.toString().length,
+        2 // minimum 2 digits
+      );
+      const top = problem.a.toString().padStart(numDigits, "0");
+      const bottom = problem.b.toString().padStart(numDigits, "0");
+
+      // Column headers based on digit count
+      const placeNames = ["Ones", "Tens", "Hundreds", "Thousands"];
+      const headers = [];
+      for (let i = numDigits - 1; i >= 0; i--) {
+        headers.push(placeNames[i] || `10^${i}`);
+      }
+
+      const headerHTML = headers.map(h => `<th>${h}</th>`).join("");
+      const borrowHTML = headers.map(() => `<td></td>`).join("");
+      const topHTML = top.split("").map(d => `<td>${d}</td>`).join("");
+      const bottomHTML = bottom.split("").map(d => `<td>${d}</td>`).join("");
+      const answerHTML = headers.map(() => `<td></td>`).join("");
 
       return `
         <div class="placevalue-pair">
@@ -1115,28 +1139,13 @@
             <span class="placevalue-minus">−</span>
             <table class="placevalue-table" aria-label="Place value subtraction problem">
               <thead>
-                <tr>
-                  <th>Tens</th>
-                  <th>Ones</th>
-                </tr>
+                <tr>${headerHTML}</tr>
               </thead>
               <tbody>
-                <tr class="placevalue-borrow">
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr class="placevalue-number">
-                  <td>${topTens}</td>
-                  <td>${topOnes}</td>
-                </tr>
-                <tr class="placevalue-number">
-                  <td>${bottomTens}</td>
-                  <td>${bottomOnes}</td>
-                </tr>
-                <tr class="placevalue-answer">
-                  <td></td>
-                  <td></td>
-                </tr>
+                <tr class="placevalue-borrow">${borrowHTML}</tr>
+                <tr class="placevalue-number">${topHTML}</tr>
+                <tr class="placevalue-number">${bottomHTML}</tr>
+                <tr class="placevalue-answer">${answerHTML}</tr>
               </tbody>
             </table>
           </div>
