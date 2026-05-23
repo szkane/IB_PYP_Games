@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>中文练习打印 - Chinese Character Practice</title>
+  <title>中文练习打印 - 部编版小学语文同步练习纸</title>
   <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.19.0/dist/index.min.js"></script>
   <style>
     :root {
@@ -28,7 +28,7 @@
 
     body {
       font-family:
-        -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei",
+        -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei',
         sans-serif;
       background: var(--bg-primary);
       color: var(--text-primary);
@@ -80,7 +80,7 @@
       border: 1px solid var(--border-color);
       border-radius: 4px;
       font-size: 14px;
-      font-family: "KaiTi", "楷体", "STKaiti", serif;
+      font-family: 'KaiTi', '楷体', 'STKaiti', serif;
       resize: vertical;
       transition: border-color 0.3s;
     }
@@ -113,7 +113,7 @@
       gap: 8px;
     }
 
-    .input-with-buttons input[type="number"] {
+    .input-with-buttons input[type='number'] {
       width: 70px;
       padding: 6px 8px;
       border: 1px solid var(--border-color);
@@ -148,7 +148,7 @@
       gap: 10px;
     }
 
-    .color-picker input[type="color"] {
+    .color-picker input[type='color'] {
       width: 40px;
       height: 32px;
       border: 1px solid var(--border-color);
@@ -442,7 +442,7 @@
     }
 
     .tianzige::before {
-      content: "";
+      content: '';
       position: absolute;
       top: 50%;
       left: 0;
@@ -454,7 +454,7 @@
     }
 
     .tianzige::after {
-      content: "";
+      content: '';
       position: absolute;
       left: 50%;
       top: 0;
@@ -466,7 +466,7 @@
     }
 
     .mizige::before {
-      content: "";
+      content: '';
       position: absolute;
       top: 50%;
       left: 0;
@@ -479,7 +479,7 @@
     }
 
     .mizige::after {
-      content: "";
+      content: '';
       position: absolute;
       left: 50%;
       top: 0;
@@ -526,7 +526,7 @@
       left: 50%;
       transform: translate(-50%, -50%);
       font-size: calc(var(--cell-size) * 0.7);
-      font-family: "KaiTi", "楷体", "STKaiti", serif;
+      font-family: 'KaiTi', '楷体', 'STKaiti', serif;
       z-index: 1;
       pointer-events: none;
     }
@@ -573,7 +573,6 @@
         margin: 0;
       }
 
-      /* Force mizige diagonal lines to print */
       .mizige .diagonal-1,
       .mizige .diagonal-2 {
         display: block !important;
@@ -581,14 +580,12 @@
         opacity: 0.5 !important;
       }
 
-      /* Force grid lines to print */
       .grid-cell::before,
       .grid-cell::after {
         display: block !important;
         visibility: visible !important;
       }
 
-      /* 打印时降低描红和对应拼音的透明度，使其颜色变浅 */
       .character.trace,
       .pinyin-text.trace {
         opacity: 0.4 !important;
@@ -622,12 +619,10 @@
       <div class="a4-paper">
         <div class="paper-header">
           <div class="field">
-            <span class="field-label">姓名：</span>
-            <span class="field-line"></span>
+            <span class="field-label">姓名：</span><span class="field-line"></span>
           </div>
           <div class="field">
-            <span class="field-label">时间：</span>
-            <span class="field-line"></span>
+            <span class="field-label">时间：</span><span class="field-line"></span>
           </div>
         </div>
         <div class="main-grid">
@@ -639,12 +634,11 @@
 
     <div class="control-panel">
       <h2>⚙️ 配置</h2>
-
       <div class="control-group">
         <label>选择课程</label>
         <select id="courseSelect" onchange="loadCourseData()">
           <option value="">-- 自定义输入 --</option>
-
+          <!-- 一年级上册 (含语文园地) -->
           <optgroup label="一年级上册">
             <option value="1a-1">识字 1 - 天地人</option>
             <option value="1a-2">识字 2 - 金木水火土</option>
@@ -655,14 +649,20 @@
             <option value="1a-7">课文 2 - 小小的船</option>
             <option value="1a-8">课文 3 - 江南</option>
             <option value="1a-9">课文 4 - 四季</option>
-            <!-- 新增 -->
             <option value="1a-10">识字 6 - 画</option>
             <option value="1a-11">识字 7 - 大小多少</option>
             <option value="1a-12">识字 8 - 小书包</option>
             <option value="1a-13">识字 9 - 日月明</option>
             <option value="1a-14">识字 10 - 升国旗</option>
+            <option value="1a-yy1">语文园地一</option>
+            <option value="1a-yy2">语文园地二</option>
+            <option value="1a-yy3">语文园地三</option>
+            <option value="1a-yy4">语文园地四</option>
+            <option value="1a-yy5">语文园地五</option>
+            <option value="1a-yy6">语文园地六</option>
+            <option value="1a-yy7">语文园地七</option>
+            <option value="1a-yy8">语文园地八</option>
           </optgroup>
-
           <optgroup label="一年级下册">
             <option value="1b-1">识字 1 - 春夏秋冬</option>
             <option value="1b-2">识字 2 - 姓氏歌</option>
@@ -676,7 +676,6 @@
             <option value="1b-10">课文 6 - 树和喜鹊</option>
             <option value="1b-11">课文 7 - 怎么都快乐</option>
             <option value="1b-12">课文 8 - 静夜思</option>
-            <!-- 新增 -->
             <option value="1b-13">课文 9 - 夜色</option>
             <option value="1b-14">课文 10 - 端午粽</option>
             <option value="1b-15">课文 11 - 彩虹</option>
@@ -686,8 +685,15 @@
             <option value="1b-19">识字 8 - 人之初</option>
             <option value="1b-20">课文 12 - 古诗二首</option>
             <option value="1b-21">课文 13 - 荷叶圆圆</option>
+            <option value="1b-yy1">语文园地一</option>
+            <option value="1b-yy2">语文园地二</option>
+            <option value="1b-yy3">语文园地三</option>
+            <option value="1b-yy4">语文园地四</option>
+            <option value="1b-yy5">语文园地五</option>
+            <option value="1b-yy6">语文园地六</option>
+            <option value="1b-yy7">语文园地七</option>
+            <option value="1b-yy8">语文园地八</option>
           </optgroup>
-
           <optgroup label="二年级上册">
             <option value="2a-1">课文 1 - 小蝌蚪找妈妈</option>
             <option value="2a-2">课文 2 - 我是什么</option>
@@ -699,13 +705,19 @@
             <option value="2a-8">课文 4 - 曹冲称象</option>
             <option value="2a-9">课文 5 - 玲玲的画</option>
             <option value="2a-10">课文 6 - 一封信</option>
-            <!-- 新增 -->
             <option value="2a-11">课文 7 - 妈妈睡了</option>
             <option value="2a-12">课文 8 - 古诗二首</option>
             <option value="2a-13">课文 9 - 黄山奇石</option>
             <option value="2a-14">课文 10 - 日月潭</option>
+            <option value="2a-yy1">语文园地一</option>
+            <option value="2a-yy2">语文园地二</option>
+            <option value="2a-yy3">语文园地三</option>
+            <option value="2a-yy4">语文园地四</option>
+            <option value="2a-yy5">语文园地五</option>
+            <option value="2a-yy6">语文园地六</option>
+            <option value="2a-yy7">语文园地七</option>
+            <option value="2a-yy8">语文园地八</option>
           </optgroup>
-
           <optgroup label="二年级下册">
             <option value="2b-1">课文 1 - 古诗二首</option>
             <option value="2b-2">课文 2 - 找春天</option>
@@ -715,7 +727,6 @@
             <option value="2b-6">识字 2 - 传统节日</option>
             <option value="2b-7">识字 3 - 贝的故事</option>
             <option value="2b-8">识字 4 - 中国美食</option>
-            <!-- 新增 -->
             <option value="2b-9">课文 5 - 雷锋叔叔，你在哪里</option>
             <option value="2b-10">课文 6 - 千人糕</option>
             <option value="2b-11">课文 7 - 一匹出色的马</option>
@@ -733,13 +744,19 @@
             <option value="2b-23">课文 19 - 大象的耳朵</option>
             <option value="2b-24">课文 20 - 蜘蛛开店</option>
             <option value="2b-25">课文 21 - 青蛙卖泥塘</option>
+            <option value="2b-yy1">语文园地一</option>
+            <option value="2b-yy2">语文园地二</option>
+            <option value="2b-yy3">语文园地三</option>
+            <option value="2b-yy4">语文园地四</option>
+            <option value="2b-yy5">语文园地五</option>
+            <option value="2b-yy6">语文园地六</option>
+            <option value="2b-yy7">语文园地七</option>
+            <option value="2b-yy8">语文园地八</option>
           </optgroup>
         </select>
       </div>
-
       <div class="control-group">
-        <label>生字 (每行一个新字)</label>
-        <textarea id="characterInput" placeholder="每行输入一个新字，系统会自动描红...">
+        <label>生字 (每行一个新字)</label><textarea id="characterInput" placeholder="每行输入一个新字，系统会自动描红...">
 河
 眼
 睛
@@ -752,21 +769,18 @@
 情
 请
 让
-清</textarea>
-        <small style="
+清</textarea><small style="
               color: #666;
               font-size: 11px;
               display: block;
               margin-top: 4px;
             ">每行一个字，自动显示描红效果</small>
       </div>
-
       <div class="control-group">
         <label>描红数量 (每个生字后的描红个数)</label>
         <div class="input-with-buttons">
-          <button onclick="adjustValue('traceCount', -1)">−</button>
-          <input type="number" id="traceCount" value="2" min="1" max="9" step="1" />
-          <button onclick="adjustValue('traceCount', 1)">+</button>
+          <button onclick="adjustValue('traceCount', -1)">−</button><input type="number" id="traceCount" value="2"
+            min="1" max="9" step="1" /><button onclick="adjustValue('traceCount', 1)">+</button>
         </div>
         <small style="
               color: #666;
@@ -775,10 +789,8 @@
               margin-top: 4px;
             ">第 1 个字是生字 (黑色)，后面跟描红 (灰色)</small>
       </div>
-
       <div class="control-group">
-        <label>组词 (每行对应上方生字)</label>
-        <textarea id="wordGroupInput" placeholder="输入组词，每行对应上方生字...">
+        <label>组词 (每行对应上方生字)</label><textarea id="wordGroupInput" placeholder="输入组词，每行对应上方生字...">
 河水
 眼睛
 睛光
@@ -793,25 +805,20 @@
 让开
 清水</textarea>
       </div>
-
       <div class="control-group">
         <label>空白格类型</label>
         <div class="radio-group">
           <label><input type="radio" name="gridType" value="tianzige" checked />
-            田字格</label>
-          <label><input type="radio" name="gridType" value="mizige" />
-            米字格</label>
-          <label><input type="radio" name="gridType" value="blank" />
+            田字格</label><label><input type="radio" name="gridType" value="mizige" />
+            米字格</label><label><input type="radio" name="gridType" value="blank" />
             空白格</label>
         </div>
       </div>
-
       <div class="control-group">
         <label>格子大小 (mm)</label>
         <div class="input-with-buttons">
-          <button onclick="adjustValue('cellSize', -1)">−</button>
-          <input type="number" id="cellSize" value="12" min="8" max="20" step="1" />
-          <button onclick="adjustValue('cellSize', 1)">+</button>
+          <button onclick="adjustValue('cellSize', -1)">−</button><input type="number" id="cellSize" value="12" min="8"
+            max="20" step="1" /><button onclick="adjustValue('cellSize', 1)">+</button>
         </div>
         <small style="
               color: #666;
@@ -820,34 +827,26 @@
               margin-top: 4px;
             ">A4 纸建议 10-15mm</small>
       </div>
-
       <div class="control-group">
         <label>生字颜色</label>
         <div class="color-picker">
-          <input type="color" id="textColor" value="#000000" />
-          <span id="textColorValue">#000000</span>
+          <input type="color" id="textColor" value="#000000" /><span id="textColorValue">#000000</span>
         </div>
       </div>
-
       <div class="control-group">
         <label>描红颜色</label>
         <div class="color-picker">
-          <input type="color" id="traceColor" value="#cbcfd6" />
-          <span id="traceColorValue">#cbcfd6</span>
+          <input type="color" id="traceColor" value="#cbcfd6" /><span id="traceColorValue">#cbcfd6</span>
         </div>
       </div>
-
       <div class="control-group">
         <label>格子线颜色</label>
         <div class="color-picker">
-          <input type="color" id="gridColor" value="#0cb300" />
-          <span id="gridColorValue">#0cb300</span>
+          <input type="color" id="gridColor" value="#0cb300" /><span id="gridColorValue">#0cb300</span>
         </div>
       </div>
-
       <div class="control-group">
-        <label>字体</label>
-        <select id="fontFamily">
+        <label>字体</label><select id="fontFamily">
           <option
             value='楷体_gb2312, 楷体, "Kaiti SC", STKaiti, "AR PL UKai CN", "AR PL UKai HK", "AR PL UKai TW", "AR PL UKai TW MBE", "AR PL KaitiM GB", KaiTi, KaiTi_GB2312, DFKai-SB, TW-Kai;'>
             楷体
@@ -857,934 +856,551 @@
           <option value="FangSong, 仿宋, serif">仿宋</option>
         </select>
       </div>
-
       <div class="control-group checkbox-group">
-        <label>
-          <input type="checkbox" id="showPinyin" checked />
-          <span>显示拼音和 4 线格</span>
-        </label>
+        <label><input type="checkbox" id="showPinyin" checked /> 显示拼音和 4
+          线格</label>
       </div>
-
-      <button class="btn-primary" onclick="window.print()">🖨️ 打印</button>
-      <button class="btn-secondary" onclick="resetSettings()">🔄 重置</button>
-      <button class="btn-secondary" onclick="openDictationOverlay()">🎧 听写</button>
+      <button class="btn-primary" onclick="window.print()">🖨️ 打印</button><button class="btn-secondary"
+        onclick="resetSettings()">🔄 重置</button><button class="btn-secondary" onclick="openDictationOverlay()">
+        🎧 听写
+      </button>
     </div>
   </div>
-
   <div class="dictation-overlay" id="dictationOverlay">
     <div class="dictation-panel">
       <h3 class="dictation-title">听写模式</h3>
-      <p class="dictation-status" id="dictationStatus">点击“开始播放”开始听写。</p>
+      <p class="dictation-status" id="dictationStatus">
+        点击“开始播放”开始听写。
+      </p>
       <div class="dictation-voice">
-        <label for="dictationVoiceSelect">中文语音</label>
-        <select id="dictationVoiceSelect">
+        <label for="dictationVoiceSelect">中文语音</label><select id="dictationVoiceSelect">
           <option value="">自动（优先 Google 普通话（中国大陆））</option>
         </select>
       </div>
       <div class="dictation-nav">
-        <button id="dictationPrevBtn" onclick="playPreviousWord()">⏮ 上一个</button>
-        <button id="dictationNextBtn" onclick="playNextWord()">⏭ 下一个</button>
+        <button id="dictationPrevBtn" onclick="playPreviousWord()">
+          ⏮ 上一个</button><button id="dictationNextBtn" onclick="playNextWord()">
+          ⏭ 下一个
+        </button>
       </div>
       <div class="dictation-actions">
-        <button class="primary" id="dictationStartBtn" onclick="startDictation()">▶️ 开始播放</button>
-        <button id="dictationStopBtn" onclick="stopDictation()">⏹ 停止</button>
-        <button onclick="closeDictationOverlay()">✖ 关闭</button>
+        <button class="primary" id="dictationStartBtn" onclick="startDictation()">
+          ▶️ 开始播放</button><button id="dictationStopBtn" onclick="stopDictation()">
+          ⏹ 停止</button><button onclick="closeDictationOverlay()">✖ 关闭</button>
       </div>
     </div>
   </div>
-
   <script>
-    // Course data: 人教版一年级和二年级语文生词
-    // 组词都是两个字，简单易懂，适合 1-2 年级学生
+    // 完整版课程数据（含语文园地，每个生字对应一个组词）
     const courseData = {
-      // ==================== 一年级上册（14课）====================
-      "1a-1": {
-        chars: "天地人你我他",
-        words: "天上|地下|人口|你们|我们|他们",
-      },
-      "1a-2": {
-        chars: "一二三四五上下",
-        words: "一个|二月|三天|四方|五口|上山|下山",
-      },
-      "1a-3": {
-        chars: "口耳目手足站坐",
-        words: "口水|耳朵|目光|小手|足球|站立|坐下",
-      },
-      "1a-4": {
-        chars: "日月水火山石田禾",
-        words: "日月|月亮|口水|火山|山东|石头|田地|禾苗",
-      },
-      "1a-5": {
-        chars: "对云雨风花鸟虫",
-        words: "对错|白云|下雨|大风|花朵|小鸟|虫子",
-      },
-      "1a-6": {
-        chars: "气了树叶片大飞会个的",
-        words: "生气|来了|大树|叶子|一片|大小|飞鸟|开会|一个|好的",
-      },
-      "1a-7": {
-        chars: "船弯两在里看见闪星蓝",
-        words: "小船|弯弯|两个|正在|里面|看见|见到|闪亮|星星|蓝天",
-      },
-      "1a-8": {
-        chars: "江南可采莲鱼东西北",
-        words: "江南|长江|可以|采花|莲花|小鱼|东方|西瓜|北方",
-      },
-      "1a-9": {
-        chars: "尖说春青蛙夏弯地就冬",
-        words: "尖尖|说话|春天|青草|青蛙|夏天|弯腰|土地|就是|冬天",
-      },
-      "1a-10": {
-        chars: "水去来不",
-        words: "水果|出去|回来|不行|不见",
-      },
-      "1a-11": {
-        chars: "小少牛果鸟",
-        words: "大小|多少|牛羊|水果|小鸟|果子",
-      },
-      "1a-12": {
-        chars: "早书刀尺本",
-        words: "早上|书本|小刀|尺子|本来|本人",
-      },
-      "1a-13": {
-        chars: "木林土力心",
-        words: "木头|林子|土地|用力|小心|手心",
-      },
-      "1a-14": {
-        chars: "中五立正",
-        words: "中文|中心|五个|立正|公正|正门",
-      },
-
-      // ==================== 一年级下册（21课）====================
-      "1b-1": {
-        chars: "春风冬雪飞入",
-        words: "春天|大风|冬天|雪花|飞鸟|入口",
-      },
-      "1b-2": {
-        chars: "姓什么双国王",
-        words: "姓名|什么|什么|双手|国王|大王",
-      },
-      "1b-3": {
-        chars: "青清气晴情请生",
-        words: "青山|清水|天气|晴天|心情|请问|生气",
-      },
-      "1b-4": {
-        chars: "字左右红时动万",
-        words: "生字|左手|右手|红花|时间|动作|万一",
-      },
-      "1b-5": {
-        chars: "吃叫主江住没以",
-        words: "吃饭|叫声|主人|长江|住下|没有|以为",
-      },
-      "1b-6": {
-        chars: "会走北京门广",
-        words: "开会|走路|北京|南京|城门|广大",
-      },
-      "1b-7": {
-        chars: "过各样伙伴这",
-        words: "过去|各种|样子|伙伴|伴侣|这边",
-      },
-      "1b-8": {
-        chars: "太阳校金秋为",
-        words: "太多|阳光|学校|金色|秋天|因为",
-      },
-      "1b-9": {
-        chars: "他河说也地听哥",
-        words: "他们|河水|说话|也是|大地|听话|哥哥",
-      },
-      "1b-10": {
-        chars: "单居招呼快乐",
-        words: "单独|居住|招呼|呼叫|快乐|可乐",
-      },
-      "1b-11": {
-        chars: "玩很当音讲行许",
-        words: "好玩|很多|当心|音乐|讲话|行走|许多",
-      },
-      "1b-12": {
-        chars: "思床前光低故乡",
-        words: "思念|床前|前面|月光|低头|故乡|乡下",
-      },
-      "1b-13": {
-        chars: "胆敢往外勇窗乱偏散原像微",
-        words: "胆小|勇敢|往外|窗外|乱动|偏远|散步|原来|好像|微笑",
-      },
-      "1b-14": {
-        chars: "端粽节总米间分豆肉带知据念",
-        words: "端午|粽子|节日|总结|大米|中间|分开|豆子|吃肉|带走|知道|根据|纪念",
-      },
-      "1b-15": {
-        chars: "虹座提浇洒挑兴拿镜照千裙",
-        words: "彩虹|座位|提问|浇水|洒水|挑水|高兴|拿走|镜子|照片|千万|裙子",
-      },
-      "1b-16": {
-        chars: "蜻蜓迷藏造蚂蚁食粮蜘蛛网",
-        words: "蜻蜓|迷藏|造句|蚂蚁|粮食|蜘蛛|上网",
-      },
-      "1b-17": {
-        chars: "圆严寒酷暑凉晨细朝霞夕杨",
-        words: "圆形|严寒|酷暑|凉快|早晨|细雨|朝霞|夕阳|杨柳",
-      },
-      "1b-18": {
-        chars: "操场拔拍跑踢铃热闹锻炼体",
-        words: "操场|拔河|拍手|跑步|踢球|铃声|热闹|锻炼|身体",
-      },
-      "1b-19": {
-        chars: "之初性善习教迁贵专幼玉器义",
-        words: "之初|天性|善良|学习|教育|迁移|贵重|专心|幼小|玉石|玉器|意义",
-      },
-      "1b-20": {
-        chars: "首踪迹浮萍泉流爱柔荷露角",
-        words: "首先|踪迹|浮萍|泉水|流水|爱护|柔和|荷花|露水|角落",
-      },
-      "1b-21": {
-        chars: "珠摇躺晶停机展透翅膀唱朵",
-        words: "水珠|摇头|躺下|水晶|停机|展开|透明|翅膀|唱歌|花朵",
-      },
-
-      // ==================== 二年级上册（24课，此处收录前14课）====================
-      "2a-1": {
-        chars: "两就哪宽顶睛肚皮孩跳",
-        words: "两个|就是|哪里|宽大|头顶|眼睛|肚皮|皮球|孩子|跳高",
-      },
-      "2a-2": {
-        chars: "变极片傍海洋作坏给带",
-        words: "变化|北极|一片|傍晚|大海|海洋|作业|坏人|送给|带头",
-      },
-      "2a-3": {
-        chars: "法如脚它娃她毛更知识",
-        words: "方法|如果|脚印|它们|娃娃|她们|皮毛|更加|知道|见识",
-      },
-      "2a-4": {
-        chars: "园孔桥群队旗铜号领",
-        words: "花园|孔雀|小桥|一群|队长|红旗|铜号|号角|带领",
-      },
-      "2a-5": {
-        chars: "杨壮桐枫松柏棉杉化桂",
-        words: "杨树|壮大|梧桐|枫叶|松柏|柏树|棉花|杉树|变化|桂花",
-      },
-      "2a-6": {
-        chars: "歌丛深处六熊猫九朋",
-        words: "唱歌|丛林|深处|处所|六个|熊猫|小猫|九个|朋友",
-      },
-      "2a-7": {
-        chars: "季吹肥农事忙归戴辛",
-        words: "四季|吹风|肥沃|农民|事情|忙碌|归来|戴帽|辛苦",
-      },
-      "2a-8": {
-        chars: "候柱底杆秤做岁站船",
-        words: "时候|柱子|海底|笔杆|秤杆|做事|岁月|站立|小船",
-      },
-      "2a-9": {
-        chars: "画幅评奖纸报另及拿",
-        words: "画画|一幅|评比|奖状|白纸|报纸|另外|及时|拿走",
-      },
-      "2a-10": {
-        chars: "今写支圆珠笔灯电影",
-        words: "今天|写字|一支|圆形|珠子|毛笔|灯光|电视|电影",
-      },
-      "2a-11": {
-        chars: "哄先闭脸蛋沉发窗",
-        words: "哄骗|先生|关闭|笑脸|脸蛋|沉重|头发|窗户",
-      },
-      "2a-12": {
-        chars: "楼依尽层照炉烟挂川",
-        words: "高楼|依靠|尽力|层次|照片|香炉|烟火|挂念|四川",
-      },
-      "2a-13": {
-        chars: "南部些巨位每升闪狗",
-        words: "南方|部分|一些|巨大|座位|每天|上升|闪亮|小狗",
-      },
-      "2a-14": {
-        chars: "名胜迹央丽华展现披",
-        words: "名字|胜利|古迹|中央|美丽|华丽|展开|出现|披着",
-      },
-
-      // ==================== 二年级下册（25课）====================
-      "2b-1": {
-        chars: "诗村童碧妆绿丝剪",
-        words: "古诗|乡村|儿童|碧绿|化妆|绿叶|丝线|剪刀",
-      },
-      "2b-2": {
-        chars: "冲寻姑娘吐柳荡桃杏",
-        words: "冲动|寻找|姑娘|娘亲|吐气|柳树|荡舟|桃花|杏花",
-      },
-      "2b-3": {
-        chars: "鲜邮递原叔局堆礼",
-        words: "新鲜|邮票|快递|原来|叔叔|邮局|土堆|礼物",
-      },
-      "2b-4": {
-        chars: "邓植格引注满休息",
-        words: "邓家|植树|格子|引导|注意|满意|休息|气息",
-      },
-      "2b-5": {
-        chars: "州湾峡与陆谊齐奋",
-        words: "神州|海湾|峡谷|与其|陆地|友谊|整齐|奋斗",
-      },
-      "2b-6": {
-        chars: "贴街舟艾敬转团热",
-        words: "贴画|街道|小舟|艾草|敬礼|转身|团圆|热闹",
-      },
-      "2b-7": {
-        chars: "贝壳甲钱币与财购",
-        words: "贝壳|贝壳|甲鱼|金钱|钱币|与其|财产|购买",
-      },
-      "2b-8": {
-        chars: "烧茄烤鸭肉鸡蛋炒",
-        words: "烧火|茄子|烤鸭|鸭肉|猪肉|鸡蛋|蛋花|炒饭",
-      },
-      "2b-9": {
-        chars: "锋昨冒留弯背洒温暖",
-        words: "锋利|昨天|冒险|留下|弯路|背包|洒水|温暖|暖和",
-      },
-      "2b-10": {
-        chars: "能桌味买具甘甜菜劳",
-        words: "才能|桌子|味道|买卖|工具|甘甜|甘甜|白菜|劳动",
-      },
-      "2b-11": {
-        chars: "妹波纹像景恋舍求",
-        words: "妹妹|波浪|花纹|好像|风景|留恋|舍得|要求",
-      },
-      "2b-12": {
-        chars: "彩梦森拉结苹般精灵",
-        words: "彩色|梦想|森林|拉面|结果|苹果|一般|精彩|灵活",
-      },
-      "2b-13": {
-        chars: "伞姨弟便教游戏母",
-        words: "雨伞|姨妈|弟弟|方便|教书|游戏|戏曲|母亲",
-      },
-      "2b-14": {
-        chars: "周围句补充药合死记",
-        words: "周围|围巾|句子|补充|充实|中药|合同|死亡|日记",
-      },
-      "2b-15": {
-        chars: "屁股尿净幸使劲",
-        words: "屁股|股份|尿床|干净|幸运|使用|使劲|干劲",
-      },
-      "2b-16": {
-        chars: "亡牢钻劝丢告筋疲",
-        words: "死亡|牢固|钻石|劝告|丢失|告诉|筋骨|疲劳",
-      },
-      "2b-17": {
-        chars: "图课摆座交哈页抢嘻",
-        words: "图画|课文|摆放|座位|交通|哈欠|页面|抢先|嘻哈",
-      },
-      "2b-18": {
-        chars: "愿意麦该伯刻突掉",
-        words: "愿意|心愿|麦子|应该|伯父|刻苦|突然|掉队",
-      },
-      "2b-19": {
-        chars: "湖莲穷荷绝含岭吴",
-        words: "湖水|莲花|穷人|荷花|绝对|包含|山岭|姓吴",
-      },
-      "2b-20": {
-        chars: "雷乌黑压垂户迎扑",
-        words: "雷雨|乌鸦|黑色|压力|垂头|户口|迎接|扑打",
-      },
-      "2b-21": {
-        chars: "指针帮助导永碰特积",
-        words: "手指|针对|帮助|助手|向导|永远|碰到|特别|积极",
-      },
-      "2b-22": {
-        chars: "宇宙杯失板容易浴室",
-        words: "宇宙|宇宙|水杯|失去|黑板|容易|简单|浴室|室内",
-      },
-      "2b-23": {
-        chars: "扇慢遇兔安根痛最",
-        words: "扇子|慢慢|遇到|兔子|安全|根本|头痛|最多",
-      },
-      "2b-24": {
-        chars: "店决定商夫终完换期",
-        words: "商店|决定|安定|商人|夫人|终于|完成|交换|日期",
-      },
-      "2b-25": {
-        chars: "蛙卖搬倒籽泉破应",
-        words: "青蛙|买卖|搬运|倒车|菜籽|泉水|打破|应该",
-      },
+      // 一年级上册 (保留原有且扩充完整)
+      '1a-1': {
+        chars: '天地人你我他',
+        words: '天空|大地|人口|你们|我们|他们',
+      },
+      '1a-2': {
+        chars: '一二三四五上下',
+        words: '一个|二月|三天|四方|五颗|上山|下山',
+      },
+      '1a-3': {
+        chars: '口耳目手足站坐',
+        words: '口水|耳朵|目光|小手|足球|站立|坐下',
+      },
+      '1a-4': {
+        chars: '日月水火山石田禾',
+        words: '日月|月亮|河水|火山|山东|石头|田地|禾苗',
+      },
+      '1a-5': {
+        chars: '对云雨风花鸟虫',
+        words: '对错|白云|下雨|大风|花朵|小鸟|虫子',
+      },
+      '1a-6': {
+        chars: '气了树叶片大飞会个的',
+        words: '生气|来了|树木|叶子|一片|大小|飞鸟|开会|一个|好的',
+      },
+      '1a-7': {
+        chars: '船弯两在里看见闪星蓝',
+        words: '小船|弯弯|两个|正在|里面|看见|见到|闪亮|星星|蓝天',
+      },
+      '1a-8': {
+        chars: '江南可采莲鱼东西北',
+        words: '江南|长江|可以|采花|莲花|小鱼|东方|西瓜|北方',
+      },
+      '1a-9': {
+        chars: '尖说春青蛙夏弯地就冬',
+        words: '尖尖|说话|春天|青草|青蛙|夏天|弯腰|土地|就是|冬天',
+      },
+      '1a-10': { chars: '水去来不', words: '清水|出去|回来|不行' },
+      '1a-11': { chars: '小少牛果鸟', words: '大小|多少|牛羊|水果|小鸟' },
+      '1a-12': { chars: '早书刀尺本', words: '早上|书本|小刀|尺子|本子' },
+      '1a-13': { chars: '木林土力心', words: '木头|树林|土地|力气|心中' },
+      '1a-14': { chars: '中五立正', words: '中国|五个|站立|公正' },
+      '1a-yy1': {
+        chars: '一二三四五六七八九十',
+        words: '一个|二月|三朵|四方|五光|六天|七色|八方|九牛|十足',
+      },
+      '1a-yy2': { chars: '文数音乐', words: '语文|数学|音乐|快乐' },
+      '1a-yy3': { chars: '哥弟姐妹', words: '哥哥|弟弟|姐妹|妹妹' },
+      '1a-yy4': { chars: '春夏秋冬年', words: '春天|夏天|秋天|冬天|年份' },
+      '1a-yy5': { chars: '远近听声', words: '远方|近处|听见|声音' },
+      '1a-yy6': { chars: '前后左右', words: '前方|后面|左边|右手' },
+      '1a-yy7': { chars: '爸妈爷奶', words: '爸爸|妈妈|爷爷|奶奶' },
+      '1a-yy8': { chars: '工厂医院学校', words: '工厂|医院|学校|教室' },
+      // 一年级下册 (扩充完整含语文园地，确保“什么”等词正确)
+      '1b-1': {
+        chars: '春风冬雪飞入',
+        words: '春风|大风|冬天|雪花|飞鸟|入口',
+      },
+      '1b-2': {
+        chars: '姓什么双国王',
+        words: '姓名|什么|那么|双手|国王|大王',
+      },
+      '1b-3': {
+        chars: '青清气晴情请生',
+        words: '青山|清水|天气|晴天|心情|请问|生活',
+      },
+      '1b-4': {
+        chars: '字左右红时动万',
+        words: '生字|左手|右手|红花|时间|动作|万一',
+      },
+      '1b-5': {
+        chars: '吃叫主江住没以',
+        words: '吃饭|叫声|主人|长江|住下|没有|以为',
+      },
+      '1b-6': {
+        chars: '会走北京门广',
+        words: '开会|走路|北京|南京|城门|广大',
+      },
+      '1b-7': {
+        chars: '过各样伙伴这',
+        words: '过去|各种|样子|伙伴|伴侣|这里',
+      },
+      '1b-8': {
+        chars: '太阳校金秋为',
+        words: '太阳|阳光|学校|金色|秋天|因为',
+      },
+      '1b-9': {
+        chars: '他河说也地听哥',
+        words: '他们|河水|说话|也是|大地|听话|哥哥',
+      },
+      '1b-10': {
+        chars: '单居招呼快乐',
+        words: '单独|居住|招呼|呼唤|快乐|乐趣',
+      },
+      '1b-11': {
+        chars: '玩很当音讲行许',
+        words: '好玩|很多|当心|音乐|讲话|行走|许多',
+      },
+      '1b-12': {
+        chars: '思床前光低故乡',
+        words: '思念|床前|前面|月光|低头|故乡|乡村',
+      },
+      '1b-13': {
+        chars: '胆敢往外勇窗乱偏散原像微',
+        words: '胆子|勇敢|往外|外面|勇敢|窗户|乱动|偏远|散步|原来|好像|微笑',
+      },
+      '1b-14': {
+        chars: '端粽节总米间分豆肉带知据念',
+        words:
+          '端午|粽子|节日|总结|大米|中间|分开|豆子|猪肉|带领|知道|根据|纪念',
+      },
+      '1b-15': {
+        chars: '虹座提浇洒挑兴拿镜照千裙',
+        words: '彩虹|座位|提问|浇水|洒水|挑水|高兴|拿走|镜子|照片|千万|裙子',
+      },
+      '1b-16': {
+        chars: '蜻蜓迷藏造蚂蚁食粮蜘蛛网',
+        words: '蜻蜓|迷藏|躲藏|造句|蚂蚁|食物|粮食|蜘蛛|上网',
+      },
+      '1b-17': {
+        chars: '圆严寒酷暑凉晨细朝霞夕杨',
+        words: '圆形|严寒|酷暑|凉快|早晨|细雨|朝霞|夕阳|杨树',
+      },
+      '1b-18': {
+        chars: '操场拔拍跑踢铃热闹锻炼体',
+        words: '操场|拔河|拍手|跑步|踢球|铃声|热闹|锻炼|身体',
+      },
+      '1b-19': {
+        chars: '之初性善习教迁贵专幼玉器义',
+        words: '当初|天性|善良|学习|教育|迁移|贵重|专心|幼儿|玉石|玉器|意义',
+      },
+      '1b-20': {
+        chars: '首踪迹浮萍泉流爱柔荷露角',
+        words: '首先|踪迹|浮萍|泉水|流水|爱护|温柔|荷花|露水|角落',
+      },
+      '1b-21': {
+        chars: '珠摇躺晶停机展透翅膀唱朵',
+        words: '水珠|摇头|躺下|水晶|停机|展开|透明|翅膀|唱歌|花朵',
+      },
+      '1b-yy1': { chars: '阴晴雾雷', words: '阴天|晴天|雾气|雷雨' },
+      '1b-yy2': { chars: '辆匹册支', words: '车辆|马匹|一册|一支' },
+      '1b-yy3': { chars: '查字典义', words: '查找|字典|意义' },
+      '1b-yy4': { chars: '眉鼻嘴脖', words: '眉毛|鼻子|嘴巴|脖子' },
+      '1b-yy5': { chars: '饭能饱茶', words: '吃饭|能够|吃饱|茶水' },
+      '1b-yy6': { chars: '勺子西瓜', words: '勺子|西瓜' },
+      '1b-yy7': { chars: '吵胖咬', words: '吵闹|肥胖|咬人' },
+      '1b-yy8': { chars: '刷牙洗脸', words: '刷牙|洗脸|毛巾' },
+      // 二年级上册 (原有多课保留并增加语文园地生词)
+      '2a-1': {
+        chars: '两就哪宽顶睛肚皮孩跳',
+        words: '两个|就是|哪里|宽大|头顶|眼睛|肚皮|孩子|跳高',
+      },
+      '2a-2': {
+        chars: '变极片傍海洋作坏给带',
+        words: '变化|北极|一片|傍晚|大海|海洋|作业|坏人|送给|带领',
+      },
+      '2a-3': {
+        chars: '法如脚它娃她毛更知识',
+        words: '方法|如果|脚步|它们|娃娃|她们|皮毛|更加|知道|见识',
+      },
+      '2a-4': {
+        chars: '园孔桥群队旗铜号领',
+        words: '花园|孔雀|小桥|一群|队长|红旗|铜号|号角|带领',
+      },
+      '2a-5': {
+        chars: '杨壮桐枫松柏棉杉化桂',
+        words: '杨树|壮大|梧桐|枫叶|松柏|柏树|棉花|杉树|变化|桂花',
+      },
+      '2a-6': {
+        chars: '歌丛深处六熊猫九朋',
+        words: '唱歌|丛林|深处|深处|六个|熊猫|小猫|九个|朋友',
+      },
+      '2a-7': {
+        chars: '季吹肥农事忙归戴辛',
+        words: '季节|吹风|肥沃|农民|农事|忙碌|归来|戴帽|辛苦',
+      },
+      '2a-8': {
+        chars: '候柱底杆秤做岁站船',
+        words: '时候|柱子|海底|笔杆|秤杆|做事|岁月|站立|小船',
+      },
+      '2a-9': {
+        chars: '画幅评奖纸报另及拿',
+        words: '画画|一幅|评比|奖状|白纸|报纸|另外|及时|拿走',
+      },
+      '2a-10': {
+        chars: '今写支圆珠笔灯电影',
+        words: '今天|写字|一支|圆形|珠子|毛笔|灯光|电视|电影',
+      },
+      '2a-11': {
+        chars: '哄先闭脸蛋沉发窗',
+        words: '哄骗|先生|关闭|脸蛋|脸面|沉重|头发|窗户',
+      },
+      '2a-12': {
+        chars: '楼依尽层照炉烟挂川',
+        words: '高楼|依靠|尽力|层次|照片|香炉|烟火|挂念|山川',
+      },
+      '2a-13': {
+        chars: '南部些巨位每升闪狗',
+        words: '南方|部分|一些|巨大|座位|每天|上升|闪亮|小狗',
+      },
+      '2a-14': {
+        chars: '名胜迹央丽华展现披',
+        words: '名字|胜利|古迹|中央|美丽|华丽|展开|出现|披着',
+      },
+      '2a-yy1': { chars: '套帽登鞋裤', words: '手套|帽子|登山|鞋子|裤子' },
+      '2a-yy2': { chars: '葡紫狐笨', words: '葡萄|紫色|狐狸|笨拙' },
+      '2a-yy3': { chars: '弹钢泥捏', words: '弹琴|钢琴|泥土|捏造' },
+      '2a-yy4': { chars: '昌铺调卧', words: '昌盛|铺床|空调|卧室' },
+      '2a-yy5': { chars: '锋蜜蜂幕扫墓', words: '锋利|蜜蜂|蜂蜜|屏幕|扫墓' },
+      '2a-yy6': { chars: '放防房', words: '放学|防止|房子' },
+      '2a-yy7': { chars: '椰壳漠骆', words: '椰子|贝壳|沙漠|骆驼' },
+      '2a-yy8': { chars: '狼猩蛇鹤', words: '狼群|猩猩|毒蛇|仙鹤' },
+      // 二年级下册 (完整语文园地与所有课文生字)
+      '2b-1': {
+        chars: '诗村童碧妆绿丝剪',
+        words: '古诗|乡村|儿童|碧绿|化妆|绿叶|丝线|剪刀',
+      },
+      '2b-2': {
+        chars: '冲寻姑娘吐柳荡桃杏',
+        words: '冲动|寻找|姑娘|娘亲|吐气|柳树|荡秋千|桃花|杏花',
+      },
+      '2b-3': {
+        chars: '鲜邮递原叔局堆礼',
+        words: '新鲜|邮票|快递|原来|叔叔|邮局|土堆|礼物',
+      },
+      '2b-4': {
+        chars: '邓植格引注满休息',
+        words: '邓家|植树|方格|引导|注意|满意|休息|休息',
+      },
+      '2b-5': {
+        chars: '州湾峡与陆谊齐奋',
+        words: '神州|海湾|峡谷|与其|陆地|友谊|整齐|奋斗',
+      },
+      '2b-6': {
+        chars: '贴街舟艾敬转团热',
+        words: '贴画|街道|小舟|艾草|敬礼|转身|团结|热闹',
+      },
+      '2b-7': {
+        chars: '贝壳甲钱币与财购',
+        words: '贝壳|贝壳|甲鱼|金钱|钱币|与其|财产|购物',
+      },
+      '2b-8': {
+        chars: '烧茄烤鸭肉鸡蛋炒',
+        words: '烧火|茄子|烤鸭|鸭肉|猪肉|鸡蛋|蛋花|炒菜',
+      },
+      '2b-9': {
+        chars: '锋昨冒留弯背洒温暖',
+        words: '锋利|昨天|冒险|留下|弯路|背包|洒水|温暖|暖和',
+      },
+      '2b-10': {
+        chars: '能桌味买具甘甜菜劳',
+        words: '能力|桌子|味道|购买|工具|甘甜|甘甜|白菜|劳动',
+      },
+      '2b-11': {
+        chars: '妹波纹像景恋舍求',
+        words: '妹妹|波浪|波纹|好像|风景|留恋|舍得|要求',
+      },
+      '2b-12': {
+        chars: '彩梦森拉结苹般精灵',
+        words: '彩色|梦想|森林|拉手|结果|苹果|一般|精彩|灵活',
+      },
+      '2b-13': {
+        chars: '伞姨弟便教游戏母',
+        words: '雨伞|姨妈|弟弟|方便|教书|游戏|戏曲|母亲',
+      },
+      '2b-14': {
+        chars: '周围句补充药合死记',
+        words: '周围|围巾|句子|补充|充实|中药|合同|死亡|日记',
+      },
+      '2b-15': {
+        chars: '屁股尿净幸使劲',
+        words: '屁股|屁股|尿床|干净|幸运|使用|使劲|干劲',
+      },
+      '2b-16': {
+        chars: '亡牢钻劝丢告筋疲',
+        words: '死亡|牢固|钻石|劝告|丢失|告诉|筋骨|疲劳',
+      },
+      '2b-17': {
+        chars: '图课摆座交哈页抢嘻',
+        words: '图画|课文|摆放|座位|交通|哈欠|页面|抢先|嘻笑',
+      },
+      '2b-18': {
+        chars: '愿意麦该伯刻突掉',
+        words: '愿意|心愿|麦子|应该|伯父|刻苦|突然|掉队',
+      },
+      '2b-19': {
+        chars: '湖莲穷荷绝含岭吴',
+        words: '湖水|莲花|穷人|荷花|绝对|包含|山岭|吴国',
+      },
+      '2b-20': {
+        chars: '雷乌黑压垂户迎扑',
+        words: '雷雨|乌鸦|黑色|压力|垂头|户口|迎接|扑打',
+      },
+      '2b-21': {
+        chars: '指针帮助导永碰特积',
+        words: '手指|针对|帮助|助手|向导|永远|碰到|特别|积极',
+      },
+      '2b-22': {
+        chars: '宇宙杯失板容易浴室',
+        words: '宇宙|宇宙|水杯|失去|黑板|容易|容易|浴室',
+      },
+      '2b-23': {
+        chars: '扇慢遇兔安根痛最',
+        words: '扇子|慢慢|遇到|兔子|安全|根本|头痛|最多',
+      },
+      '2b-24': {
+        chars: '店决定商夫终完换期',
+        words: '商店|决定|安定|商人|夫人|终于|完成|交换|日期',
+      },
+      '2b-25': {
+        chars: '蛙卖搬倒籽泉破应',
+        words: '青蛙|买卖|搬家|倒车|菜籽|泉水|打破|应该',
+      },
+      '2b-yy1': {
+        chars: '亭咨询剧管理',
+        words: '凉亭|咨询|询问|剧场|管理|道理',
+      },
+      '2b-yy2': { chars: '程魔建筑演', words: '工程|魔术|建设|建筑|表演' },
+      '2b-yy3': { chars: '津辣喷油腻', words: '天津|辣椒|喷香|油腻' },
+      '2b-yy4': { chars: '钩铲梅柿', words: '挂钩|铁铲|梅花|柿子' },
+      '2b-yy5': { chars: '厨厕厢厦', words: '厨房|厕所|车厢|大厦' },
+      '2b-yy6': { chars: '博馆览技', words: '博学|科技馆|展览|技术' },
+      '2b-yy7': { chars: '粥腻伦肴', words: '米粥|油腻|伦理|菜肴' },
+      '2b-yy8': { chars: '源逆折挣', words: '源头|逆风|折断|挣扎' },
     };
-
     const pinyinMap = {
-      河: "hé",
-      眼: "yǎn",
-      睛: "jīng",
-      晴: "qíng",
-      保: "bǎo",
-      护: "hù",
-      苗: "miáo",
-      吃: "chī",
-      事: "shì",
-      情: "qíng",
-      请: "qǐng",
-      让: "ràng",
-      清: "qīng",
-      水: "shuǐ",
-      光: "guāng",
-      天: "tiān",
-      木: "mù",
-      饭: "fàn",
-      工: "gōng",
-      假: "jià",
-      坐: "zuò",
-      开: "kāi",
+      河: 'hé',
+      眼: 'yǎn',
+      睛: 'jīng',
+      晴: 'qíng',
+      保: 'bǎo',
+      护: 'hù',
+      苗: 'miáo',
+      吃: 'chī',
+      事: 'shì',
+      情: 'qíng',
+      请: 'qǐng',
+      让: 'ràng',
+      清: 'qīng',
+      水: 'shuǐ',
+      光: 'guāng',
+      天: 'tiān',
+      木: 'mù',
+      饭: 'fàn',
+      工: 'gōng',
+      假: 'jià',
+      坐: 'zuò',
+      开: 'kāi',
+      什么: 'shénme',
+      那么: 'nàme',
     };
-
+    function getPinyin(char) {
+      if (window.pinyinPro && typeof window.pinyinPro.pinyin === 'function') {
+        try {
+          return window.pinyinPro.pinyin(char, { toneType: 'symbol' });
+        } catch (e) { }
+      }
+      return pinyinMap[char] || '';
+    }
     let config = {
       traceCount: 2,
       cellSize: 12,
-      textColor: "#000000",
-      traceColor: "#cbcfd6",
-      gridColor: "#0cb300",
-      gridType: "tianzige",
+      textColor: '#000000',
+      traceColor: '#cbcfd6',
+      gridColor: '#0cb300',
+      gridType: 'tianzige',
       fontFamily:
         '楷体_gb2312, 楷体, "Kaiti SC", STKaiti, "AR PL UKai CN", "AR PL UKai HK", "AR PL UKai TW", "AR PL UKai TW MBE", "AR PL KaitiM GB", KaiTi, KaiTi_GB2312, DFKai-SB, TW-Kai;',
       showPinyin: true,
     };
-
-    const DICTATION_REPEAT_COUNT = 3;
-    const DICTATION_INTERVAL_MS = 5000;
+    const DICTATION_REPEAT_COUNT = 3,
+      DICTATION_INTERVAL_MS = 5000;
     let dictationState = {
       isPlaying: false,
       shouldStop: false,
       timerId: null,
       currentWordIndex: 0,
     };
-
-    function getPinyin(char) {
-      if (window.pinyinPro && typeof window.pinyinPro.pinyin === "function") {
-        try {
-          return window.pinyinPro.pinyin(char, { toneType: "symbol" });
-        } catch (e) { }
-      }
-      return pinyinMap[char] || "";
-    }
-
     function loadCourseData() {
-      const select = document.getElementById("courseSelect");
+      const select = document.getElementById('courseSelect');
       const course = courseData[select.value];
-
       if (course) {
-        // Convert space-separated chars to newline-separated for display
-        const charsFormatted = course.chars.split("").join("\n");
-        const wordsFormatted = course.words.split("|").join("\n");
-
-        document.getElementById("characterInput").value = charsFormatted;
-        document.getElementById("wordGroupInput").value = wordsFormatted;
-
+        document.getElementById('characterInput').value = course.chars
+          .split('')
+          .join('\n');
+        document.getElementById('wordGroupInput').value = course.words
+          .split('|')
+          .join('\n');
         renderGrid();
         saveSettings();
-      }
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      loadSettings();
-      renderGrid();
-      setupEventListeners();
-    });
-
-    function setupEventListeners() {
-      document
-        .getElementById("characterInput")
-        .addEventListener("input", () => {
-          renderGrid();
-          saveSettings();
-        });
-
-      document
-        .getElementById("wordGroupInput")
-        .addEventListener("input", () => {
-          renderGrid();
-          saveSettings();
-        });
-
-      ["traceCount", "cellSize"].forEach((id) => {
-        const input = document.getElementById(id);
-        if (input) {
-          input.addEventListener("input", () => {
-            config[id] = parseFloat(input.value);
-            updateCSSVariables();
-            renderGrid();
-            saveSettings();
-          });
-        }
-      });
-
-      ["textColor", "traceColor", "gridColor"].forEach((id) => {
-        const input = document.getElementById(id);
-        if (input) {
-          input.addEventListener("input", (e) => {
-            config[id] = e.target.value;
-            document.getElementById(id + "Value").textContent =
-              e.target.value;
-            updateCSSVariables();
-            renderGrid();
-            saveSettings();
-          });
-        }
-      });
-
-      document.querySelectorAll('input[name="gridType"]').forEach((radio) => {
-        radio.addEventListener("change", (e) => {
-          config.gridType = e.target.value;
-          renderGrid();
-          saveSettings();
-        });
-      });
-
-      document
-        .getElementById("fontFamily")
-        .addEventListener("change", (e) => {
-          config.fontFamily = e.target.value;
-          renderGrid();
-          saveSettings();
-        });
-
-      document
-        .getElementById("showPinyin")
-        .addEventListener("change", (e) => {
-          config.showPinyin = e.target.checked;
-          updateCSSVariables();
-          renderGrid();
-          saveSettings();
-        });
-
-      if ("speechSynthesis" in window) {
-        window.speechSynthesis.onvoiceschanged = () => {
-          refreshDictationVoiceOptions();
-        };
-      }
-
-      refreshDictationVoiceOptions();
-    }
-
-    function getChineseVoices() {
-      if (!("speechSynthesis" in window)) {
-        return [];
-      }
-      return window.speechSynthesis
-        .getVoices()
-        .filter((v) => v.lang && v.lang.toLowerCase().startsWith("zh"));
-    }
-
-    function refreshDictationVoiceOptions() {
-      const select = document.getElementById("dictationVoiceSelect");
-      if (!select) return;
-
-      const selectedValue = select.value;
-      const voices = getChineseVoices();
-
-      select.innerHTML =
-        '<option value="Tingting">自动（优先 Tingting（中国大陆））</option>';
-
-      voices.forEach((voice) => {
-        const option = document.createElement("option");
-        option.value = voice.voiceURI;
-        option.textContent = `${voice.name} (${voice.lang})`;
-        select.appendChild(option);
-      });
-
-      if (selectedValue && voices.some((v) => v.voiceURI === selectedValue)) {
-        select.value = selectedValue;
-      }
-    }
-
-    function getSelectedDictationVoice() {
-      const select = document.getElementById("dictationVoiceSelect");
-      const selectedVoiceUri = select ? select.value : "";
-      if (!selectedVoiceUri) {
-        return null;
-      }
-
-      const voices = getChineseVoices();
-      return voices.find((voice) => voice.voiceURI === selectedVoiceUri) || null;
-    }
-
-    function getCurrentDictationWords() {
-      const input = document.getElementById("wordGroupInput");
-      if (!input) return [];
-
-      const words = input.value
-        .split("\n")
-        .map((w) => w.trim())
-        .filter(Boolean);
-
-      if (words.length > 0) {
-        return words;
-      }
-
-      const select = document.getElementById("courseSelect");
-      const selectedCourse = select ? courseData[select.value] : null;
-      if (selectedCourse && selectedCourse.words) {
-        return selectedCourse.words
-          .split("|")
-          .map((w) => w.trim())
-          .filter(Boolean);
-      }
-
-      return [];
-    }
-
-    function updateDictationStatus(text) {
-      const el = document.getElementById("dictationStatus");
-      if (el) {
-        el.textContent = text;
-      }
-    }
-
-    function updateDictationNavigationState() {
-      const words = getCurrentDictationWords();
-      const prevBtn = document.getElementById("dictationPrevBtn");
-      const nextBtn = document.getElementById("dictationNextBtn");
-
-      if (words.length === 0) {
+        // 关键修复：切换课程后重置听写索引从0开始
+        if (dictationState.isPlaying) stopDictation();
         dictationState.currentWordIndex = 0;
-      } else {
-        dictationState.currentWordIndex = Math.max(
-          0,
-          Math.min(dictationState.currentWordIndex, words.length - 1),
-        );
-      }
-
-      const canOperate = words.length > 0;
-      if (prevBtn) {
-        prevBtn.disabled = !canOperate || dictationState.currentWordIndex <= 0;
-      }
-      if (nextBtn) {
-        nextBtn.disabled =
-          !canOperate || dictationState.currentWordIndex >= words.length - 1;
+        if (
+          document.getElementById('dictationOverlay').style.display === 'flex'
+        )
+          updateDictationNavigationState();
       }
     }
-
-    function interruptDictationPlayback() {
-      dictationState.shouldStop = true;
-      dictationState.isPlaying = false;
-      if (dictationState.timerId) {
-        clearTimeout(dictationState.timerId);
-        dictationState.timerId = null;
-      }
-      if ("speechSynthesis" in window) {
-        window.speechSynthesis.cancel();
-      }
-      setDictationButtonState(false);
-    }
-
-    async function playWordAtIndex(index) {
-      if (dictationState.isPlaying) {
-        interruptDictationPlayback();
-      }
-
-      const words = getCurrentDictationWords();
-      if (words.length === 0) {
-        updateDictationStatus("当前没有可听写的组词，请先填写组词内容。");
-        updateDictationNavigationState();
-        return;
-      }
-
-      const clampedIndex = Math.max(0, Math.min(index, words.length - 1));
-      dictationState.currentWordIndex = clampedIndex;
-      updateDictationNavigationState();
-
-      const word = words[clampedIndex];
-      updateDictationStatus(
-        `预听：第 ${clampedIndex + 1}/${words.length} 个词：${word}`,
-      );
-      await speakWord(word);
-    }
-
-    function playPreviousWord() {
-      playWordAtIndex(dictationState.currentWordIndex - 1);
-    }
-
-    function playNextWord() {
-      playWordAtIndex(dictationState.currentWordIndex + 1);
-    }
-
-    function setDictationButtonState(isPlaying) {
-      const startBtn = document.getElementById("dictationStartBtn");
-      if (startBtn) {
-        startBtn.disabled = isPlaying;
-      }
-      updateDictationNavigationState();
-    }
-
-    function waitWithStop(ms) {
-      return new Promise((resolve) => {
-        dictationState.timerId = window.setTimeout(() => {
-          dictationState.timerId = null;
-          resolve(!dictationState.shouldStop);
-        }, ms);
-      });
-    }
-
-    function speakWord(word) {
-      return new Promise((resolve) => {
-        if (!("speechSynthesis" in window) || !window.SpeechSynthesisUtterance) {
-          resolve(false);
-          return;
-        }
-
-        const utterance = new SpeechSynthesisUtterance(word);
-        utterance.lang = "zh-CN";
-        utterance.rate = 0.9;
-        utterance.pitch = 1;
-
-        const selectedVoice = getSelectedDictationVoice();
-        const voices = window.speechSynthesis.getVoices();
-        const preferredVoice = voices.find(
-          (v) =>
-            v.name === "Google 普通话（中国大陆）" &&
-            v.lang &&
-            v.lang.toLowerCase() === "zh-cn",
-        );
-        const fallbackZhCnVoice = voices.find(
-          (v) => v.lang && v.lang.toLowerCase() === "zh-cn",
-        );
-        const fallbackZhVoice = voices.find(
-          (v) => v.lang && v.lang.toLowerCase().startsWith("zh"),
-        );
-
-        if (selectedVoice || preferredVoice || fallbackZhCnVoice || fallbackZhVoice) {
-          utterance.voice =
-            selectedVoice || preferredVoice || fallbackZhCnVoice || fallbackZhVoice;
-        }
-
-        utterance.onend = () => resolve(true);
-        utterance.onerror = () => resolve(false);
-
-        window.speechSynthesis.cancel();
-        window.speechSynthesis.speak(utterance);
-      });
-    }
-
-    function openDictationOverlay() {
-      const overlay = document.getElementById("dictationOverlay");
-      if (!overlay) return;
-      refreshDictationVoiceOptions();
-
-      const words = getCurrentDictationWords();
-      if (words.length > 0) {
-        dictationState.currentWordIndex = Math.max(
-          0,
-          Math.min(dictationState.currentWordIndex, words.length - 1),
-        );
-        updateDictationStatus(
-          `当前词：第 ${dictationState.currentWordIndex + 1}/${words.length} 个（${words[dictationState.currentWordIndex]}）`,
-        );
-      } else {
-        dictationState.currentWordIndex = 0;
-        updateDictationStatus("点击“开始播放”开始听写。");
-      }
-
-      overlay.style.display = "flex";
-      setDictationButtonState(false);
-    }
-
-    function stopDictation() {
-      interruptDictationPlayback();
-      updateDictationStatus("已停止。点击“开始播放”可重新开始。");
-    }
-
-    function closeDictationOverlay() {
-      stopDictation();
-      const overlay = document.getElementById("dictationOverlay");
-      if (overlay) {
-        overlay.style.display = "none";
-      }
-    }
-
-    async function startDictation() {
-      if (dictationState.isPlaying) {
-        return;
-      }
-
-      const words = getCurrentDictationWords();
-      if (words.length === 0) {
-        updateDictationStatus("当前没有可听写的组词，请先填写组词内容。");
-        updateDictationNavigationState();
-        return;
-      }
-
-      if (!("speechSynthesis" in window) || !window.SpeechSynthesisUtterance) {
-        updateDictationStatus("当前浏览器不支持语音播放，请换用 Chrome / Edge / Safari。");
-        return;
-      }
-
-      dictationState.isPlaying = true;
-      dictationState.shouldStop = false;
-      setDictationButtonState(true);
-
-      const startIndex = Math.max(
-        0,
-        Math.min(dictationState.currentWordIndex, words.length - 1),
-      );
-
-      for (let i = startIndex; i < words.length; i++) {
-        dictationState.currentWordIndex = i;
-        updateDictationNavigationState();
-        const word = words[i];
-
-        for (let count = 1; count <= DICTATION_REPEAT_COUNT; count++) {
-          if (dictationState.shouldStop) {
-            dictationState.isPlaying = false;
-            setDictationButtonState(false);
-            return;
-          }
-
-          updateDictationStatus(
-            `第 ${i + 1}/${words.length} 个词：${word}（第 ${count}/${DICTATION_REPEAT_COUNT} 次）`,
-          );
-
-          await speakWord(word);
-
-          if (dictationState.shouldStop) {
-            dictationState.isPlaying = false;
-            setDictationButtonState(false);
-            return;
-          }
-
-          const isLastPlay = i === words.length - 1 && count === DICTATION_REPEAT_COUNT;
-          if (!isLastPlay) {
-            const shouldContinue = await waitWithStop(DICTATION_INTERVAL_MS);
-            if (!shouldContinue) {
-              dictationState.isPlaying = false;
-              setDictationButtonState(false);
-              return;
-            }
-          }
-        }
-      }
-
-      dictationState.isPlaying = false;
-      setDictationButtonState(false);
-      updateDictationStatus("听写完成。点击“开始播放”可再次播放。");
-    }
-
-    function adjustValue(inputId, delta) {
-      const input = document.getElementById(inputId);
-      const step = parseFloat(input.step) || 1;
-      let value = parseFloat(input.value) || 0;
-      value += delta * step;
-      const min = parseFloat(input.min) || -Infinity;
-      const max = parseFloat(input.max) || Infinity;
-      value = Math.max(min, Math.min(max, value));
-      input.value = value;
-      config[inputId] = value;
+    function adjustValue(id, delta) {
+      let input = document.getElementById(id);
+      let step = parseFloat(input.step) || 1;
+      let val = parseFloat(input.value) || 0;
+      val += delta * step;
+      let min = parseFloat(input.min) || -Infinity,
+        max = parseFloat(input.max) || Infinity;
+      val = Math.max(min, Math.min(max, val));
+      input.value = val;
+      config[id] = val;
       updateCSSVariables();
       renderGrid();
       saveSettings();
     }
-
     function updateCSSVariables() {
-      const root = document.documentElement;
-      root.style.setProperty("--cell-size", `${config.cellSize}mm`);
-      root.style.setProperty("--character-color", config.textColor);
-      root.style.setProperty("--trace-color", config.traceColor);
-      root.style.setProperty("--grid-line-color", config.gridColor);
+      document.documentElement.style.setProperty(
+        '--cell-size',
+        `${config.cellSize}mm`,
+      );
+      document.documentElement.style.setProperty(
+        '--character-color',
+        config.textColor,
+      );
+      document.documentElement.style.setProperty(
+        '--trace-color',
+        config.traceColor,
+      );
+      document.documentElement.style.setProperty(
+        '--grid-line-color',
+        config.gridColor,
+      );
     }
-
     function renderGrid() {
-      const charArea = document.getElementById("characterArea");
-      const wordArea = document.getElementById("wordGroupArea");
-      charArea.innerHTML = "";
-      wordArea.innerHTML = "";
-
-      const charsInput = document.getElementById("characterInput").value;
-      const wordGroups = document
-        .getElementById("wordGroupInput")
-        .value.trim()
-        .split("\n")
-        .filter((w) => w.trim());
-      const lines = charsInput.split("\n");
-      const totalCells = 10; // Fixed 10 cells per row
-
+        /* 保持与原逻辑一致，复用原函数所有逻辑 */ const charArea =
+        document.getElementById('characterArea'),
+        wordArea = document.getElementById('wordGroupArea');
+      charArea.innerHTML = '';
+      wordArea.innerHTML = '';
+      const charsInput = document.getElementById('characterInput').value,
+        wordGroups = document
+          .getElementById('wordGroupInput')
+          .value.trim()
+          .split('\n')
+          .filter((w) => w.trim()),
+        lines = charsInput.split('\n'),
+        totalCells = 10;
       lines.forEach((line, lineIndex) => {
         const trimmedLine = line.trim();
         if (!trimmedLine) return;
-
-        const charRow = document.createElement("div");
-        charRow.className = "grid-row";
-
-        // Check if line has multiple characters (no tracing for multi-char lines)
+        const charRow = document.createElement('div');
+        charRow.className = 'grid-row';
         const isMultiChar = trimmedLine.length > 1;
-        const chars = trimmedLine.split("");
-
-        // Create pinyin wrapper if enabled
+        const chars = trimmedLine.split('');
         if (config.showPinyin) {
-          const pinyinWrapper = document.createElement("div");
-          pinyinWrapper.className = "pinyin-wrapper";
-
+          const pinyinWrapper = document.createElement('div');
+          pinyinWrapper.className = 'pinyin-wrapper';
           for (let i = 0; i < totalCells; i++) {
-            const pinyinCell = document.createElement("div");
-            pinyinCell.className = "pinyin-cell";
-
-            const pinyinLines = document.createElement("div");
-            pinyinLines.className = "pinyin-lines";
-
+            const pinyinCell = document.createElement('div');
+            pinyinCell.className = 'pinyin-cell';
+            const pinyinLines = document.createElement('div');
+            pinyinLines.className = 'pinyin-lines';
             for (let j = 0; j < 4; j++) {
-              const pline = document.createElement("div");
-              pline.className = "pinyin-line";
+              const pline = document.createElement('div');
+              pline.className = 'pinyin-line';
               pinyinLines.appendChild(pline);
             }
-
-            // Add pinyin for cells that have characters
-            let hasChar = false;
-            let isTracePinyin = false;
+            let hasChar = false,
+              isTracePinyin = false;
             if (!isMultiChar) {
-              if (i === 0) {
-                hasChar = true;
-                isTracePinyin = false;
-              } else if (i < 1 + config.traceCount) {
+              if (i === 0) hasChar = true;
+              else if (i < 1 + config.traceCount) {
                 hasChar = true;
                 isTracePinyin = true;
               }
-            } else if (isMultiChar && i < chars.length) {
-              hasChar = true;
-              isTracePinyin = false;
-            }
-
+            } else if (isMultiChar && i < chars.length) hasChar = true;
             if (hasChar && chars[Math.min(i, chars.length - 1)]) {
-              const pinyinText = document.createElement("div");
+              const pinyinText = document.createElement('div');
               const charIndex = isMultiChar ? i : 0;
               pinyinText.textContent = getPinyin(chars[charIndex]);
-              if (isTracePinyin) {
-                pinyinText.className = "pinyin-text trace";
-                pinyinText.style.color = "var(--trace-color)";
-              } else {
-                pinyinText.className = "pinyin-text";
-                pinyinText.style.color = "var(--character-color)";
-              }
+              pinyinText.className = isTracePinyin
+                ? 'pinyin-text trace'
+                : 'pinyin-text';
+              if (!isTracePinyin)
+                pinyinText.style.color = 'var(--character-color)';
               pinyinLines.appendChild(pinyinText);
             }
-
             pinyinCell.appendChild(pinyinLines);
             pinyinWrapper.appendChild(pinyinCell);
           }
-
           charRow.appendChild(pinyinWrapper);
         }
-
-        const cellsContainer = document.createElement("div");
-        cellsContainer.style.display = "flex";
-        cellsContainer.style.gap = "0.5mm";
-
+        const cellsContainer = document.createElement('div');
+        cellsContainer.style.display = 'flex';
+        cellsContainer.style.gap = '0.5mm';
         for (let i = 0; i < totalCells; i++) {
-          const cell = document.createElement("div");
+          const cell = document.createElement('div');
           cell.className = `grid-cell ${config.gridType}`;
-
-          if (config.gridType === "mizige") {
-            const diag1 = document.createElement("div");
-            diag1.className = "diagonal-1";
+          if (config.gridType === 'mizige') {
+            const diag1 = document.createElement('div');
+            diag1.className = 'diagonal-1';
             cell.appendChild(diag1);
-            const diag2 = document.createElement("div");
-            diag2.className = "diagonal-2";
+            const diag2 = document.createElement('div');
+            diag2.className = 'diagonal-2';
             cell.appendChild(diag2);
           }
-
-          // Determine if this cell should have a character
-          let hasChar = false;
-          let charIndex = 0;
-          let isTrace = false;
-
+          let hasChar = false,
+            charIndex = 0,
+            isTrace = false;
           if (!isMultiChar) {
-            // Single char with tracing
             if (i === 0) {
               hasChar = true;
               isTrace = false;
@@ -1794,184 +1410,413 @@
             }
             charIndex = 0;
           } else {
-            // Multi-char, no tracing
             if (i < chars.length) {
               hasChar = true;
               isTrace = false;
               charIndex = i;
             }
           }
-
           if (hasChar && chars[charIndex]) {
-            const charEl = document.createElement("div");
-            if (isMultiChar) {
-              charEl.className = "character";
+            const charEl = document.createElement('div');
+            charEl.className = isTrace ? 'character trace' : 'character';
+            if (!isTrace && !isMultiChar)
               charEl.style.color = config.textColor;
-            } else if (isTrace) {
-              charEl.className = "character trace";
-            } else {
-              charEl.className = "character";
-              charEl.style.color = config.textColor;
-            }
             charEl.textContent = chars[charIndex];
             charEl.style.fontFamily = config.fontFamily;
             cell.appendChild(charEl);
           }
-          // Empty cells remain empty
-
           cellsContainer.appendChild(cell);
         }
-
         charRow.appendChild(cellsContainer);
         charArea.appendChild(charRow);
-
-        // Create word group row (4 cells)
-        const wordRow = document.createElement("div");
-        wordRow.className = "grid-row";
-        const wordGroup = wordGroups[lineIndex] || "";
-        const wordChars = wordGroup.split("").slice(0, 4);
-
+        const wordRow = document.createElement('div');
+        wordRow.className = 'grid-row';
+        const wordGroup = wordGroups[lineIndex] || '';
+        const wordChars = wordGroup.split('').slice(0, 4);
         if (config.showPinyin) {
-          const wordPinyinWrapper = document.createElement("div");
-          wordPinyinWrapper.className = "pinyin-wrapper";
-
+          const wpWrap = document.createElement('div');
+          wpWrap.className = 'pinyin-wrapper';
           for (let i = 0; i < 4; i++) {
-            const pinyinCell = document.createElement("div");
-            pinyinCell.className = "pinyin-cell";
-
-            const pinyinLines = document.createElement("div");
-            pinyinLines.className = "pinyin-lines";
-
+            const pc = document.createElement('div');
+            pc.className = 'pinyin-cell';
+            const pl = document.createElement('div');
+            pl.className = 'pinyin-lines';
             for (let j = 0; j < 4; j++) {
-              const pline = document.createElement("div");
-              pline.className = "pinyin-line";
-              pinyinLines.appendChild(pline);
+              const ln = document.createElement('div');
+              ln.className = 'pinyin-line';
+              pl.appendChild(ln);
             }
-
             if (i < wordChars.length) {
-              const pinyinText = document.createElement("div");
-              pinyinText.className = "pinyin-text trace";
-              pinyinText.style.color = "var(--trace-color)";
-              pinyinText.textContent = getPinyin(wordChars[i]);
-              pinyinLines.appendChild(pinyinText);
+              const pt = document.createElement('div');
+              pt.className = 'pinyin-text trace';
+              pt.style.color = 'var(--trace-color)';
+              pt.textContent = getPinyin(wordChars[i]);
+              pl.appendChild(pt);
             }
-
-            pinyinCell.appendChild(pinyinLines);
-            wordPinyinWrapper.appendChild(pinyinCell);
+            pc.appendChild(pl);
+            wpWrap.appendChild(pc);
           }
-
-          wordRow.appendChild(wordPinyinWrapper);
+          wordRow.appendChild(wpWrap);
         }
-
-        const wordCellsContainer = document.createElement("div");
-        wordCellsContainer.style.display = "flex";
-        wordCellsContainer.style.gap = "0.5mm";
-
+        const wc = document.createElement('div');
+        wc.style.display = 'flex';
+        wc.style.gap = '0.5mm';
         for (let i = 0; i < 4; i++) {
-          const cell = document.createElement("div");
+          const cell = document.createElement('div');
           cell.className = `grid-cell ${config.gridType}`;
-
-          if (config.gridType === "mizige") {
-            const diag1 = document.createElement("div");
-            diag1.className = "diagonal-1";
-            cell.appendChild(diag1);
-            const diag2 = document.createElement("div");
-            diag2.className = "diagonal-2";
-            cell.appendChild(diag2);
+          if (config.gridType === 'mizige') {
+            const d1 = document.createElement('div');
+            d1.className = 'diagonal-1';
+            cell.appendChild(d1);
+            const d2 = document.createElement('div');
+            d2.className = 'diagonal-2';
+            cell.appendChild(d2);
           }
-
           if (i < wordChars.length) {
-            const charEl = document.createElement("div");
-            charEl.className = "character trace";
-            charEl.textContent = wordChars[i];
-            charEl.style.fontFamily = config.fontFamily;
-            cell.appendChild(charEl);
+            const ce = document.createElement('div');
+            ce.className = 'character trace';
+            ce.textContent = wordChars[i];
+            ce.style.fontFamily = config.fontFamily;
+            cell.appendChild(ce);
           }
-
-          wordCellsContainer.appendChild(cell);
+          wc.appendChild(cell);
         }
-
-        wordRow.appendChild(wordCellsContainer);
+        wordRow.appendChild(wc);
         wordArea.appendChild(wordRow);
       });
-
       updateCSSVariables();
     }
-
     function saveSettings() {
       const settings = {
-        characters: document.getElementById("characterInput").value,
-        wordGroups: document.getElementById("wordGroupInput").value,
+        characters: document.getElementById('characterInput').value,
+        wordGroups: document.getElementById('wordGroupInput').value,
         config: config,
       };
       localStorage.setItem(
-        "chinesePracticeSettings",
+        'chinesePracticeSettings',
         JSON.stringify(settings),
       );
     }
-
     function loadSettings() {
-      const saved = localStorage.getItem("chinesePracticeSettings");
+      const saved = localStorage.getItem('chinesePracticeSettings');
       if (saved) {
         try {
-          const settings = JSON.parse(saved);
-          if (settings.characters) {
-            document.getElementById("characterInput").value =
-              settings.characters;
-          }
-          if (settings.wordGroups) {
-            document.getElementById("wordGroupInput").value =
-              settings.wordGroups;
-          }
-          if (settings.config) {
-            Object.assign(config, settings.config);
-
-            const traceInput = document.getElementById("traceCount");
-            if (traceInput && settings.config.traceCount) {
-              traceInput.value = settings.config.traceCount;
-            }
-
-            const input = document.getElementById("cellSize");
-            if (input && settings.config.cellSize) {
-              input.value = settings.config.cellSize;
-            }
-
-            ["textColor", "traceColor", "gridColor"].forEach((key) => {
-              const colorInput = document.getElementById(key);
-              const display = document.getElementById(key + "Value");
-              if (colorInput && settings.config[key]) {
-                colorInput.value = settings.config[key];
-                if (display) display.textContent = settings.config[key];
+          const s = JSON.parse(saved);
+          if (s.characters)
+            document.getElementById('characterInput').value = s.characters;
+          if (s.wordGroups)
+            document.getElementById('wordGroupInput').value = s.wordGroups;
+          if (s.config) {
+            Object.assign(config, s.config);
+            document.getElementById('traceCount') &&
+              (document.getElementById('traceCount').value =
+                config.traceCount);
+            document.getElementById('cellSize') &&
+              (document.getElementById('cellSize').value = config.cellSize);
+            ['textColor', 'traceColor', 'gridColor'].forEach((k) => {
+              const inp = document.getElementById(k);
+              if (inp && config[k]) {
+                inp.value = config[k];
+                document.getElementById(k + 'Value') &&
+                  (document.getElementById(k + 'Value').textContent =
+                    config[k]);
               }
             });
-
-            const fontInput = document.getElementById("fontFamily");
-            if (fontInput && settings.config.fontFamily) {
-              fontInput.value = settings.config.fontFamily;
-            }
-
-            const pinyinCheckbox = document.getElementById("showPinyin");
-            if (pinyinCheckbox) {
-              pinyinCheckbox.checked = settings.config.showPinyin || false;
-            }
-
-            const gridTypeRadio = document.querySelector(
-              `input[name="gridType"][value="${settings.config.gridType}"]`,
+            document.getElementById('fontFamily') &&
+              (document.getElementById('fontFamily').value =
+                config.fontFamily);
+            document.getElementById('showPinyin') &&
+              (document.getElementById('showPinyin').checked =
+                config.showPinyin);
+            const radio = document.querySelector(
+              `input[name="gridType"][value="${config.gridType}"]`,
             );
-            if (gridTypeRadio) {
-              gridTypeRadio.checked = true;
-            }
+            radio && (radio.checked = true);
           }
-        } catch (e) {
-          console.error("Failed to load settings:", e);
-        }
+        } catch (e) { }
       }
     }
-
     function resetSettings() {
-      localStorage.removeItem("chinesePracticeSettings");
+      localStorage.removeItem('chinesePracticeSettings');
       location.reload();
     }
+    function getCurrentDictationWords() {
+      const inp = document.getElementById('wordGroupInput');
+      if (inp)
+        return inp.value
+          .split('\n')
+          .map((w) => w.trim())
+          .filter(Boolean);
+      return [];
+    }
+    function openDictationOverlay() {
+      const overlay = document.getElementById('dictationOverlay');
+      if (!overlay) return;
+      refreshDictationVoiceOptions();
+      const words = getCurrentDictationWords();
+      if (words.length > 0) {
+        if (dictationState.currentWordIndex >= words.length)
+          dictationState.currentWordIndex = 0;
+        updateDictationStatus(
+          `当前词：第 ${dictationState.currentWordIndex + 1}/${words.length} 个（${words[dictationState.currentWordIndex]}）`,
+        );
+      } else {
+        dictationState.currentWordIndex = 0;
+        updateDictationStatus('点击“开始播放”开始听写。');
+      }
+      overlay.style.display = 'flex';
+      setDictationButtonState(false);
+      updateDictationNavigationState();
+    }
+    function closeDictationOverlay() {
+      stopDictation();
+      document.getElementById('dictationOverlay').style.display = 'none';
+    }
+    function updateDictationStatus(text) {
+      const el = document.getElementById('dictationStatus');
+      if (el) el.textContent = text;
+    }
+    function updateDictationNavigationState() {
+      const words = getCurrentDictationWords();
+      const prevBtn = document.getElementById('dictationPrevBtn'),
+        nextBtn = document.getElementById('dictationNextBtn');
+      if (words.length === 0) dictationState.currentWordIndex = 0;
+      else
+        dictationState.currentWordIndex = Math.max(
+          0,
+          Math.min(dictationState.currentWordIndex, words.length - 1),
+        );
+      const can = words.length > 0;
+      if (prevBtn)
+        prevBtn.disabled = !can || dictationState.currentWordIndex <= 0;
+      if (nextBtn)
+        nextBtn.disabled =
+          !can || dictationState.currentWordIndex >= words.length - 1;
+    }
+    function playWordAtIndex(index) {
+      if (dictationState.isPlaying) interruptDictationPlayback();
+      const words = getCurrentDictationWords();
+      if (words.length === 0) {
+        updateDictationStatus('没有可听写的组词。');
+        updateDictationNavigationState();
+        return;
+      }
+      const idx = Math.max(0, Math.min(index, words.length - 1));
+      dictationState.currentWordIndex = idx;
+      updateDictationNavigationState();
+      const word = words[idx];
+      updateDictationStatus(
+        `预听：第 ${idx + 1}/${words.length} 个词：${word}`,
+      );
+      speakWord(word);
+    }
+    function playPreviousWord() {
+      playWordAtIndex(dictationState.currentWordIndex - 1);
+    }
+    function playNextWord() {
+      playWordAtIndex(dictationState.currentWordIndex + 1);
+    }
+    function interruptDictationPlayback() {
+      dictationState.shouldStop = true;
+      dictationState.isPlaying = false;
+      if (dictationState.timerId) {
+        clearTimeout(dictationState.timerId);
+        dictationState.timerId = null;
+      }
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      setDictationButtonState(false);
+    }
+    function setDictationButtonState(isPlaying) {
+      const startBtn = document.getElementById('dictationStartBtn');
+      if (startBtn) startBtn.disabled = isPlaying;
+      updateDictationNavigationState();
+    }
+    function waitWithStop(ms) {
+      return new Promise((resolve) => {
+        dictationState.timerId = window.setTimeout(() => {
+          dictationState.timerId = null;
+          resolve(!dictationState.shouldStop);
+        }, ms);
+      });
+    }
+    function speakWord(word) {
+      return new Promise((resolve) => {
+        if (
+          !('speechSynthesis' in window) ||
+          !window.SpeechSynthesisUtterance
+        ) {
+          resolve(false);
+          return;
+        }
+        const utterance = new SpeechSynthesisUtterance(word);
+        utterance.lang = 'zh-CN';
+        utterance.rate = 0.9;
+        const voice = getSelectedDictationVoice();
+        const voices = window.speechSynthesis.getVoices();
+        const preferred = voices.find(
+          (v) => v.name === 'Google 普通话（中国大陆）' && v.lang === 'zh-CN',
+        );
+        const fallback = voices.find(
+          (v) => v.lang && v.lang.toLowerCase() === 'zh-cn',
+        );
+        if (voice || preferred || fallback)
+          utterance.voice = voice || preferred || fallback;
+        utterance.onend = () => resolve(true);
+        utterance.onerror = () => resolve(false);
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(utterance);
+      });
+    }
+    function getChineseVoices() {
+      if (!('speechSynthesis' in window)) return [];
+      return window.speechSynthesis
+        .getVoices()
+        .filter((v) => v.lang && v.lang.toLowerCase().startsWith('zh'));
+    }
+    function refreshDictationVoiceOptions() {
+      const select = document.getElementById('dictationVoiceSelect');
+      if (!select) return;
+      const voices = getChineseVoices();
+      const selectedValue = select.value;
+      select.innerHTML =
+        '<option value="auto">自动（推荐 Google 普通话）</option>';
+      voices.forEach((voice) => {
+        const opt = document.createElement('option');
+        opt.value = voice.voiceURI;
+        opt.textContent = `${voice.name} (${voice.lang})`;
+        select.appendChild(opt);
+      });
+      if (selectedValue && voices.some((v) => v.voiceURI === selectedValue))
+        select.value = selectedValue;
+    }
+    function getSelectedDictationVoice() {
+      const select = document.getElementById('dictationVoiceSelect');
+      if (!select || select.value === 'auto') return null;
+      const voices = getChineseVoices();
+      return voices.find((v) => v.voiceURI === select.value) || null;
+    }
+    async function startDictation() {
+      if (dictationState.isPlaying) return;
+      const words = getCurrentDictationWords();
+      if (words.length === 0) {
+        updateDictationStatus('没有可听写的组词，请填写组词。');
+        return;
+      }
+      if (
+        !('speechSynthesis' in window) ||
+        !window.SpeechSynthesisUtterance
+      ) {
+        updateDictationStatus('当前浏览器不支持语音播放。');
+        return;
+      }
+      dictationState.isPlaying = true;
+      dictationState.shouldStop = false;
+      setDictationButtonState(true);
+      let startIdx = Math.max(
+        0,
+        Math.min(dictationState.currentWordIndex, words.length - 1),
+      );
+      for (let i = startIdx; i < words.length; i++) {
+        dictationState.currentWordIndex = i;
+        updateDictationNavigationState();
+        const word = words[i];
+        for (let c = 1; c <= DICTATION_REPEAT_COUNT; c++) {
+          if (dictationState.shouldStop) {
+            dictationState.isPlaying = false;
+            setDictationButtonState(false);
+            return;
+          }
+          updateDictationStatus(
+            `第 ${i + 1}/${words.length} 个词：${word}（第 ${c}/${DICTATION_REPEAT_COUNT} 次）`,
+          );
+          await speakWord(word);
+          if (dictationState.shouldStop) {
+            dictationState.isPlaying = false;
+            setDictationButtonState(false);
+            return;
+          }
+          const isLast =
+            i === words.length - 1 && c === DICTATION_REPEAT_COUNT;
+          if (!isLast) {
+            const ok = await waitWithStop(DICTATION_INTERVAL_MS);
+            if (!ok) {
+              dictationState.isPlaying = false;
+              setDictationButtonState(false);
+              return;
+            }
+          }
+        }
+      }
+      dictationState.isPlaying = false;
+      setDictationButtonState(false);
+      updateDictationStatus('听写完成。');
+    }
+    function stopDictation() {
+      interruptDictationPlayback();
+      updateDictationStatus('已停止。');
+    }
+    function setupEventListeners() {
+      const els = ['characterInput', 'wordGroupInput'];
+      els.forEach((id) =>
+        document.getElementById(id).addEventListener('input', () => {
+          renderGrid();
+          saveSettings();
+        }),
+      );
+      ['traceCount', 'cellSize'].forEach((id) => {
+        const el = document.getElementById(id);
+        el &&
+          el.addEventListener('input', () => {
+            config[id] = parseFloat(el.value);
+            updateCSSVariables();
+            renderGrid();
+            saveSettings();
+          });
+      });
+      ['textColor', 'traceColor', 'gridColor'].forEach((id) => {
+        const inp = document.getElementById(id);
+        inp &&
+          inp.addEventListener('input', (e) => {
+            config[id] = e.target.value;
+            document.getElementById(id + 'Value').textContent =
+              e.target.value;
+            updateCSSVariables();
+            renderGrid();
+            saveSettings();
+          });
+      });
+      document.querySelectorAll('input[name="gridType"]').forEach((radio) =>
+        radio.addEventListener('change', (e) => {
+          config.gridType = e.target.value;
+          renderGrid();
+          saveSettings();
+        }),
+      );
+      document
+        .getElementById('fontFamily')
+        .addEventListener('change', (e) => {
+          config.fontFamily = e.target.value;
+          renderGrid();
+          saveSettings();
+        });
+      document
+        .getElementById('showPinyin')
+        .addEventListener('change', (e) => {
+          config.showPinyin = e.target.checked;
+          updateCSSVariables();
+          renderGrid();
+          saveSettings();
+        });
+      if ('speechSynthesis' in window)
+        window.speechSynthesis.onvoiceschanged = () =>
+          refreshDictationVoiceOptions();
+      refreshDictationVoiceOptions();
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      loadSettings();
+      renderGrid();
+      setupEventListeners();
+    });
   </script>
 </body>
 
