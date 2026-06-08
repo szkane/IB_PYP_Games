@@ -138,6 +138,10 @@ function main() {
     'Root index should include a manual link to the generated PYP learning map.',
   );
 
+  if (indexHtml.includes('target="_blank"')) {
+    errors.push('Generated index should keep game links in the same tab for iPad classroom flow.');
+  }
+
   if (curriculum.grades.length !== 5) {
     errors.push(`Expected 5 grades, found ${curriculum.grades.length}.`);
   }

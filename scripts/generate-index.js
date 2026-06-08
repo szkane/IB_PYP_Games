@@ -154,7 +154,7 @@ function renderSubject(subject) {
     const href = game.exists ? (game.href || game.path) : '#';
     const disabled = game.exists ? '' : ' aria-disabled="true"';
     return `
-              <a class="game-link ${game.exists ? '' : 'missing'}" href="${escapeHtml(href)}" target="_blank"${disabled}>
+              <a class="game-link ${game.exists ? '' : 'missing'}" href="${escapeHtml(href)}"${disabled}>
                 <span class="game-type ${typeClass}">${escapeHtml(game.type || 'Game')}</span>
                 <span class="game-copy">
                   <strong>${escapeHtml(game.title)}</strong>
