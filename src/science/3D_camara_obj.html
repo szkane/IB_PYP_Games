@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Interactive Hand-Controlled Particle System</title>
+  <title>UOI5 Shape and Motion Pattern Lab</title>
   <style>
     body {
       margin: 0;
@@ -143,12 +143,12 @@
 <body>
 
   <div id="loader">
-    Initializing AI Vision...<br>
-    <span style="font-size:0.9rem; opacity:0.7">Please allow camera access</span>
+    Loading shape pattern lab...<br>
+    <span style="font-size:0.9rem; opacity:0.7">Use your hands to change size and motion.</span>
   </div>
 
   <div id="ui-panel">
-    <h2>Particle Controller</h2>
+    <h2>Shape Pattern Lab</h2>
 
     <div class="control-group">
       <label>Shape Template</label>
@@ -171,13 +171,13 @@
     </div>
 
     <div class="status">
-      <p><strong>Gestures:</strong></p>
-      <p>👋 Move hands apart to Scale Up</p>
-      <p>✊ Clench fists to Explode/Jitter</p>
+      <p><strong>Explore:</strong></p>
+      <p>Move hands apart to make the shape grow.</p>
+      <p>Close your hands to see motion change.</p>
     </div>
   </div>
 
-  <div id="hand-status">Waiting for hands...</div>
+  <div id="hand-status">Waiting for hand movement...</div>
 
   <div id="canvas-container"></div>
   <video class="input_video"></video>
@@ -621,6 +621,13 @@
     initMediaPipe();
 
   </script>
+
+  <a class="pyp-map-link" href="../index.html" aria-label="Back to PYP curriculum map">PYP Map</a>
+  <style>
+    .pyp-map-link { position: fixed; top: 12px; right: 12px; z-index: 9999; min-height: 44px; display: inline-flex; align-items: center; border: 2px solid #17211f; border-radius: 8px; padding: 8px 12px; background: #fffaf0; color: #17211f; text-decoration: none; font: 900 14px/1 ui-rounded, "Avenir Next", "Segoe UI", sans-serif; box-shadow: 3px 3px 0 #17211f; letter-spacing: 0; }
+    .pyp-map-link:focus-visible { outline: 3px solid #f2b84b; outline-offset: 2px; }
+    @media print { .pyp-map-link { display: none; } }
+  </style>
 </body>
 
 </html>

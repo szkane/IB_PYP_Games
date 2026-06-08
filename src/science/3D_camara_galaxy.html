@@ -4,16 +4,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ULTIMATE GALAXY ENGINE - 8K VISUALS</title>
+  <title>UOI5 Galaxy Pattern Explorer</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;500;700&display=swap');
+
     body {
       margin: 0;
       overflow: hidden;
       background-color: #000000;
       font-family: 'Rajdhani', sans-serif;
     }
-
-    @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;500;700&display=swap');
 
     #canvas-container {
       width: 100vw;
@@ -168,20 +168,19 @@
 
   <div id="loader">
     <div class="spinner"></div>
-    <div style="letter-spacing: 5px;">GENERATING HIGH-DENSITY CLUSTERS</div>
-    <div style="font-size: 0.7rem; margin-top: 10px; opacity: 0.5; max-width: 300px; text-align: center;">WARNING: GPU
-      INTENSIVE</div>
+    <div style="letter-spacing: 5px;">LOADING GALAXY PATTERNS</div>
+    <div style="font-size: 0.8rem; margin-top: 10px; opacity: 0.65; max-width: 320px; text-align: center;">Look for spirals, centers, arms, and repeated motion.</div>
   </div>
 
   <div id="ui-layer">
     <div class="title-box">
       <h1 id="galaxy-name">MILKY WAY</h1>
-      <div class="subtitle" id="galaxy-detail">160,000 PARTICLES RENDERED</div>
+      <div class="subtitle" id="galaxy-detail">Unit 5: Patterns and Cycles</div>
     </div>
 
     <div id="status-indicator">
-      HAND TRACKING: <span id="tracking-status">INITIALIZING</span><br>
-      RENDER: <span id="fps">60</span> FPS
+      INVESTIGATION: <span id="tracking-status">INITIALIZING</span><br>
+      MOTION: <span id="fps">60</span> FPS
     </div>
   </div>
 
@@ -627,6 +626,13 @@
     initMediaPipe();
 
   </script>
+
+  <a class="pyp-map-link" href="../index.html" aria-label="Back to PYP curriculum map">PYP Map</a>
+  <style>
+    .pyp-map-link { position: fixed; top: 12px; right: 12px; z-index: 9999; min-height: 44px; display: inline-flex; align-items: center; border: 2px solid #17211f; border-radius: 8px; padding: 8px 12px; background: #fffaf0; color: #17211f; text-decoration: none; font: 900 14px/1 ui-rounded, "Avenir Next", "Segoe UI", sans-serif; box-shadow: 3px 3px 0 #17211f; letter-spacing: 0; }
+    .pyp-map-link:focus-visible { outline: 3px solid #f2b84b; outline-offset: 2px; }
+    @media print { .pyp-map-link { display: none; } }
+  </style>
 </body>
 
 </html>

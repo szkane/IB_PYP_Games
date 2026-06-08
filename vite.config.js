@@ -86,6 +86,18 @@ export default defineConfig({
             console.log(`Copied: ${file}`);
           }
         }
+
+        // Vite rewrites <link rel="manifest"> into dist/assets/manifest-*.json.
+        // Keep icon paths valid for that generated manifest as well as root manifest.json.
+        for (const file of ['icon-192.png', 'icon-512.png']) {
+          const srcPath = resolve(srcDir, file);
+          const destPath = resolve(distDir, 'assets', file);
+          if (existsSync(srcPath)) {
+            mkdirSync(dirname(destPath), { recursive: true });
+            copyFileSync(srcPath, destPath);
+            console.log(`Copied: assets/${file}`);
+          }
+        }
         
         // Generic: Copy all non-module JS and asset directories for each game
         const categories = ['Chinese', 'literacy', 'math', 'science'];

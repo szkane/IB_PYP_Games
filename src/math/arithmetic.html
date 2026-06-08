@@ -130,6 +130,20 @@
       margin: 12px auto 0;
     }
 
+    .unit-focus {
+      max-width: 620px;
+      margin: -12px auto 26px;
+      padding: 12px 18px;
+      border: 3px solid rgba(84, 160, 255, 0.25);
+      border-radius: 18px;
+      background: #f8fbff;
+      color: #3d4b5c;
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.4;
+      text-align: center;
+    }
+
     .settings-row {
       display: flex;
       flex-wrap: wrap;
@@ -652,6 +666,11 @@
     /* Responsive */
     @media (max-width: 768px) {
 
+      .unit-focus {
+        font-size: 14px;
+        margin-top: -8px;
+      }
+
       .problems-grid.calculation,
       .problems-grid.fillin {
         grid-template-columns: repeat(2, 1fr);
@@ -706,6 +725,9 @@
     <!-- Settings Panel -->
     <div class="settings-panel">
       <h1 class="settings-title">📐 Arithmetic Worksheet Generator</h1>
+      <p class="unit-focus" id="unitFocus">
+        Choose a number mission, then regenerate a practice sheet.
+      </p>
 
       <div class="settings-row">
         <!-- Problem Type -->
@@ -816,6 +838,66 @@
       difficulty: "medium",
     };
 
+    const unitPresets = {
+      uoi1: {
+        focus: "Unit 1 Goal Setting: count small steps, compare totals, and practice facts within 20.",
+        worksheetTitle: "Unit 1 Goal Steps Math",
+        settings: { type: "add", range: 20, format: "vertical", difficulty: "easy" },
+      },
+      uoi2: {
+        focus: "Unit 2 Community Roles: use tens and ones to organize shared jobs and responsibilities.",
+        worksheetTitle: "Unit 2 Community Number Jobs",
+        settings: { type: "sub", range: 100, format: "placevalue", difficulty: "easy" },
+      },
+      uoi3: {
+        focus: "Unit 3 Storytelling: solve number stories with beginnings, changes, and endings.",
+        worksheetTitle: "Unit 3 Story Problem Practice",
+        settings: { type: "mixed", range: 100, format: "calculation", difficulty: "medium" },
+      },
+      uoi4: {
+        focus: "Unit 4 Living Things: answer missing-number facts for class data, tallies, and pictographs.",
+        worksheetTitle: "Unit 4 Living Things Data Math",
+        settings: { type: "mixed", range: 20, format: "fillin", difficulty: "easy" },
+      },
+      uoi5: {
+        focus: "Unit 5 Patterns and Cycles: practice facts that help describe repeated patterns in the world.",
+        worksheetTitle: "Unit 5 Pattern Cycle Math",
+        settings: { type: "mixed", range: 50, format: "calculation", difficulty: "medium" },
+      },
+    };
+
+    let activePreset = null;
+
+    function readPreset() {
+      const preset = new URLSearchParams(window.location.search).get("preset");
+      return unitPresets[preset] ? preset : null;
+    }
+
+    function applyPreset() {
+      activePreset = readPreset();
+      if (!activePreset) return;
+
+      const preset = unitPresets[activePreset];
+      settings = { ...settings, ...preset.settings };
+      document.getElementById("unitFocus").textContent = preset.focus;
+    }
+
+    function syncActiveButtonsFromSettings() {
+      const groups = {
+        typeOptions: settings.type,
+        rangeOptions: String(settings.range),
+        formatOptions: settings.format,
+        difficultyOptions: settings.difficulty,
+      };
+
+      Object.entries(groups).forEach(([groupId, value]) => {
+        const group = document.getElementById(groupId);
+        group.querySelectorAll(".option-btn").forEach((btn) => {
+          btn.classList.toggle("active", btn.dataset.value === value);
+        });
+      });
+    }
+
     // Initialize option buttons
     function initOptionButtons() {
       document
@@ -823,6 +905,11 @@
         .forEach((optionsGroup) => {
           optionsGroup.querySelectorAll(".option-btn").forEach((btn) => {
             btn.addEventListener("click", () => {
+              if (activePreset) {
+                activePreset = null;
+                document.getElementById("unitFocus").textContent =
+                  "Custom practice: choose a number mission, then regenerate a practice sheet.";
+              }
               // Remove active from siblings
               optionsGroup
                 .querySelectorAll(".option-btn")
@@ -848,6 +935,7 @@
         });
 
       syncPlaceValueAvailability();
+      syncActiveButtonsFromSettings();
     }
 
     // Show place-value format only for subtraction and keep current format valid
@@ -1160,6 +1248,11 @@
         sub: "Subtraction Practice",
         mixed: "Mixed Addition & Subtraction",
       };
+      if (activePreset) {
+        document.getElementById("worksheetTitle").textContent =
+          unitPresets[activePreset].worksheetTitle;
+        return;
+      }
       document.getElementById("worksheetTitle").textContent =
         titles[settings.type];
     }
@@ -1205,10 +1298,18 @@
 
     // Initialize
     document.addEventListener("DOMContentLoaded", () => {
+      applyPreset();
       initOptionButtons();
       generateProblems();
     });
   </script>
+
+  <a class="pyp-map-link" href="../index.html" aria-label="Back to PYP curriculum map">PYP Map</a>
+  <style>
+    .pyp-map-link { position: fixed; top: 12px; right: 12px; z-index: 9999; min-height: 44px; display: inline-flex; align-items: center; border: 2px solid #17211f; border-radius: 8px; padding: 8px 12px; background: #fffaf0; color: #17211f; text-decoration: none; font: 900 14px/1 ui-rounded, "Avenir Next", "Segoe UI", sans-serif; box-shadow: 3px 3px 0 #17211f; letter-spacing: 0; }
+    .pyp-map-link:focus-visible { outline: 3px solid #f2b84b; outline-offset: 2px; }
+    @media print { .pyp-map-link { display: none; } }
+  </style>
 </body>
 
 </html>

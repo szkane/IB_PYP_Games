@@ -1,14 +1,52 @@
 // Cache version - auto-updated by build script
-const CACHE_VERSION = '20260523112530';
+const CACHE_VERSION = '20260608235103';
 const CACHE_NAME = `ib-pyp-games-${CACHE_VERSION}`;
 
 // Static assets to pre-cache during install
 const PRECACHE_URLS = [
     '/',
-    '/index.html',
-    '/manifest.json',
+    '/Chinese/chinese-practice-print.html',
+    '/Chinese/pinyin_training.html',
+    '/Chinese/word_spinner.html',
     '/icon-192.png',
-    '/icon-512.png'
+    '/icon-512.png',
+    '/index.html',
+    '/literacy/before_after.html?mode=days',
+    '/literacy/before_after.html?mode=months',
+    '/literacy/mc_words/index.html',
+    '/literacy/movespelling/index.html',
+    '/literacy/pronunciation.html',
+    '/literacy/spelling_bee.html?set=uoi1',
+    '/literacy/spelling_bee.html?set=uoi2',
+    '/literacy/spelling_bee.html?set=uoi3',
+    '/literacy/spelling_bee.html?set=uoi4',
+    '/literacy/spelling_bee.html?set=uoi5',
+    '/manifest.json',
+    '/math/arithmetic.html?preset=uoi1',
+    '/math/arithmetic.html?preset=uoi2',
+    '/math/arithmetic.html?preset=uoi3',
+    '/math/Kangaroo_Math.html',
+    '/math/living_things_eco_detective.html',
+    '/math/pictograph_tally_quiz_arcade.html',
+    '/math/pictograph_tally_story_journey.html',
+    '/math/position_explorer.html',
+    '/science/3D_camara_galaxy.html',
+    '/science/3D_camara_galaxy2.html',
+    '/science/3D_camara_milkyway.html',
+    '/science/3D_camara_obj.html',
+    '/science/3D_camara_solar.html',
+    '/science/3D_camera_blueball.html',
+    '/science/3D_camera_dragonball.html',
+    '/science/3D_camera_test.html',
+    '/science/bike_gear.html',
+    '/science/day_and_night_detectives.html',
+    '/science/moon_phases.html',
+    '/science/solar_system.html',
+    '/uoi/community_helpers_sort.html',
+    '/uoi/goal_steps_quest.html',
+    '/uoi/life_cycle_builder.html',
+    '/uoi/needs_of_living_things.html',
+    '/uoi/story_sequencer.html'
 ];
 
 // Install: Pre-cache essential assets and activate immediately

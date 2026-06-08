@@ -795,6 +795,26 @@
           "family", "friend", "home", "school", "community", "help", "care", "rule", "safe", "place",
           "live", "grow", "water", "plant", "animal", "food", "weather", "season", "recycle", "earth"]
       },
+      "uoi1": {
+        "name": "UOI1 Goals", "words": ["goal", "plan", "step", "try", "learn", "grow", "choice", "action", "routine", "rule",
+          "school", "helper", "listen", "share", "effort", "brave", "strong", "better", "finish", "practice"]
+      },
+      "uoi2": {
+        "name": "UOI2 Community", "words": ["community", "family", "school", "class", "role", "job", "helper", "doctor", "teacher", "driver",
+          "place", "home", "care", "safe", "clean", "share", "team", "rule", "help", "because"]
+      },
+      "uoi3": {
+        "name": "UOI3 Stories", "words": ["story", "begin", "middle", "end", "share", "feel", "think", "value", "puppet", "ballet",
+          "listen", "ask", "tell", "retell", "event", "setting", "reader", "title", "because", "voice"]
+      },
+      "uoi4": {
+        "name": "UOI4 Living Things", "words": ["living", "plant", "animal", "water", "food", "air", "soil", "sun", "grow", "survive",
+          "protect", "care", "need", "data", "chart", "tally", "rabbit", "fish", "seed", "nature"]
+      },
+      "uoi5": {
+        "name": "UOI5 Cycles", "words": ["cycle", "pattern", "season", "moon", "sun", "day", "night", "month", "year", "before",
+          "after", "first", "next", "change", "shape", "edge", "side", "time", "nature", "adapt"]
+      },
       "classmate": {
         "name": "Classmate", "words": ["Hilson", "Mavis", "Callalily", "Lina", "Alex", "Yolanda", "Miranda", "Jinny", "Nelly", "Franky", "Jacob",
           "Owen", "Carter", "Sian", "Floyd", "Gina", "Doris", "Demo", "Jayden", "Lulu", "Adam", "Chester", "Sean", "Nick", "Jonathan", "Lulu", "Adam", "Chester"
@@ -822,6 +842,11 @@
       audioCtx: null,
 
       init() {
+        const requestedSet = new URLSearchParams(window.location.search).get('set');
+        if (requestedSet && data[requestedSet]) {
+          this.category = requestedSet;
+        }
+
         this.renderControls();
 
         const savedDIY = localStorage.getItem('hilson_diy_words');
@@ -1240,6 +1265,13 @@
 
     window.onload = () => game.init();
   </script>
+
+  <a class="pyp-map-link" href="../index.html" aria-label="Back to PYP curriculum map">PYP Map</a>
+  <style>
+    .pyp-map-link { position: fixed; top: 12px; right: 12px; z-index: 9999; min-height: 44px; display: inline-flex; align-items: center; border: 2px solid #17211f; border-radius: 8px; padding: 8px 12px; background: #fffaf0; color: #17211f; text-decoration: none; font: 900 14px/1 ui-rounded, "Avenir Next", "Segoe UI", sans-serif; box-shadow: 3px 3px 0 #17211f; letter-spacing: 0; }
+    .pyp-map-link:focus-visible { outline: 3px solid #f2b84b; outline-offset: 2px; }
+    @media print { .pyp-map-link { display: none; } }
+  </style>
 </body>
 
 </html>

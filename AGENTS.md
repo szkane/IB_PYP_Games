@@ -4,7 +4,7 @@
 
 **Type**: Vite-based educational HTML5 games for IB PYP students  
 **Stack**: Vanilla JavaScript, Three.js, Phaser, MediaPipe Hands, TailwindCSS  
-**Structure**: Multi-game hub with category-based organization (Chinese, Literacy, Math, Science)
+**Structure**: UOI-centered curriculum hub: Grade → Unit of Inquiry → Subject lane → Game
 
 ---
 
@@ -20,13 +20,25 @@ npm run dev
 # Production build (auto-generates index.html + sw.js cache version)
 npm run build
 
+# Curriculum structure QA
+npm run qa:curriculum
+
 # Preview production build
 npm run preview
 ```
 
 **Build Process**: The `scripts/generate-index.js` script runs before Vite build to:
-- Auto-generate `src/index.html` navigation page from all HTML game files
+- Auto-generate `src/index.html` from `src/data/curriculum-map.json`
 - Update `sw.js` cache version with timestamp for cache invalidation
+- Run `npm run qa:curriculum` during `npm run build`
+
+**Curriculum QA**: The `scripts/qa-curriculum.js` script validates:
+- Grade 1-5 homepage structure
+- Grade 1 Unit 1-5 coverage
+- All mapped game paths and generated links
+- PYP Map return links and viewport tags
+- Standalone/touch-friendly rules for new `src/uoi/` games
+- Root `index.html` redirect to the generated PYP map
 
 **Running Individual Games**: Games are standalone HTML files in `src/{category}/`. Access directly via dev server:
 - `http://localhost:5173/literacy/movespelling/index.html`
@@ -41,12 +53,18 @@ npm run preview
 ```
 IB_PYP_Games/
 ├── scripts/
-│   └── generate-index.js      # Auto-generates navigation & updates sw.js
+│   ├── generate-index.js      # Generates UOI learning map & updates sw.js
+│   └── qa-curriculum.js       # Validates curriculum map and standalone game rules
+├── docs/
+│   └── grade1-uoi-map.md      # Grade 1 UOI mapping decisions and QA note
 ├── src/
-│   ├── index.html             # Auto-generated game hub (DO NOT EDIT MANUALLY)
+│   ├── data/
+│   │   └── curriculum-map.json # Source of truth for Grade/Unit/Subject/Game mapping
+│   ├── index.html             # Auto-generated UOI hub (DO NOT EDIT MANUALLY)
 │   ├── manifest.json          # PWA manifest
 │   ├── sw.js                  # Service worker for offline support
 │   ├── icon-*.png             # PWA icons
+│   ├── uoi/                   # New standalone Unit of Inquiry games
 │   ├── Chinese/
 │   ├── literacy/
 │   │   ├── movespelling/      # Full game subdirectory
@@ -310,6 +328,7 @@ const CACHE_VERSION = '20260108123456'; // Auto-updated by generate-index.js
 
 - `dist/` is gitignored - never commit build artifacts
 - `src/index.html` is auto-generated - edits will be overwritten
+- Use `src/data/curriculum-map.json` to change homepage organization
 - `.DS_Store` ignored (macOS)
 - Create feature branches for new games
 - Test on iPad/Safari before merging (primary target device)
@@ -319,10 +338,14 @@ const CACHE_VERSION = '20260108123456'; // Auto-updated by generate-index.js
 ## Adding a New Game
 
 1. Create `src/{category}/your-game.html` (or subdirectory for complex games)
-2. Add `<title>` tag - this becomes the game name in navigation
-3. Run `npm run build` to auto-add to index.html
-4. Test on localhost:5173 and iPad
-5. Update PRD documentation if in `movespelling/prd.md` style
+2. For a new Unit of Inquiry activity, prefer `src/uoi/your-game.html` as a standalone HTML5 file with embedded CSS/JS
+3. Add `<title>` and a PYP Map return link
+4. Add the game to the correct grade/unit/subject in `src/data/curriculum-map.json`
+5. Use `href` in the curriculum map for unit-specific query-string launches
+6. Run `npm run qa:curriculum`
+7. Run `npm run build` to regenerate `src/index.html` and `src/sw.js`
+8. Test on localhost:5173 and iPad landscape
+9. Update PRD documentation if in `movespelling/prd.md` style
 
 ---
 

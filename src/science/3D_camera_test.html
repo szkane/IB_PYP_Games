@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Random Color Hand Particles</title>
+  <title>UOI5 Color Motion Pattern Lab</title>
   <style>
     body {
       margin: 0;
@@ -142,16 +142,16 @@
     <video id="input_video" playsinline></video>
     <div id="overlay"></div>
     <canvas id="output_canvas"></canvas>
-    <div id="loading">SYSTEM INITIALIZING...</div>
+    <div id="loading">Loading color pattern lab...</div>
 
     <div id="ui-layer">
       <div class="hand-status" id="ui-left">
         <div class="hand-header">
-          <span class="hand-title">Left Hand</span>
+          <span class="hand-title">Left Hand Color</span>
           <span class="hand-state" id="state-left">WAITING</span>
         </div>
         <div class="meter-container">
-          <span>ENERGY</span>
+          <span>Color Energy</span>
           <div class="progress-bg">
             <div class="progress-fill" id="tension-left"></div>
           </div>
@@ -159,11 +159,11 @@
       </div>
       <div class="hand-status" id="ui-right">
         <div class="hand-header">
-          <span class="hand-title">Right Hand</span>
+          <span class="hand-title">Right Hand Color</span>
           <span class="hand-state" id="state-right">WAITING</span>
         </div>
         <div class="meter-container">
-          <span>ENERGY</span>
+          <span>Color Energy</span>
           <div class="progress-bg">
             <div class="progress-fill" id="tension-right"></div>
           </div>
@@ -620,6 +620,13 @@
     animate();
 
   </script>
+
+  <a class="pyp-map-link" href="../index.html" aria-label="Back to PYP curriculum map">PYP Map</a>
+  <style>
+    .pyp-map-link { position: fixed; top: 12px; right: 12px; z-index: 9999; min-height: 44px; display: inline-flex; align-items: center; border: 2px solid #17211f; border-radius: 8px; padding: 8px 12px; background: #fffaf0; color: #17211f; text-decoration: none; font: 900 14px/1 ui-rounded, "Avenir Next", "Segoe UI", sans-serif; box-shadow: 3px 3px 0 #17211f; letter-spacing: 0; }
+    .pyp-map-link:focus-visible { outline: 3px solid #f2b84b; outline-offset: 2px; }
+    @media print { .pyp-map-link { display: none; } }
+  </style>
 </body>
 
 </html>

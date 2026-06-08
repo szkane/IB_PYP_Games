@@ -5,8 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/generate-index.js && vite build",
-    "preview": "vite preview"
+    "build": "node scripts/generate-index.js && npm run qa:curriculum && vite build",
+    "preview": "vite preview",
+    "qa:curriculum": "node scripts/qa-curriculum.js",
+    "qa:urls": "node scripts/list-qa-urls.js"
   },
   "devDependencies": {
     "vite": "^5.0.0",

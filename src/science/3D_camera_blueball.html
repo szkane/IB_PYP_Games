@@ -4,13 +4,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blue Plasma Orb Interface</title>
+  <title>UOI5 Blue Orb Motion Lab</title>
   <style>
     body {
       margin: 0;
       overflow: hidden;
       background-color: #000;
-      font-family: 'Arial', sans-serif;
+      font-family: 'Avenir Next', 'Segoe UI', sans-serif;
     }
 
     /* Video Background */
@@ -75,7 +75,7 @@
   <video id="webcam" playsinline></video>
   <div id="overlay"></div>
   <div id="canvas-container"></div>
-  <div id="status-bar">Initialize Hand Tracking...</div>
+  <div id="status-bar">Move your hand to guide the orb</div>
 
   <!-- Three.js & MediaPipe -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -374,6 +374,13 @@
     });
 
   </script>
+
+  <a class="pyp-map-link" href="../index.html" aria-label="Back to PYP curriculum map">PYP Map</a>
+  <style>
+    .pyp-map-link { position: fixed; top: 12px; right: 12px; z-index: 9999; min-height: 44px; display: inline-flex; align-items: center; border: 2px solid #17211f; border-radius: 8px; padding: 8px 12px; background: #fffaf0; color: #17211f; text-decoration: none; font: 900 14px/1 ui-rounded, "Avenir Next", "Segoe UI", sans-serif; box-shadow: 3px 3px 0 #17211f; letter-spacing: 0; }
+    .pyp-map-link:focus-visible { outline: 3px solid #f2b84b; outline-offset: 2px; }
+    @media print { .pyp-map-link { display: none; } }
+  </style>
 </body>
 
 </html>

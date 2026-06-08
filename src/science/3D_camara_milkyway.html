@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GALAXY ENGINE - GESTURE CONTROL FIXED</title>
+  <title>UOI5 Milky Way Motion Explorer</title>
   <style>
     body {
       margin: 0;
@@ -189,14 +189,14 @@
 
   <div id="loader">
     <div class="spinner"></div>
-    <div>INITIALIZING SYSTEMS</div>
-    <div style="font-size:0.7rem; opacity:0.6; margin-top:10px">PLEASE ALLOW CAMERA ACCESS</div>
+    <div>LOADING GALAXY MOTION</div>
+    <div style="font-size:0.8rem; opacity:0.68; margin-top:10px">Watch how spiral patterns turn and change.</div>
   </div>
 
   <div id="ui-layer">
     <div id="status-bar">
-      <div class="status-item" id="cam-status">CAMERA: INITIALIZING...</div>
-      <div class="status-item" id="hand-status">HANDS: WAITING...</div>
+      <div class="status-item" id="cam-status">CAMERA: STARTING...</div>
+      <div class="status-item" id="hand-status">HANDS: READY TO EXPLORE...</div>
     </div>
 
     <div class="header">
@@ -640,6 +640,13 @@
     initCamera();
 
   </script>
+
+  <a class="pyp-map-link" href="../index.html" aria-label="Back to PYP curriculum map">PYP Map</a>
+  <style>
+    .pyp-map-link { position: fixed; top: 12px; right: 12px; z-index: 9999; min-height: 44px; display: inline-flex; align-items: center; border: 2px solid #17211f; border-radius: 8px; padding: 8px 12px; background: #fffaf0; color: #17211f; text-decoration: none; font: 900 14px/1 ui-rounded, "Avenir Next", "Segoe UI", sans-serif; box-shadow: 3px 3px 0 #17211f; letter-spacing: 0; }
+    .pyp-map-link:focus-visible { outline: 3px solid #f2b84b; outline-offset: 2px; }
+    @media print { .pyp-map-link { display: none; } }
+  </style>
 </body>
 
 </html>

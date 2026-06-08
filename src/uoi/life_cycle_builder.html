@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>G1 UOI5 Life Cycle Builder</title>
+  <style>
+    :root { --ink:#202432; --paper:#f7fbff; --sky:#7bb9e8; --gold:#f4bf4f; --green:#6dac75; --violet:#9881d9; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; font-family:ui-rounded,"Avenir Next","Segoe UI",sans-serif; color:var(--ink); background:linear-gradient(135deg,rgba(123,185,232,.35),transparent 42%),var(--paper); }
+    main { width:min(1120px,calc(100% - 24px)); margin:0 auto; padding:18px 0 28px; }
+    h1 { margin:0; font-size:clamp(2rem,5vw,4rem); line-height:1; letter-spacing:0; }
+    p { line-height:1.55; }
+    .map-link { position:fixed; top:12px; right:12px; z-index:10; min-height:44px; display:inline-flex; align-items:center; border:2px solid var(--ink); border-radius:8px; padding:8px 12px; background:white; color:var(--ink); text-decoration:none; font-weight:900; box-shadow:3px 3px 0 var(--ink); }
+    .layout { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .panel { border:2px solid var(--ink); border-radius:8px; background:rgba(255,255,255,.84); padding:14px; box-shadow:5px 5px 0 rgba(32,36,50,.2); }
+    .stages, .cycle { display:grid; gap:10px; }
+    .stages { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    button, .slot { min-height:64px; border:2px solid var(--ink); border-radius:8px; font:inherit; font-weight:900; }
+    button { background:white; color:var(--ink); cursor:pointer; padding:10px; }
+    button.used { opacity:.42; }
+    .slot { display:grid; align-items:center; padding:12px; background:#fffdf7; }
+    .slot.filled { background:#e4f3ea; }
+    .cycle-title { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .cycle-title span { min-width:54px; min-height:44px; display:grid; place-items:center; border:2px solid var(--ink); border-radius:8px; background:var(--gold); font-size:1.5rem; }
+    .controls { display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
+    .primary { min-width:120px; background:var(--green); color:white; }
+    #feedback { min-height:48px; color:#386b48; font-weight:900; }
+    @media(max-width:820px){ .layout{grid-template-columns:1fr;} .stages{grid-template-columns:1fr;} }
+  </style>
+</head>
+<body>
+  <a class="map-link" href="../index.html">PYP Map</a>
+  <main>
+    <p><strong>Unit 5 · How the World Works</strong></p>
+    <h1>Life Cycle Builder</h1>
+    <p>Natural cycles have stages. Tap the cards in order to show what happens first, next, and last.</p>
+    <section class="layout">
+      <div class="panel">
+        <div class="cycle-title"><h2 id="title">Cycle</h2><span id="icon">•</span></div>
+        <div class="stages" id="stages"></div>
+      </div>
+      <div class="panel">
+        <h2>Cycle order</h2>
+        <div class="cycle" id="cycle"></div>
+        <p id="feedback">Tap a stage to begin.</p>
+        <div class="controls">
+          <button class="primary" id="check">Check</button>
+          <button class="primary" id="next">Next cycle</button>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script>
+    const cycles = [
+      { title: "Butterfly", icon: "🦋", stages: ["Egg", "Caterpillar", "Chrysalis", "Butterfly"] },
+      { title: "Sunflower", icon: "🌻", stages: ["Seed", "Sprout", "Plant", "Flower"] },
+      { title: "Day and Night", icon: "☀", stages: ["Morning", "Afternoon", "Evening", "Night"] },
+      { title: "Moon Pattern", icon: "◐", stages: ["New moon", "Half moon", "Full moon", "Half moon again"] }
+    ];
+    let index = 0;
+    let chosen = [];
+    const stages = document.getElementById("stages");
+    const cycle = document.getElementById("cycle");
+    const feedback = document.getElementById("feedback");
+    const shuffle = items => [...items].sort(() => Math.random() - 0.5);
+
+    function render() {
+      chosen = [];
+      const round = cycles[index];
+      document.getElementById("title").textContent = round.title;
+      document.getElementById("icon").textContent = round.icon;
+      stages.innerHTML = shuffle(round.stages).map(stage => `<button>${stage}</button>`).join("");
+      cycle.innerHTML = round.stages.map((_, i) => `<div class="slot">Stage ${i + 1}</div>`).join("");
+      feedback.textContent = "Tap a stage to begin.";
+      stages.querySelectorAll("button").forEach(button => button.addEventListener("click", () => choose(button)));
+    }
+
+    function choose(button) {
+      if (button.classList.contains("used") || chosen.length >= cycles[index].stages.length) return;
+      chosen.push(button.textContent);
+      button.classList.add("used");
+      const slot = cycle.children[chosen.length - 1];
+      slot.textContent = button.textContent;
+      slot.classList.add("filled");
+    }
+
+    function check() {
+      const target = cycles[index].stages;
+      const correct = target.every((stage, i) => chosen[i] === stage);
+      feedback.textContent = chosen.length < target.length ? "Finish the cycle first." : correct ? "Yes. You found the pattern of change." : "Try again. Ask: what comes first, then what changes?";
+    }
+
+    document.getElementById("check").addEventListener("click", check);
+    document.getElementById("next").addEventListener("click", () => { index = (index + 1) % cycles.length; render(); });
+    render();
+  </script>
+</body>
+</html>

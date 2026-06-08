@@ -1,514 +1,768 @@
 /**
- * Auto-generate index.html and update sw.js cache list
- * Run before Vite build
+ * Generate the IB PYP curriculum hub and refresh the service worker cache version.
  */
 
-import { readdirSync, statSync, readFileSync, writeFileSync } from 'fs';
-import { resolve, relative, dirname, basename } from 'path';
+import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'fs';
+import { basename, dirname, relative, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const srcDir = resolve(__dirname, '../src');
+const curriculumPath = resolve(srcDir, 'data/curriculum-map.json');
 
-// Category display names (can be customized)
-const categoryNames = {
-  'Chinese': 'Chinese',
-  'literacy': 'Literacy',
-  'math': 'Math',
-  'science': 'Science'
+const subjectMeta = {
+  uoi: { label: 'UOI', icon: '◎', color: '#f2b84b' },
+  literacy: { label: 'Literacy', icon: 'Aa', color: '#4a7cdd' },
+  math: { label: 'Math', icon: '123', color: '#2d9d78' },
+  science: { label: 'Science', icon: '⚗', color: '#c95353' },
+  chinese: { label: 'Chinese 中文', icon: '文', color: '#d05a8a' },
 };
 
-/**
- * Extract title from HTML file
- */
-function extractTitle(filePath) {
-  try {
-    const content = readFileSync(filePath, 'utf-8');
-    const match = content.match(/<title>([^<]+)<\/title>/i);
-    if (match) {
-      return match[1].trim();
-    }
-  } catch (e) {
-    console.warn(`Failed to read ${filePath}: ${e.message}`);
-  }
-  // Fallback to filename without extension
-  return basename(filePath, '.html').replace(/_/g, ' ');
+const plannedThemes = [
+  'Who We Are',
+  'Where We Are in Place and Time',
+  'How We Express Ourselves',
+  'How the World Works',
+  'How We Organize Ourselves',
+  'Sharing the Planet',
+];
+
+function readJson(filePath) {
+  return JSON.parse(readFileSync(filePath, 'utf8'));
 }
 
-/**
- * Recursively find all HTML files
- * - Excludes root index.html (the main navigation page)
- * - Includes subdirectory index.html files (like movespelling/index.html)
- */
+function extractTitle(filePath) {
+  try {
+    const content = readFileSync(filePath, 'utf8');
+    const match = content.match(/<title>([^<]+)<\/title>/i);
+    return match ? match[1].trim() : basename(filePath, '.html').replace(/_/g, ' ');
+  } catch (error) {
+    console.warn(`[index] Failed to read title for ${filePath}: ${error.message}`);
+    return basename(filePath, '.html').replace(/_/g, ' ');
+  }
+}
+
 function findGamePages(dir, baseDir = dir, pages = []) {
-  const files = readdirSync(dir);
-  
-  for (const file of files) {
+  for (const file of readdirSync(dir)) {
     const filePath = resolve(dir, file);
     const stat = statSync(filePath);
-    
+
     if (stat.isDirectory()) {
-      // Skip hidden directories and special directories
       if (!file.startsWith('.')) {
         findGamePages(filePath, baseDir, pages);
       }
-    } else if (file.endsWith('.html')) {
-      const relativePath = relative(baseDir, filePath);
-      const pathParts = relativePath.split('/');
-      const category = pathParts[0];
-      const depth = pathParts.length;
-      
-      // Skip root index.html
-      if (relativePath === 'index.html') {
-        continue;
-      }
-      
-      // Include files at depth 2 (category/file.html)
-      // Include subdirectory index.html at depth 3 (category/subdir/index.html)
-      if (depth === 2 || (depth === 3 && file === 'index.html')) {
-        pages.push({
-          path: relativePath,
-          category: category,
-          title: extractTitle(filePath)
-        });
-      }
+      continue;
+    }
+
+    if (!file.endsWith('.html')) continue;
+
+    const relativePath = relative(baseDir, filePath);
+    if (relativePath === 'index.html') continue;
+
+    const pathParts = relativePath.split('/');
+    const isStandalone = pathParts.length === 2;
+    const isNestedIndex = pathParts.length === 3 && file === 'index.html';
+    if (isStandalone || isNestedIndex) {
+      pages.push({ path: relativePath, title: extractTitle(filePath) });
     }
   }
-  
   return pages;
 }
 
-/**
- * Generate index.html content with stunning visual design
- */
-function generateIndexHtml(pages) {
-  // Group by category
-  const grouped = {};
-  for (const page of pages) {
-    if (!grouped[page.category]) {
-      grouped[page.category] = [];
+function collectMappedPaths(curriculum) {
+  const mapped = new Set();
+  for (const grade of curriculum.grades) {
+    for (const unit of grade.units || []) {
+      for (const subject of unit.subjects || []) {
+        for (const game of subject.games || []) {
+          mapped.add(game.path);
+        }
+      }
     }
-    grouped[page.category].push(page);
   }
-  
-  // Category icons and colors
-  const categoryMeta = {
-    'Chinese': { icon: '🀄', gradient: 'linear-gradient(135deg, #ff6b6b, #ee5a24)' },
-    'literacy': { icon: '📚', gradient: 'linear-gradient(135deg, #a29bfe, #6c5ce7)' },
-    'math': { icon: '🔢', gradient: 'linear-gradient(135deg, #00b894, #00cec9)' },
-    'science': { icon: '🔬', gradient: 'linear-gradient(135deg, #fdcb6e, #f39c12)' }
+  return mapped;
+}
+
+function collectGameHrefs(curriculum) {
+  const hrefs = [];
+  for (const grade of curriculum.grades) {
+    for (const unit of grade.units || []) {
+      for (const subject of unit.subjects || []) {
+        for (const game of subject.games || []) {
+          hrefs.push(game.href || game.path);
+        }
+      }
+    }
+  }
+  return hrefs;
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+function validateCurriculum(curriculum, pages) {
+  const available = new Map(pages.map(page => [page.path, page]));
+  const mapped = collectMappedPaths(curriculum);
+
+  for (const path of mapped) {
+    if (!available.has(path)) {
+      console.warn(`[index] Curriculum path is missing from src: ${path}`);
+    }
+  }
+
+  const unassigned = pages.filter(page => !mapped.has(page.path));
+  if (unassigned.length > 0) {
+    console.warn('[index] Unassigned game pages:');
+    for (const page of unassigned) {
+      console.warn(`  - ${page.path}`);
+    }
+  }
+}
+
+function normalizeCurriculum(curriculum, pages) {
+  const titleByPath = new Map(pages.map(page => [page.path, page.title]));
+
+  return {
+    ...curriculum,
+    grades: curriculum.grades.map(grade => ({
+      ...grade,
+      units: (grade.units || []).map(unit => ({
+        ...unit,
+        subjects: (unit.subjects || []).map(subject => ({
+          ...subject,
+          meta: subjectMeta[subject.id] || { label: subject.label, icon: '•', color: '#667085' },
+          games: (subject.games || []).map(game => ({
+            ...game,
+            title: game.title || titleByPath.get(game.path) || game.path,
+            exists: titleByPath.has(game.path),
+          })),
+        })),
+      })),
+    })),
   };
-  
-  // Build HTML sections with game cards
-  let sections = '';
-  const categoryOrder = ['Chinese', 'literacy', 'math', 'science'];
-  let cardIndex = 0;
-  
-  for (const cat of categoryOrder) {
-    if (grouped[cat] && grouped[cat].length > 0) {
-      const displayName = categoryNames[cat] || cat;
-      const meta = categoryMeta[cat] || { icon: '🎮', gradient: 'linear-gradient(135deg, #667eea, #764ba2)' };
-      
-      const gameCards = grouped[cat].map((p, i) => {
-        const delay = (cardIndex + i) * 0.1;
-        return `                <a href="${p.path}" class="game-card" style="animation-delay: ${delay}s" target="_blank">
-                    <span class="card-icon">${meta.icon}</span>
-                    <span class="card-title">${p.title}</span>
-                    <span class="card-arrow">→</span>
-                </a>`;
-      }).join('\n');
-      
-      cardIndex += grouped[cat].length;
-      
-      sections += `
-            <section class="category-section">
-                <h2 class="category-title">
-                    <span class="category-icon" style="background: ${meta.gradient}">${meta.icon}</span>
-                    ${displayName}
-                </h2>
-                <div class="games-grid">
-${gameCards}
+}
+
+function renderSubject(subject) {
+  const games = subject.games.map(game => {
+    const typeClass = game.type === 'New' ? 'new' : 'existing';
+    const href = game.exists ? (game.href || game.path) : '#';
+    const disabled = game.exists ? '' : ' aria-disabled="true"';
+    return `
+              <a class="game-link ${game.exists ? '' : 'missing'}" href="${escapeHtml(href)}" target="_blank"${disabled}>
+                <span class="game-type ${typeClass}">${escapeHtml(game.type || 'Game')}</span>
+                <span class="game-copy">
+                  <strong>${escapeHtml(game.title)}</strong>
+                  <small>${escapeHtml(game.description || '')}</small>
+                </span>
+              </a>`;
+  }).join('');
+
+  return `
+            <section class="subject-lane" style="--subject-color:${subject.meta.color}">
+              <h4><span>${escapeHtml(subject.meta.icon)}</span>${escapeHtml(subject.label)}</h4>
+              <div class="game-list">${games}</div>
+            </section>`;
+}
+
+function renderUnit(unit, index) {
+  const subjectSections = unit.subjects.map(renderSubject).join('');
+  const profiles = [...(unit.learnerProfile || []), ...(unit.atlSkills || [])]
+    .map(item => `<span>${escapeHtml(item)}</span>`)
+    .join('');
+
+  return `
+        <article class="unit-band" data-unit="${escapeHtml(unit.id)}">
+          <div class="unit-heading">
+            <div class="unit-number">${index + 1}</div>
+            <div>
+              <p class="eyebrow">${escapeHtml(unit.label)} · ${escapeHtml(unit.theme)}</p>
+              <h3>${escapeHtml(unit.title)}</h3>
+              <p>${escapeHtml(unit.centralIdea)}</p>
+              <div class="profile-row">${profiles}</div>
+            </div>
+          </div>
+          <div class="subjects-grid">${subjectSections}</div>
+        </article>`;
+}
+
+function renderGrade(grade, index) {
+  const units = grade.units || [];
+  const isActive = index === 0 ? ' active' : '';
+  const planned = grade.status === 'planned';
+  const content = planned ? `
+        <section class="empty-grade">
+          <h3>${escapeHtml(grade.label)} curriculum space is ready</h3>
+          <p>${escapeHtml(grade.summary)}</p>
+          <div class="planned-unit-grid">
+            ${plannedThemes.map((theme, themeIndex) => `
+              <article class="planned-unit">
+                <p class="eyebrow">Unit ${themeIndex + 1}</p>
+                <h4>${escapeHtml(theme)}</h4>
+                <div class="planned-subjects">
+                  ${Object.values(subjectMeta).map(subject => `<span style="--subject-color:${subject.color}">${escapeHtml(subject.label)}</span>`).join('')}
                 </div>
-            </section>
-`;
-    }
-  }
-  
+              </article>`).join('')}
+          </div>
+        </section>` : units.map(renderUnit).join('');
+
+  return `
+      <section class="grade-panel${isActive}" id="${escapeHtml(grade.id)}" aria-label="${escapeHtml(grade.label)}">
+        <div class="grade-intro">
+          <p class="eyebrow">${planned ? 'Ready for future UOI documents' : 'Curriculum-connected games'}</p>
+          <h2>${escapeHtml(grade.label)}</h2>
+          <p>${escapeHtml(grade.summary || '')}</p>
+        </div>
+        ${content}
+      </section>`;
+}
+
+function generateIndexHtml(curriculum) {
+  const gradeTabs = curriculum.grades.map((grade, index) => `
+          <button class="grade-tab${index === 0 ? ' active' : ''}" type="button" data-grade="${escapeHtml(grade.id)}">
+            <span>${escapeHtml(grade.label)}</span>
+            <small>${grade.status === 'active' ? 'Open' : 'Planned'}</small>
+          </button>`).join('');
+
+  const panels = curriculum.grades.map(renderGrade).join('');
+
   return `<!DOCTYPE html>
 <html lang="zh-CN">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IB PYP Games | Interactive Learning Adventures</title>
-    <meta name="description" content="Explore interactive educational games for IB Primary Years Programme students. Learn Chinese, Literacy, Math, and Science through play.">
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1a1a2e">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-primary: #0f0f1a;
-            --bg-secondary: #1a1a2e;
-            --text-primary: #ffffff;
-            --text-secondary: #a0a0b0;
-            --accent-cyan: #00f5ff;
-            --accent-purple: #bf5af2;
-            --accent-pink: #ff6b9d;
-            --accent-orange: #ff9f43;
-            --card-bg: rgba(255, 255, 255, 0.03);
-            --card-border: rgba(255, 255, 255, 0.08);
-            --glow-cyan: rgba(0, 245, 255, 0.3);
-            --glow-purple: rgba(191, 90, 242, 0.3);
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IB PYP Games | UOI Learning Map</title>
+  <meta name="description" content="Grade and Unit organized HTML5 learning games for IB PYP students.">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icon-192.png">
+  <meta name="theme-color" content="#234b4b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <style>
+    :root {
+      --ink: #17211f;
+      --muted: #63706d;
+      --paper: #fffaf0;
+      --surface: #ffffff;
+      --line: #d8dfd8;
+      --green: #2f6f62;
+      --teal: #1d8a8a;
+      --yellow: #f2b84b;
+      --coral: #e36b5a;
+      --blue: #4a7cdd;
+      --shadow: 0 16px 38px rgba(43, 64, 58, 0.14);
+    }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    * { box-sizing: border-box; }
 
-        body {
-            font-family: 'Quicksand', sans-serif;
-            line-height: 1.6;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: ui-rounded, "Avenir Next", "Nunito", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        linear-gradient(135deg, rgba(47, 111, 98, 0.12), transparent 32%),
+        linear-gradient(45deg, transparent 0 48%, rgba(242, 184, 75, 0.18) 48% 52%, transparent 52%),
+        var(--paper);
+    }
 
-        /* Aurora Background */
-        .aurora-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            overflow: hidden;
-        }
+    a { color: inherit; }
 
-        .aurora-bg::before,
-        .aurora-bg::after {
-            content: '';
-            position: absolute;
-            width: 150%;
-            height: 150%;
-            background: radial-gradient(ellipse at 20% 50%, var(--glow-purple) 0%, transparent 50%),
-                        radial-gradient(ellipse at 80% 20%, var(--glow-cyan) 0%, transparent 40%),
-                        radial-gradient(ellipse at 40% 80%, rgba(255, 107, 157, 0.15) 0%, transparent 45%);
-            animation: aurora 20s ease-in-out infinite alternate;
-        }
+    .app-shell {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 24px 0 48px;
+    }
 
-        .aurora-bg::after {
-            animation-delay: -10s;
-            animation-direction: alternate-reverse;
-        }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      min-height: 64px;
+    }
 
-        @keyframes aurora {
-            0% { transform: translate(-10%, -10%) rotate(0deg); }
-            100% { transform: translate(10%, 10%) rotate(15deg); }
-        }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
 
-        /* Grid Pattern Overlay */
-        .grid-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background-image: 
-                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-            background-size: 60px 60px;
-        }
+    .brand-mark {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      background: var(--yellow);
+      box-shadow: 5px 5px 0 var(--ink);
+    }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 24px 80px;
-            position: relative;
-        }
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+      gap: 28px;
+      align-items: end;
+      padding: 34px 0 28px;
+    }
 
-        /* Header */
-        .header {
-            text-align: center;
-            margin-bottom: 60px;
-            padding: 40px 0;
-        }
+    .hero h1 {
+      max-width: 760px;
+      margin: 0;
+      font-size: clamp(2.4rem, 5vw, 5rem);
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
 
-        .logo {
-            font-family: 'Nunito', sans-serif;
-            font-size: clamp(2.5rem, 8vw, 4rem);
-            font-weight: 900;
-            background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-purple) 50%, var(--accent-pink) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: -0.02em;
-            margin-bottom: 12px;
-            animation: glow-text 3s ease-in-out infinite alternate;
-        }
+    .hero p {
+      max-width: 680px;
+      color: var(--muted);
+      font-size: 1.08rem;
+      line-height: 1.7;
+    }
 
-        @keyframes glow-text {
-            0% { filter: drop-shadow(0 0 20px var(--glow-cyan)); }
-            100% { filter: drop-shadow(0 0 30px var(--glow-purple)); }
-        }
+    .uoi-strip {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+      align-self: stretch;
+    }
 
-        .tagline {
-            font-size: 1.1rem;
-            color: var(--text-secondary);
-            font-weight: 500;
-            letter-spacing: 0.3em;
-            text-transform: uppercase;
-        }
+    .uoi-strip span {
+      display: grid;
+      place-items: center;
+      min-height: 96px;
+      padding: 10px;
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: 5px 5px 0 rgba(23, 33, 31, 0.88);
+      text-align: center;
+      font-size: 0.86rem;
+      font-weight: 900;
+    }
 
-        /* Floating decorations */
-        .decoration {
-            position: absolute;
-            font-size: 2rem;
-            opacity: 0.6;
-            animation: float 6s ease-in-out infinite;
-            pointer-events: none;
-        }
+    .uoi-strip span:nth-child(1) { background: #f6d365; }
+    .uoi-strip span:nth-child(2) { background: #98d8c8; }
+    .uoi-strip span:nth-child(3) { background: #f5a6b8; }
+    .uoi-strip span:nth-child(4) { background: #a4d56f; }
+    .uoi-strip span:nth-child(5) { background: #9ec8ff; }
 
-        .decoration:nth-child(1) { top: 10%; left: 5%; animation-delay: 0s; }
-        .decoration:nth-child(2) { top: 15%; right: 8%; animation-delay: 1s; }
-        .decoration:nth-child(3) { top: 50%; left: 2%; animation-delay: 2s; }
-        .decoration:nth-child(4) { top: 70%; right: 3%; animation-delay: 3s; }
+    .grade-tabs {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(120px, 1fr));
+      gap: 10px;
+      margin: 8px 0 28px;
+    }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(10deg); }
-        }
+    .grade-tab {
+      min-height: 64px;
+      padding: 10px 12px;
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--ink);
+      cursor: pointer;
+      text-align: left;
+      box-shadow: 4px 4px 0 rgba(23, 33, 31, 0.75);
+    }
 
-        /* Category Sections */
-        .category-section {
-            margin-bottom: 50px;
-        }
+    .grade-tab span,
+    .grade-tab small {
+      display: block;
+      letter-spacing: 0;
+    }
 
-        .category-title {
-            font-family: 'Nunito', sans-serif;
-            font-size: 1.8rem;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 24px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid var(--card-border);
-        }
+    .grade-tab span { font-size: 1rem; font-weight: 900; }
+    .grade-tab small { color: var(--muted); font-weight: 800; }
 
-        .category-icon {
-            width: 46px;
-            height: 46px;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.3);
-        }
+    .grade-tab.active {
+      background: var(--green);
+      color: white;
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0 var(--ink);
+    }
 
-        /* Games Grid */
-        .games-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 16px;
-        }
+    .grade-tab.active small { color: #eaf7f3; }
 
-        /* Game Cards */
-        .game-card {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 20px 24px;
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 16px;
-            text-decoration: none;
-            color: var(--text-primary);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-            overflow: hidden;
-            animation: card-enter 0.6s ease-out backwards;
-        }
+    .grade-panel { display: none; }
+    .grade-panel.active { display: block; }
 
-        @keyframes card-enter {
-            0% {
-                opacity: 0;
-                transform: translateY(30px) scale(0.95);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
+    .grade-intro {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 18px;
+      padding: 20px 0;
+      border-top: 2px solid var(--line);
+      border-bottom: 2px solid var(--line);
+    }
 
-        .game-card::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 16px;
-            padding: 2px;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple), var(--accent-pink), var(--accent-orange));
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            opacity: 0;
-            transition: opacity 0.4s ease;
-        }
+    .eyebrow {
+      margin: 0;
+      color: var(--teal);
+      font-weight: 900;
+      text-transform: uppercase;
+      font-size: 0.78rem;
+      letter-spacing: 0;
+    }
 
-        .game-card:hover {
-            transform: translateY(-4px) scale(1.02);
-            background: rgba(255, 255, 255, 0.06);
-            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.4),
-                        0 0 60px -20px var(--glow-cyan);
-        }
+    .grade-intro h2,
+    .unit-heading h3,
+    .empty-grade h3 {
+      margin: 0;
+      letter-spacing: 0;
+    }
 
-        .game-card:hover::before {
-            opacity: 1;
-        }
+    .grade-intro h2 { font-size: clamp(1.8rem, 3vw, 3rem); }
+    .grade-intro p:last-child { margin: 0; color: var(--muted); line-height: 1.6; }
 
-        .card-icon {
-            font-size: 1.6rem;
-            flex-shrink: 0;
-            opacity: 0.8;
-            transition: transform 0.3s ease;
-        }
+    .unit-band {
+      padding: 24px 0 30px;
+      border-bottom: 2px solid var(--line);
+    }
 
-        .game-card:hover .card-icon {
-            transform: scale(1.2) rotate(-5deg);
-        }
+    .unit-heading {
+      display: grid;
+      grid-template-columns: 58px minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
+      margin-bottom: 18px;
+    }
 
-        .card-title {
-            flex: 1;
-            font-weight: 600;
-            font-size: 1rem;
-            line-height: 1.4;
-        }
+    .unit-number {
+      width: 54px;
+      height: 54px;
+      display: grid;
+      place-items: center;
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      background: var(--yellow);
+      box-shadow: 4px 4px 0 var(--ink);
+      font-size: 1.5rem;
+      font-weight: 900;
+    }
 
-        .card-arrow {
-            font-size: 1.2rem;
-            opacity: 0;
-            transform: translateX(-10px);
-            transition: all 0.3s ease;
-            color: var(--accent-cyan);
-        }
+    .unit-heading h3 { font-size: clamp(1.45rem, 2.6vw, 2.4rem); }
+    .unit-heading p:not(.eyebrow) { margin: 8px 0 0; color: var(--muted); line-height: 1.55; }
 
-        .game-card:hover .card-arrow {
-            opacity: 1;
-            transform: translateX(0);
-        }
+    .profile-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
 
-        /* Footer */
-        .footer {
-            text-align: center;
-            margin-top: 60px;
-            padding-top: 30px;
-            border-top: 1px solid var(--card-border);
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
+    .profile-row span {
+      min-height: 32px;
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 4px 10px;
+      background: rgba(255,255,255,0.72);
+      color: var(--muted);
+      font-size: 0.86rem;
+      font-weight: 800;
+    }
 
-        .footer-hearts {
-            font-size: 1.5rem;
-            margin-bottom: 8px;
-            animation: pulse 2s ease-in-out infinite;
-        }
+    .subjects-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
 
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
+    .subject-lane {
+      min-width: 0;
+    }
 
-        /* Responsive */
-        @media (max-width: 640px) {
-            .container {
-                padding: 24px 16px 60px;
-            }
-            
-            .header {
-                margin-bottom: 40px;
-                padding: 20px 0;
-            }
+    .subject-lane h4 {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 42px;
+      margin: 0 0 10px;
+      font-size: 1rem;
+    }
 
-            .games-grid {
-                grid-template-columns: 1fr;
-            }
+    .subject-lane h4 span {
+      min-width: 36px;
+      height: 36px;
+      display: inline-grid;
+      place-items: center;
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      background: var(--subject-color);
+      color: white;
+      font-size: 0.9rem;
+      font-weight: 900;
+    }
 
-            .category-title {
-                font-size: 1.4rem;
-            }
+    .game-list {
+      display: grid;
+      gap: 10px;
+    }
 
-            .tagline {
-                font-size: 0.85rem;
-                letter-spacing: 0.2em;
-            }
+    .game-link {
+      display: grid;
+      grid-template-columns: 72px minmax(0, 1fr);
+      gap: 10px;
+      min-height: 76px;
+      align-items: center;
+      padding: 12px;
+      border: 2px solid rgba(23, 33, 31, 0.78);
+      border-radius: 8px;
+      background: var(--surface);
+      text-decoration: none;
+      box-shadow: 4px 4px 0 rgba(23, 33, 31, 0.2);
+      transition: transform 140ms ease, box-shadow 140ms ease;
+    }
 
-            .decoration {
-                display: none;
-            }
-        }
+    .game-link:hover,
+    .game-link:focus-visible {
+      transform: translateY(-2px);
+      box-shadow: 4px 7px 0 rgba(23, 33, 31, 0.24);
+      outline: 3px solid rgba(242, 184, 75, 0.55);
+      outline-offset: 2px;
+    }
 
-    </style>
+    .game-link.missing {
+      opacity: 0.55;
+      pointer-events: none;
+    }
+
+    .game-type {
+      display: grid;
+      place-items: center;
+      min-height: 42px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 900;
+      color: white;
+    }
+
+    .game-type.new { background: var(--coral); }
+    .game-type.existing { background: var(--blue); }
+
+    .game-copy {
+      display: grid;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .game-copy strong,
+    .game-copy small {
+      overflow-wrap: anywhere;
+      letter-spacing: 0;
+    }
+
+    .game-copy strong { font-size: 1rem; }
+    .game-copy small {
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.35;
+    }
+
+    .empty-grade {
+      display: grid;
+      gap: 14px;
+      padding: 30px 0;
+    }
+
+    .empty-grade p {
+      max-width: 680px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .placeholder-units,
+    .planned-unit-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(92px, 1fr));
+      gap: 10px;
+    }
+
+    .placeholder-units span {
+      min-height: 58px;
+      display: grid;
+      place-items: center;
+      border: 2px dashed #9aa7a2;
+      border-radius: 8px;
+      color: var(--muted);
+      font-weight: 900;
+      background: rgba(255,255,255,0.52);
+    }
+
+    .planned-unit-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .planned-unit {
+      display: grid;
+      gap: 10px;
+      min-height: 168px;
+      padding: 14px;
+      border: 2px dashed #9aa7a2;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.56);
+    }
+
+    .planned-unit h4 {
+      margin: 0;
+      font-size: 1.05rem;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .planned-subjects {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      align-content: start;
+    }
+
+    .planned-subjects span {
+      min-height: 30px;
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid color-mix(in srgb, var(--subject-color) 45%, #17211f);
+      border-radius: 999px;
+      padding: 4px 9px;
+      background: color-mix(in srgb, var(--subject-color) 18%, white);
+      color: #23312d;
+      font-size: 0.78rem;
+      font-weight: 900;
+    }
+
+    footer {
+      margin-top: 36px;
+      padding-top: 18px;
+      border-top: 2px solid var(--line);
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; }
+      .uoi-strip { grid-template-columns: repeat(5, minmax(92px, 1fr)); overflow-x: auto; padding-bottom: 8px; }
+      .grade-tabs { grid-template-columns: repeat(5, minmax(124px, 1fr)); overflow-x: auto; padding-bottom: 8px; }
+      .subjects-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .app-shell { width: min(100% - 20px, 1180px); padding-top: 14px; }
+      .topbar { align-items: flex-start; flex-direction: column; }
+      .hero h1 { font-size: 2.28rem; }
+      .unit-heading { grid-template-columns: 1fr; }
+      .game-link { grid-template-columns: 62px minmax(0, 1fr); }
+      .placeholder-units,
+      .planned-unit-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+  </style>
 </head>
 
 <body>
-    <div class="aurora-bg"></div>
-    <div class="grid-overlay"></div>
-    
-    <div class="container">
-        <div class="decoration">✨</div>
-        <div class="decoration">🚀</div>
-        <div class="decoration">🌟</div>
-        <div class="decoration">💫</div>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">PYP</div>
+        <div>
+          <div>IB PYP Games</div>
+          <small>UOI learning map</small>
+        </div>
+      </div>
+      <strong>Standalone HTML5 · iPad landscape · PC</strong>
+    </header>
 
-        <header class="header">
-            <h1 class="logo">IB PYP Games</h1>
-            <p class="tagline">Interactive Learning Adventures</p>
-        </header>
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Grade · Unit · Subject</p>
+        <h1>Learn through inquiry, then practice through play.</h1>
+        <p>Games are organized around IB PYP Units of Inquiry first, then connected to Literacy, Math, Science, and Chinese. Grade 1 uses Hilson's current UOI portfolio path; Grades 2-5 are ready for future curriculum documents.</p>
+      </div>
+      <div class="uoi-strip" aria-label="Grade 1 inquiry units">
+        <span>Who We Are</span>
+        <span>Community Roles</span>
+        <span>Storytelling</span>
+        <span>Living Things</span>
+        <span>Patterns & Cycles</span>
+      </div>
+    </section>
 
-        <main>
-${sections}
-        </main>
+    <nav class="grade-tabs" aria-label="Grade selection">
+${gradeTabs}
+    </nav>
 
-        <footer class="footer">
-            <div class="footer-hearts">🎮 ❤️ 📖</div>
-            <p>Made for curious minds</p>
-        </footer>
-    </div>
+    <main>
+${panels}
+    </main>
 
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').then(registration => {
-                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                }, err => {
-                    console.log('ServiceWorker registration failed: ', err);
-                });
-            });
-        }
-    </script>
+    <footer>Built for Grade 1-5 IB PYP learning paths. Add new UOI documents by extending <code>src/data/curriculum-map.json</code>.</footer>
+  </div>
+
+  <script>
+    const tabs = Array.from(document.querySelectorAll('.grade-tab'));
+    const panels = Array.from(document.querySelectorAll('.grade-panel'));
+
+    function activateGrade(id) {
+      tabs.forEach(tab => tab.classList.toggle('active', tab.dataset.grade === id));
+      panels.forEach(panel => panel.classList.toggle('active', panel.id === id));
+      window.history.replaceState(null, '', '#' + id);
+    }
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => activateGrade(tab.dataset.grade));
+    });
+
+    const initial = window.location.hash.replace('#', '');
+    if (initial && document.getElementById(initial)) {
+      activateGrade(initial);
+    }
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(error => {
+          console.log('ServiceWorker registration failed:', error);
+        });
+      });
+    }
+  </script>
 </body>
 
 </html>
 `;
 }
 
-/**
- * Update sw.js cache version with build timestamp
- * This ensures each deployment gets a fresh cache
- */
-function updateServiceWorker() {
+function buildPrecacheUrls(curriculum) {
+  const urls = new Set([
+    '/',
+    '/index.html',
+    '/manifest.json',
+    '/icon-192.png',
+    '/icon-512.png',
+  ]);
+
+  for (const href of collectGameHrefs(curriculum)) {
+    urls.add(`/${href}`);
+  }
+
+  return [...urls].sort((a, b) => a.localeCompare(b));
+}
+
+function updateServiceWorker(curriculum) {
   const swPath = resolve(srcDir, 'sw.js');
-  let swContent = readFileSync(swPath, 'utf-8');
-  
-  // Generate version from current timestamp (YYYYMMDDHHMMSS format)
+  let swContent = readFileSync(swPath, 'utf8');
+
   const now = new Date();
   const version = now.getFullYear().toString() +
     String(now.getMonth() + 1).padStart(2, '0') +
@@ -516,28 +770,39 @@ function updateServiceWorker() {
     String(now.getHours()).padStart(2, '0') +
     String(now.getMinutes()).padStart(2, '0') +
     String(now.getSeconds()).padStart(2, '0');
-  
-  // Update the CACHE_VERSION constant
+
   swContent = swContent.replace(
-    /const CACHE_VERSION = '[^']*';/,
-    `const CACHE_VERSION = '${version}';`
+    /const CACHE_VERSION = '[^']+';/,
+    `const CACHE_VERSION = '${version}';`,
   );
-  
-  writeFileSync(swPath, swContent);
-  console.log(`Updated sw.js cache version to: ${version}`);
+
+  const precacheUrls = buildPrecacheUrls(curriculum)
+    .map(url => `    '${url}'`)
+    .join(',\n');
+
+  swContent = swContent.replace(
+    /const PRECACHE_URLS = \[[\s\S]*?\];/,
+    `const PRECACHE_URLS = [\n${precacheUrls}\n];`,
+  );
+
+  writeFileSync(swPath, swContent, 'utf8');
+  console.log(`Updated sw.js cache version to ${version}`);
 }
 
-// Main
-const pages = findGamePages(srcDir);
-console.log(`Found ${pages.length} game pages:`);
-pages.forEach(p => console.log(`  - [${p.category}] ${p.title}: ${p.path}`));
+function main() {
+  if (!existsSync(curriculumPath)) {
+    throw new Error(`Missing curriculum map: ${curriculumPath}`);
+  }
 
-// Generate index.html
-const indexHtml = generateIndexHtml(pages);
-writeFileSync(resolve(srcDir, 'index.html'), indexHtml);
-console.log('Generated index.html');
+  const pages = findGamePages(srcDir);
+  const curriculum = normalizeCurriculum(readJson(curriculumPath), pages);
+  validateCurriculum(curriculum, pages);
 
-// Update sw.js cache version
-updateServiceWorker();
+  const indexHtml = generateIndexHtml(curriculum);
+  writeFileSync(resolve(srcDir, 'index.html'), indexHtml, 'utf8');
+  console.log(`Generated index.html with ${curriculum.grades.length} grades`);
 
-console.log('Done!');
+  updateServiceWorker(curriculum);
+}
+
+main();
