@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Three.js 3D Shape 教学演示</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      /* 防止出现滚动条 */
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #1a1a1a;
+      color: white;
+    }
+
+    #canvas-container {
+      width: 100vw;
+      height: 100vh;
+      display: block;
+    }
+
+    /* UI 控制面板样式 */
+    #ui-panel {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 20px;
+      border-radius: 10px;
+      backdrop-filter: blur(5px);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      width: 250px;
+    }
+
+    .map-link {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 10;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0 16px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.9);
+      color: #1a1a1a;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    }
+
+    h1 {
+      font-size: 18px;
+      margin-top: 0;
+      border-bottom: 1px solid #555;
+      padding-bottom: 10px;
+    }
+
+    .control-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+      color: #ccc;
+    }
+
+    select,
+    input[type="color"] {
+      width: 100%;
+      min-height: 44px;
+      padding: 8px;
+      border-radius: 4px;
+      border: none;
+      background: #333;
+      color: white;
+      cursor: pointer;
+    }
+
+    button {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .info {
+      margin-top: 15px;
+      font-size: 12px;
+      color: #888;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 820px) {
+      #ui-panel {
+        top: 14px;
+        left: 14px;
+        width: min(280px, calc(100vw - 28px));
+        padding: 14px;
+      }
+
+      .map-link {
+        top: auto;
+        right: 14px;
+        bottom: 14px;
+      }
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <a class="map-link" href="../index.html">PYP Map</a>
+
+  <!-- UI 控制面板 -->
+  <div id="ui-panel">
+    <h1>3D Shape 演示</h1>
+
+    <div class="control-group">
+      <label for="shape-select">选择形状:</label>
+      <select id="shape-select">
+        <option value="box">立方体 (Box)</option>
+        <option value="sphere">球体 (Sphere)</option>
+        <option value="cylinder">圆柱体 (Cylinder)</option>
+        <option value="torus">圆环体 (Torus)</option>
+        <option value="cone">圆锥体 (Cone)</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label for="color-picker">材质颜色:</label>
+      <input type="color" id="color-picker" value="#00ff88">
+    </div>
+
+    <button id="reset-camera">重置视角</button>
+
+    <div class="info">
+      💡 提示：<br>
+      - 左键拖拽：旋转<br>
+      - 右键拖拽：平移<br>
+      - 滚轮：缩放
+    </div>
+  </div>
+
+  <!-- 3D 画布容器 -->
+  <div id="canvas-container"></div>
+
+  <!-- 主逻辑脚本 -->
+  <script type="module">
+    import * as THREE from 'https://esm.sh/three@0.160.0';
+    import { OrbitControls } from 'https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js';
+
+    // --- 1. 初始化场景 (Scene), 相机 (Camera), 渲染器 (Renderer) ---
+
+    const container = document.getElementById('canvas-container');
+
+    // 创建场景
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x222222); // 深灰色背景
+    // 添加雾效，增加深度感
+    scene.fog = new THREE.Fog(0x222222, 5, 30);
+
+    // 创建相机 (视角, 宽高比, 近裁剪面, 远裁剪面)
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(3, 3, 5); // 设置相机初始位置
+
+    // 创建渲染器
+    const renderer = new THREE.WebGLRenderer({ antialias: true }); // 开启抗锯齿
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true; // 开启阴影
+    container.appendChild(renderer.domElement);
+
+    // --- 2. 添加控制器 (OrbitControls) ---
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true; // 启用阻尼（惯性）效果，更平滑
+    controls.dampingFactor = 0.05;
+
+    // --- 3. 添加灯光 (Lights) ---
+
+    // 环境光：基础照明
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+    scene.add(ambientLight);
+
+    // 平行光：模拟太阳光，产生阴影
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+    dirLight.position.set(5, 10, 7);
+    dirLight.castShadow = true;
+    dirLight.shadow.mapSize.width = 1024;
+    dirLight.shadow.mapSize.height = 1024;
+    scene.add(dirLight);
+
+    // --- 4. 创建网格 (Mesh) ---
+
+    let currentMesh = null;
+
+    // 材质：使用 StandardMaterial 以响应光照
+    const material = new THREE.MeshStandardMaterial({
+      color: 0x00ff88,
+      roughness: 0.3, // 粗糙度
+      metalness: 0.1  // 金属感
+    });
+
+    // 创建初始几何体 (立方体)
+    const geometry = new THREE.BoxGeometry(2, 2, 2);
+    currentMesh = new THREE.Mesh(geometry, material);
+
+    // 启用阴影投射和接收
+    currentMesh.castShadow = true;
+    currentMesh.receiveShadow = true;
+
+    scene.add(currentMesh);
+
+    // --- 5. 添加地面 (Ground) ---
+
+    const planeGeometry = new THREE.PlaneGeometry(20, 20);
+    const planeMaterial = new THREE.MeshStandardMaterial({ color: 0x444444 });
+    const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+    plane.rotation.x = -Math.PI / 2; // 旋转90度使其水平
+    plane.position.y = -1.5; // 稍微向下移动，让物体看起来放在上面
+    plane.receiveShadow = true;
+    scene.add(plane);
+
+    // --- 6. 动画循环 (Animation Loop) ---
+
+    function animate() {
+      requestAnimationFrame(animate);
+
+      // 自动旋转物体
+      if (currentMesh) {
+        currentMesh.rotation.x += 0.01;
+        currentMesh.rotation.y += 0.01;
+      }
+
+      // 更新控制器（如果启用了阻尼）
+      controls.update();
+
+      renderer.render(scene, camera);
+    }
+
+    animate();
+
+    // --- 7. 窗口大小调整处理 (Resize Handler) ---
+
+    window.addEventListener('resize', onWindowResize, false);
+
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    // --- 8. UI 交互逻辑 ---
+
+    const shapeSelect = document.getElementById('shape-select');
+    const colorPicker = document.getElementById('color-picker');
+    const resetBtn = document.getElementById('reset-camera');
+
+    // 切换形状函数
+    function changeShape(shapeType) {
+      let newGeometry;
+
+      switch (shapeType) {
+        case 'box':
+          newGeometry = new THREE.BoxGeometry(2, 2, 2);
+          break;
+        case 'sphere':
+          newGeometry = new THREE.SphereGeometry(1.5, 32, 32); // 半径1.5，细分度32
+          break;
+        case 'cylinder':
+          newGeometry = new THREE.CylinderGeometry(1, 1, 2, 32);
+          break;
+        case 'torus':
+          newGeometry = new THREE.TorusGeometry(1, 0.4, 16, 100); // 半径1，管径0.4
+          break;
+        case 'cone':
+          newGeometry = new THREE.ConeGeometry(1, 2, 32);
+          break;
+      }
+
+      if (currentMesh) {
+        scene.remove(currentMesh); // 从场景中移除旧网格
+
+        // 释放内存（重要！）
+        currentMesh.geometry.dispose();
+
+        // 创建新网格，复用材质
+        currentMesh = new THREE.Mesh(newGeometry, material);
+        currentMesh.castShadow = true;
+        currentMesh.receiveShadow = true;
+
+        scene.add(currentMesh); // 添加新网格到场景
+      }
+    }
+
+    // 监听形状选择变化
+    shapeSelect.addEventListener('change', (e) => {
+      changeShape(e.target.value);
+    });
+
+    // 监听颜色变化
+    colorPicker.addEventListener('input', (e) => {
+      material.color.set(e.target.value);
+    });
+
+    // 重置相机视角
+    resetBtn.addEventListener('click', () => {
+      controls.reset();
+      camera.position.set(3, 3, 5);
+    });
+
+  </script>
+</body>
+
+</html>
