@@ -280,8 +280,8 @@
 
     .game-link {
       display: grid;
-      grid-template-columns: 72px minmax(0, 1fr);
-      gap: 10px;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 6px;
       min-height: 76px;
       align-items: center;
       padding: 12px;
@@ -305,19 +305,6 @@
       opacity: 0.55;
       pointer-events: none;
     }
-
-    .game-type {
-      display: grid;
-      place-items: center;
-      min-height: 42px;
-      border-radius: 8px;
-      font-size: 0.78rem;
-      font-weight: 900;
-      color: white;
-    }
-
-    .game-type.new { background: var(--coral); }
-    .game-type.existing { background: var(--blue); }
 
     .game-copy {
       display: grid;
@@ -431,7 +418,6 @@
       .topbar { align-items: flex-start; flex-direction: column; }
       .hero h1 { font-size: 2.28rem; }
       .unit-heading { grid-template-columns: 1fr; }
-      .game-link { grid-template-columns: 62px minmax(0, 1fr); }
       .placeholder-units,
       .planned-unit-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
@@ -514,7 +500,6 @@
               <h4><span>◎</span>UOI</h4>
               <div class="game-list">
               <a class="game-link " href="uoi/goal_steps_quest.html">
-                <span class="game-type new">New</span>
                 <span class="game-copy">
                   <strong>Goal Steps Quest</strong>
                   <small>Choose small actions that help a learner reach a school goal.</small>
@@ -525,21 +510,18 @@
               <h4><span>Aa</span>Literacy</h4>
               <div class="game-list">
               <a class="game-link " href="literacy/movespelling/index.html">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>MoveSpell - Magic Hand Edition</strong>
                   <small>Gesture spelling with CVC and high-frequency words.</small>
                 </span>
               </a>
               <a class="game-link " href="literacy/spelling_bee.html?set=uoi1">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>Spelling Bee for IB PYP G1</strong>
                   <small>Listen, spell, and build fluency with Grade 1 words.</small>
                 </span>
               </a>
               <a class="game-link " href="literacy/pronunciation.html">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>Pronunciation Studio</strong>
                   <small>Hear and repeat sounds for early phonics practice.</small>
@@ -550,14 +532,12 @@
               <h4><span>123</span>Math</h4>
               <div class="game-list">
               <a class="game-link " href="math/Kangaroo_Math.html">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>Kangaroo Math G1</strong>
                   <small>Short Grade 1 logic and counting missions.</small>
                 </span>
               </a>
               <a class="game-link " href="math/arithmetic.html?preset=uoi1">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>Arithmetic Worksheet Generator</strong>
                   <small>Counting, number bonds, addition, and subtraction practice.</small>
@@ -568,7 +548,6 @@
               <h4><span>文</span>Chinese 中文</h4>
               <div class="game-list">
               <a class="game-link " href="Chinese/pinyin_training.html">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>Pinyin Tone Helper</strong>
                   <small>Practice pinyin tones with large touch-friendly choices.</small>
@@ -591,7 +570,6 @@
               <h4><span>◎</span>UOI</h4>
               <div class="game-list">
               <a class="game-link " href="uoi/community_helpers_sort.html">
-                <span class="game-type new">New</span>
                 <span class="game-copy">
                   <strong>Community Helpers Sort</strong>
                   <small>Match helpers, places, and responsibilities in a community.</small>
@@ -602,14 +580,12 @@
               <h4><span>Aa</span>Literacy</h4>
               <div class="game-list">
               <a class="game-link " href="literacy/mc_words/index.html">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>MEET MC WORDS</strong>
                   <small>Vocabulary categories and word recognition.</small>
                 </span>
               </a>
               <a class="game-link " href="literacy/spelling_bee.html?set=uoi2">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>Spelling Bee for IB PYP G1</strong>
                   <small>Community and responsibility words can be practiced in DIY mode.</small>
@@ -620,21 +596,18 @@
               <h4><span>123</span>Math</h4>
               <div class="game-list">
               <a class="game-link " href="math/position_explorer.html">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>Position Explorer</strong>
                   <small>Use position words to describe where things are in a shared place.</small>
                 </span>
               </a>
               <a class="game-link " href="math/3D_shape.html">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>3D Shape Explorer</strong>
                   <small>Rotate, compare, and name 3D solids used in shared spaces.</small>
                 </span>
               </a>
               <a class="game-link " href="math/arithmetic.html?preset=uoi2">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>Arithmetic Worksheet Generator</strong>
                   <small>Place value, ones and tens, and facts up to 20.</small>
@@ -645,14 +618,12 @@
               <h4><span>文</span>Chinese 中文</h4>
               <div class="game-list">
               <a class="game-link " href="Chinese/chinese-practice-print.html">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>Chinese Practice Print</strong>
                   <small>Printable Chinese writing practice for home-school routines.</small>
                 </span>
               </a>
               <a class="game-link " href="Chinese/word_spinner.html">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>Radical Spinner</strong>
                   <small>Spin and combine radicals for Chinese character awareness.</small>
@@ -675,7 +646,6 @@
               <h4><span>◎</span>UOI</h4>
               <div class="game-list">
               <a class="game-link " href="uoi/story_sequencer.html">
-                <span class="game-type new">New</span>
                 <span class="game-copy">
                   <strong>Story Sequencer</strong>
                   <small>Put beginning, middle, and end cards in order and explain the message.</small>
@@ -686,21 +656,18 @@
               <h4><span>Aa</span>Literacy</h4>
               <div class="game-list">
               <a class="game-link " href="literacy/before_after.html?mode=days">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>Time Train - Before &amp; After</strong>
                   <small>Practice sequence words that help retell stories in order.</small>
                 </span>
               </a>
               <a class="game-link " href="literacy/movespelling/index.html">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>MoveSpell - Magic Hand Edition</strong>
                   <small>Build story and feeling words through spelling practice.</small>
                 </span>
               </a>
               <a class="game-link " href="literacy/spelling_bee.html?set=uoi3">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>Spelling Bee for IB PYP G1</strong>
                   <small>Practice story, feeling, and audience vocabulary.</small>
@@ -711,7 +678,6 @@
               <h4><span>123</span>Math</h4>
               <div class="game-list">
               <a class="game-link " href="math/arithmetic.html?preset=uoi3">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>Arithmetic Worksheet Generator</strong>
                   <small>Numbers to 100, number lines, and story problems.</small>
@@ -722,7 +688,6 @@
               <h4><span>文</span>Chinese 中文</h4>
               <div class="game-list">
               <a class="game-link " href="Chinese/pinyin_training.html">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>Pinyin Tone Helper</strong>
                   <small>Tone practice for clear storytelling and oral reading.</small>
@@ -745,14 +710,12 @@
               <h4><span>◎</span>UOI</h4>
               <div class="game-list">
               <a class="game-link " href="uoi/needs_of_living_things.html">
-                <span class="game-type new">New</span>
                 <span class="game-copy">
                   <strong>Needs of Living Things</strong>
                   <small>Give plants and animals what they need and explain why.</small>
                 </span>
               </a>
               <a class="game-link " href="math/living_things_eco_detective.html">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>UOI4 Living Things - Eco Detective Mission</strong>
                   <small>Investigate living/non-living things, needs, and protection choices.</small>
@@ -763,14 +726,12 @@
               <h4><span>123</span>Math</h4>
               <div class="game-list">
               <a class="game-link " href="math/pictograph_tally_story_journey.html">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>Story Journey: Pictograph and Tally Adventure</strong>
                   <small>Collect and read data using pictographs and tally charts.</small>
                 </span>
               </a>
               <a class="game-link " href="math/pictograph_tally_quiz_arcade.html">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>Quiz Arcade: Pictograph and Tally Sprint</strong>
                   <small>Fast data questions about how many, most, and least.</small>
@@ -781,7 +742,6 @@
               <h4><span>Aa</span>Literacy</h4>
               <div class="game-list">
               <a class="game-link " href="literacy/spelling_bee.html?set=uoi4">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>Spelling Bee for IB PYP G1</strong>
                   <small>Practice plant, animal, and non-fiction vocabulary.</small>
@@ -792,7 +752,6 @@
               <h4><span>⚗</span>Science</h4>
               <div class="game-list">
               <a class="game-link " href="science/bike_gear.html">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>Bike Gear Lab</strong>
                   <small>Observe cause and effect in a simple interactive system.</small>
@@ -803,14 +762,12 @@
               <h4><span>文</span>Chinese 中文</h4>
               <div class="game-list">
               <a class="game-link " href="Chinese/chinese-practice-print.html">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>Chinese Practice Print</strong>
                   <small>Write living-things and nature words with printable practice grids.</small>
                 </span>
               </a>
               <a class="game-link " href="Chinese/word_spinner.html">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>Radical Spinner</strong>
                   <small>Notice radicals that help build meaning in nature-related characters.</small>
@@ -833,7 +790,6 @@
               <h4><span>◎</span>UOI</h4>
               <div class="game-list">
               <a class="game-link " href="uoi/life_cycle_builder.html">
-                <span class="game-type new">New</span>
                 <span class="game-copy">
                   <strong>Life Cycle Builder</strong>
                   <small>Arrange nature cycle stages and notice what changes next.</small>
@@ -844,77 +800,66 @@
               <h4><span>⚗</span>Science</h4>
               <div class="game-list">
               <a class="game-link " href="science/day_and_night_detectives.html">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>Day and Night Detectives</strong>
                   <small>Investigate day/night changes and evidence.</small>
                 </span>
               </a>
               <a class="game-link " href="science/moon_phases.html">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>Moon Phases Flashcards</strong>
                   <small>Recognize moon phases as a natural cycle.</small>
                 </span>
               </a>
               <a class="game-link " href="science/solar_system.html">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>Three.js Solar System</strong>
                   <small>Explore planets, orbits, and repeated movement.</small>
                 </span>
               </a>
               <a class="game-link " href="science/3D_camara_solar.html">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>NEON PLANETS - Particle Engine</strong>
                   <small>A space and motion extension for observing repeated movement.</small>
                 </span>
               </a>
               <a class="game-link " href="science/3D_camara_galaxy.html">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>Ultimate Galaxy Engine</strong>
                   <small>Explore spiral motion and visual patterns in space.</small>
                 </span>
               </a>
               <a class="game-link " href="science/3D_camara_galaxy2.html">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>Crystal Galaxy</strong>
                   <small>Observe color, light, and repeated particle patterns.</small>
                 </span>
               </a>
               <a class="game-link " href="science/3D_camara_milkyway.html">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>Milky Way Gesture Control</strong>
                   <small>Use movement to explore a modeled galaxy scene.</small>
                 </span>
               </a>
               <a class="game-link " href="science/3D_camara_obj.html">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>Hand-Controlled Particle System</strong>
                   <small>Investigate how input changes a visual system.</small>
                 </span>
               </a>
               <a class="game-link " href="science/3D_camera_blueball.html">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>Blue Plasma Orb Interface</strong>
                   <small>Observe light, color, and motion patterns.</small>
                 </span>
               </a>
               <a class="game-link " href="science/3D_camera_dragonball.html">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>Stable Hand Particle System</strong>
                   <small>Gesture-based particle motion extension.</small>
                 </span>
               </a>
               <a class="game-link " href="science/3D_camera_test.html">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>Random Color Hand Particles</strong>
                   <small>Experiment with changing color and movement.</small>
@@ -925,14 +870,12 @@
               <h4><span>123</span>Math</h4>
               <div class="game-list">
               <a class="game-link " href="literacy/before_after.html?mode=months">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>Time Train - Before &amp; After</strong>
                   <small>Sequence daily routines using before and after.</small>
                 </span>
               </a>
               <a class="game-link " href="math/position_explorer.html">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>Position Explorer</strong>
                   <small>Use shape and position language in a visual scene.</small>
@@ -943,7 +886,6 @@
               <h4><span>Aa</span>Literacy</h4>
               <div class="game-list">
               <a class="game-link " href="literacy/spelling_bee.html?set=uoi5">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>Spelling Bee for IB PYP G1</strong>
                   <small>Practice time, cycle, and nature vocabulary.</small>
@@ -954,14 +896,12 @@
               <h4><span>文</span>Chinese 中文</h4>
               <div class="game-list">
               <a class="game-link " href="Chinese/pinyin_training.html">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>Pinyin Tone Helper</strong>
                   <small>Practice tones for time, season, and nature-cycle words.</small>
                 </span>
               </a>
               <a class="game-link " href="Chinese/chinese-practice-print.html">
-                <span class="game-type existing">Existing</span>
                 <span class="game-copy">
                   <strong>Chinese Practice Print</strong>
                   <small>Create handwriting practice for cycle and calendar vocabulary.</small>

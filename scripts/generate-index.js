@@ -150,12 +150,10 @@ function normalizeCurriculum(curriculum, pages) {
 
 function renderSubject(subject) {
   const games = subject.games.map(game => {
-    const typeClass = game.type === 'New' ? 'new' : 'existing';
     const href = game.exists ? (game.href || game.path) : '#';
     const disabled = game.exists ? '' : ' aria-disabled="true"';
     return `
               <a class="game-link ${game.exists ? '' : 'missing'}" href="${escapeHtml(href)}"${disabled}>
-                <span class="game-type ${typeClass}">${escapeHtml(game.type || 'Game')}</span>
                 <span class="game-copy">
                   <strong>${escapeHtml(game.title)}</strong>
                   <small>${escapeHtml(game.description || '')}</small>
@@ -513,8 +511,8 @@ function generateIndexHtml(curriculum) {
 
     .game-link {
       display: grid;
-      grid-template-columns: 72px minmax(0, 1fr);
-      gap: 10px;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 6px;
       min-height: 76px;
       align-items: center;
       padding: 12px;
@@ -538,19 +536,6 @@ function generateIndexHtml(curriculum) {
       opacity: 0.55;
       pointer-events: none;
     }
-
-    .game-type {
-      display: grid;
-      place-items: center;
-      min-height: 42px;
-      border-radius: 8px;
-      font-size: 0.78rem;
-      font-weight: 900;
-      color: white;
-    }
-
-    .game-type.new { background: var(--coral); }
-    .game-type.existing { background: var(--blue); }
 
     .game-copy {
       display: grid;
@@ -664,7 +649,6 @@ function generateIndexHtml(curriculum) {
       .topbar { align-items: flex-start; flex-direction: column; }
       .hero h1 { font-size: 2.28rem; }
       .unit-heading { grid-template-columns: 1fr; }
-      .game-link { grid-template-columns: 62px minmax(0, 1fr); }
       .placeholder-units,
       .planned-unit-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
