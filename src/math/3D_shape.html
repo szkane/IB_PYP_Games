@@ -1,331 +1,1215 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Three.js 3D Shape 教学演示</title>
+  <title>3D Shape Studio</title>
   <style>
+    :root {
+      --ink: #10212b;
+      --muted: #647988;
+      --paper: rgba(255, 252, 242, 0.94);
+      --paper-strong: #fff8e7;
+      --line: rgba(16, 33, 43, 0.16);
+      --blue: #177ddc;
+      --green: #1f9d73;
+      --amber: #f3a21a;
+      --pink: #d94f75;
+      --shadow: 0 18px 45px rgba(11, 31, 46, 0.18);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
+      min-height: 100vh;
       overflow: hidden;
-      /* 防止出现滚动条 */
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #1a1a1a;
-      color: white;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 32% 18%, rgba(255, 232, 130, 0.55), transparent 26%),
+        linear-gradient(135deg, #d8f4ff 0%, #f8f1d7 42%, #ffdede 100%);
+      color: var(--ink);
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
     }
 
     #canvas-container {
-      width: 100vw;
-      height: 100vh;
+      position: fixed;
+      inset: 0;
+    }
+
+    #canvas-container canvas {
       display: block;
     }
 
-    /* UI 控制面板样式 */
-    #ui-panel {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      background: rgba(0, 0, 0, 0.7);
-      padding: 20px;
-      border-radius: 10px;
-      backdrop-filter: blur(5px);
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-      width: 250px;
+    .app-shell {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: minmax(250px, 300px) 1fr minmax(260px, 320px);
+      gap: 16px;
+      width: 100vw;
+      height: 100vh;
+      padding: 16px;
+      pointer-events: none;
+    }
+
+    .panel {
+      align-self: start;
+      max-height: calc(100vh - 32px);
+      overflow: auto;
+      border: 1px solid rgba(255, 255, 255, 0.72);
+      border-radius: 8px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+      pointer-events: auto;
+    }
+
+    .left-panel {
+      padding: 16px;
+    }
+
+    .right-panel {
+      justify-self: end;
+      padding: 16px;
+    }
+
+    .stage-label {
+      align-self: end;
+      justify-self: center;
+      width: min(520px, 100%);
+      margin-bottom: 10px;
+      padding: 14px 18px;
+      border: 1px solid rgba(255, 255, 255, 0.66);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.78);
+      box-shadow: 0 14px 32px rgba(11, 31, 46, 0.12);
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      margin: 0 0 4px;
+      color: var(--green);
+      font-size: 0.74rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2 {
+      margin: 0;
+      line-height: 1.08;
+    }
+
+    h1 {
+      font-size: clamp(1.55rem, 2vw, 2.15rem);
+    }
+
+    h2 {
+      font-size: 1.02rem;
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 0.94rem;
+      line-height: 1.4;
     }
 
     .map-link {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      z-index: 10;
+      position: fixed;
+      z-index: 5;
+      right: 18px;
+      bottom: 18px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       min-height: 44px;
       padding: 0 16px;
+      border: 1px solid rgba(16, 33, 43, 0.12);
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.9);
-      color: #1a1a1a;
-      font-weight: 700;
+      background: #fffdf5;
+      color: var(--ink);
+      font-weight: 800;
       text-decoration: none;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 10px 28px rgba(11, 31, 46, 0.18);
     }
 
-    h1 {
-      font-size: 18px;
-      margin-top: 0;
-      border-bottom: 1px solid #555;
-      padding-bottom: 10px;
-    }
-
-    .control-group {
-      margin-bottom: 15px;
+    .shape-select-wrap {
+      display: grid;
+      gap: 8px;
+      margin: 16px 0 14px;
     }
 
     label {
       display: block;
-      margin-bottom: 5px;
-      font-size: 14px;
-      color: #ccc;
+      color: var(--ink);
+      font-size: 0.84rem;
+      font-weight: 800;
     }
 
     select,
+    input[type="range"],
     input[type="color"] {
       width: 100%;
-      min-height: 44px;
-      padding: 8px;
-      border-radius: 4px;
-      border: none;
-      background: #333;
-      color: white;
-      cursor: pointer;
     }
 
-    button {
-      width: 100%;
-      min-height: 44px;
+    select {
+      min-height: 46px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      color: var(--ink);
+      font-weight: 800;
+      outline: none;
+    }
+
+    select:focus,
+    input:focus-visible,
+    button:focus-visible {
+      outline: 3px solid rgba(23, 125, 220, 0.3);
+      outline-offset: 2px;
+    }
+
+    .shape-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .shape-tile {
+      min-height: 82px;
+      padding: 8px 6px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fffdf6;
+      color: var(--ink);
+      font-weight: 800;
+      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+    }
+
+    .shape-tile:hover {
+      transform: translateY(-2px);
+      border-color: rgba(23, 125, 220, 0.42);
+    }
+
+    .shape-tile[aria-pressed="true"] {
+      border-color: var(--blue);
+      background: #e9f5ff;
+      box-shadow: inset 0 0 0 2px rgba(23, 125, 220, 0.14);
+    }
+
+    .tile-icon {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 34px;
+      margin: 0 auto 5px;
+    }
+
+    .tile-label {
+      display: block;
+      font-size: 0.78rem;
+      line-height: 1.1;
+    }
+
+    .mini-shape {
+      width: 30px;
+      height: 30px;
+      background: var(--tile-color, #1f9d73);
+      box-shadow: 0 4px 0 rgba(16, 33, 43, 0.18);
+    }
+
+    .mini-triangle {
+      width: 0;
+      height: 0;
+      border-left: 18px solid transparent;
+      border-right: 18px solid transparent;
+      border-bottom: 31px solid var(--tile-color);
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .mini-parallelogram {
+      transform: skewX(-18deg);
+    }
+
+    .mini-circle {
+      border-radius: 50%;
+    }
+
+    .mini-hexagon {
+      clip-path: polygon(25% 4%, 75% 4%, 100% 50%, 75% 96%, 25% 96%, 0 50%);
+    }
+
+    .mini-diamond {
+      transform: rotate(45deg) scale(0.84);
+    }
+
+    .mini-square {
+      border-radius: 3px;
+    }
+
+    .mini-trapezoid {
+      clip-path: polygon(22% 0, 78% 0, 100% 100%, 0 100%);
+    }
+
+    .mini-pentagon {
+      clip-path: polygon(50% 0, 98% 38%, 80% 100%, 20% 100%, 2% 38%);
+    }
+
+    .mini-rectangle {
+      width: 38px;
+      height: 24px;
+      border-radius: 3px;
+    }
+
+    .fact-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin: 14px 0;
+    }
+
+    .fact {
+      min-height: 58px;
+      padding: 9px 8px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.72);
+      text-align: center;
+    }
+
+    .fact strong {
+      display: block;
+      font-size: 1.06rem;
+      line-height: 1;
+    }
+
+    .fact span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .challenge-box {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px dashed rgba(16, 33, 43, 0.2);
+    }
+
+    .challenge-prompt {
+      min-height: 54px;
       padding: 10px;
-      background-color: #4CAF50;
+      border-radius: 8px;
+      background: #133347;
+      color: #fffaf0;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .action-btn {
+      min-height: 44px;
+      border: 0;
+      border-radius: 8px;
+      background: var(--blue);
       color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background 0.3s;
+      font-weight: 900;
+      box-shadow: 0 8px 0 #0d5599;
+      transition: transform 120ms ease, box-shadow 120ms ease;
     }
 
-    button:hover {
-      background-color: #45a049;
+    .action-btn:hover {
+      transform: translateY(-1px);
     }
 
-    .info {
-      margin-top: 15px;
-      font-size: 12px;
-      color: #888;
-      line-height: 1.4;
+    .action-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 5px 0 #0d5599;
     }
 
-    @media (max-width: 820px) {
-      #ui-panel {
-        top: 14px;
-        left: 14px;
-        width: min(280px, calc(100vw - 28px));
-        padding: 14px;
+    .action-btn.secondary {
+      background: #fff;
+      color: var(--ink);
+      box-shadow: 0 8px 0 rgba(16, 33, 43, 0.16);
+      border: 1px solid var(--line);
+    }
+
+    .panel-section {
+      padding-top: 14px;
+      margin-top: 14px;
+      border-top: 1px solid var(--line);
+    }
+
+    .control {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      margin-top: 14px;
+    }
+
+    .control label {
+      grid-column: 1 / -1;
+    }
+
+    input[type="range"] {
+      accent-color: var(--green);
+    }
+
+    input[type="color"] {
+      width: 54px;
+      height: 44px;
+      padding: 3px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+    }
+
+    .value-pill {
+      min-width: 54px;
+      padding: 6px 8px;
+      border-radius: 999px;
+      background: #eef8f1;
+      color: #176146;
+      font-size: 0.78rem;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .swatch-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .swatch {
+      min-height: 34px;
+      border: 2px solid rgba(255, 255, 255, 0.9);
+      border-radius: 999px;
+      box-shadow: 0 0 0 1px rgba(16, 33, 43, 0.15), 0 5px 10px rgba(16, 33, 43, 0.08);
+    }
+
+    .toggle-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .toggle-btn {
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      font-weight: 900;
+    }
+
+    .toggle-btn[aria-pressed="true"] {
+      background: #eaf8ef;
+      border-color: rgba(31, 157, 115, 0.55);
+      color: #176146;
+    }
+
+    .name-card {
+      margin-top: 12px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper-strong);
+    }
+
+    .name-card strong {
+      display: block;
+      font-size: 1.5rem;
+      line-height: 1.08;
+    }
+
+    .name-card span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      font-weight: 800;
+    }
+
+    .hint-list {
+      margin: 10px 0 0;
+      padding: 0;
+      list-style: none;
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.45;
+    }
+
+    .hint-list li + li {
+      margin-top: 6px;
+    }
+
+    .spark {
+      position: fixed;
+      z-index: 8;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--spark-color, #f3a21a);
+      pointer-events: none;
+      animation: pop 740ms ease-out forwards;
+    }
+
+    @keyframes pop {
+      from {
+        opacity: 1;
+        transform: translate(0, 0) scale(1);
+      }
+
+      to {
+        opacity: 0;
+        transform: translate(var(--dx), var(--dy)) scale(0.1);
+      }
+    }
+
+    @media (max-width: 980px) {
+      body {
+        overflow: auto;
+      }
+
+      .app-shell {
+        position: relative;
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto minmax(380px, 48vh) auto;
+        height: auto;
+        min-height: 100vh;
+        padding: 12px;
+      }
+
+      #canvas-container {
+        position: absolute;
+        inset: 228px 0 300px;
+        min-height: 360px;
+      }
+
+      .panel {
+        width: 100%;
+        max-height: none;
+      }
+
+      .right-panel {
+        justify-self: stretch;
+      }
+
+      .stage-label {
+        align-self: end;
+        grid-row: 2;
+        margin-bottom: 0;
+      }
+
+      .shape-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 560px) {
+      .shape-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .fact-strip,
+      .button-row,
+      .toggle-row {
+        grid-template-columns: 1fr;
       }
 
       .map-link {
-        top: auto;
-        right: 14px;
-        bottom: 14px;
+        right: 12px;
+        bottom: 12px;
       }
     }
-
   </style>
-
 </head>
 
 <body>
+  <a class="map-link" href="../index.html" aria-label="Back to PYP curriculum map">PYP Map</a>
+  <div id="canvas-container" aria-hidden="true"></div>
 
-  <a class="map-link" href="../index.html">PYP Map</a>
+  <main class="app-shell">
+    <section class="panel left-panel" aria-label="Shape chooser">
+      <p class="eyebrow">Geometry Lab</p>
+      <h1>3D Shape Studio</h1>
+      <p class="subtitle">Pick a shape, spin it, resize it, and learn the name of its face.</p>
 
-  <!-- UI 控制面板 -->
-  <div id="ui-panel">
-    <h1>3D Shape 演示</h1>
+      <div class="shape-select-wrap">
+        <label for="shape-select">Shape selector</label>
+        <select id="shape-select"></select>
+      </div>
 
-    <div class="control-group">
-      <label for="shape-select">选择形状:</label>
-      <select id="shape-select">
-        <option value="box">立方体 (Box)</option>
-        <option value="sphere">球体 (Sphere)</option>
-        <option value="cylinder">圆柱体 (Cylinder)</option>
-        <option value="torus">圆环体 (Torus)</option>
-        <option value="cone">圆锥体 (Cone)</option>
-      </select>
-    </div>
+      <div id="shape-grid" class="shape-grid" aria-label="Shape tiles"></div>
 
-    <div class="control-group">
-      <label for="color-picker">材质颜色:</label>
-      <input type="color" id="color-picker" value="#00ff88">
-    </div>
+      <div class="name-card" aria-live="polite">
+        <strong id="shape-name">Triangle</strong>
+        <span id="shape-name-cn">三角形 prism</span>
+      </div>
 
-    <button id="reset-camera">重置视角</button>
+      <div class="fact-strip" aria-label="Shape facts">
+        <div class="fact">
+          <strong id="edge-count">3</strong>
+          <span>Sides</span>
+        </div>
+        <div class="fact">
+          <strong id="corner-count">3</strong>
+          <span>Corners</span>
+        </div>
+        <div class="fact">
+          <strong id="face-count">5</strong>
+          <span>3D Faces</span>
+        </div>
+      </div>
 
-    <div class="info">
-      💡 提示：<br>
-      - 左键拖拽：旋转<br>
-      - 右键拖拽：平移<br>
-      - 滚轮：缩放
-    </div>
-  </div>
+      <div class="challenge-box">
+        <h2>Name Quest</h2>
+        <div id="challenge-prompt" class="challenge-prompt">Tap New Quest to find a shape by its clues.</div>
+        <div class="button-row">
+          <button id="new-quest" class="action-btn" type="button">New Quest</button>
+          <button id="check-answer" class="action-btn secondary" type="button">Check</button>
+        </div>
+      </div>
+    </section>
 
-  <!-- 3D 画布容器 -->
-  <div id="canvas-container"></div>
+    <section class="stage-label" aria-live="polite">
+      <p class="eyebrow" id="mode-label">Explore Mode</p>
+      <h2 id="stage-title">Triangle</h2>
+      <p class="subtitle" id="stage-copy">A triangle has 3 sides and 3 corners. This 3D block has triangle faces.</p>
+    </section>
 
-  <!-- 主逻辑脚本 -->
+    <aside class="panel right-panel" aria-label="Shape properties">
+      <p class="eyebrow">Shape Panel</p>
+      <h2>Make It Yours</h2>
+      <p class="subtitle">Change color, rotation speed, size, and helper labels.</p>
+
+      <div class="panel-section">
+        <div class="control">
+          <label for="color-picker">Color</label>
+          <input type="color" id="color-picker" value="#1f9d73">
+          <span id="color-value" class="value-pill">Green</span>
+        </div>
+        <div class="swatch-row" aria-label="Quick colors">
+          <button class="swatch" type="button" data-color="#1f9d73" style="background: #1f9d73" aria-label="Green"></button>
+          <button class="swatch" type="button" data-color="#177ddc" style="background: #177ddc" aria-label="Blue"></button>
+          <button class="swatch" type="button" data-color="#f3a21a" style="background: #f3a21a" aria-label="Amber"></button>
+          <button class="swatch" type="button" data-color="#d94f75" style="background: #d94f75" aria-label="Pink"></button>
+          <button class="swatch" type="button" data-color="#6c56d9" style="background: #6c56d9" aria-label="Violet"></button>
+        </div>
+
+        <div class="control">
+          <label for="speed-slider">Rotation speed</label>
+          <input type="range" id="speed-slider" min="0" max="2" step="0.1" value="0.2">
+          <span id="speed-value" class="value-pill">0.2x</span>
+        </div>
+
+        <div class="control">
+          <label for="size-slider">Size</label>
+          <input type="range" id="size-slider" min="0.7" max="1.7" step="0.1" value="1">
+          <span id="size-value" class="value-pill">1.0x</span>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <h2>Learning Helpers</h2>
+        <div class="toggle-row">
+          <button id="label-toggle" class="toggle-btn" type="button" aria-pressed="true">Labels On</button>
+          <button id="wire-toggle" class="toggle-btn" type="button" aria-pressed="true">Edges On</button>
+        </div>
+        <div class="button-row" style="margin-top: 10px;">
+          <button id="speak-name" class="action-btn" type="button">Say Name</button>
+          <button id="reset-camera" class="action-btn secondary" type="button">Reset View</button>
+        </div>
+      </div>
+
+      <ul class="hint-list">
+        <li>Drag the shape to look at its faces.</li>
+        <li>Use the mouse wheel or pinch gesture to zoom.</li>
+        <li>Try Name Quest, then choose the matching shape.</li>
+      </ul>
+    </aside>
+  </main>
+
   <script type="module">
     import * as THREE from 'https://esm.sh/three@0.160.0';
     import { OrbitControls } from 'https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js';
 
-    // --- 1. 初始化场景 (Scene), 相机 (Camera), 渲染器 (Renderer) ---
+    const SHAPES = [
+      {
+        id: 'triangle',
+        name: 'Triangle',
+        cnName: '三角形',
+        tileClass: 'mini-triangle',
+        color: '#1f9d73',
+        sides: 3,
+        corners: 3,
+        faces: 5,
+        clue: 'I have 3 sides and 3 corners.',
+        copy: 'A triangle has 3 sides and 3 corners. This 3D block has triangle faces.',
+        points: [[0, 1.35], [-1.22, -0.85], [1.22, -0.85]]
+      },
+      {
+        id: 'parallelogram',
+        name: 'Parallelogram',
+        cnName: '平行四边形',
+        tileClass: 'mini-parallelogram',
+        color: '#177ddc',
+        sides: 4,
+        corners: 4,
+        faces: 6,
+        clue: 'I have 2 pairs of parallel sides.',
+        copy: 'A parallelogram has opposite sides that stay parallel.',
+        points: [[-1.1, 0.75], [1.2, 0.75], [0.72, -0.75], [-1.58, -0.75]]
+      },
+      {
+        id: 'circle',
+        name: 'Circle',
+        cnName: '圆形',
+        tileClass: 'mini-circle',
+        color: '#f3a21a',
+        sides: 0,
+        corners: 0,
+        faces: 3,
+        clue: 'I am round with no corners.',
+        copy: 'A circle is round. This 3D shape is a cylinder with circle faces.',
+        circle: true
+      },
+      {
+        id: 'hexagon',
+        name: 'Hexagon',
+        cnName: '六边形',
+        tileClass: 'mini-hexagon',
+        color: '#d94f75',
+        sides: 6,
+        corners: 6,
+        faces: 8,
+        clue: 'I have 6 sides, like many honeycomb cells.',
+        copy: 'A hexagon has 6 sides and 6 corners.',
+        points: regularPolygonPoints(6, 1.18, Math.PI / 6)
+      },
+      {
+        id: 'diamond',
+        name: 'Diamond / Rhombus',
+        cnName: '菱形',
+        tileClass: 'mini-diamond',
+        color: '#6c56d9',
+        sides: 4,
+        corners: 4,
+        faces: 6,
+        clue: 'I look like a tilted square with 4 equal sides.',
+        copy: 'A rhombus has 4 equal sides. A diamond is a rhombus turned on a point.',
+        points: [[0, 1.25], [1.0, 0], [0, -1.25], [-1.0, 0]]
+      },
+      {
+        id: 'square',
+        name: 'Square',
+        cnName: '正方形',
+        tileClass: 'mini-square',
+        color: '#149c95',
+        sides: 4,
+        corners: 4,
+        faces: 6,
+        clue: 'I have 4 equal sides and 4 square corners.',
+        copy: 'A square has 4 equal sides and 4 right corners.',
+        points: [[-1, 1], [1, 1], [1, -1], [-1, -1]]
+      },
+      {
+        id: 'trapezoid',
+        name: 'Trapezoid',
+        cnName: '梯形',
+        tileClass: 'mini-trapezoid',
+        color: '#ef7b45',
+        sides: 4,
+        corners: 4,
+        faces: 6,
+        clue: 'I have one pair of parallel sides.',
+        copy: 'A trapezoid has one pair of parallel sides.',
+        points: [[-0.78, 0.82], [0.78, 0.82], [1.32, -0.82], [-1.32, -0.82]]
+      },
+      {
+        id: 'pentagon',
+        name: 'Pentagon',
+        cnName: '五边形',
+        tileClass: 'mini-pentagon',
+        color: '#2f9de1',
+        sides: 5,
+        corners: 5,
+        faces: 7,
+        clue: 'I have 5 sides and 5 corners.',
+        copy: 'A pentagon has 5 sides and 5 corners.',
+        points: regularPolygonPoints(5, 1.18, -Math.PI / 2)
+      },
+      {
+        id: 'rectangle',
+        name: 'Rectangle',
+        cnName: '长方形',
+        tileClass: 'mini-rectangle',
+        color: '#bd7a16',
+        sides: 4,
+        corners: 4,
+        faces: 6,
+        clue: 'I have 4 sides and 4 right corners. Opposite sides are equal.',
+        copy: 'A rectangle has 4 right corners and opposite sides that match.',
+        points: [[-1.45, 0.78], [1.45, 0.78], [1.45, -0.78], [-1.45, -0.78]]
+      }
+    ];
+
+    const state = {
+      currentShapeId: 'triangle',
+      color: '#1f9d73',
+      rotationSpeed: 0.2,
+      size: 1,
+      labelsVisible: true,
+      wireVisible: true,
+      questShapeId: null
+    };
 
     const container = document.getElementById('canvas-container');
+    const shapeSelect = document.getElementById('shape-select');
+    const shapeGrid = document.getElementById('shape-grid');
+    const shapeName = document.getElementById('shape-name');
+    const shapeNameCn = document.getElementById('shape-name-cn');
+    const edgeCount = document.getElementById('edge-count');
+    const cornerCount = document.getElementById('corner-count');
+    const faceCount = document.getElementById('face-count');
+    const stageTitle = document.getElementById('stage-title');
+    const stageCopy = document.getElementById('stage-copy');
+    const modeLabel = document.getElementById('mode-label');
+    const challengePrompt = document.getElementById('challenge-prompt');
+    const colorPicker = document.getElementById('color-picker');
+    const colorValue = document.getElementById('color-value');
+    const speedSlider = document.getElementById('speed-slider');
+    const speedValue = document.getElementById('speed-value');
+    const sizeSlider = document.getElementById('size-slider');
+    const sizeValue = document.getElementById('size-value');
+    const labelToggle = document.getElementById('label-toggle');
+    const wireToggle = document.getElementById('wire-toggle');
 
-    // 创建场景
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x222222); // 深灰色背景
-    // 添加雾效，增加深度感
-    scene.fog = new THREE.Fog(0x222222, 5, 30);
+    scene.background = null;
+    scene.fog = new THREE.Fog(0xe8f6fb, 11, 28);
 
-    // 创建相机 (视角, 宽高比, 近裁剪面, 远裁剪面)
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(3, 3, 5); // 设置相机初始位置
+    const camera = new THREE.PerspectiveCamera(48, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(4.4, 3.4, 6);
 
-    // 创建渲染器
-    const renderer = new THREE.WebGLRenderer({ antialias: true }); // 开启抗锯齿
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.shadowMap.enabled = true; // 开启阴影
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     container.appendChild(renderer.domElement);
 
-    // --- 2. 添加控制器 (OrbitControls) ---
-
     const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true; // 启用阻尼（惯性）效果，更平滑
-    controls.dampingFactor = 0.05;
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.06;
+    controls.target.set(0, 0.2, 0);
+    controls.minDistance = 3.4;
+    controls.maxDistance = 9;
 
-    // --- 3. 添加灯光 (Lights) ---
-
-    // 环境光：基础照明
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+    const ambientLight = new THREE.HemisphereLight(0xffffff, 0x6b8796, 2.4);
     scene.add(ambientLight);
 
-    // 平行光：模拟太阳光，产生阴影
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1);
-    dirLight.position.set(5, 10, 7);
-    dirLight.castShadow = true;
-    dirLight.shadow.mapSize.width = 1024;
-    dirLight.shadow.mapSize.height = 1024;
-    scene.add(dirLight);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 2.7);
+    keyLight.position.set(4, 8, 6);
+    keyLight.castShadow = true;
+    keyLight.shadow.mapSize.set(2048, 2048);
+    scene.add(keyLight);
 
-    // --- 4. 创建网格 (Mesh) ---
+    const rimLight = new THREE.PointLight(0xfff0b6, 32, 12);
+    rimLight.position.set(-4, 3, -3);
+    scene.add(rimLight);
 
-    let currentMesh = null;
+    scene.add(createBackMarkers());
 
-    // 材质：使用 StandardMaterial 以响应光照
+    const labelCanvas = document.createElement('canvas');
+    labelCanvas.width = 1024;
+    labelCanvas.height = 256;
+    const labelContext = labelCanvas.getContext('2d');
+    const labelTexture = new THREE.CanvasTexture(labelCanvas);
+    const labelMaterial = new THREE.SpriteMaterial({ map: labelTexture, transparent: true, depthTest: false });
+    const labelSprite = new THREE.Sprite(labelMaterial);
+    labelSprite.position.set(0, 2.1, 0);
+    labelSprite.scale.set(3.2, 0.8, 1);
+    scene.add(labelSprite);
+
     const material = new THREE.MeshStandardMaterial({
-      color: 0x00ff88,
-      roughness: 0.3, // 粗糙度
-      metalness: 0.1  // 金属感
+      color: state.color,
+      roughness: 0.38,
+      metalness: 0.05
     });
 
-    // 创建初始几何体 (立方体)
-    const geometry = new THREE.BoxGeometry(2, 2, 2);
-    currentMesh = new THREE.Mesh(geometry, material);
+    const sideMaterial = new THREE.MeshStandardMaterial({
+      color: '#fff1bf',
+      roughness: 0.5,
+      metalness: 0.02
+    });
 
-    // 启用阴影投射和接收
-    currentMesh.castShadow = true;
-    currentMesh.receiveShadow = true;
+    const lineMaterial = new THREE.LineBasicMaterial({ color: '#10212b', transparent: true, opacity: 0.42 });
+    let currentMesh = null;
+    let currentEdges = null;
 
-    scene.add(currentMesh);
+    syncRendererSize();
+    buildShapeControls();
+    setShape(state.currentShapeId, { syncColor: true });
+    animate();
 
-    // --- 5. 添加地面 (Ground) ---
+    function regularPolygonPoints(sides, radius, offset = 0) {
+      return Array.from({ length: sides }, (_, index) => {
+        const angle = offset + (index / sides) * Math.PI * 2;
+        return [Math.cos(angle) * radius, Math.sin(angle) * radius];
+      });
+    }
 
-    const planeGeometry = new THREE.PlaneGeometry(20, 20);
-    const planeMaterial = new THREE.MeshStandardMaterial({ color: 0x444444 });
-    const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-    plane.rotation.x = -Math.PI / 2; // 旋转90度使其水平
-    plane.position.y = -1.5; // 稍微向下移动，让物体看起来放在上面
-    plane.receiveShadow = true;
-    scene.add(plane);
+    function createBackMarkers() {
+      const group = new THREE.Group();
+      const markerMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.74, transparent: true, opacity: 0.52 });
+      for (let index = 0; index < 9; index += 1) {
+        const geometry = new THREE.BoxGeometry(0.08, 0.08, 0.08);
+        const marker = new THREE.Mesh(geometry, markerMaterial);
+        const angle = index * 0.72;
+        marker.position.set(Math.cos(angle) * 4.5, 0.15 + (index % 3) * 0.42, Math.sin(angle) * 3.6 - 2.8);
+        marker.rotation.set(angle, angle * 0.4, angle * 0.2);
+        group.add(marker);
+      }
+      return group;
+    }
 
-    // --- 6. 动画循环 (Animation Loop) ---
+    function buildShapeControls() {
+      SHAPES.forEach((shape) => {
+        const option = document.createElement('option');
+        option.value = shape.id;
+        option.textContent = `${shape.name} (${shape.cnName})`;
+        shapeSelect.appendChild(option);
+
+        const tile = document.createElement('button');
+        tile.className = 'shape-tile';
+        tile.type = 'button';
+        tile.dataset.shapeId = shape.id;
+        tile.setAttribute('aria-pressed', 'false');
+        tile.style.setProperty('--tile-color', shape.color);
+        tile.innerHTML = `
+          <span class="tile-icon" aria-hidden="true"><span class="mini-shape ${shape.tileClass}"></span></span>
+          <span class="tile-label">${shape.name}</span>
+        `;
+        tile.addEventListener('click', () => setShape(shape.id, { syncColor: true }));
+        shapeGrid.appendChild(tile);
+      });
+
+      shapeSelect.addEventListener('change', (event) => {
+        setShape(event.target.value, { syncColor: true });
+      });
+
+      colorPicker.addEventListener('input', (event) => {
+        setColor(event.target.value);
+      });
+
+      document.querySelectorAll('.swatch').forEach((swatch) => {
+        swatch.addEventListener('click', () => setColor(swatch.dataset.color));
+      });
+
+      speedSlider.addEventListener('input', (event) => {
+        state.rotationSpeed = Number(event.target.value);
+        speedValue.textContent = `${state.rotationSpeed.toFixed(1)}x`;
+      });
+
+      sizeSlider.addEventListener('input', (event) => {
+        state.size = Number(event.target.value);
+        sizeValue.textContent = `${state.size.toFixed(1)}x`;
+        applyMeshScale();
+      });
+
+      labelToggle.addEventListener('click', () => {
+        state.labelsVisible = !state.labelsVisible;
+        labelToggle.setAttribute('aria-pressed', String(state.labelsVisible));
+        labelToggle.textContent = state.labelsVisible ? 'Labels On' : 'Labels Off';
+        labelSprite.visible = state.labelsVisible;
+      });
+
+      wireToggle.addEventListener('click', () => {
+        state.wireVisible = !state.wireVisible;
+        wireToggle.setAttribute('aria-pressed', String(state.wireVisible));
+        wireToggle.textContent = state.wireVisible ? 'Edges On' : 'Edges Off';
+        if (currentEdges) {
+          currentEdges.visible = state.wireVisible;
+        }
+      });
+
+      document.getElementById('reset-camera').addEventListener('click', resetCamera);
+      document.getElementById('speak-name').addEventListener('click', speakCurrentShape);
+      document.getElementById('new-quest').addEventListener('click', startQuest);
+      document.getElementById('check-answer').addEventListener('click', checkQuestAnswer);
+    }
+
+    function setShape(shapeId, options = {}) {
+      const shape = getShape(shapeId);
+      state.currentShapeId = shape.id;
+
+      if (options.syncColor) {
+        setColor(shape.color);
+      }
+
+      if (currentMesh) {
+        scene.remove(currentMesh);
+        currentMesh.geometry.dispose();
+      }
+
+      if (currentEdges) {
+        scene.remove(currentEdges);
+        currentEdges.geometry.dispose();
+      }
+
+      const geometry = createGeometry(shape);
+      currentMesh = new THREE.Mesh(geometry, [material, sideMaterial]);
+      currentMesh.castShadow = true;
+      currentMesh.receiveShadow = true;
+      currentMesh.rotation.set(-0.18, 0.28, 0.08);
+      scene.add(currentMesh);
+
+      currentEdges = new THREE.LineSegments(new THREE.EdgesGeometry(geometry, 20), lineMaterial);
+      currentEdges.visible = state.wireVisible;
+      currentEdges.rotation.copy(currentMesh.rotation);
+      scene.add(currentEdges);
+
+      applyMeshScale();
+      updateShapeUi(shape);
+      drawLabel(shape);
+    }
+
+    function getShape(shapeId) {
+      return SHAPES.find((shape) => shape.id === shapeId) || SHAPES[0];
+    }
+
+    function createGeometry(shape) {
+      if (shape.circle) {
+        const cylinder = new THREE.CylinderGeometry(1.22, 1.22, 0.82, 64);
+        cylinder.rotateX(Math.PI / 2);
+        cylinder.clearGroups();
+        cylinder.addGroup(0, cylinder.index.count, 0);
+        return cylinder;
+      }
+
+      const path = new THREE.Shape();
+      shape.points.forEach(([x, y], index) => {
+        if (index === 0) {
+          path.moveTo(x, y);
+        } else {
+          path.lineTo(x, y);
+        }
+      });
+      path.closePath();
+
+      const geometry = new THREE.ExtrudeGeometry(path, {
+        depth: 0.82,
+        bevelEnabled: true,
+        bevelSize: 0.045,
+        bevelThickness: 0.04,
+        bevelSegments: 2
+      });
+      geometry.center();
+      geometry.rotateX(-0.06);
+      return geometry;
+    }
+
+    function applyMeshScale() {
+      if (!currentMesh || !currentEdges) {
+        return;
+      }
+      currentMesh.scale.setScalar(state.size);
+      currentEdges.scale.copy(currentMesh.scale);
+    }
+
+    function updateShapeUi(shape) {
+      shapeSelect.value = shape.id;
+      document.querySelectorAll('.shape-tile').forEach((tile) => {
+        tile.setAttribute('aria-pressed', String(tile.dataset.shapeId === shape.id));
+      });
+      shapeName.textContent = shape.name;
+      shapeNameCn.textContent = `${shape.cnName} 3D block`;
+      edgeCount.textContent = shape.sides;
+      cornerCount.textContent = shape.corners;
+      faceCount.textContent = shape.faces;
+      stageTitle.textContent = shape.name;
+      stageCopy.textContent = shape.copy;
+    }
+
+    function setColor(hex) {
+      state.color = hex;
+      material.color.set(hex);
+      colorPicker.value = hex;
+      colorValue.textContent = colorName(hex);
+    }
+
+    function colorName(hex) {
+      const names = {
+        '#1f9d73': 'Green',
+        '#177ddc': 'Blue',
+        '#f3a21a': 'Amber',
+        '#d94f75': 'Pink',
+        '#6c56d9': 'Violet',
+        '#149c95': 'Teal',
+        '#ef7b45': 'Coral',
+        '#2f9de1': 'Sky',
+        '#bd7a16': 'Ochre'
+      };
+      return names[hex.toLowerCase()] || hex.toUpperCase();
+    }
+
+    function drawLabel(shape) {
+      labelContext.clearRect(0, 0, labelCanvas.width, labelCanvas.height);
+      labelContext.fillStyle = 'rgba(255, 253, 245, 0.92)';
+      roundRect(labelContext, 34, 30, 956, 176, 42);
+      labelContext.fill();
+      labelContext.strokeStyle = 'rgba(16, 33, 43, 0.18)';
+      labelContext.lineWidth = 8;
+      labelContext.stroke();
+      labelContext.fillStyle = '#10212b';
+      labelContext.font = '900 78px Trebuchet MS, sans-serif';
+      labelContext.textAlign = 'center';
+      labelContext.fillText(shape.name, 512, 108);
+      labelContext.fillStyle = '#647988';
+      labelContext.font = '800 34px Trebuchet MS, sans-serif';
+      labelContext.fillText(`${shape.cnName} | ${shape.clue}`, 512, 162);
+      labelTexture.needsUpdate = true;
+    }
+
+    function roundRect(context, x, y, width, height, radius) {
+      context.beginPath();
+      context.moveTo(x + radius, y);
+      context.arcTo(x + width, y, x + width, y + height, radius);
+      context.arcTo(x + width, y + height, x, y + height, radius);
+      context.arcTo(x, y + height, x, y, radius);
+      context.arcTo(x, y, x + width, y, radius);
+      context.closePath();
+    }
+
+    function startQuest() {
+      const availableShapes = SHAPES.filter((shape) => shape.id !== state.currentShapeId);
+      const nextShape = availableShapes[Math.floor(Math.random() * availableShapes.length)];
+      state.questShapeId = nextShape.id;
+      modeLabel.textContent = 'Name Quest';
+      challengePrompt.textContent = `Find the shape: ${nextShape.clue}`;
+      stageCopy.textContent = 'Choose the matching shape, then press Check.';
+    }
+
+    function checkQuestAnswer() {
+      if (!state.questShapeId) {
+        challengePrompt.textContent = 'Tap New Quest first, then choose the matching shape.';
+        return;
+      }
+
+      const answer = getShape(state.currentShapeId);
+      if (state.currentShapeId === state.questShapeId) {
+        challengePrompt.textContent = `Yes! That is ${answer.name}.`;
+        modeLabel.textContent = 'Quest Complete';
+        burst();
+        speakCurrentShape();
+        state.questShapeId = null;
+      } else {
+        challengePrompt.textContent = `Good try. ${answer.name} has ${answer.sides} sides. Look for: ${getShape(state.questShapeId).clue}`;
+      }
+    }
+
+    function speakCurrentShape() {
+      if (!('speechSynthesis' in window)) {
+        return;
+      }
+      const shape = getShape(state.currentShapeId);
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(shape.name);
+      utterance.rate = 0.82;
+      utterance.pitch = 1.08;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function burst() {
+      const colors = ['#1f9d73', '#177ddc', '#f3a21a', '#d94f75', '#6c56d9'];
+      for (let index = 0; index < 28; index += 1) {
+        const spark = document.createElement('span');
+        spark.className = 'spark';
+        spark.style.left = `${window.innerWidth / 2}px`;
+        spark.style.top = `${window.innerHeight / 2}px`;
+        spark.style.setProperty('--spark-color', colors[index % colors.length]);
+        spark.style.setProperty('--dx', `${Math.cos(index * 0.78) * (70 + Math.random() * 120)}px`);
+        spark.style.setProperty('--dy', `${Math.sin(index * 0.78) * (70 + Math.random() * 120)}px`);
+        document.body.appendChild(spark);
+        spark.addEventListener('animationend', () => spark.remove());
+      }
+    }
+
+    function resetCamera() {
+      camera.position.set(4.4, 3.4, 6);
+      controls.target.set(0, 0.2, 0);
+      controls.update();
+    }
+
+    function updateResponsiveCamera() {
+      const narrow = window.matchMedia('(max-width: 980px)').matches;
+      camera.fov = narrow ? 54 : 48;
+      controls.target.set(0, narrow ? 0.1 : 0.2, 0);
+      camera.updateProjectionMatrix();
+    }
+
+    function syncRendererSize() {
+      const bounds = container.getBoundingClientRect();
+      const width = Math.max(1, Math.round(bounds.width || window.innerWidth));
+      const height = Math.max(1, Math.round(bounds.height || window.innerHeight));
+      camera.aspect = width / height;
+      updateResponsiveCamera();
+      renderer.setSize(width, height);
+    }
+
+    function onWindowResize() {
+      syncRendererSize();
+    }
 
     function animate() {
       requestAnimationFrame(animate);
 
-      // 自动旋转物体
-      if (currentMesh) {
-        currentMesh.rotation.x += 0.01;
-        currentMesh.rotation.y += 0.01;
+      if (currentMesh && currentEdges) {
+        const spin = state.rotationSpeed * 0.012;
+        currentMesh.rotation.y += spin;
+        currentMesh.rotation.x += spin * 0.28;
+        currentEdges.rotation.copy(currentMesh.rotation);
       }
 
-      // 更新控制器（如果启用了阻尼）
+      labelSprite.visible = state.labelsVisible;
+      labelSprite.lookAt(camera.position);
       controls.update();
-
       renderer.render(scene, camera);
     }
 
-    animate();
-
-    // --- 7. 窗口大小调整处理 (Resize Handler) ---
-
-    window.addEventListener('resize', onWindowResize, false);
-
-    function onWindowResize() {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    }
-
-    // --- 8. UI 交互逻辑 ---
-
-    const shapeSelect = document.getElementById('shape-select');
-    const colorPicker = document.getElementById('color-picker');
-    const resetBtn = document.getElementById('reset-camera');
-
-    // 切换形状函数
-    function changeShape(shapeType) {
-      let newGeometry;
-
-      switch (shapeType) {
-        case 'box':
-          newGeometry = new THREE.BoxGeometry(2, 2, 2);
-          break;
-        case 'sphere':
-          newGeometry = new THREE.SphereGeometry(1.5, 32, 32); // 半径1.5，细分度32
-          break;
-        case 'cylinder':
-          newGeometry = new THREE.CylinderGeometry(1, 1, 2, 32);
-          break;
-        case 'torus':
-          newGeometry = new THREE.TorusGeometry(1, 0.4, 16, 100); // 半径1，管径0.4
-          break;
-        case 'cone':
-          newGeometry = new THREE.ConeGeometry(1, 2, 32);
-          break;
-      }
-
-      if (currentMesh) {
-        scene.remove(currentMesh); // 从场景中移除旧网格
-
-        // 释放内存（重要！）
-        currentMesh.geometry.dispose();
-
-        // 创建新网格，复用材质
-        currentMesh = new THREE.Mesh(newGeometry, material);
-        currentMesh.castShadow = true;
-        currentMesh.receiveShadow = true;
-
-        scene.add(currentMesh); // 添加新网格到场景
-      }
-    }
-
-    // 监听形状选择变化
-    shapeSelect.addEventListener('change', (e) => {
-      changeShape(e.target.value);
-    });
-
-    // 监听颜色变化
-    colorPicker.addEventListener('input', (e) => {
-      material.color.set(e.target.value);
-    });
-
-    // 重置相机视角
-    resetBtn.addEventListener('click', () => {
-      controls.reset();
-      camera.position.set(3, 3, 5);
-    });
-
+    window.addEventListener('resize', onWindowResize);
   </script>
 </body>
 
