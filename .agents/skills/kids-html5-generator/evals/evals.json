@@ -1,0 +1,26 @@
+{
+  "skill_name": "kids-html5-generator",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "grade1-uoi-standalone-game",
+      "prompt": "Create a new Grade 1 Unit 2 UOI game about community helpers. It should live in src/uoi/, be playable on iPad landscape, include a PYP Map link, and appear in the curriculum hub under the UOI lane.",
+      "expected_output": "A standalone HTML file in src/uoi/ with embedded CSS/JS, viewport meta, visible PYP Map return link, 44px+ touch targets, kind feedback, and an updated src/data/curriculum-map.json entry for Grade 1 Unit 2 UOI. The repo QA command should be run or clearly reported if unavailable.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "eval_name": "existing-game-unit-launch",
+      "prompt": "Adapt the existing spelling bee so Grade 1 Unit 3 can launch a storytelling vocabulary set from the PYP map using a query string. Do not edit the generated homepage by hand.",
+      "expected_output": "Changes should use src/data/curriculum-map.json for the hub entry, preserve the actual game path, use href for the unit-specific query string, avoid manual edits to src/index.html, and verify with npm run qa:curriculum.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "eval_name": "visual-science-game",
+      "prompt": "Build a child-friendly science activity for ages 9-10 that helps students investigate day and night. It should feel like a real game, not a worksheet, and it must work without camera permissions.",
+      "expected_output": "A browser-playable HTML5 science activity with visual interactive mechanics, no camera dependency, immediate feedback, accessible touch controls, age-appropriate text, PYP Map navigation, curriculum-map registration if it belongs in the hub, and static plus visual verification notes.",
+      "files": []
+    }
+  ]
+}
