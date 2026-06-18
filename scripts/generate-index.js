@@ -220,6 +220,32 @@ function renderGrade(grade, index) {
       </section>`;
 }
 
+function buildHeroData(curriculum) {
+  return curriculum.grades.map(grade => {
+    const units = grade.units || [];
+    const latestUnit = units.at(-1);
+    const active = grade.status === 'active' && units.length > 0;
+
+    return {
+      id: grade.id,
+      label: grade.label,
+      eyebrow: active ? 'Grade · Unit · Subject' : 'Ready for future UOI documents',
+      title: active
+        ? `${grade.label} learning map now includes ${latestUnit.label}: ${latestUnit.title}.`
+        : `${grade.label} curriculum space is ready.`,
+      summary: grade.summary || '',
+      stripLabel: active ? `${grade.label} inquiry units` : `${grade.label} planned inquiry themes`,
+      units: active
+        ? units.map(unit => `${unit.label}: ${unit.title}`)
+        : plannedThemes.map((theme, index) => `Unit ${index + 1}: ${theme}`),
+    };
+  });
+}
+
+function serializeForScript(value) {
+  return JSON.stringify(value).replaceAll('<', '\\u003c');
+}
+
 function generateIndexHtml(curriculum) {
   const gradeTabs = curriculum.grades.map((grade, index) => `
           <button class="grade-tab${index === 0 ? ' active' : ''}" type="button" data-grade="${escapeHtml(grade.id)}">
@@ -228,6 +254,11 @@ function generateIndexHtml(curriculum) {
           </button>`).join('');
 
   const panels = curriculum.grades.map(renderGrade).join('');
+  const heroData = buildHeroData(curriculum);
+  const initialHero = heroData[0];
+  const initialHeroUnits = initialHero.units
+    .map(unit => `<span>${escapeHtml(unit)}</span>`)
+    .join('');
 
   return `<!DOCTYPE html>
 <html lang="zh-CN">
@@ -310,7 +341,7 @@ function generateIndexHtml(curriculum) {
       grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
       gap: 28px;
       align-items: end;
-      padding: 34px 0 28px;
+      padding: 30px 0 28px;
     }
 
     .hero h1 {
@@ -330,7 +361,7 @@ function generateIndexHtml(curriculum) {
 
     .uoi-strip {
       display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
       gap: 8px;
       align-self: stretch;
     }
@@ -354,12 +385,13 @@ function generateIndexHtml(curriculum) {
     .uoi-strip span:nth-child(3) { background: #f5a6b8; }
     .uoi-strip span:nth-child(4) { background: #a4d56f; }
     .uoi-strip span:nth-child(5) { background: #9ec8ff; }
+    .uoi-strip span:nth-child(6) { background: #f8b26a; }
 
     .grade-tabs {
       display: grid;
       grid-template-columns: repeat(5, minmax(120px, 1fr));
       gap: 10px;
-      margin: 8px 0 28px;
+      margin: 18px 0 18px;
     }
 
     .grade-tab {
@@ -639,7 +671,7 @@ function generateIndexHtml(curriculum) {
 
     @media (max-width: 900px) {
       .hero { grid-template-columns: 1fr; }
-      .uoi-strip { grid-template-columns: repeat(5, minmax(92px, 1fr)); overflow-x: auto; padding-bottom: 8px; }
+      .uoi-strip { grid-template-columns: repeat(6, minmax(104px, 1fr)); overflow-x: auto; padding-bottom: 8px; }
       .grade-tabs { grid-template-columns: repeat(5, minmax(124px, 1fr)); overflow-x: auto; padding-bottom: 8px; }
       .subjects-grid { grid-template-columns: 1fr; }
     }
@@ -668,24 +700,20 @@ function generateIndexHtml(curriculum) {
       <strong>Standalone HTML5 · iPad landscape · PC</strong>
     </header>
 
-    <section class="hero">
-      <div>
-        <p class="eyebrow">Grade · Unit · Subject</p>
-        <h1>Learn through inquiry, then practice through play.</h1>
-        <p>Games are organized around IB PYP Units of Inquiry first, then connected to Literacy, Math, Science, and Chinese. Grade 1 uses Hilson's current UOI portfolio path; Grades 2-5 are ready for future curriculum documents.</p>
-      </div>
-      <div class="uoi-strip" aria-label="Grade 1 inquiry units">
-        <span>Who We Are</span>
-        <span>Community Roles</span>
-        <span>Storytelling</span>
-        <span>Living Things</span>
-        <span>Patterns & Cycles</span>
-      </div>
-    </section>
-
     <nav class="grade-tabs" aria-label="Grade selection">
 ${gradeTabs}
     </nav>
+
+    <section class="hero" aria-live="polite">
+      <div>
+        <p class="eyebrow" id="hero-eyebrow">${escapeHtml(initialHero.eyebrow)}</p>
+        <h1 id="hero-title">${escapeHtml(initialHero.title)}</h1>
+        <p id="hero-summary">${escapeHtml(initialHero.summary)}</p>
+      </div>
+      <div class="uoi-strip" id="hero-units" aria-label="${escapeHtml(initialHero.stripLabel)}">
+        ${initialHeroUnits}
+      </div>
+    </section>
 
     <main>
 ${panels}
@@ -695,12 +723,31 @@ ${panels}
   </div>
 
   <script>
+    const heroData = ${serializeForScript(heroData)};
     const tabs = Array.from(document.querySelectorAll('.grade-tab'));
     const panels = Array.from(document.querySelectorAll('.grade-panel'));
+    const heroEyebrow = document.querySelector('#hero-eyebrow');
+    const heroTitle = document.querySelector('#hero-title');
+    const heroSummary = document.querySelector('#hero-summary');
+    const heroUnits = document.querySelector('#hero-units');
+
+    function updateHero(id) {
+      const grade = heroData.find(item => item.id === id) || heroData[0];
+      heroEyebrow.textContent = grade.eyebrow;
+      heroTitle.textContent = grade.title;
+      heroSummary.textContent = grade.summary;
+      heroUnits.setAttribute('aria-label', grade.stripLabel);
+      heroUnits.replaceChildren(...grade.units.map(unit => {
+        const chip = document.createElement('span');
+        chip.textContent = unit;
+        return chip;
+      }));
+    }
 
     function activateGrade(id) {
       tabs.forEach(tab => tab.classList.toggle('active', tab.dataset.grade === id));
       panels.forEach(panel => panel.classList.toggle('active', panel.id === id));
+      updateHero(id);
       window.history.replaceState(null, '', '#' + id);
     }
 

@@ -130,12 +130,6 @@
               "label": "Math",
               "games": [
                 {
-                  "title": "Position Explorer",
-                  "path": "math/position_explorer.html",
-                  "type": "Existing",
-                  "description": "Use position words to describe where things are in a shared place."
-                },
-                {
                   "title": "3D Shape Explorer",
                   "path": "math/3D_shape.html",
                   "type": "Existing",
@@ -437,12 +431,6 @@
                   "href": "literacy/before_after.html?mode=months",
                   "type": "Existing",
                   "description": "Sequence daily routines using before and after."
-                },
-                {
-                  "title": "Position Explorer",
-                  "path": "math/position_explorer.html",
-                  "type": "Existing",
-                  "description": "Use shape and position language in a visual scene."
                 }
               ]
             },
@@ -474,6 +462,116 @@
                   "path": "Chinese/chinese-practice-print.html",
                   "type": "Existing",
                   "description": "Create handwriting practice for cycle and calendar vocabulary."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "u6",
+          "label": "Unit 6",
+          "title": "Journeys",
+          "theme": "Where We Are in Place and Time",
+          "centralIdea": "Personal journeys show how people learn, grow, and move forward.",
+          "learnerProfile": ["Open-Minded", "Reflective"],
+          "atlSkills": ["Self-management Skills", "Communication Skills"],
+          "subjects": [
+            {
+              "id": "uoi",
+              "label": "UOI",
+              "games": [
+                {
+                  "title": "Story Sequencer",
+                  "path": "uoi/story_sequencer.html",
+                  "type": "Existing",
+                  "description": "Sequence journey moments and explain how a person grows or changes."
+                },
+                {
+                  "title": "Goal Steps Quest",
+                  "path": "uoi/goal_steps_quest.html",
+                  "type": "Existing",
+                  "description": "Choose actions that help prepare for a new stage in a learning journey."
+                }
+              ]
+            },
+            {
+              "id": "literacy",
+              "label": "Literacy",
+              "games": [
+                {
+                  "title": "Time Train - Before & After",
+                  "path": "literacy/before_after.html",
+                  "href": "literacy/before_after.html?mode=months",
+                  "type": "Existing",
+                  "description": "Use time words to retell personal journeys in order."
+                },
+                {
+                  "title": "Spelling Bee for IB PYP G1",
+                  "path": "literacy/spelling_bee.html",
+                  "href": "literacy/spelling_bee.html?set=uoi6",
+                  "type": "Existing",
+                  "description": "Practice growth, change, and personal narrative vocabulary."
+                },
+                {
+                  "title": "MoveSpell - Magic Hand Edition",
+                  "path": "literacy/movespelling/index.html",
+                  "type": "Existing",
+                  "description": "Blend, segment, and spell high-frequency words for personal writing."
+                },
+                {
+                  "title": "Pronunciation Studio",
+                  "path": "literacy/pronunciation.html",
+                  "type": "Existing",
+                  "description": "Hear and repeat sounds before sharing personal journey stories aloud."
+                }
+              ]
+            },
+            {
+              "id": "math",
+              "label": "Math",
+              "games": [
+                {
+                  "title": "Position Explorer",
+                  "path": "math/position_explorer.html",
+                  "type": "Existing",
+                  "description": "Describe journeys and views using in front of, behind, above, below, and next to."
+                },
+                {
+                  "title": "Arithmetic Worksheet Generator",
+                  "path": "math/arithmetic.html",
+                  "href": "math/arithmetic.html?preset=uoi6",
+                  "type": "Existing",
+                  "description": "Review number bonds, place value, comparing numbers, operations, and word problems."
+                },
+                {
+                  "title": "Kangaroo Math G1",
+                  "path": "math/Kangaroo_Math.html",
+                  "type": "Existing",
+                  "description": "Review Grade 1 maths skills with short practice missions."
+                }
+              ]
+            },
+            {
+              "id": "chinese",
+              "label": "Chinese 中文",
+              "games": [
+                {
+                  "title": "Pinyin Tone Helper",
+                  "path": "Chinese/pinyin_training.html",
+                  "type": "Existing",
+                  "description": "Practice clear tones for speaking about experiences and growth."
+                },
+                {
+                  "title": "Chinese Practice Print",
+                  "path": "Chinese/chinese-practice-print.html",
+                  "type": "Existing",
+                  "description": "Create handwriting practice for personal journey and time vocabulary."
+                },
+                {
+                  "title": "Radical Spinner",
+                  "path": "Chinese/word_spinner.html",
+                  "type": "Existing",
+                  "description": "Build character awareness while preparing personal writing words."
                 }
               ]
             }

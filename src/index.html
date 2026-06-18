@@ -79,7 +79,7 @@
       grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
       gap: 28px;
       align-items: end;
-      padding: 34px 0 28px;
+      padding: 30px 0 28px;
     }
 
     .hero h1 {
@@ -99,7 +99,7 @@
 
     .uoi-strip {
       display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
       gap: 8px;
       align-self: stretch;
     }
@@ -123,12 +123,13 @@
     .uoi-strip span:nth-child(3) { background: #f5a6b8; }
     .uoi-strip span:nth-child(4) { background: #a4d56f; }
     .uoi-strip span:nth-child(5) { background: #9ec8ff; }
+    .uoi-strip span:nth-child(6) { background: #f8b26a; }
 
     .grade-tabs {
       display: grid;
       grid-template-columns: repeat(5, minmax(120px, 1fr));
       gap: 10px;
-      margin: 8px 0 28px;
+      margin: 18px 0 18px;
     }
 
     .grade-tab {
@@ -408,7 +409,7 @@
 
     @media (max-width: 900px) {
       .hero { grid-template-columns: 1fr; }
-      .uoi-strip { grid-template-columns: repeat(5, minmax(92px, 1fr)); overflow-x: auto; padding-bottom: 8px; }
+      .uoi-strip { grid-template-columns: repeat(6, minmax(104px, 1fr)); overflow-x: auto; padding-bottom: 8px; }
       .grade-tabs { grid-template-columns: repeat(5, minmax(124px, 1fr)); overflow-x: auto; padding-bottom: 8px; }
       .subjects-grid { grid-template-columns: 1fr; }
     }
@@ -437,21 +438,6 @@
       <strong>Standalone HTML5 · iPad landscape · PC</strong>
     </header>
 
-    <section class="hero">
-      <div>
-        <p class="eyebrow">Grade · Unit · Subject</p>
-        <h1>Learn through inquiry, then practice through play.</h1>
-        <p>Games are organized around IB PYP Units of Inquiry first, then connected to Literacy, Math, Science, and Chinese. Grade 1 uses Hilson's current UOI portfolio path; Grades 2-5 are ready for future curriculum documents.</p>
-      </div>
-      <div class="uoi-strip" aria-label="Grade 1 inquiry units">
-        <span>Who We Are</span>
-        <span>Community Roles</span>
-        <span>Storytelling</span>
-        <span>Living Things</span>
-        <span>Patterns & Cycles</span>
-      </div>
-    </section>
-
     <nav class="grade-tabs" aria-label="Grade selection">
 
           <button class="grade-tab active" type="button" data-grade="g1">
@@ -475,6 +461,17 @@
             <small>Planned</small>
           </button>
     </nav>
+
+    <section class="hero" aria-live="polite">
+      <div>
+        <p class="eyebrow" id="hero-eyebrow">Grade · Unit · Subject</p>
+        <h1 id="hero-title">Grade 1 learning map now includes Unit 6: Journeys.</h1>
+        <p id="hero-summary">Hilson&#039;s Grade 1 UOI learning path, organized by inquiry units and connected subject practice.</p>
+      </div>
+      <div class="uoi-strip" id="hero-units" aria-label="Grade 1 inquiry units">
+        <span>Unit 1: Goal Setting</span><span>Unit 2: Community Roles</span><span>Unit 3: Storytelling</span><span>Unit 4: Living Things</span><span>Unit 5: Patterns and Cycles</span><span>Unit 6: Journeys</span>
+      </div>
+    </section>
 
     <main>
 
@@ -595,12 +592,6 @@
             <section class="subject-lane" style="--subject-color:#2d9d78">
               <h4><span>123</span>Math</h4>
               <div class="game-list">
-              <a class="game-link " href="math/position_explorer.html">
-                <span class="game-copy">
-                  <strong>Position Explorer</strong>
-                  <small>Use position words to describe where things are in a shared place.</small>
-                </span>
-              </a>
               <a class="game-link " href="math/3D_shape.html">
                 <span class="game-copy">
                   <strong>3D Shape Explorer</strong>
@@ -874,12 +865,6 @@
                   <strong>Time Train - Before &amp; After</strong>
                   <small>Sequence daily routines using before and after.</small>
                 </span>
-              </a>
-              <a class="game-link " href="math/position_explorer.html">
-                <span class="game-copy">
-                  <strong>Position Explorer</strong>
-                  <small>Use shape and position language in a visual scene.</small>
-                </span>
               </a></div>
             </section>
             <section class="subject-lane" style="--subject-color:#4a7cdd">
@@ -905,6 +890,106 @@
                 <span class="game-copy">
                   <strong>Chinese Practice Print</strong>
                   <small>Create handwriting practice for cycle and calendar vocabulary.</small>
+                </span>
+              </a></div>
+            </section></div>
+        </article>
+        <article class="unit-band" data-unit="u6">
+          <div class="unit-heading">
+            <div class="unit-number">6</div>
+            <div>
+              <p class="eyebrow">Unit 6 · Where We Are in Place and Time</p>
+              <h3>Journeys</h3>
+              <p>Personal journeys show how people learn, grow, and move forward.</p>
+              <div class="profile-row"><span>Open-Minded</span><span>Reflective</span><span>Self-management Skills</span><span>Communication Skills</span></div>
+            </div>
+          </div>
+          <div class="subjects-grid">
+            <section class="subject-lane" style="--subject-color:#f2b84b">
+              <h4><span>◎</span>UOI</h4>
+              <div class="game-list">
+              <a class="game-link " href="uoi/story_sequencer.html">
+                <span class="game-copy">
+                  <strong>Story Sequencer</strong>
+                  <small>Sequence journey moments and explain how a person grows or changes.</small>
+                </span>
+              </a>
+              <a class="game-link " href="uoi/goal_steps_quest.html">
+                <span class="game-copy">
+                  <strong>Goal Steps Quest</strong>
+                  <small>Choose actions that help prepare for a new stage in a learning journey.</small>
+                </span>
+              </a></div>
+            </section>
+            <section class="subject-lane" style="--subject-color:#4a7cdd">
+              <h4><span>Aa</span>Literacy</h4>
+              <div class="game-list">
+              <a class="game-link " href="literacy/before_after.html?mode=months">
+                <span class="game-copy">
+                  <strong>Time Train - Before &amp; After</strong>
+                  <small>Use time words to retell personal journeys in order.</small>
+                </span>
+              </a>
+              <a class="game-link " href="literacy/spelling_bee.html?set=uoi6">
+                <span class="game-copy">
+                  <strong>Spelling Bee for IB PYP G1</strong>
+                  <small>Practice growth, change, and personal narrative vocabulary.</small>
+                </span>
+              </a>
+              <a class="game-link " href="literacy/movespelling/index.html">
+                <span class="game-copy">
+                  <strong>MoveSpell - Magic Hand Edition</strong>
+                  <small>Blend, segment, and spell high-frequency words for personal writing.</small>
+                </span>
+              </a>
+              <a class="game-link " href="literacy/pronunciation.html">
+                <span class="game-copy">
+                  <strong>Pronunciation Studio</strong>
+                  <small>Hear and repeat sounds before sharing personal journey stories aloud.</small>
+                </span>
+              </a></div>
+            </section>
+            <section class="subject-lane" style="--subject-color:#2d9d78">
+              <h4><span>123</span>Math</h4>
+              <div class="game-list">
+              <a class="game-link " href="math/position_explorer.html">
+                <span class="game-copy">
+                  <strong>Position Explorer</strong>
+                  <small>Describe journeys and views using in front of, behind, above, below, and next to.</small>
+                </span>
+              </a>
+              <a class="game-link " href="math/arithmetic.html?preset=uoi6">
+                <span class="game-copy">
+                  <strong>Arithmetic Worksheet Generator</strong>
+                  <small>Review number bonds, place value, comparing numbers, operations, and word problems.</small>
+                </span>
+              </a>
+              <a class="game-link " href="math/Kangaroo_Math.html">
+                <span class="game-copy">
+                  <strong>Kangaroo Math G1</strong>
+                  <small>Review Grade 1 maths skills with short practice missions.</small>
+                </span>
+              </a></div>
+            </section>
+            <section class="subject-lane" style="--subject-color:#d05a8a">
+              <h4><span>文</span>Chinese 中文</h4>
+              <div class="game-list">
+              <a class="game-link " href="Chinese/pinyin_training.html">
+                <span class="game-copy">
+                  <strong>Pinyin Tone Helper</strong>
+                  <small>Practice clear tones for speaking about experiences and growth.</small>
+                </span>
+              </a>
+              <a class="game-link " href="Chinese/chinese-practice-print.html">
+                <span class="game-copy">
+                  <strong>Chinese Practice Print</strong>
+                  <small>Create handwriting practice for personal journey and time vocabulary.</small>
+                </span>
+              </a>
+              <a class="game-link " href="Chinese/word_spinner.html">
+                <span class="game-copy">
+                  <strong>Radical Spinner</strong>
+                  <small>Build character awareness while preparing personal writing words.</small>
                 </span>
               </a></div>
             </section></div>
@@ -1144,12 +1229,31 @@
   </div>
 
   <script>
+    const heroData = [{"id":"g1","label":"Grade 1","eyebrow":"Grade · Unit · Subject","title":"Grade 1 learning map now includes Unit 6: Journeys.","summary":"Hilson's Grade 1 UOI learning path, organized by inquiry units and connected subject practice.","stripLabel":"Grade 1 inquiry units","units":["Unit 1: Goal Setting","Unit 2: Community Roles","Unit 3: Storytelling","Unit 4: Living Things","Unit 5: Patterns and Cycles","Unit 6: Journeys"]},{"id":"g2","label":"Grade 2","eyebrow":"Ready for future UOI documents","title":"Grade 2 curriculum space is ready.","summary":"Course map ready. Add Grade 2 UOI documents to unlock unit-specific games.","stripLabel":"Grade 2 planned inquiry themes","units":["Unit 1: Who We Are","Unit 2: Where We Are in Place and Time","Unit 3: How We Express Ourselves","Unit 4: How the World Works","Unit 5: How We Organize Ourselves","Unit 6: Sharing the Planet"]},{"id":"g3","label":"Grade 3","eyebrow":"Ready for future UOI documents","title":"Grade 3 curriculum space is ready.","summary":"Course map ready. Add Grade 3 UOI documents to unlock unit-specific games.","stripLabel":"Grade 3 planned inquiry themes","units":["Unit 1: Who We Are","Unit 2: Where We Are in Place and Time","Unit 3: How We Express Ourselves","Unit 4: How the World Works","Unit 5: How We Organize Ourselves","Unit 6: Sharing the Planet"]},{"id":"g4","label":"Grade 4","eyebrow":"Ready for future UOI documents","title":"Grade 4 curriculum space is ready.","summary":"Course map ready. Add Grade 4 UOI documents to unlock unit-specific games.","stripLabel":"Grade 4 planned inquiry themes","units":["Unit 1: Who We Are","Unit 2: Where We Are in Place and Time","Unit 3: How We Express Ourselves","Unit 4: How the World Works","Unit 5: How We Organize Ourselves","Unit 6: Sharing the Planet"]},{"id":"g5","label":"Grade 5","eyebrow":"Ready for future UOI documents","title":"Grade 5 curriculum space is ready.","summary":"Course map ready. Add Grade 5 UOI documents to unlock unit-specific games.","stripLabel":"Grade 5 planned inquiry themes","units":["Unit 1: Who We Are","Unit 2: Where We Are in Place and Time","Unit 3: How We Express Ourselves","Unit 4: How the World Works","Unit 5: How We Organize Ourselves","Unit 6: Sharing the Planet"]}];
     const tabs = Array.from(document.querySelectorAll('.grade-tab'));
     const panels = Array.from(document.querySelectorAll('.grade-panel'));
+    const heroEyebrow = document.querySelector('#hero-eyebrow');
+    const heroTitle = document.querySelector('#hero-title');
+    const heroSummary = document.querySelector('#hero-summary');
+    const heroUnits = document.querySelector('#hero-units');
+
+    function updateHero(id) {
+      const grade = heroData.find(item => item.id === id) || heroData[0];
+      heroEyebrow.textContent = grade.eyebrow;
+      heroTitle.textContent = grade.title;
+      heroSummary.textContent = grade.summary;
+      heroUnits.setAttribute('aria-label', grade.stripLabel);
+      heroUnits.replaceChildren(...grade.units.map(unit => {
+        const chip = document.createElement('span');
+        chip.textContent = unit;
+        return chip;
+      }));
+    }
 
     function activateGrade(id) {
       tabs.forEach(tab => tab.classList.toggle('active', tab.dataset.grade === id));
       panels.forEach(panel => panel.classList.toggle('active', panel.id === id));
+      updateHero(id);
       window.history.replaceState(null, '', '#' + id);
     }
 

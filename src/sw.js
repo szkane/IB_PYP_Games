@@ -1,5 +1,5 @@
 // Cache version - auto-updated by build script
-const CACHE_VERSION = '20260609122732';
+const CACHE_VERSION = '20260618103233';
 const CACHE_NAME = `ib-pyp-games-${CACHE_VERSION}`;
 
 // Static assets to pre-cache during install
@@ -21,11 +21,13 @@ const PRECACHE_URLS = [
     '/literacy/spelling_bee.html?set=uoi3',
     '/literacy/spelling_bee.html?set=uoi4',
     '/literacy/spelling_bee.html?set=uoi5',
+    '/literacy/spelling_bee.html?set=uoi6',
     '/manifest.json',
     '/math/3D_shape.html',
     '/math/arithmetic.html?preset=uoi1',
     '/math/arithmetic.html?preset=uoi2',
     '/math/arithmetic.html?preset=uoi3',
+    '/math/arithmetic.html?preset=uoi6',
     '/math/Kangaroo_Math.html',
     '/math/living_things_eco_detective.html',
     '/math/pictograph_tally_quiz_arcade.html',
