@@ -20,6 +20,7 @@ const newUoiGamePaths = [
   'uoi/story_sequencer.html',
   'uoi/needs_of_living_things.html',
   'uoi/life_cycle_builder.html',
+  'uoi/g2_vocabulary.html',
 ];
 const plannedThemes = [
   'Who We Are',
@@ -146,7 +147,7 @@ function main() {
     errors.push(`Expected 5 grades, found ${curriculum.grades.length}.`);
   }
 
-  for (const grade of curriculum.grades.filter(item => item.id !== 'g1')) {
+  for (const grade of curriculum.grades.filter(item => item.id !== 'g1' && item.id !== 'g2')) {
     if (grade.status !== 'planned') {
       errors.push(`${grade.label} should remain marked as planned until UOI documents are added.`);
     }

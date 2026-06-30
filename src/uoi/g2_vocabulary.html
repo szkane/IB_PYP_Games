@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>G2 Vocabulary Quest</title>
+  <style>
+    :root {
+      --bg-uoi: #f3effc;
+      --bg-math: #eef7f2;
+      --text: #1a1625;
+      --panel: #ffffff;
+      --accent-uoi: #7c3aed;
+      --accent-math: #059669;
+      --accent-hover-uoi: #6d28d9;
+      --accent-hover-math: #047857;
+      --border-uoi: #c0a9f5;
+      --border-math: #a7dfc0;
+      --good: #10b981;
+      --warn: #f59e0b;
+      --bad: #ef4444;
+      --shadow: rgba(26, 22, 37, 0.08);
+      --font: ui-rounded, "Avenir Next", "Nunito", "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: var(--font);
+      color: var(--text);
+      background: var(--bg-uoi);
+      transition: background 0.3s ease;
+      padding-bottom: 40px;
+    }
+
+    body.math-mode {
+      background: var(--bg-math);
+    }
+
+    .map-link {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      z-index: 100;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 16px;
+      background: var(--panel);
+      border: 2px solid var(--text);
+      border-radius: 20px;
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 700;
+      box-shadow: 2px 2px 0 var(--text);
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    .map-link:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0 0 0 var(--text);
+    }
+
+    .voice-select-dropdown {
+      min-height: 38px;
+      padding: 6px 14px;
+      background: var(--panel);
+      border: 2px solid var(--text);
+      border-radius: 19px;
+      color: var(--text);
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      outline: none;
+      font-size: 0.85rem;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    .voice-select-dropdown:active, .voice-select-dropdown:focus {
+      transform: translate(1px, 1px);
+    }
+
+    main {
+      width: min(1040px, calc(100% - 24px));
+      margin: 0 auto;
+      padding-top: 72px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.45);
+      border-radius: 24px;
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.6);
+    }
+
+    .eyebrow {
+      font-weight: 800;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 6px;
+      color: var(--accent-uoi);
+    }
+
+    body.math-mode .eyebrow {
+      color: var(--accent-math);
+    }
+
+    h1 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: clamp(0.95rem, 2vw, 1.1rem);
+      opacity: 0.8;
+      max-width: 600px;
+      margin: 0 auto 16px;
+      line-height: 1.4;
+    }
+
+    /* Category & Mode Switchers */
+    .tabs-row {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      min-height: 48px;
+      padding: 10px 24px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      border-radius: 24px;
+      border: 2px solid var(--text);
+      cursor: pointer;
+      font-family: inherit;
+      background: var(--panel);
+      box-shadow: 3px 3px 0 var(--text);
+      transition: transform 0.1s, box-shadow 0.1s, background 0.2s;
+    }
+
+    .tab-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0 var(--text);
+    }
+
+    .tab-btn.active[data-category="uoi"] {
+      background: var(--accent-uoi);
+      color: white;
+    }
+
+    .tab-btn.active[data-category="math"] {
+      background: var(--accent-math);
+      color: white;
+    }
+
+    .mode-selector {
+      display: inline-flex;
+      background: rgba(0, 0, 0, 0.05);
+      padding: 4px;
+      border-radius: 30px;
+      margin-bottom: 20px;
+    }
+
+    .mode-btn {
+      min-height: 40px;
+      padding: 8px 20px;
+      border: none;
+      background: none;
+      font-weight: 800;
+      font-family: inherit;
+      font-size: 0.95rem;
+      border-radius: 20px;
+      cursor: pointer;
+      color: var(--text);
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .mode-btn.active {
+      background: var(--panel);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    }
+
+    body.math-mode .mode-btn.active {
+      color: var(--accent-math);
+    }
+
+    body:not(.math-mode) .mode-btn.active {
+      color: var(--accent-uoi);
+    }
+
+    /* Option Toolbar */
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--panel);
+      border: 2px solid var(--text);
+      padding: 12px 20px;
+      border-radius: 20px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 12px;
+      box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.05);
+    }
+
+    .toolbar-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toolbar-label {
+      font-weight: 800;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      opacity: 0.7;
+    }
+
+    .option-pill {
+      min-height: 38px;
+      padding: 6px 14px;
+      border-radius: 19px;
+      border: 2px solid var(--text);
+      background: var(--panel);
+      font-weight: 700;
+      font-family: inherit;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .option-pill.active {
+      background: var(--text);
+      color: var(--panel);
+    }
+
+    .stars-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 900;
+      font-size: 1.1rem;
+      background: #fef3c7;
+      border: 2px solid var(--text);
+      padding: 6px 14px;
+      border-radius: 19px;
+      box-shadow: 2px 2px 0 var(--text);
+    }
+
+    /* Flashcards View */
+    .flashcard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 2px solid var(--text);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 4px 4px 0 var(--text);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      min-height: 320px;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 6px 6px 0 var(--text);
+    }
+
+    .card:active {
+      transform: translateY(2px);
+      box-shadow: 2px 2px 0 var(--text);
+    }
+
+    /* Rectangular SVG Container (larger size, wide aspect ratio 1.6) */
+    .card-svg-container {
+      width: 100%;
+      max-width: 180px;
+      height: 110px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f8fafc;
+      border-radius: 20px;
+      padding: 10px;
+      border: 2px solid transparent;
+      transition: border-color 0.2s;
+    }
+
+    body.math-mode .card:hover .card-svg-container {
+      border-color: var(--border-math);
+    }
+
+    body:not(.math-mode) .card:hover .card-svg-container {
+      border-color: var(--border-uoi);
+    }
+
+    .card-word {
+      font-size: 1.5rem;
+      font-weight: 900;
+      margin-bottom: 4px;
+      color: var(--text);
+      word-wrap: break-word;
+      width: 100%;
+    }
+
+    .card-zh {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--accent-uoi);
+      margin-bottom: 12px;
+    }
+
+    body.math-mode .card-zh {
+      color: var(--accent-math);
+    }
+
+    .card-definition {
+      font-size: 0.9rem;
+      line-height: 1.4;
+      opacity: 0.85;
+      margin-bottom: 12px;
+      flex-grow: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-sentence {
+      font-size: 0.85rem;
+      line-height: 1.45;
+      background: rgba(0,0,0,0.03);
+      padding: 10px 12px;
+      border-radius: 12px;
+      width: 100%;
+      font-style: italic;
+      color: #475569;
+    }
+
+    .speak-indicator {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      font-size: 1.1rem;
+      opacity: 0.4;
+      transition: opacity 0.2s;
+    }
+
+    .card:hover .speak-indicator {
+      opacity: 1;
+    }
+
+    /* Quiz View */
+    .quiz-container {
+      background: var(--panel);
+      border: 2px solid var(--text);
+      border-radius: 28px;
+      padding: 32px 24px;
+      box-shadow: 6px 6px 0 var(--text);
+      max-width: 680px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .quiz-progress {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      font-weight: 800;
+      font-size: 0.95rem;
+    }
+
+    .progress-bar-bg {
+      flex-grow: 1;
+      height: 12px;
+      background: #e2e8f0;
+      border-radius: 6px;
+      margin: 0 16px;
+      overflow: hidden;
+      border: 2px solid var(--text);
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--accent-uoi);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    body.math-mode .progress-bar-fill {
+      background: var(--accent-math);
+    }
+
+    .quiz-question-card {
+      background: #f8fafc;
+      border: 2px solid var(--text);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Rectangular SVG Container for Quiz */
+    .quiz-svg {
+      width: 100%;
+      max-width: 176px;
+      height: 110px;
+      margin-bottom: 16px;
+      background: var(--panel);
+      border-radius: 20px;
+      padding: 10px;
+      border: 2px solid #e2e8f0;
+    }
+
+    .quiz-prompt {
+      font-size: 1.15rem;
+      font-weight: 700;
+      line-height: 1.5;
+      margin-bottom: 8px;
+    }
+
+    .quiz-target {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--accent-uoi);
+    }
+
+    body.math-mode .quiz-target {
+      color: var(--accent-math);
+    }
+
+    .quiz-options {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    @media (min-width: 480px) {
+      .quiz-options {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .quiz-opt-btn {
+      min-height: 52px;
+      padding: 12px 16px;
+      border: 2px solid var(--text);
+      border-radius: 16px;
+      background: var(--panel);
+      color: var(--text);
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 2px 2px 0 var(--text);
+      transition: transform 0.1s, box-shadow 0.1s, background-color 0.2s;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .quiz-opt-btn:active {
+      transform: translate(1px, 1px);
+      box-shadow: 1px 1px 0 var(--text);
+    }
+
+    .quiz-opt-btn.correct {
+      background-color: #d1fae5 !important;
+      border-color: #059669 !important;
+      color: #047857 !important;
+    }
+
+    .quiz-opt-btn.wrong {
+      background-color: #fee2e2 !important;
+      border-color: #dc2626 !important;
+      color: #b91c1c !important;
+      animation: shake 0.4s;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+
+    .quiz-feedback {
+      min-height: 24px;
+      font-weight: 800;
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+    }
+
+    .quiz-feedback.good { color: var(--good); }
+    .quiz-feedback.bad { color: var(--bad); }
+
+    .quiz-results {
+      padding: 20px;
+    }
+
+    .results-emoji {
+      font-size: 4rem;
+      margin-bottom: 12px;
+      display: inline-block;
+      animation: bounce 1s infinite alternate;
+    }
+
+    @keyframes bounce {
+      from { transform: translateY(0); }
+      to { transform: translateY(-10px); }
+    }
+
+    .btn-action {
+      min-height: 48px;
+      padding: 10px 24px;
+      background: var(--accent-uoi);
+      color: white;
+      border: 2px solid var(--text);
+      border-radius: 24px;
+      font-weight: 800;
+      font-size: 1.05rem;
+      font-family: inherit;
+      cursor: pointer;
+      box-shadow: 3px 3px 0 var(--text);
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    body.math-mode .btn-action {
+      background: var(--accent-math);
+    }
+
+    .btn-action:active {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0 var(--text);
+    }
+
+    canvas#confetti {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    @media (max-width: 820px) {
+      main {
+        padding-top: 80px;
+      }
+      .map-link {
+        position: static;
+        margin: 10px auto;
+        width: fit-content;
+      }
+      header {
+        margin-top: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="map-link" href="../index.html">PYP Map</a>
+
+  <main>
+    <header>
+      <p class="eyebrow" id="sectionEyebrow">Unit 1 · How We Organize Ourselves</p>
+      <h1 id="sectionTitle">Grade 2 Vocabulary Quest</h1>
+      <p class="subtitle" id="sectionSubtitle">Learn and practice important Math and UOI words. Tap cards to hear them spoken!</p>
+
+      <div class="tabs-row">
+        <button class="tab-btn active" data-category="uoi">🛒 UOI Vocabulary</button>
+        <button class="tab-btn" data-category="math">🔢 Math Vocabulary</button>
+      </div>
+
+      <div class="mode-selector">
+        <button class="mode-btn active" data-mode="learn">Learn Cards</button>
+        <button class="mode-btn" data-mode="quiz">Play Quiz</button>
+      </div>
+    </header>
+
+    <div class="toolbar" id="toolbar">
+      <div class="toolbar-group">
+        <span class="toolbar-label">Show Text:</span>
+        <button class="option-pill" data-lang="both">Both</button>
+        <button class="option-pill active" data-lang="en">English Only</button>
+        <button class="option-pill" data-lang="zh">Chinese Only</button>
+      </div>
+
+      <!-- Accent Voice Dropdown moved directly inside the toolbar -->
+      <div class="toolbar-group">
+        <span class="toolbar-label">Voice:</span>
+        <select id="voiceSelect" class="voice-select-dropdown" aria-label="Select Voice Accent">
+          <option value="">Default Browser Voice</option>
+        </select>
+      </div>
+
+      <div class="stars-badge">
+        <span>⭐</span><span id="starCount">0</span>
+      </div>
+    </div>
+
+    <!-- Flashcards Container -->
+    <section id="learnView" class="flashcard-grid" aria-label="Vocabulary Cards"></section>
+
+    <!-- Quiz Container -->
+    <section id="quizView" class="quiz-container" style="display: none;"></section>
+  </main>
+
+  <canvas id="confetti"></canvas>
+
+  <script>
+    // ----------------------------------------------------
+    // VOCABULARY DATABASE (Rectangular SVG aspect ratio 1.6, viewbox 0 0 160 100)
+    // ----------------------------------------------------
+    const vocabData = {
+      math: [
+        {
+          word: "divided by",
+          zh: "除以",
+          definition: "Sharing something into equal parts.",
+          sentence: "If you have 20 apples and you divide them by 4 friends, each friend gets 5 apples.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><circle cx="80" cy="25" r="8" fill="#059669"/><line x1="30" y1="50" x2="130" y2="50" stroke="#059669" stroke-width="8" stroke-linecap="round"/><circle cx="80" cy="75" r="8" fill="#059669"/></svg>`
+        },
+        {
+          word: "divisor",
+          zh: "除数",
+          definition: "A number that divides another number without leaving a remainder.",
+          sentence: "In the equation 10 ÷ 2 = 5, 2 is the divisor.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><text x="80" y="45" font-size="24" font-weight="900" text-anchor="middle" fill="#1e293b">10 ÷ <tspan fill="#ef4444" font-size="30">2</tspan> = 5</text><path d="M 80 55 L 80 72" stroke="#ef4444" stroke-width="3" stroke-linecap="round" fill="none"/><text x="80" y="90" font-size="12" font-weight="800" text-anchor="middle" fill="#ef4444">divisor</text></svg>`
+        },
+        {
+          word: "quotient",
+          zh: "商",
+          definition: "The result of dividing one number by another.",
+          sentence: "In the equation 10 ÷ 2 = 5, 5 is the quotient.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><text x="80" y="45" font-size="24" font-weight="900" text-anchor="middle" fill="#1e293b">10 ÷ 2 = <tspan fill="#3b82f6" font-size="30">5</tspan></text><path d="M 115 55 L 115 72" stroke="#3b82f6" stroke-width="3" stroke-linecap="round" fill="none"/><text x="115" y="90" font-size="12" font-weight="800" text-anchor="middle" fill="#3b82f6">quotient</text></svg>`
+        },
+        {
+          word: "product",
+          zh: "乘积",
+          definition: "The answer you get when you multiply numbers together.",
+          sentence: "The product of 7 and 2 is 14.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><text x="80" y="45" font-size="24" font-weight="900" text-anchor="middle" fill="#1e293b">7 × 2 = <tspan fill="#10b981" font-size="30">14</tspan></text><path d="M 118 55 L 118 72" stroke="#10b981" stroke-width="3" stroke-linecap="round" fill="none"/><text x="118" y="90" font-size="12" font-weight="800" text-anchor="middle" fill="#10b981">product</text></svg>`
+        },
+        {
+          word: "factor",
+          zh: "因数",
+          definition: "A number that makes another number when multiplied.",
+          sentence: "2 is a factor of 6 because 2 times 3 equals 6.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><text x="80" y="45" font-size="24" font-weight="900" text-anchor="middle" fill="#1e293b"><tspan fill="#f59e0b" font-size="28">2</tspan> × <tspan fill="#f59e0b" font-size="28">3</tspan> = 6</text><text x="65" y="82" font-size="12" font-weight="800" text-anchor="middle" fill="#f59e0b">factors</text><path d="M 48 55 Q 65 70 65 70" stroke="#f59e0b" stroke-width="2" fill="none"/><path d="M 82 55 Q 65 70 65 70" stroke="#f59e0b" stroke-width="2" fill="none"/></svg>`
+        },
+        {
+          word: "multiplication",
+          zh: "乘法",
+          definition: "To add the same number many times.",
+          sentence: "In math class, we learned that multiplication is a fast way to add the same number again and again.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><circle cx="40" cy="25" r="6" fill="#059669"/><circle cx="60" cy="25" r="6" fill="#059669"/><circle cx="80" cy="25" r="6" fill="#059669"/><circle cx="100" cy="25" r="6" fill="#059669"/><circle cx="120" cy="25" r="6" fill="#059669"/><circle cx="40" cy="45" r="6" fill="#059669"/><circle cx="60" cy="45" r="6" fill="#059669"/><circle cx="80" cy="45" r="6" fill="#059669"/><circle cx="100" cy="45" r="6" fill="#059669"/><circle cx="120" cy="45" r="6" fill="#059669"/><circle cx="40" cy="65" r="6" fill="#059669"/><circle cx="60" cy="65" r="6" fill="#059669"/><circle cx="80" cy="65" r="6" fill="#059669"/><circle cx="100" cy="65" r="6" fill="#059669"/><circle cx="120" cy="65" r="6" fill="#059669"/><text x="80" y="88" font-size="12" font-weight="800" text-anchor="middle" fill="#1e293b">3 rows of 5 = 15</text></svg>`
+        },
+        {
+          word: "column",
+          zh: "列",
+          definition: "A column is a stack of items on top of each other, going up and down.",
+          sentence: "In math class, we made a column of blocks to show our favorite colors.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><rect x="72" y="15" width="16" height="18" rx="3" fill="#10b981" stroke="#1e293b" stroke-width="3"/><rect x="72" y="38" width="16" height="18" rx="3" fill="#3b82f6" stroke="#1e293b" stroke-width="3"/><rect x="72" y="61" width="16" height="18" rx="3" fill="#ef4444" stroke="#1e293b" stroke-width="3"/><path d="M 45 20 L 45 75" stroke="#1e293b" stroke-width="3" stroke-linecap="round"/><path d="M 40 68 L 45 75 L 50 68" stroke="#1e293b" stroke-width="3" fill="none" stroke-linejoin="round"/><text x="115" y="55" font-size="12" font-weight="800" fill="#1e293b">Column</text></svg>`
+        },
+        {
+          word: "row",
+          zh: "排",
+          definition: "A row is a line of items standing next to each other, going side to side.",
+          sentence: "There is one row of apples in the canteen.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><circle cx="45" cy="45" r="10" fill="#ef4444" stroke="#1e293b" stroke-width="3"/><circle cx="70" cy="45" r="10" fill="#ef4444" stroke="#1e293b" stroke-width="3"/><circle cx="95" cy="45" r="10" fill="#ef4444" stroke="#1e293b" stroke-width="3"/><path d="M 35 75 L 105 75" stroke="#1e293b" stroke-width="3" stroke-linecap="round"/><path d="M 98 70 L 105 75 L 98 80" stroke="#1e293b" stroke-width="3" fill="none" stroke-linejoin="round"/><text x="120" y="50" font-size="12" font-weight="800" fill="#1e293b">Row</text></svg>`
+        },
+        {
+          word: "add",
+          zh: "加",
+          definition: "To join two or more numbers together.",
+          sentence: "If you add 2 flowers and 3 flowers, you get 5 flowers.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><circle cx="35" cy="40" r="10" fill="#3b82f6" stroke="#1e293b" stroke-width="3"/><path d="M 35 50 Q 33 65 38 75" stroke="#1e293b" stroke-width="2" fill="none"/><circle cx="55" cy="35" r="10" fill="#3b82f6" stroke="#1e293b" stroke-width="3"/><path d="M 55 45 Q 52 62 57 75" stroke="#1e293b" stroke-width="2" fill="none"/><text x="80" y="52" font-size="28" font-weight="900" text-anchor="middle" fill="#1e293b">+</text><circle cx="105" cy="40" r="10" fill="#ef4444" stroke="#1e293b" stroke-width="3"/><path d="M 105 50 Q 103 65 108 75" stroke="#1e293b" stroke-width="2" fill="none"/><circle cx="125" cy="35" r="10" fill="#ef4444" stroke="#1e293b" stroke-width="3"/><path d="M 125 45 Q 122 62 127 75" stroke="#1e293b" stroke-width="2" fill="none"/></svg>`
+        },
+        {
+          word: "subtract",
+          zh: "减",
+          definition: "To take one number away from another.",
+          sentence: "If you subtract 1 cake from 3 cakes, you have 2 left.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><circle cx="40" cy="50" r="10" fill="#ef4444"/><circle cx="70" cy="50" r="10" fill="#ef4444"/><circle cx="100" cy="50" r="10" fill="#ef4444" opacity="0.25"/><line x1="90" y1="40" x2="110" y2="60" stroke="#ef4444" stroke-width="3"/><line x1="110" y1="40" x2="90" y2="60" stroke="#ef4444" stroke-width="3"/></svg>`
+        },
+        {
+          word: "plus",
+          zh: "加",
+          definition: "And, or add to. Shown by the '+' symbol.",
+          sentence: "Three plus four equals seven.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><path d="M 80 20 L 80 80 M 50 50 L 110 50" stroke="#059669" stroke-width="12" stroke-linecap="round"/></svg>`
+        },
+        {
+          word: "minus",
+          zh: "减",
+          definition: "Take away, or subtract. Shown by the '-' symbol.",
+          sentence: "Ten minus three is seven.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><line x1="50" y1="50" x2="110" y2="50" stroke="#ef4444" stroke-width="12" stroke-linecap="round"/></svg>`
+        },
+        {
+          word: "sum",
+          zh: "和",
+          definition: "The total number you get when you add numbers together.",
+          sentence: "The sum of 5 and 3 is 8.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><rect x="60" y="15" width="40" height="55" rx="8" fill="none" stroke="#10b981" stroke-width="4"/><rect x="68" y="8" width="24" height="7" rx="2" fill="#1e293b"/><circle cx="70" cy="58" r="6" fill="#ef4444"/><circle cx="82" cy="60" r="6" fill="#3b82f6"/><circle cx="90" cy="55" r="6" fill="#fbbf24"/><circle cx="75" cy="46" r="6" fill="#10b981"/><circle cx="86" cy="44" r="6" fill="#ec4899"/><text x="80" y="88" font-size="14" font-weight="900" fill="#10b981" text-anchor="middle">SUM (Total = 5)</text></svg>`
+        },
+        {
+          word: "difference",
+          zh: "差",
+          definition: "The result of subtracting one number from another.",
+          sentence: "The difference between 8 and 6 is 2.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><rect x="35" y="20" width="16" height="15" rx="2" fill="#3b82f6" stroke="#1e293b" stroke-width="2"/><rect x="35" y="35" width="16" height="15" rx="2" fill="#3b82f6" stroke="#1e293b" stroke-width="2"/><rect x="35" y="50" width="16" height="15" rx="2" fill="#3b82f6" stroke="#1e293b" stroke-width="2"/><rect x="35" y="65" width="16" height="15" rx="2" fill="#3b82f6" stroke="#1e293b" stroke-width="2"/><rect x="65" y="50" width="16" height="15" rx="2" fill="#10b981" stroke="#1e293b" stroke-width="2"/><rect x="65" y="65" width="16" height="15" rx="2" fill="#10b981" stroke="#1e293b" stroke-width="2"/><line x1="60" y1="50" x2="95" y2="50" stroke="#ef4444" stroke-width="2" stroke-dasharray="3,3"/><path d="M 90 20 L 95 20 M 95 20 L 95 50 M 95 50 L 90 50" stroke="#ef4444" stroke-width="2" fill="none"/><text x="102" y="39" font-size="11" font-weight="800" fill="#ef4444" text-anchor="start">Difference</text><text x="102" y="51" font-size="10" font-weight="700" fill="#1e293b" text-anchor="start">(2 blocks)</text></svg>`
+        },
+        {
+          word: "equal",
+          zh: "等于",
+          definition: "Having the exact same amount or size.",
+          sentence: "Two nickels are equal to ten cents.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><line x1="40" y1="40" x2="120" y2="40" stroke="#f59e0b" stroke-width="10" stroke-linecap="round"/><line x1="40" y1="60" x2="120" y2="60" stroke="#f59e0b" stroke-width="10" stroke-linecap="round"/></svg>`
+        }
+      ],
+      uoi: [
+        {
+          word: "charity",
+          zh: "慈善",
+          definition: "Helping people who need it, like giving food, money, or toys.",
+          sentence: "We gave food to charity to help people who are hungry.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><path d="M 80 35 C 80 35 68 22 58 32 C 48 42 62 58 80 72 C 98 58 112 42 102 32 C 92 22 80 35 80 35 Z" fill="#ef4444" stroke="#1e293b" stroke-width="3"/><path d="M 35 80 Q 80 65 125 80" stroke="#1e293b" stroke-width="4" fill="none"/></svg>`
+        },
+        {
+          word: "collect",
+          zh: "收集",
+          definition: "To gather things together in one place.",
+          sentence: "I collect many shells on the beach everyday.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><path d="M 45 40 L 115 40 L 105 80 L 55 80 Z" fill="#f59e0b" stroke="#1e293b" stroke-width="4"/><circle cx="60" cy="30" r="10" fill="#3b82f6" stroke="#1e293b" stroke-width="2"/><circle cx="80" cy="24" r="12" fill="#ef4444" stroke="#1e293b" stroke-width="2"/><circle cx="100" cy="32" r="9" fill="#10b981" stroke="#1e293b" stroke-width="2"/></svg>`
+        },
+        {
+          word: "goal",
+          zh: "目标",
+          definition: "The result that you want to achieve.",
+          sentence: "Her goal is to get better at spelling this unit.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><circle cx="80" cy="50" r="40" fill="none" stroke="#ef4444" stroke-width="8"/><circle cx="80" cy="50" r="25" fill="none" stroke="#ef4444" stroke-width="8"/><circle cx="80" cy="50" r="10" fill="#ef4444"/><line x1="30" y1="15" x2="70" y2="45" stroke="#1e293b" stroke-width="4"/><path d="M 70 33 L 70 45 L 58 45" stroke="#1e293b" stroke-width="4" fill="none"/></svg>`
+        },
+        {
+          word: "exchange",
+          zh: "交换",
+          definition: "To give something and get something in return.",
+          sentence: "When we visit the library, we can exchange our books.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><circle cx="40" cy="50" r="12" fill="#ef4444" stroke="#1e293b" stroke-width="2"/><path d="M 40 38 Q 42 32 45 32" stroke="#78350f" stroke-width="2" fill="none"/><path d="M 45 32 Q 52 32 47 38" fill="#10b981"/><circle cx="120" cy="50" r="12" fill="#fbbf24" stroke="#1e293b" stroke-width="2"/><text x="120" y="55" font-size="14" font-weight="900" fill="#1e293b" text-anchor="middle">$</text><path d="M 58 35 Q 80 20 102 35" stroke="#3b82f6" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M 95 25 L 104 35 L 94 42" stroke="#3b82f6" stroke-width="3" fill="none" stroke-linejoin="round"/><path d="M 102 65 Q 80 80 58 65" stroke="#3b82f6" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M 65 75 L 56 65 L 66 58" stroke="#3b82f6" stroke-width="3" fill="none" stroke-linejoin="round"/></svg>`
+        },
+        {
+          word: "services",
+          zh: "服务",
+          definition: "Actions that people do to help others, like teaching or fixing cars.",
+          sentence: "The gardener offers a service by helping people take care of their plants.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><path d="M 72 65 L 88 65 L 84 82 L 76 82 Z" fill="#78350f" stroke="#1e293b" stroke-width="2"/><path d="M 80 65 Q 78 50 82 45" stroke="#10b981" stroke-width="3" fill="none"/><path d="M 82 45 Q 90 40 85 48" fill="#10b981"/><path d="M 78 56 Q 70 54 75 60" fill="#10b981"/><rect x="110" y="15" width="24" height="16" rx="4" fill="#3b82f6" stroke="#1e293b" stroke-width="2"/><path d="M 110 20 H 100 V 26" stroke="#1e293b" stroke-width="2" fill="none"/><path d="M 134 25 L 144 32" stroke="#1e293b" stroke-width="3"/><line x1="144" y1="36" x2="115" y2="52" stroke="#3b82f6" stroke-width="2" stroke-dasharray="3,3"/><line x1="140" y1="38" x2="95" y2="60" stroke="#3b82f6" stroke-width="2" stroke-dasharray="3,3"/><text x="25" y="52" font-size="12" font-weight="800" fill="#1e293b">Service</text><text x="25" y="66" font-size="10" font-weight="700" fill="#64748b">(Gardener)</text></svg>`
+        },
+        {
+          word: "goods",
+          zh: "商品",
+          definition: "Things that people make or sell that you can touch, like toys or books.",
+          sentence: "This shop has many goods, such as books and games.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><rect x="38" y="45" width="28" height="28" fill="#a78bfa" stroke="#1e293b" stroke-width="3"/><path d="M 38 45 L 52 30 L 66 45" stroke="#1e293b" stroke-width="3" fill="none"/><rect x="84" y="35" width="28" height="38" rx="4" fill="#3b82f6" stroke="#1e293b" stroke-width="3"/><line x1="92" y1="45" x2="104" y2="45" stroke="#ffffff" stroke-width="2"/></svg>`
+        },
+        {
+          word: "money",
+          zh: "金钱",
+          definition: "Accepted coins or bills used to measure and trade value.",
+          sentence: "She used her money to buy a toy at the shop.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><rect x="30" y="35" width="65" height="36" rx="4" fill="#10b981" stroke="#1e293b" stroke-width="3"/><circle cx="62.5" cy="53" r="8" fill="none" stroke="#ffffff" stroke-width="3"/><circle cx="107" cy="62" r="14" fill="#fbbf24" stroke="#1e293b" stroke-width="3"/><text x="107" y="67" font-size="14" font-weight="900" text-anchor="middle" fill="#1e293b">$</text></svg>`
+        },
+        {
+          word: "share",
+          zh: "分享",
+          definition: "To give part of something to someone else.",
+          sentence: "When we share the cost of the pizza, everyone pays a little bit of money.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><circle cx="30" cy="45" r="8" fill="#a78bfa" stroke="#1e293b" stroke-width="2"/><path d="M 18 75 C 18 60 42 60 42 75 Z" fill="#c084fc" stroke="#1e293b" stroke-width="2"/><circle cx="130" cy="45" r="8" fill="#f472b6" stroke="#1e293b" stroke-width="2"/><path d="M 118 75 C 118 60 142 60 142 75 Z" fill="#fbcfe8" stroke="#1e293b" stroke-width="2"/><path d="M 72 50 A 18 18 0 0 1 72 14 Z" fill="#d97706" stroke="#1e293b" stroke-width="2"/><circle cx="64" cy="25" r="2" fill="#451a03"/><circle cx="68" cy="38" r="2" fill="#451a03"/><path d="M 88 14 A 18 18 0 0 1 88 50 Z" fill="#d97706" stroke="#1e293b" stroke-width="2"/><circle cx="96" cy="25" r="2" fill="#451a03"/><circle cx="92" cy="38" r="2" fill="#451a03"/><path d="M 52 50 L 64 45" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/><path d="M 108 50 L 96 45" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/><text x="80" y="78" font-size="12" font-weight="900" fill="#1e293b" text-anchor="middle">Share</text></svg>`
+        },
+        {
+          word: "value",
+          zh: "价值",
+          definition: "How much something is worth in money.",
+          sentence: "The value of my toy is ¥10.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><path d="M 55 15 L 95 15 L 115 45 L 75 75 L 45 45 Z" fill="#fbbf24" stroke="#1e293b" stroke-width="3"/><circle cx="65" cy="30" r="5" fill="#ffffff" stroke="#1e293b" stroke-width="2"/><text x="80" y="52" font-size="16" font-weight="900" fill="#1e293b">¥10</text></svg>`
+        },
+        {
+          word: "buyer",
+          zh: "买家",
+          definition: "A person who wants to buy something.",
+          sentence: "I have a buyer to buy my book.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><path d="M 45 40 H 75 L 85 80 H 53 Z" fill="none" stroke="#1e293b" stroke-width="3"/><circle cx="57" cy="90" r="6" fill="#1e293b"/><circle cx="81" cy="90" r="6" fill="#1e293b"/><path d="M 70 25 L 78 33 L 70 41" fill="none" stroke="#10b981" stroke-width="3"/></svg>`
+        },
+        {
+          word: "expense",
+          zh: "花费",
+          definition: "The money you spend to buy or run something.",
+          sentence: "Running a car is a big expense.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><path d="M 50 20 H 110 V 75 L 102 67 L 93 75 L 85 67 L 77 75 L 68 67 L 59 75 L 50 75 Z" fill="#f8fafc" stroke="#1e293b" stroke-width="3"/><line x1="60" y1="35" x2="100" y2="35" stroke="#ef4444" stroke-width="3"/><line x1="60" y1="48" x2="85" y2="48" stroke="#ef4444" stroke-width="3"/></svg>`
+        },
+        {
+          word: "spend",
+          zh: "花钱",
+          definition: "To pay money for goods or services.",
+          sentence: "I spent 10 yuan to buy a notebook.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><circle cx="80" cy="50" r="30" fill="#fbbf24" stroke="#1e293b" stroke-width="3"/><path d="M 80 25 V 75 M 65 38 H 95 V 50 H 65 V 62 H 95" fill="none" stroke="#1e293b" stroke-width="3"/><rect x="40" y="80" width="80" height="8" fill="#10b981" stroke="#1e293b" stroke-width="2"/></svg>`
+        },
+        {
+          word: "barter",
+          zh: "以物易物",
+          definition: "To swap goods or services without using money.",
+          sentence: "I bartered cakes for cookies.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><circle cx="48" cy="50" r="14" fill="#ef4444"/><rect x="98" y="36" width="28" height="28" rx="4" fill="#3b82f6"/><path d="M 58 32 Q 80 20 102 32" stroke="#1e293b" stroke-width="3" fill="none"/><path d="M 96 22 L 102 32 L 92 32" stroke="#1e293b" stroke-width="3" fill="none"/><path d="M 102 68 Q 80 80 58 68" stroke="#1e293b" stroke-width="3" fill="none"/><path d="M 64 78 L 58 68 L 68 68" stroke="#1e293b" stroke-width="3" fill="none"/></svg>`
+        },
+        {
+          word: "cost",
+          zh: "成本、花费",
+          definition: "How much money is needed to make or buy something.",
+          sentence: "The cost to buy a hamburger is ¥12.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><circle cx="80" cy="50" r="35" fill="#f8fafc" stroke="#1e293b" stroke-width="3"/><path d="M 60 50 Q 80 35 100 50" fill="none" stroke="#ef4444" stroke-width="4"/><text x="80" y="80" font-size="14" font-weight="900" text-anchor="middle" fill="#1e293b">¥12</text></svg>`
+        },
+        {
+          word: "market",
+          zh: "市场",
+          definition: "A place where people buy and sell goods, in-person or online.",
+          sentence: "We are setting up a game stand at the Spring Market.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><rect x="40" y="50" width="80" height="35" fill="#e2e8f0" stroke="#1e293b" stroke-width="3"/><path d="M 30 25 L 130 25 L 120 50 L 40 50 Z" fill="#ef4444" stroke="#1e293b" stroke-width="3"/><path d="M 30 25 L 45 50 M 65 25 L 70 50 M 95 25 L 90 50 M 120 25 L 115 50" stroke="#1e293b" stroke-width="2"/></svg>`
+        },
+        {
+          word: "organization",
+          zh: "组织",
+          definition: "A team of people united by a common goal.",
+          sentence: "The organization raised funds to support local families.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><circle cx="80" cy="20" r="10" fill="#3b82f6" stroke="#1e293b" stroke-width="2"/><circle cx="45" cy="65" r="10" fill="#10b981" stroke="#1e293b" stroke-width="2"/><circle cx="115" cy="65" r="10" fill="#f59e0b" stroke="#1e293b" stroke-width="2"/><line x1="73" y1="28" x2="52" y2="57" stroke="#1e293b" stroke-width="3"/><line x1="87" y1="28" x2="108" y2="57" stroke="#1e293b" stroke-width="3"/><line x1="55" y1="65" x2="105" y2="65" stroke="#1e293b" stroke-width="3"/></svg>`
+        },
+        {
+          word: "seller",
+          zh: "卖家",
+          definition: "A person who wants to sell something.",
+          sentence: "I found a seller who sells the toy I want.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><rect x="40" y="60" width="80" height="25" fill="#f1f5f9" stroke="#1e293b" stroke-width="3"/><circle cx="80" cy="35" r="12" fill="#a78bfa" stroke="#1e293b" stroke-width="2"/><path d="M 65 60 C 65 48 95 48 95 60" fill="none" stroke="#1e293b" stroke-width="3"/></svg>`
+        },
+        {
+          word: "income",
+          zh: "收入",
+          definition: "The money a person earns from work or business.",
+          sentence: "Teachers get income by working at school.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><path d="M 50 75 Q 80 40 110 75 Z" fill="#fbcfe8" stroke="#1e293b" stroke-width="3"/><circle cx="80" cy="25" r="8" fill="#fbbf24"/><path d="M 80 33 V 50" stroke="#1e293b" stroke-width="3"/></svg>`
+        },
+        {
+          word: "trade",
+          zh: "交易、买卖",
+          definition: "Buying and selling goods or services.",
+          sentence: "I will trade my apple for your banana at lunch.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><path d="M 35 50 Q 80 20 125 50" fill="none" stroke="#10b981" stroke-width="3"/><path d="M 125 50 Q 80 80 35 50" fill="none" stroke="#3b82f6" stroke-width="3"/><circle cx="80" cy="50" r="12" fill="#fbbf24" stroke="#1e293b" stroke-width="2"/></svg>`
+        },
+        {
+          word: "advertise",
+          zh: "宣传、推广、打广告",
+          definition: "Telling people about something so they get excited about it.",
+          sentence: "We made colorful posters to advertise our Spring Market shop.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><path d="M 40 50 L 85 35 V 65 Z" fill="#ef4444" stroke="#1e293b" stroke-width="3"/><rect x="85" y="30" width="12" height="40" rx="3" fill="#1e293b"/><path d="M 105 40 Q 115 50 105 60" stroke="#1e293b" stroke-width="3" fill="none"/></svg>`
+        },
+        {
+          word: "team",
+          zh: "团队",
+          definition: "A group of people working together for one goal.",
+          sentence: "Our soccer team practices every weekend.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><circle cx="50" cy="40" r="8" fill="#ef4444" stroke="#1e293b" stroke-width="2"/><circle cx="80" cy="36" r="9" fill="#3b82f6" stroke="#1e293b" stroke-width="2"/><circle cx="110" cy="40" r="8" fill="#10b981" stroke="#1e293b" stroke-width="2"/><path d="M 38 75 Q 50 60 62 75" fill="none" stroke="#1e293b" stroke-width="3"/><path d="M 68 75 Q 80 55 92 75" fill="none" stroke="#1e293b" stroke-width="3"/><path d="M 98 75 Q 110 60 122 75" fill="none" stroke="#1e293b" stroke-width="3"/></svg>`
+        },
+        {
+          word: "pay",
+          zh: "付款",
+          definition: "Giving money to get what you want.",
+          sentence: "You can pay with Alipay or cash.",
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><rect x="50" y="20" width="60" height="60" rx="8" fill="#10b981" stroke="#1e293b" stroke-width="3"/><circle cx="80" cy="50" r="14" fill="#ffffff"/><path d="M 74 50 L 78 54 L 86 44" stroke="#10b981" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+        }
+      ]
+    };
+
+    // ----------------------------------------------------
+    // APP STATE
+    // ----------------------------------------------------
+    const state = {
+      category: "uoi", // "uoi" or "math"
+      mode: "learn",    // "learn" or "quiz"
+      lang: "en",       // Default to English Only
+      selectedVoiceName: "", // Select voice name
+      stars: 0,
+      quiz: {
+        currentIndex: 0,
+        questions: [],
+        correctAnswers: 0,
+        hasAnswered: false
+      }
+    };
+
+    // Audio setup
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    // Play Web Audio sounds
+    function playSound(type) {
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      const osc = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      osc.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+
+      if (type === 'correct') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+        osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.25);
+      } else if (type === 'wrong') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+        osc.frequency.linearRampToValueAtTime(100, audioCtx.currentTime + 0.35);
+        gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.4);
+      } else if (type === 'click') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+        gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.08);
+      }
+    }
+
+    // Speech Synthesis
+    function speak(text) {
+      if (!window.speechSynthesis) return;
+      window.speechSynthesis.cancel(); // Cancel current speech
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      
+      if (state.selectedVoiceName) {
+        const voices = window.speechSynthesis.getVoices();
+        const voice = voices.find(v => v.name === state.selectedVoiceName);
+        if (voice) {
+          utterance.voice = voice;
+        }
+      }
+      
+      utterance.rate = 0.85; // Speak slightly slower for young learners
+      window.speechSynthesis.speak(utterance);
+    }
+
+    // Populate voice dropdown with English (US/UK) voices
+    function populateVoiceList() {
+      if (!window.speechSynthesis) return;
+      const voices = window.speechSynthesis.getVoices();
+      const voiceSelect = document.getElementById("voiceSelect");
+
+      // Filter for US and UK English voices
+      const englishVoices = voices.filter(voice => {
+        const lang = voice.lang.toLowerCase().replace('_', '-');
+        return lang === 'en-us' || lang === 'en-gb' || lang.startsWith('en-us-') || lang.startsWith('en-gb-');
+      });
+
+      // Fallback to general English if no US/UK voices are registered
+      if (englishVoices.length === 0) {
+        const genericEnglish = voices.filter(voice => voice.lang.toLowerCase().startsWith('en'));
+        if (genericEnglish.length > 0) {
+          englishVoices.push(...genericEnglish);
+        }
+      }
+
+      voiceSelect.innerHTML = "";
+
+      if (englishVoices.length === 0) {
+        const option = document.createElement("option");
+        option.value = "";
+        option.textContent = "Default Browser Voice";
+        voiceSelect.appendChild(option);
+        state.selectedVoiceName = "";
+        return;
+      }
+
+      // Sort: US English first, UK English second
+      englishVoices.sort((a, b) => {
+        const aLang = a.lang.toLowerCase().replace('_', '-');
+        const bLang = b.lang.toLowerCase().replace('_', '-');
+        if (aLang.includes('us') && !bLang.includes('us')) return -1;
+        if (!aLang.includes('us') && bLang.includes('us')) return 1;
+        return a.name.localeCompare(b.name);
+      });
+
+      englishVoices.forEach(voice => {
+        const option = document.createElement("option");
+        option.value = voice.name;
+        const isUK = voice.lang.toLowerCase().replace('_', '-').includes('gb');
+        const flag = isUK ? "🇬🇧" : "🇺🇸";
+        const region = isUK ? "UK" : "US";
+        option.textContent = `${flag} ${voice.name} (${region})`;
+
+        if (state.selectedVoiceName === voice.name) {
+          option.selected = true;
+        }
+        voiceSelect.appendChild(option);
+      });
+
+      if (!voiceSelect.value && englishVoices.length > 0) {
+        voiceSelect.selectedIndex = 0;
+        state.selectedVoiceName = englishVoices[0].name;
+      }
+    }
+
+    if (window.speechSynthesis) {
+      populateVoiceList();
+      if (window.speechSynthesis.onvoiceschanged !== undefined) {
+        window.speechSynthesis.onvoiceschanged = populateVoiceList;
+      }
+    }
+
+    // ----------------------------------------------------
+    // INITIALIZATION & URL HANDLING
+    // ----------------------------------------------------
+    function init() {
+      // Load query parameters
+      const params = new URLSearchParams(window.location.search);
+      const scheme = params.get("scheme");
+      if (scheme === "math" || scheme === "uoi") {
+        state.category = scheme;
+      }
+
+      // Sync DOM elements to initial state
+      document.querySelectorAll(".tab-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.category === state.category);
+      });
+      updateThemeClasses();
+
+      // Setup Listeners
+      setupListeners();
+      
+      // Render view
+      render();
+    }
+
+    function updateThemeClasses() {
+      if (state.category === "math") {
+        document.body.classList.add("math-mode");
+        document.getElementById("sectionEyebrow").textContent = "Grade 2 · Math lane";
+        document.getElementById("sectionTitle").textContent = "Math Vocabulary Quest";
+        document.getElementById("sectionSubtitle").textContent = "Practice equations, sharing, and measurements. Tap cards to hear speech!";
+      } else {
+        document.body.classList.remove("math-mode");
+        document.getElementById("sectionEyebrow").textContent = "Unit 1 · How We Organize Ourselves";
+        document.getElementById("sectionTitle").textContent = "Grade 2 UOI Vocabulary";
+        document.getElementById("sectionSubtitle").textContent = "Learn words about money, goods, services, and trading. Tap cards to hear speech!";
+      }
+    }
+
+    function setupListeners() {
+      // Accent Voice Dropdown Selection
+      const voiceSelect = document.getElementById("voiceSelect");
+      voiceSelect.addEventListener("change", (e) => {
+        playSound('click');
+        state.selectedVoiceName = e.target.value;
+      });
+
+      // Category Switch (Tabs)
+      document.querySelectorAll(".tab-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          playSound('click');
+          state.category = btn.dataset.category;
+          document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          updateThemeClasses();
+          state.mode = "learn";
+          document.querySelectorAll(".mode-btn").forEach(mb => {
+            mb.classList.toggle("active", mb.dataset.mode === "learn");
+          });
+          render();
+        });
+      });
+
+      // Mode Switch (Learn / Quiz)
+      document.querySelectorAll(".mode-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          playSound('click');
+          state.mode = btn.dataset.mode;
+          document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          render();
+        });
+      });
+
+      // Language Toggle Toolbar
+      document.querySelectorAll("[data-lang]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          playSound('click');
+          state.lang = btn.dataset.lang;
+          document.querySelectorAll("[data-lang]").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          if (state.mode === "learn") {
+            renderLearnGrid();
+          }
+        });
+      });
+    }
+
+    // ----------------------------------------------------
+    // RENDERING LOGIC
+    // ----------------------------------------------------
+    function render() {
+      const learnEl = document.getElementById("learnView");
+      const quizEl = document.getElementById("quizView");
+      const toolbarEl = document.getElementById("toolbar");
+
+      if (state.mode === "learn") {
+        learnEl.style.display = "grid";
+        quizEl.style.display = "none";
+        toolbarEl.style.display = "flex";
+        renderLearnGrid();
+      } else {
+        learnEl.style.display = "none";
+        quizEl.style.display = "block";
+        toolbarEl.style.display = "none";
+        startQuiz();
+      }
+    }
+
+    function renderLearnGrid() {
+      const learnEl = document.getElementById("learnView");
+      learnEl.innerHTML = "";
+      
+      const words = vocabData[state.category];
+      
+      words.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.setAttribute("tabindex", "0");
+        
+        let showEn = state.lang === "both" || state.lang === "en";
+        let showZh = state.lang === "both" || state.lang === "zh";
+
+        card.innerHTML = `
+          <div class="card-svg-container">${item.svg}</div>
+          <div class="card-word" style="visibility: ${showEn ? 'visible' : 'hidden'}">${item.word}</div>
+          <div class="card-zh" style="visibility: ${showZh ? 'visible' : 'hidden'}">${item.zh}</div>
+          <div class="card-definition" style="visibility: ${showEn ? 'visible' : 'hidden'}">${item.definition}</div>
+          <div class="card-sentence" style="visibility: ${showEn ? 'visible' : 'hidden'}">${item.sentence}</div>
+          <div class="speak-indicator" aria-hidden="true">🔊</div>
+        `;
+
+        card.addEventListener("click", () => {
+          // TTS feature should only pronounce individual vocabulary words, not full sentences
+          speak(item.word);
+          card.style.transform = "scale(0.96)";
+          setTimeout(() => {
+            card.style.transform = "";
+          }, 100);
+        });
+
+        // Keyboard accessibility
+        card.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            card.click();
+          }
+        });
+
+        learnEl.appendChild(card);
+      });
+    }
+
+    // ----------------------------------------------------
+    // QUIZ GAME ENGINE
+    // ----------------------------------------------------
+    function startQuiz() {
+      state.quiz.currentIndex = 0;
+      state.quiz.correctAnswers = 0;
+      state.quiz.hasAnswered = false;
+      
+      buildQuestions();
+      renderQuizQuestion();
+    }
+
+    function buildQuestions() {
+      const list = vocabData[state.category];
+      // Select 5 random questions
+      const shuffled = [...list].sort(() => Math.random() - 0.5);
+      const selection = shuffled.slice(0, 5);
+
+      state.quiz.questions = selection.map(item => {
+        let qType = Math.random() > 0.5 ? "A" : "B";
+        
+        let promptText = "";
+        let targetText = "";
+
+        if (state.category === "math") {
+          if (qType === "A" && ["quotient", "divisor", "product", "factor", "sum", "difference", "equal"].includes(item.word)) {
+            if (item.word === "quotient") {
+              promptText = "Look at this math problem: 12 ÷ 3 = 4. What is the number 4?";
+            } else if (item.word === "divisor") {
+              promptText = "Look at this math problem: 15 ÷ 5 = 3. What is the number 5?";
+            } else if (item.word === "product") {
+              promptText = "Look at this math problem: 6 × 2 = 12. What is the number 12?";
+            } else if (item.word === "factor") {
+              promptText = "Look at this math problem: 3 × 5 = 15. What are 3 and 5?";
+            } else if (item.word === "sum") {
+              promptText = "Look at this math problem: 4 + 5 = 9. What is the number 9?";
+            } else if (item.word === "difference") {
+              promptText = "Look at this math problem: 10 - 2 = 8. What is the number 8?";
+            } else if (item.word === "equal") {
+              promptText = "Which symbol means having the same size, number or value?";
+            }
+            targetText = item.word;
+          } else {
+            promptText = `What word means: "${item.definition}"`;
+            targetText = item.word;
+          }
+        } else {
+          // UOI questions
+          if (qType === "A") {
+            if (item.word === "charity") {
+              promptText = "If you give some of your old clothes to children who need them, you are supporting a:";
+            } else if (item.word === "services") {
+              promptText = "A teacher teaching students in a classroom is providing:";
+            } else if (item.word === "goods") {
+              promptText = "Books, pencils, and toys that you can buy at a store are examples of:";
+            } else if (item.word === "barter") {
+              promptText = "If you swap your apple for your friend's banana at lunch, this is called:";
+            } else if (item.word === "market") {
+              promptText = "A place like Taobao or the school Spring Bazaar where people buy and sell things is a:";
+            } else if (item.word === "advertise") {
+              promptText = "Making a colorful poster to get people excited to visit your school market stand is to:";
+            } else if (item.word === "team") {
+              promptText = "A soccer group working together to win a match is a:";
+            } else if (item.word === "collect") {
+              promptText = "Gathering many pretty seashells from the beach and storing them in a box is to:";
+            } else {
+              promptText = `Complete this sentence: "${item.sentence.replace(new RegExp(item.word, 'gi'), '_____')}"`;
+            }
+            targetText = item.word;
+          } else {
+            promptText = `What word means: "${item.definition}"`;
+            targetText = item.word;
+          }
+        }
+
+        if (!promptText) {
+          promptText = `What word means: "${item.definition}"`;
+          targetText = item.word;
+        }
+
+        const others = list.filter(w => w.word !== item.word);
+        const shuffledOthers = others.sort(() => Math.random() - 0.5);
+        const options = [targetText, shuffledOthers[0].word, shuffledOthers[1].word, shuffledOthers[2].word]
+          .sort(() => Math.random() - 0.5);
+
+        return {
+          item: item,
+          prompt: promptText,
+          answer: targetText,
+          options: options
+        };
+      });
+    }
+
+    function renderQuizQuestion() {
+      const quizEl = document.getElementById("quizView");
+      quizEl.innerHTML = "";
+      state.quiz.hasAnswered = false;
+
+      const qIndex = state.quiz.currentIndex;
+      const q = state.quiz.questions[qIndex];
+      const totalQuestions = state.quiz.questions.length;
+      const percent = (qIndex / totalQuestions) * 100;
+
+      const cardHtml = `
+        <div class="quiz-progress">
+          <span>Question ${qIndex + 1} of ${totalQuestions}</span>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" style="width: ${percent}%"></div>
+          </div>
+          <span>Score: ${state.quiz.correctAnswers}/${qIndex}</span>
+        </div>
+        <div class="quiz-question-card">
+          <div class="quiz-svg">${q.item.svg}</div>
+          <p class="quiz-prompt">${q.prompt}</p>
+          <!-- Quiz voice icon to trigger TTS playback of the corresponding question prompt when clicked -->
+          <button id="quizSpeakBtn" class="option-pill" style="margin-top: 12px; display: inline-flex; align-items: center; gap: 6px; min-height: 44px;" title="Listen to question">
+            🔊 Listen to Question
+          </button>
+        </div>
+        <div class="quiz-options" id="quizOptions"></div>
+        <div class="quiz-feedback" id="quizFeedback"></div>
+        <button class="btn-action" id="quizNextBtn" style="display: none;">Next Question ➔</button>
+      `;
+
+      quizEl.innerHTML = cardHtml;
+
+      document.getElementById("quizSpeakBtn").addEventListener("click", () => {
+        playSound('click');
+        speak(q.prompt);
+      });
+
+      const optionsEl = document.getElementById("quizOptions");
+      q.options.forEach(option => {
+        const btn = document.createElement("button");
+        btn.className = "quiz-opt-btn";
+        btn.textContent = option;
+        
+        btn.addEventListener("click", () => handleAnswer(option, btn));
+        optionsEl.appendChild(btn);
+      });
+    }
+
+    function handleAnswer(selectedOption, buttonEl) {
+      if (state.quiz.hasAnswered) return;
+      state.quiz.hasAnswered = true;
+
+      const q = state.quiz.questions[state.quiz.currentIndex];
+      const optionsEl = document.getElementById("quizOptions");
+      const feedbackEl = document.getElementById("quizFeedback");
+      const nextBtn = document.getElementById("quizNextBtn");
+
+      if (selectedOption === q.answer) {
+        playSound('correct');
+        buttonEl.classList.add("correct");
+        feedbackEl.className = "quiz-feedback good";
+        feedbackEl.textContent = "⭐ Correct! Great job!";
+        state.quiz.correctAnswers++;
+        state.stars += 10;
+        document.getElementById("starCount").textContent = state.stars;
+      } else {
+        playSound('wrong');
+        buttonEl.classList.add("wrong");
+        feedbackEl.className = "quiz-feedback bad";
+        feedbackEl.textContent = `❌ Try again! Correct answer was: ${q.answer}`;
+        
+        Array.from(optionsEl.children).forEach(btn => {
+          if (btn.textContent === q.answer) {
+            btn.classList.add("correct");
+          }
+        });
+      }
+
+      // Pronounce the correct word (individual vocabulary word, not a full sentence)
+      speak(q.answer);
+
+      nextBtn.style.display = "inline-block";
+      nextBtn.addEventListener("click", () => {
+        state.quiz.currentIndex++;
+        if (state.quiz.currentIndex < state.quiz.questions.length) {
+          renderQuizQuestion();
+        } else {
+          showQuizResults();
+        }
+      });
+    }
+
+    function showQuizResults() {
+      const quizEl = document.getElementById("quizView");
+      quizEl.innerHTML = "";
+
+      const score = state.quiz.correctAnswers;
+      const total = state.quiz.questions.length;
+      let emoji = "🎉";
+      let titleMsg = "Vocabulary Champion!";
+      let subMsg = `Wow! You scored ${score} out of ${total}!`;
+
+      if (score === total) {
+        triggerConfetti();
+      } else if (score >= 3) {
+        emoji = "🌟";
+        titleMsg = "Super Learner!";
+        subMsg = `Great work! You scored ${score} out of ${total}. Keep practicing!`;
+      } else {
+        emoji = "💪";
+        titleMsg = "Good Effort!";
+        subMsg = `You scored ${score} out of ${total}. Try again to earn more stars!`;
+      }
+
+      const resultsHtml = `
+        <div class="quiz-results">
+          <span class="results-emoji">${emoji}</span>
+          <h2 style="font-size: 2rem; font-weight:900; margin-bottom:10px;">${titleMsg}</h2>
+          <p style="font-size: 1.15rem; margin-bottom:24px;">${subMsg}</p>
+          <div style="display: flex; justify-content: center; gap: 12px;">
+            <button class="btn-action" id="retryQuizBtn">Play Again</button>
+            <button class="btn-action" id="backToCardsBtn" style="background:#e2e8f0; color:var(--text)">Study Cards</button>
+          </div>
+        </div>
+      `;
+
+      quizEl.innerHTML = resultsHtml;
+
+      document.getElementById("retryQuizBtn").addEventListener("click", () => {
+        playSound('click');
+        startQuiz();
+      });
+
+      document.getElementById("backToCardsBtn").addEventListener("click", () => {
+        playSound('click');
+        state.mode = "learn";
+        document.querySelectorAll(".mode-btn").forEach(mb => {
+          mb.classList.toggle("active", mb.dataset.mode === "learn");
+        });
+        render();
+      });
+    }
+
+    // Confetti effect
+    let confettiActive = false;
+    function triggerConfetti() {
+      const canvas = document.getElementById("confetti");
+      const ctx = canvas.getContext("2d");
+      
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      
+      const particles = [];
+      const colors = ["#7c3aed", "#10b981", "#fbbf24", "#3b82f6", "#ef4444", "#ec4899"];
+
+      for (let i = 0; i < 120; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height - canvas.height,
+          r: Math.random() * 6 + 4,
+          d: Math.random() * canvas.height,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          tilt: Math.random() * 10 - 5,
+          tiltAngleIncremental: Math.random() * 0.07 + 0.02,
+          tiltAngle: 0
+        });
+      }
+
+      confettiActive = true;
+      let animationFrame;
+
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        particles.forEach((p, idx) => {
+          p.tiltAngle += p.tiltAngleIncremental;
+          p.y += (Math.cos(p.d) + 3 + p.r / 2) / 2;
+          p.x += Math.sin(p.tiltAngle);
+          p.tilt = Math.sin(p.tiltAngle - idx/3) * 15;
+
+          ctx.beginPath();
+          ctx.lineWidth = p.r;
+          ctx.strokeStyle = p.color;
+          ctx.moveTo(p.x + p.tilt + p.r / 2, p.y);
+          ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
+          ctx.stroke();
+        });
+
+        updateParticles();
+      }
+
+      function updateParticles() {
+        let remaining = 0;
+        particles.forEach(p => {
+          if (p.y < canvas.height) {
+            remaining++;
+          }
+        });
+
+        if (remaining > 0 && confettiActive) {
+          animationFrame = requestAnimationFrame(draw);
+        } else {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          confettiActive = false;
+        }
+      }
+
+      window.addEventListener("resize", () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      });
+
+      draw();
+      
+      setTimeout(() => {
+        confettiActive = false;
+      }, 5000);
+    }
+
+    // Run on startup
+    document.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>

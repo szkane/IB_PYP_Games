@@ -1,5 +1,5 @@
 // Cache version - auto-updated by build script
-const CACHE_VERSION = '20260618103233';
+const CACHE_VERSION = '20260630135713';
 const CACHE_NAME = `ib-pyp-games-${CACHE_VERSION}`;
 
 // Static assets to pre-cache during install
@@ -46,6 +46,8 @@ const PRECACHE_URLS = [
     '/science/moon_phases.html',
     '/science/solar_system.html',
     '/uoi/community_helpers_sort.html',
+    '/uoi/g2_vocabulary.html?scheme=math',
+    '/uoi/g2_vocabulary.html?scheme=uoi',
     '/uoi/goal_steps_quest.html',
     '/uoi/life_cycle_builder.html',
     '/uoi/needs_of_living_things.html',

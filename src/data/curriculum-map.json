@@ -582,9 +582,47 @@
     {
       "id": "g2",
       "label": "Grade 2",
-      "status": "planned",
-      "summary": "Course map ready. Add Grade 2 UOI documents to unlock unit-specific games.",
-      "units": []
+      "status": "active",
+      "summary": "Grade 2 UOI learning path, starting with economics and financial systems vocabulary.",
+      "units": [
+        {
+          "id": "u1",
+          "label": "Unit 1",
+          "title": "Summer Holiday Home Learning",
+          "theme": "How We Organize Ourselves",
+          "centralIdea": "The decisions we make about using and sharing resources affect our community.",
+          "learnerProfile": ["Reflective", "Thinker"],
+          "atlSkills": ["Thinking Skills", "Social Skills"],
+          "subjects": [
+            {
+              "id": "uoi",
+              "label": "UOI",
+              "games": [
+                {
+                  "title": "Grade 2 UOI Vocabulary",
+                  "path": "uoi/g2_vocabulary.html",
+                  "href": "uoi/g2_vocabulary.html?scheme=uoi",
+                  "type": "New",
+                  "description": "Interactive flashcards and vocabulary games for Grade 2 UOI Summer Holiday Home Learning."
+                }
+              ]
+            },
+            {
+              "id": "math",
+              "label": "Math",
+              "games": [
+                {
+                  "title": "Grade 2 Math Vocabulary",
+                  "path": "uoi/g2_vocabulary.html",
+                  "href": "uoi/g2_vocabulary.html?scheme=math",
+                  "type": "New",
+                  "description": "Explore division, multiplication, and algebraic vocabulary with games."
+                }
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "g3",
