@@ -16,6 +16,7 @@ class SetupScene extends Phaser.Scene {
     this.selectedDifficulty = 'medium';
     this.selectedGrade = null;
     this.selectedUnit = null;
+    this.currentUnitPage = 0;
     
     // Hover timer for gesture selection
     this.hoverTarget = null;
@@ -30,6 +31,10 @@ class SetupScene extends Phaser.Scene {
   create() {
     const { width, height } = this.cameras.main;
     
+    // Show PYP Map link on menu homepage
+    const mapLink = document.querySelector('.pyp-map-link');
+    if (mapLink) mapLink.style.display = 'inline-flex';
+    
     // 重置所有状态（防止场景重用时状态混乱）
     this.currentStep = 0;
     this.selectedTheme = 'scifi';
@@ -37,6 +42,7 @@ class SetupScene extends Phaser.Scene {
     this.selectedDifficulty = 'medium';
     this.selectedGrade = null;
     this.selectedUnit = null;
+    this.currentUnitPage = 0;
     this.hoverTarget = null;
     this.hoverStartTime = 0;
     this.isProcessing = false; // 防止重复触发
@@ -47,12 +53,13 @@ class SetupScene extends Phaser.Scene {
     // Title
     this.titleText = this.add.text(width / 2, 50, 'MoveSpell', {
       fontSize: '48px',
-      fontFamily: 'Orbitron, sans-serif',
-      fontStyle: 'bold'
+      fontFamily: 'Fredoka, sans-serif',
+      fontStyle: 'bold',
+      color: '#ffffff'
     }).setOrigin(0.5);
     
-    // Apply gradient effect to title
-    this.titleText.setTint(0x00f3ff, 0xff00ff, 0x00f3ff, 0xff00ff);
+    // Apply gradient effect to title using project colors (gold to coral)
+    this.titleText.setTint(0xf2b84b, 0xe36b5a, 0xf2b84b, 0xe36b5a);
     
     // Step indicator
     this.createStepIndicator();
@@ -95,11 +102,11 @@ class SetupScene extends Phaser.Scene {
     this.stepIndicators = [];
     this.stepLines = [];
     
-    // Child-friendly bright colors
-    const activeColor = 0xff9800;  // Orange
-    const completedColor = 0x66bb6a;  // Green
-    const pendingColor = 0x4fc3f7;  // Light blue
-    const bgColor = 0xffffff;  // White background
+    // Child-friendly project-aligned colors
+    const activeColor = 0xf2b84b;     // Gold
+    const completedColor = 0x2d9d78;  // Green
+    const pendingColor = 0x4a7cdd;    // Blue
+    const bgColor = 0xffffff;         // White background
     
     this.steps.forEach((step, index) => {
       const x = startX + index * stepWidth;
@@ -139,9 +146,9 @@ class SetupScene extends Phaser.Scene {
   }
   
   updateStepIndicator(step) {
-    const activeColor = 0xff9800;  // Orange
-    const completedColor = 0x66bb6a;  // Green
-    const pendingColor = 0x4fc3f7;  // Light blue
+    const activeColor = 0xf2b84b;     // Gold
+    const completedColor = 0x2d9d78;  // Green
+    const pendingColor = 0x4a7cdd;    // Blue
     
     this.stepIndicators.forEach((indicator, index) => {
       if (index < step) {
@@ -196,35 +203,38 @@ class SetupScene extends Phaser.Scene {
     // Instruction
     const instruction = this.add.text(0, -180, 'Choose Your Theme', {
       fontSize: '32px',
-      fontFamily: 'Orbitron, sans-serif'
+      fontFamily: 'Fredoka, sans-serif',
+      fontStyle: 'bold',
+      color: '#ffffff'
     }).setOrigin(0.5);
     this.contentGroup.add(instruction);
     
     const subtext = this.add.text(0, -140, 'Hover over a portal for 1.5 seconds to select', {
       fontSize: '16px',
-      fontFamily: 'sans-serif',
-      color: '#8899aa'
+      fontFamily: 'Nunito, sans-serif',
+      color: '#aabbcc'
     }).setOrigin(0.5);
     this.contentGroup.add(subtext);
     
-    // Sci-Fi Portal (Left)
-    const scifiPortal = this.createPortal(-200, 30, '🤖', 'Sci-Fi', 'Cyberpunk Blue', 'scifi');
+    // Ocean Adventure Portal (Left)
+    const scifiPortal = this.createPortal(-200, 30, '🌊', 'Ocean Adventure', 'Bright Blues & Oranges', 'scifi');
     this.contentGroup.add(scifiPortal);
     
-    // Fantasy Portal (Right)
-    const fantasyPortal = this.createPortal(200, 30, '🧚‍♀️', 'Fantasy', 'Magic Forest', 'fantasy');
+    // Magic Forest Portal (Right)
+    const fantasyPortal = this.createPortal(200, 30, '🌲', 'Magic Forest', 'Warm Purples & Greens', 'fantasy');
     this.contentGroup.add(fantasyPortal);
   }
   
   createPortal(x, y, icon, title, desc, value) {
     const container = this.add.container(x, y);
     
-    // Background
-    const bg = this.add.rectangle(0, 0, 250, 300, 0x141e32, 0.8);
-    bg.setStrokeStyle(3, 0x00f3ff, 0.3);
+    // Background (dark navy fill, thick black border)
+    const bg = this.add.rectangle(0, 0, 250, 300, 0x1a2238, 0.95);
+    bg.setStrokeStyle(3, 0x17211f, 1);
     bg.setInteractive();
     bg.setData('value', value);
     bg.setData('type', 'theme');
+    bg.setData('defaultStroke', 0x17211f);
     container.add(bg);
     
     // Icon
@@ -236,16 +246,17 @@ class SetupScene extends Phaser.Scene {
     // Title
     const titleText = this.add.text(0, 30, title, {
       fontSize: '24px',
-      fontFamily: 'Orbitron, sans-serif',
-      fontStyle: 'bold'
+      fontFamily: 'Fredoka, sans-serif',
+      fontStyle: 'bold',
+      color: '#ffffff'
     }).setOrigin(0.5);
     container.add(titleText);
     
     // Description
     const descText = this.add.text(0, 70, desc, {
       fontSize: '14px',
-      fontFamily: 'sans-serif',
-      color: '#8899aa'
+      fontFamily: 'Nunito, sans-serif',
+      color: '#aabbcc'
     }).setOrigin(0.5);
     container.add(descText);
     
@@ -271,14 +282,16 @@ class SetupScene extends Phaser.Scene {
     // Instruction
     const instruction = this.add.text(0, -180, 'Choose Voice Accent', {
       fontSize: '32px',
-      fontFamily: 'Orbitron, sans-serif'
+      fontFamily: 'Fredoka, sans-serif',
+      fontStyle: 'bold',
+      color: '#ffffff'
     }).setOrigin(0.5);
     this.contentGroup.add(instruction);
     
     const subtext = this.add.text(0, -140, 'Grab a badge to hear the voice', {
       fontSize: '16px',
-      fontFamily: 'sans-serif',
-      color: '#8899aa'
+      fontFamily: 'Nunito, sans-serif',
+      color: '#aabbcc'
     }).setOrigin(0.5);
     this.contentGroup.add(subtext);
     
@@ -294,12 +307,13 @@ class SetupScene extends Phaser.Scene {
   createBadge(x, y, flag, label, value) {
     const container = this.add.container(x, y);
     
-    // Background circle
-    const bg = this.add.circle(0, 0, 80, 0x141e32, 0.8);
-    bg.setStrokeStyle(3, 0x00f3ff, 0.5);
+    // Background circle (dark navy, thick dark line)
+    const bg = this.add.circle(0, 0, 80, 0x1a2238, 0.95);
+    bg.setStrokeStyle(3, 0x17211f, 1);
     bg.setInteractive();
     bg.setData('value', value);
     bg.setData('type', 'accent');
+    bg.setData('defaultStroke', 0x17211f);
     container.add(bg);
     
     // Flag
@@ -311,7 +325,9 @@ class SetupScene extends Phaser.Scene {
     // Label
     const labelText = this.add.text(0, 45, label, {
       fontSize: '14px',
-      fontFamily: 'Orbitron, sans-serif'
+      fontFamily: 'Fredoka, sans-serif',
+      fontStyle: 'bold',
+      color: '#ffffff'
     }).setOrigin(0.5);
     container.add(labelText);
     
@@ -351,31 +367,31 @@ class SetupScene extends Phaser.Scene {
       stars: 1,
       hint: 'Just 1 letter missing!',
       example: 'C _ T',
-      color: 0x66bb6a,
+      color: 0x2d9d78,
       value: 'easy'
     });
     this.contentGroup.add(easy);
     
-    // Normal - Orange, Rabbit emoji, 2 stars
+    // Normal - Yellow/Gold, Rabbit emoji, 2 stars
     const normal = this.createDifficultyCard(0, 30, {
       emoji: '🐰',
       label: 'Normal',
       stars: 2,
       hint: 'Half the letters gone!',
       example: '_ A _',
-      color: 0xff9800,
+      color: 0xf2b84b,
       value: 'medium'
     });
     this.contentGroup.add(normal);
     
-    // Hard - Red, Lion emoji, 3 stars
+    // Hard - Coral/Red, Lion emoji, 3 stars
     const hard = this.createDifficultyCard(220, 30, {
       emoji: '🦁',
       label: 'Hard',
       stars: 3,
       hint: 'All letters hidden!',
       example: '_ _ _',
-      color: 0xef5350,
+      color: 0xe36b5a,
       value: 'hard'
     });
     this.contentGroup.add(hard);
@@ -389,12 +405,12 @@ class SetupScene extends Phaser.Scene {
     const cardWidth = 180;
     const cardHeight = 220;
     
-    // Glow effect
-    const glow = this.add.rectangle(0, 0, cardWidth + 10, cardHeight + 10, color, 0.2);
-    container.add(glow);
+    // Solid shadow effect (neo-brutalist)
+    const shadow = this.add.rectangle(5, 5, cardWidth, cardHeight, 0x17211f, 1);
+    container.add(shadow);
     
-    // Main card
-    const bg = this.add.rectangle(0, 0, cardWidth, cardHeight, 0x1a2744, 0.95);
+    // Main card (warm cream, colored border)
+    const bg = this.add.rectangle(0, 0, cardWidth, cardHeight, 0xfffaf0, 0.95);
     bg.setStrokeStyle(4, color);
     bg.setInteractive();
     bg.setData('value', value);
@@ -412,7 +428,7 @@ class SetupScene extends Phaser.Scene {
       fontSize: '24px',
       fontFamily: 'Fredoka, sans-serif',
       fontStyle: 'bold',
-      color: '#ffffff'
+      color: '#17211f'
     }).setOrigin(0.5);
     container.add(labelText);
     
@@ -431,13 +447,13 @@ class SetupScene extends Phaser.Scene {
     const exampleText = this.add.text(0, 75, example, {
       fontSize: '20px',
       fontFamily: 'monospace',
-      color: '#aabbcc',
+      color: '#63706d',
       letterSpacing: 6
     }).setOrigin(0.5);
     container.add(exampleText);
     
     container.setData('bg', bg);
-    container.setData('glow', glow);
+    container.setData('shadow', shadow);
     
     return container;
   }
@@ -461,7 +477,9 @@ class SetupScene extends Phaser.Scene {
     // Instruction
     const instruction = this.add.text(0, -180, 'Choose Grade', {
       fontSize: '32px',
-      fontFamily: 'Orbitron, sans-serif'
+      fontFamily: 'Fredoka, sans-serif',
+      fontStyle: 'bold',
+      color: '#ffffff'
     }).setOrigin(0.5);
     this.contentGroup.add(instruction);
     
@@ -473,7 +491,10 @@ class SetupScene extends Phaser.Scene {
     }
     
     const grades = wordData.curriculum;
-    const spacing = 200;
+    const { width, height } = this.cameras.main;
+    const cardWidth = Math.max(220, Math.min(width * 0.22, 280));
+    
+    const spacing = cardWidth + Math.max(20, width * 0.04);
     const startX = -(grades.length - 1) * spacing / 2;
     
     grades.forEach((grade, index) => {
@@ -489,11 +510,16 @@ class SetupScene extends Phaser.Scene {
   }
   
   showUnitSelection() {
+    const { width, height } = this.cameras.main;
+    const cardWidth = Math.max(220, Math.min(width * 0.22, 280));
+    const cardHeight = Math.max(120, Math.min(height * 0.14, 140));
+
     // Back button
-    const backBtn = this.add.text(-350, -180, '← Back', {
+    const backBtn = this.add.text(-width * 0.35, -180, '← Back', {
       fontSize: '20px',
-      fontFamily: 'Orbitron, sans-serif',
-      color: '#00f3ff'
+      fontFamily: 'Fredoka, sans-serif',
+      fontStyle: 'bold',
+      color: '#ffffff'
     }).setOrigin(0, 0.5);
     backBtn.setInteractive();
     backBtn.on('pointerdown', () => {
@@ -505,7 +531,9 @@ class SetupScene extends Phaser.Scene {
     // Instruction
     const instruction = this.add.text(0, -180, `Grade ${this.selectedGrade.grade} - Choose Unit`, {
       fontSize: '28px',
-      fontFamily: 'Orbitron, sans-serif'
+      fontFamily: 'Fredoka, sans-serif',
+      fontStyle: 'bold',
+      color: '#ffffff'
     }).setOrigin(0.5);
     this.contentGroup.add(instruction);
     
@@ -513,15 +541,21 @@ class SetupScene extends Phaser.Scene {
     const allUnitsOption = { unit: 'all', label: '⭐ All Units', words: units.flatMap(u => u.words) };
     const allOptions = [allUnitsOption, ...units];
     
+    // Pagination config
+    const itemsPerPage = 6;
+    const pagesCount = Math.ceil(allOptions.length / itemsPerPage);
+    
+    if (this.currentUnitPage >= pagesCount) this.currentUnitPage = pagesCount - 1;
+    if (this.currentUnitPage < 0) this.currentUnitPage = 0;
+    
+    const pageItems = allOptions.slice(this.currentUnitPage * itemsPerPage, (this.currentUnitPage + 1) * itemsPerPage);
+    
     const cols = 3;
-    const spacingX = 220;
-    const spacingY = 150; // Increased from 120 for better separation
+    const spacingX = cardWidth + Math.max(20, width * 0.03);
+    const spacingY = cardHeight + Math.max(15, height * 0.04);
+    const startY = -80; // Higher up to make space for pagination controls
     
-    // Calculate total rows for vertical centering
-    const totalRows = Math.ceil(allOptions.length / cols);
-    const startY = -((totalRows - 1) * spacingY) / 2 + 100; // Center cards vertically with more space from title
-    
-    allOptions.forEach((unit, index) => {
+    pageItems.forEach((unit, index) => {
       const col = index % cols;
       const row = Math.floor(index / cols);
       const x = (col - (cols - 1) / 2) * spacingX;
@@ -536,37 +570,95 @@ class SetupScene extends Phaser.Scene {
       );
       this.contentGroup.add(card);
     });
+    
+    // Render pagination controls if multiple pages exist
+    if (pagesCount > 1) {
+      const paginationY = startY + 1.9 * spacingY;
+      
+      // Page indicator text
+      const pageText = this.add.text(0, paginationY, `Page ${this.currentUnitPage + 1} of ${pagesCount}`, {
+        fontSize: '20px',
+        fontFamily: 'Fredoka, sans-serif',
+        color: '#ffffff',
+        fontStyle: 'bold'
+      }).setOrigin(0.5);
+      this.contentGroup.add(pageText);
+      
+      // Prev button card
+      if (this.currentUnitPage > 0) {
+        const prevCard = this.createContentCard(
+          -spacingX, paginationY,
+          '◀ Previous',
+          '',
+          { type: 'page', value: 'prev', data: null }
+        );
+        this.contentGroup.add(prevCard);
+      }
+      
+      // Next button card
+      if (this.currentUnitPage < pagesCount - 1) {
+        const nextCard = this.createContentCard(
+          spacingX, paginationY,
+          'Next ▶',
+          '',
+          { type: 'page', value: 'next', data: null }
+        );
+        this.contentGroup.add(nextCard);
+      }
+    }
   }
   
   createContentCard(x, y, title, subtitle, selectData) {
+    const { width, height } = this.cameras.main;
+    const cardWidth = Math.max(220, Math.min(width * 0.22, 280));
+    const cardHeight = Math.max(120, Math.min(height * 0.14, 140));
+    
     const container = this.add.container(x, y);
     
-    const bg = this.add.rectangle(0, 0, 200, 110, 0x141e32, 0.8);
-    bg.setStrokeStyle(2, 0x00f3ff, 0.3);
+    // Neo-brutalist solid shadow
+    const shadow = this.add.rectangle(4, 4, cardWidth, cardHeight, 0x17211f, 1);
+    container.add(shadow);
+    
+    // Determine card stroke color (gold for page controls, dark black for unit/grade cards)
+    const defaultStroke = selectData.type === 'page' ? 0xf2b84b : 0x17211f;
+    
+    // Main card background (dark navy fill, thick dark border)
+    const bg = this.add.rectangle(0, 0, cardWidth, cardHeight, 0x1a2238, 0.95);
+    bg.setStrokeStyle(3, defaultStroke, 1);
     bg.setInteractive();
     bg.setData('selectType', selectData.type);
     bg.setData('value', selectData.value);
     bg.setData('data', selectData.data);
     bg.setData('type', 'content');
+    bg.setData('defaultStroke', defaultStroke);
     container.add(bg);
     
-    const titleText = this.add.text(0, -15, title, {
-      fontSize: '16px',
-      fontFamily: 'Orbitron, sans-serif',
+    const hasSubtitle = subtitle && subtitle.length > 0;
+    const titleY = hasSubtitle ? -cardHeight * 0.12 : 0;
+    const titleFontSize = Math.max(18, Math.round(cardWidth * 0.08));
+    const subtitleFontSize = Math.max(13, Math.round(cardWidth * 0.055));
+    
+    const titleText = this.add.text(0, titleY, title, {
+      fontSize: `${titleFontSize}px`,
+      fontFamily: 'Fredoka, sans-serif',
       fontStyle: 'bold',
-      wordWrap: { width: 160 },
+      color: '#ffffff',
+      wordWrap: { width: cardWidth - 20 },
       align: 'center'
     }).setOrigin(0.5);
     container.add(titleText);
     
-    const subtitleText = this.add.text(0, 20, subtitle, {
-      fontSize: '12px',
-      fontFamily: 'sans-serif',
-      color: '#8899aa'
-    }).setOrigin(0.5);
-    container.add(subtitleText);
+    if (hasSubtitle) {
+      const subtitleText = this.add.text(0, cardHeight * 0.2, subtitle, {
+        fontSize: `${subtitleFontSize}px`,
+        fontFamily: 'Nunito, sans-serif',
+        color: '#aabbcc'
+      }).setOrigin(0.5);
+      container.add(subtitleText);
+    }
     
     container.setData('bg', bg);
+    container.setData('shadow', shadow);
     
     return container;
   }
@@ -581,13 +673,13 @@ class SetupScene extends Phaser.Scene {
     this.handCursor.setPosition(position.x, position.y);
     this.handCursor.setVisible(state !== 'IDLE');
     
-    // Update cursor appearance based on state
+    // Update cursor appearance based on state (gold/green project palette)
     if (state === 'FIST') {
-      this.handCursor.setFillStyle(0xff00ff, 0.5);
-      this.handCursor.setStrokeStyle(3, 0xff00ff);
+      this.handCursor.setFillStyle(0x2d9d78, 0.5);
+      this.handCursor.setStrokeStyle(3, 0x2d9d78);
     } else {
-      this.handCursor.setFillStyle(0x00f3ff, 0.5);
-      this.handCursor.setStrokeStyle(3, 0x00f3ff);
+      this.handCursor.setFillStyle(0xf2b84b, 0.5);
+      this.handCursor.setStrokeStyle(3, 0xf2b84b);
     }
     
     // Check for hover interactions
@@ -602,14 +694,15 @@ class SetupScene extends Phaser.Scene {
       const bg = child.getData ? child.getData('bg') : null;
       if (bg && bg.input) {
         const bounds = bg.getBounds();
+        const defaultStroke = bg.getData('defaultStroke') || 0x17211f;
         if (bounds.contains(position.x, position.y)) {
           foundTarget = bg;
           
-          // Highlight
-          bg.setStrokeStyle(3, 0x00f3ff, 1);
+          // Highlight with gold, line thickness 4
+          bg.setStrokeStyle(4, 0xf2b84b, 1);
         } else {
-          // Remove highlight
-          bg.setStrokeStyle(3, 0x00f3ff, 0.3);
+          // Remove highlight and reset to default stroke and thickness 3
+          bg.setStrokeStyle(3, defaultStroke, 1);
         }
       }
     });
@@ -697,6 +790,7 @@ class SetupScene extends Phaser.Scene {
         
         if (selectType === 'grade') {
           this.selectedGrade = data;
+          this.currentUnitPage = 0; // Reset page on grade selection
           this.time.delayedCall(300, () => {
             this.isProcessing = false;
             this.showContentSelection(); // This calls clearContent() first
@@ -705,6 +799,16 @@ class SetupScene extends Phaser.Scene {
           this.selectedUnit = data;
           this.startGame();
           // isProcessing 会在场景切换时自动重置
+        } else if (selectType === 'page') {
+          if (value === 'prev') {
+            this.currentUnitPage = Math.max(0, this.currentUnitPage - 1);
+          } else if (value === 'next') {
+            this.currentUnitPage++;
+          }
+          this.time.delayedCall(150, () => {
+            this.isProcessing = false;
+            this.showContentSelection();
+          });
         }
         break;
     }
@@ -719,6 +823,10 @@ class SetupScene extends Phaser.Scene {
   }
   
   startGame() {
+    // Hide PYP Map link inside the active game
+    const mapLink = document.querySelector('.pyp-map-link');
+    if (mapLink) mapLink.style.display = 'none';
+
     // Store selections in registry
     this.game.registry.set('selectedTheme', this.selectedTheme);
     this.game.registry.set('selectedAccent', this.selectedAccent);

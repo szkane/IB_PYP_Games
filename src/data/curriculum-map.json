@@ -7,30 +7,22 @@
       "summary": "Hilson's Grade 1 UOI learning path, organized by inquiry units and connected subject practice.",
       "units": [
         {
-          "id": "u1",
-          "label": "Unit 1",
-          "title": "Goal Setting",
-          "theme": "Who We Are",
-          "centralIdea": "Setting goals and taking action empower people to learn and grow.",
-          "learnerProfile": ["Reflective", "Balanced"],
-          "atlSkills": ["Self-management Skills", "Thinking Skills"],
+          "id": "home_learning",
+          "label": "Home Learning",
+          "title": "Foundational Practice",
+          "theme": "Skill Building",
+          "centralIdea": "Foundational practice in spelling, vocabulary, arithmetic, and pinyin supports active learning.",
           "subjects": [
-            {
-              "id": "uoi",
-              "label": "UOI",
-              "games": [
-                {
-                  "title": "Goal Steps Quest",
-                  "path": "uoi/goal_steps_quest.html",
-                  "type": "New",
-                  "description": "Choose small actions that help a learner reach a school goal."
-                }
-              ]
-            },
             {
               "id": "literacy",
               "label": "Literacy",
               "games": [
+                {
+                  "title": "Spelling Bee for IB PYP G1",
+                  "path": "literacy/g1_spelling_bee.html",
+                  "type": "Existing",
+                  "description": "Listen, spell, and build fluency with spelling lists."
+                },
                 {
                   "title": "MoveSpell - Magic Hand Edition",
                   "path": "literacy/movespelling/index.html",
@@ -38,15 +30,8 @@
                   "description": "Gesture spelling with CVC and high-frequency words."
                 },
                 {
-                  "title": "Spelling Bee for IB PYP G1",
-                  "path": "literacy/spelling_bee.html",
-                  "href": "literacy/spelling_bee.html?set=uoi1",
-                  "type": "Existing",
-                  "description": "Listen, spell, and build fluency with Grade 1 words."
-                },
-                {
                   "title": "Pronunciation Studio",
-                  "path": "literacy/pronunciation.html",
+                  "path": "literacy/g1_pronunciation.html",
                   "type": "Existing",
                   "description": "Hear and repeat sounds for early phonics practice."
                 }
@@ -57,15 +42,8 @@
               "label": "Math",
               "games": [
                 {
-                  "title": "Kangaroo Math G1",
-                  "path": "math/Kangaroo_Math.html",
-                  "type": "Existing",
-                  "description": "Short Grade 1 logic and counting missions."
-                },
-                {
                   "title": "Arithmetic Worksheet Generator",
-                  "path": "math/arithmetic.html",
-                  "href": "math/arithmetic.html?preset=uoi1",
+                  "path": "math/g1_arithmetic.html",
                   "type": "Existing",
                   "description": "Counting, number bonds, addition, and subtraction practice."
                 }
@@ -77,9 +55,56 @@
               "games": [
                 {
                   "title": "Pinyin Tone Helper",
-                  "path": "Chinese/pinyin_training.html",
+                  "path": "Chinese/g1_pinyin_training.html",
                   "type": "Existing",
                   "description": "Practice pinyin tones with large touch-friendly choices."
+                },
+                {
+                  "title": "Chinese Practice Print",
+                  "path": "Chinese/g1_chinese-practice-print.html",
+                  "type": "Existing",
+                  "description": "Printable Chinese writing practice for home-school routines."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "u1",
+          "label": "Unit 1",
+          "title": "Goal Setting",
+          "theme": "Who We Are",
+          "centralIdea": "Setting goals and taking action empower people to learn and grow.",
+          "learnerProfile": [
+            "Reflective",
+            "Balanced"
+          ],
+          "atlSkills": [
+            "Self-management Skills",
+            "Thinking Skills"
+          ],
+          "subjects": [
+            {
+              "id": "uoi",
+              "label": "UOI",
+              "games": [
+                {
+                  "title": "Goal Steps Quest",
+                  "path": "uoi/g1_goal_steps_quest.html",
+                  "type": "New",
+                  "description": "Choose small actions that help a learner reach a school goal."
+                }
+              ]
+            },
+            {
+              "id": "math",
+              "label": "Math",
+              "games": [
+                {
+                  "title": "Kangaroo Math G1",
+                  "path": "math/g1_Kangaroo_Math.html",
+                  "type": "Existing",
+                  "description": "Short Grade 1 logic and counting missions."
                 }
               ]
             }
@@ -91,8 +116,14 @@
           "title": "Community Roles",
           "theme": "How We Organize Ourselves",
           "centralIdea": "People contribute to their community through their roles and responsibilities.",
-          "learnerProfile": ["Caring", "Communicator"],
-          "atlSkills": ["Social Skills", "Communication Skills"],
+          "learnerProfile": [
+            "Caring",
+            "Communicator"
+          ],
+          "atlSkills": [
+            "Social Skills",
+            "Communication Skills"
+          ],
           "subjects": [
             {
               "id": "uoi",
@@ -100,7 +131,7 @@
               "games": [
                 {
                   "title": "Community Helpers Sort",
-                  "path": "uoi/community_helpers_sort.html",
+                  "path": "uoi/g1_community_helpers_sort.html",
                   "type": "New",
                   "description": "Match helpers, places, and responsibilities in a community."
                 }
@@ -115,13 +146,6 @@
                   "path": "literacy/mc_words/index.html",
                   "type": "Existing",
                   "description": "Vocabulary categories and word recognition."
-                },
-                {
-                  "title": "Spelling Bee for IB PYP G1",
-                  "path": "literacy/spelling_bee.html",
-                  "href": "literacy/spelling_bee.html?set=uoi2",
-                  "type": "Existing",
-                  "description": "Community and responsibility words can be practiced in DIY mode."
                 }
               ]
             },
@@ -131,16 +155,9 @@
               "games": [
                 {
                   "title": "3D Shape Explorer",
-                  "path": "math/3D_shape.html",
+                  "path": "math/g1_3D_shape.html",
                   "type": "Existing",
                   "description": "Rotate, compare, and name 3D solids used in shared spaces."
-                },
-                {
-                  "title": "Arithmetic Worksheet Generator",
-                  "path": "math/arithmetic.html",
-                  "href": "math/arithmetic.html?preset=uoi2",
-                  "type": "Existing",
-                  "description": "Place value, ones and tens, and facts up to 20."
                 }
               ]
             },
@@ -149,14 +166,8 @@
               "label": "Chinese 中文",
               "games": [
                 {
-                  "title": "Chinese Practice Print",
-                  "path": "Chinese/chinese-practice-print.html",
-                  "type": "Existing",
-                  "description": "Printable Chinese writing practice for home-school routines."
-                },
-                {
                   "title": "Radical Spinner",
-                  "path": "Chinese/word_spinner.html",
+                  "path": "Chinese/g1_word_spinner.html",
                   "type": "Existing",
                   "description": "Spin and combine radicals for Chinese character awareness."
                 }
@@ -170,8 +181,14 @@
           "title": "Storytelling",
           "theme": "How We Express Ourselves",
           "centralIdea": "People use stories to share how they think, feel, and what they value.",
-          "learnerProfile": ["Open-Minded", "Communicator"],
-          "atlSkills": ["Social Skills", "Thinking Skills"],
+          "learnerProfile": [
+            "Open-Minded",
+            "Communicator"
+          ],
+          "atlSkills": [
+            "Social Skills",
+            "Thinking Skills"
+          ],
           "subjects": [
             {
               "id": "uoi",
@@ -179,7 +196,7 @@
               "games": [
                 {
                   "title": "Story Sequencer",
-                  "path": "uoi/story_sequencer.html",
+                  "path": "uoi/g1_story_sequencer.html",
                   "type": "New",
                   "description": "Put beginning, middle, and end cards in order and explain the message."
                 }
@@ -191,48 +208,10 @@
               "games": [
                 {
                   "title": "Time Train - Before & After",
-                  "path": "literacy/before_after.html",
-                  "href": "literacy/before_after.html?mode=days",
+                  "path": "literacy/g1_before_after.html",
+                  "href": "literacy/g1_before_after.html?mode=days",
                   "type": "Existing",
                   "description": "Practice sequence words that help retell stories in order."
-                },
-                {
-                  "title": "MoveSpell - Magic Hand Edition",
-                  "path": "literacy/movespelling/index.html",
-                  "type": "Existing",
-                  "description": "Build story and feeling words through spelling practice."
-                },
-                {
-                  "title": "Spelling Bee for IB PYP G1",
-                  "path": "literacy/spelling_bee.html",
-                  "href": "literacy/spelling_bee.html?set=uoi3",
-                  "type": "Existing",
-                  "description": "Practice story, feeling, and audience vocabulary."
-                }
-              ]
-            },
-            {
-              "id": "math",
-              "label": "Math",
-              "games": [
-                {
-                  "title": "Arithmetic Worksheet Generator",
-                  "path": "math/arithmetic.html",
-                  "href": "math/arithmetic.html?preset=uoi3",
-                  "type": "Existing",
-                  "description": "Numbers to 100, number lines, and story problems."
-                }
-              ]
-            },
-            {
-              "id": "chinese",
-              "label": "Chinese 中文",
-              "games": [
-                {
-                  "title": "Pinyin Tone Helper",
-                  "path": "Chinese/pinyin_training.html",
-                  "type": "Existing",
-                  "description": "Tone practice for clear storytelling and oral reading."
                 }
               ]
             }
@@ -244,8 +223,14 @@
           "title": "Living Things",
           "theme": "Sharing the Planet",
           "centralIdea": "Respecting and protecting living things helps them survive and thrive.",
-          "learnerProfile": ["Caring", "Principled"],
-          "atlSkills": ["Research Skills", "Self-management Skills"],
+          "learnerProfile": [
+            "Caring",
+            "Principled"
+          ],
+          "atlSkills": [
+            "Research Skills",
+            "Self-management Skills"
+          ],
           "subjects": [
             {
               "id": "uoi",
@@ -253,13 +238,13 @@
               "games": [
                 {
                   "title": "Needs of Living Things",
-                  "path": "uoi/needs_of_living_things.html",
+                  "path": "uoi/g1_needs_of_living_things.html",
                   "type": "New",
                   "description": "Give plants and animals what they need and explain why."
                 },
                 {
                   "title": "UOI4 Living Things - Eco Detective Mission",
-                  "path": "math/living_things_eco_detective.html",
+                  "path": "math/g1_living_things_eco_detective.html",
                   "type": "Existing",
                   "description": "Investigate living/non-living things, needs, and protection choices."
                 }
@@ -271,28 +256,15 @@
               "games": [
                 {
                   "title": "Story Journey: Pictograph and Tally Adventure",
-                  "path": "math/pictograph_tally_story_journey.html",
+                  "path": "math/g1_pictograph_tally_story_journey.html",
                   "type": "Existing",
                   "description": "Collect and read data using pictographs and tally charts."
                 },
                 {
                   "title": "Quiz Arcade: Pictograph and Tally Sprint",
-                  "path": "math/pictograph_tally_quiz_arcade.html",
+                  "path": "math/g1_pictograph_tally_quiz_arcade.html",
                   "type": "Existing",
                   "description": "Fast data questions about how many, most, and least."
-                }
-              ]
-            },
-            {
-              "id": "literacy",
-              "label": "Literacy",
-              "games": [
-                {
-                  "title": "Spelling Bee for IB PYP G1",
-                  "path": "literacy/spelling_bee.html",
-                  "href": "literacy/spelling_bee.html?set=uoi4",
-                  "type": "Existing",
-                  "description": "Practice plant, animal, and non-fiction vocabulary."
                 }
               ]
             },
@@ -302,7 +274,7 @@
               "games": [
                 {
                   "title": "Bike Gear Lab",
-                  "path": "science/bike_gear.html",
+                  "path": "science/g1_bike_gear.html",
                   "type": "Existing",
                   "description": "Observe cause and effect in a simple interactive system."
                 }
@@ -313,14 +285,8 @@
               "label": "Chinese 中文",
               "games": [
                 {
-                  "title": "Chinese Practice Print",
-                  "path": "Chinese/chinese-practice-print.html",
-                  "type": "Existing",
-                  "description": "Write living-things and nature words with printable practice grids."
-                },
-                {
                   "title": "Radical Spinner",
-                  "path": "Chinese/word_spinner.html",
+                  "path": "Chinese/g1_word_spinner.html",
                   "type": "Existing",
                   "description": "Notice radicals that help build meaning in nature-related characters."
                 }
@@ -334,8 +300,14 @@
           "title": "Patterns and Cycles",
           "theme": "How the World Works",
           "centralIdea": "People adapt their daily life and practices to nature's patterns and cycles.",
-          "learnerProfile": ["Inquirer", "Knowledgeable"],
-          "atlSkills": ["Research Skills", "Thinking Skills"],
+          "learnerProfile": [
+            "Inquirer",
+            "Knowledgeable"
+          ],
+          "atlSkills": [
+            "Research Skills",
+            "Thinking Skills"
+          ],
           "subjects": [
             {
               "id": "uoi",
@@ -343,7 +315,7 @@
               "games": [
                 {
                   "title": "Life Cycle Builder",
-                  "path": "uoi/life_cycle_builder.html",
+                  "path": "uoi/g1_life_cycle_builder.html",
                   "type": "New",
                   "description": "Arrange nature cycle stages and notice what changes next."
                 }
@@ -355,67 +327,67 @@
               "games": [
                 {
                   "title": "Day and Night Detectives",
-                  "path": "science/day_and_night_detectives.html",
+                  "path": "science/g1_day_and_night_detectives.html",
                   "type": "Existing",
                   "description": "Investigate day/night changes and evidence."
                 },
                 {
                   "title": "Moon Phases Flashcards",
-                  "path": "science/moon_phases.html",
+                  "path": "science/g1_moon_phases.html",
                   "type": "Existing",
                   "description": "Recognize moon phases as a natural cycle."
                 },
                 {
                   "title": "Three.js Solar System",
-                  "path": "science/solar_system.html",
+                  "path": "science/g1_solar_system.html",
                   "type": "Existing",
                   "description": "Explore planets, orbits, and repeated movement."
                 },
                 {
                   "title": "NEON PLANETS - Particle Engine",
-                  "path": "science/3D_camara_solar.html",
+                  "path": "science/g1_3D_camara_solar.html",
                   "type": "Existing",
                   "description": "A space and motion extension for observing repeated movement."
                 },
                 {
                   "title": "Ultimate Galaxy Engine",
-                  "path": "science/3D_camara_galaxy.html",
+                  "path": "science/g1_3D_camara_galaxy.html",
                   "type": "Existing",
                   "description": "Explore spiral motion and visual patterns in space."
                 },
                 {
                   "title": "Crystal Galaxy",
-                  "path": "science/3D_camara_galaxy2.html",
+                  "path": "science/g1_3D_camara_galaxy2.html",
                   "type": "Existing",
                   "description": "Observe color, light, and repeated particle patterns."
                 },
                 {
                   "title": "Milky Way Gesture Control",
-                  "path": "science/3D_camara_milkyway.html",
+                  "path": "science/g1_3D_camara_milkyway.html",
                   "type": "Existing",
                   "description": "Use movement to explore a modeled galaxy scene."
                 },
                 {
                   "title": "Hand-Controlled Particle System",
-                  "path": "science/3D_camara_obj.html",
+                  "path": "science/g1_3D_camara_obj.html",
                   "type": "Existing",
                   "description": "Investigate how input changes a visual system."
                 },
                 {
                   "title": "Blue Plasma Orb Interface",
-                  "path": "science/3D_camera_blueball.html",
+                  "path": "science/g1_3D_camera_blueball.html",
                   "type": "Existing",
                   "description": "Observe light, color, and motion patterns."
                 },
                 {
                   "title": "Stable Hand Particle System",
-                  "path": "science/3D_camera_dragonball.html",
+                  "path": "science/g1_3D_camera_dragonball.html",
                   "type": "Existing",
                   "description": "Gesture-based particle motion extension."
                 },
                 {
                   "title": "Random Color Hand Particles",
-                  "path": "science/3D_camera_test.html",
+                  "path": "science/g1_3D_camera_test.html",
                   "type": "Existing",
                   "description": "Experiment with changing color and movement."
                 }
@@ -427,41 +399,10 @@
               "games": [
                 {
                   "title": "Time Train - Before & After",
-                  "path": "literacy/before_after.html",
-                  "href": "literacy/before_after.html?mode=months",
+                  "path": "literacy/g1_before_after.html",
+                  "href": "literacy/g1_before_after.html?mode=months",
                   "type": "Existing",
                   "description": "Sequence daily routines using before and after."
-                }
-              ]
-            },
-            {
-              "id": "literacy",
-              "label": "Literacy",
-              "games": [
-                {
-                  "title": "Spelling Bee for IB PYP G1",
-                  "path": "literacy/spelling_bee.html",
-                  "href": "literacy/spelling_bee.html?set=uoi5",
-                  "type": "Existing",
-                  "description": "Practice time, cycle, and nature vocabulary."
-                }
-              ]
-            },
-            {
-              "id": "chinese",
-              "label": "Chinese 中文",
-              "games": [
-                {
-                  "title": "Pinyin Tone Helper",
-                  "path": "Chinese/pinyin_training.html",
-                  "type": "Existing",
-                  "description": "Practice tones for time, season, and nature-cycle words."
-                },
-                {
-                  "title": "Chinese Practice Print",
-                  "path": "Chinese/chinese-practice-print.html",
-                  "type": "Existing",
-                  "description": "Create handwriting practice for cycle and calendar vocabulary."
                 }
               ]
             }
@@ -473,8 +414,14 @@
           "title": "Journeys",
           "theme": "Where We Are in Place and Time",
           "centralIdea": "Personal journeys show how people learn, grow, and move forward.",
-          "learnerProfile": ["Open-Minded", "Reflective"],
-          "atlSkills": ["Self-management Skills", "Communication Skills"],
+          "learnerProfile": [
+            "Open-Minded",
+            "Reflective"
+          ],
+          "atlSkills": [
+            "Self-management Skills",
+            "Communication Skills"
+          ],
           "subjects": [
             {
               "id": "uoi",
@@ -482,13 +429,13 @@
               "games": [
                 {
                   "title": "Story Sequencer",
-                  "path": "uoi/story_sequencer.html",
+                  "path": "uoi/g1_story_sequencer.html",
                   "type": "Existing",
                   "description": "Sequence journey moments and explain how a person grows or changes."
                 },
                 {
                   "title": "Goal Steps Quest",
-                  "path": "uoi/goal_steps_quest.html",
+                  "path": "uoi/g1_goal_steps_quest.html",
                   "type": "Existing",
                   "description": "Choose actions that help prepare for a new stage in a learning journey."
                 }
@@ -500,29 +447,10 @@
               "games": [
                 {
                   "title": "Time Train - Before & After",
-                  "path": "literacy/before_after.html",
-                  "href": "literacy/before_after.html?mode=months",
+                  "path": "literacy/g1_before_after.html",
+                  "href": "literacy/g1_before_after.html?mode=months",
                   "type": "Existing",
                   "description": "Use time words to retell personal journeys in order."
-                },
-                {
-                  "title": "Spelling Bee for IB PYP G1",
-                  "path": "literacy/spelling_bee.html",
-                  "href": "literacy/spelling_bee.html?set=uoi6",
-                  "type": "Existing",
-                  "description": "Practice growth, change, and personal narrative vocabulary."
-                },
-                {
-                  "title": "MoveSpell - Magic Hand Edition",
-                  "path": "literacy/movespelling/index.html",
-                  "type": "Existing",
-                  "description": "Blend, segment, and spell high-frequency words for personal writing."
-                },
-                {
-                  "title": "Pronunciation Studio",
-                  "path": "literacy/pronunciation.html",
-                  "type": "Existing",
-                  "description": "Hear and repeat sounds before sharing personal journey stories aloud."
                 }
               ]
             },
@@ -532,20 +460,13 @@
               "games": [
                 {
                   "title": "Position Explorer",
-                  "path": "math/position_explorer.html",
+                  "path": "math/g1_position_explorer.html",
                   "type": "Existing",
                   "description": "Describe journeys and views using in front of, behind, above, below, and next to."
                 },
                 {
-                  "title": "Arithmetic Worksheet Generator",
-                  "path": "math/arithmetic.html",
-                  "href": "math/arithmetic.html?preset=uoi6",
-                  "type": "Existing",
-                  "description": "Review number bonds, place value, comparing numbers, operations, and word problems."
-                },
-                {
                   "title": "Kangaroo Math G1",
-                  "path": "math/Kangaroo_Math.html",
+                  "path": "math/g1_Kangaroo_Math.html",
                   "type": "Existing",
                   "description": "Review Grade 1 maths skills with short practice missions."
                 }
@@ -556,20 +477,8 @@
               "label": "Chinese 中文",
               "games": [
                 {
-                  "title": "Pinyin Tone Helper",
-                  "path": "Chinese/pinyin_training.html",
-                  "type": "Existing",
-                  "description": "Practice clear tones for speaking about experiences and growth."
-                },
-                {
-                  "title": "Chinese Practice Print",
-                  "path": "Chinese/chinese-practice-print.html",
-                  "type": "Existing",
-                  "description": "Create handwriting practice for personal journey and time vocabulary."
-                },
-                {
                   "title": "Radical Spinner",
-                  "path": "Chinese/word_spinner.html",
+                  "path": "Chinese/g1_word_spinner.html",
                   "type": "Existing",
                   "description": "Build character awareness while preparing personal writing words."
                 }
@@ -586,13 +495,11 @@
       "summary": "Grade 2 UOI learning path, starting with economics and financial systems vocabulary.",
       "units": [
         {
-          "id": "u1",
-          "label": "Unit 1",
-          "title": "Summer Holiday Home Learning",
-          "theme": "How We Organize Ourselves",
-          "centralIdea": "The decisions we make about using and sharing resources affect our community.",
-          "learnerProfile": ["Reflective", "Thinker"],
-          "atlSkills": ["Thinking Skills", "Social Skills"],
+          "id": "home_learning",
+          "label": "Home Learning",
+          "title": "Vocabulary Practice",
+          "theme": "Skill Building",
+          "centralIdea": "Building active spelling and vocabulary practices improves transdisciplinary learning.",
           "subjects": [
             {
               "id": "uoi",
@@ -621,6 +528,22 @@
               ]
             }
           ]
+        },
+        {
+          "id": "u1",
+          "label": "Unit 1",
+          "title": "Summer Holiday Home Learning",
+          "theme": "How We Organize Ourselves",
+          "centralIdea": "The decisions we make about using and sharing resources affect our community.",
+          "learnerProfile": [
+            "Reflective",
+            "Thinker"
+          ],
+          "atlSkills": [
+            "Thinking Skills",
+            "Social Skills"
+          ],
+          "subjects": []
         }
       ]
     },

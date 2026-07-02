@@ -10,24 +10,24 @@
    CSS Variables - Child-Friendly Theme Tokens
    ============================================ */
 
-/* Theme: Ocean Adventure (Default) - Bright, friendly blues and oranges */
+/* Theme: Ocean Adventure (Default) - Warm cream with ocean blue accents */
 :root {
-  --bg-color: #e8f4fc;
-  --bg-gradient: linear-gradient(180deg, #87ceeb 0%, #e8f4fc 50%, #fff9e6 100%);
-  --primary-color: #4fc3f7;
-  --primary-glow: rgba(79, 195, 247, 0.5);
-  --secondary-color: #ff9800;
-  --accent-color: #66bb6a;
-  --text-color: #2c3e50;
-  --text-muted: #607d8b;
-  --card-bg: rgba(255, 255, 255, 0.95);
-  --card-border: rgba(79, 195, 247, 0.5);
-  --orb-gradient: linear-gradient(135deg, #4fc3f7, #29b6f6);
-  --orb-shadow: 0 8px 25px rgba(79, 195, 247, 0.4);
-  --slot-bg: rgba(79, 195, 247, 0.15);
-  --slot-border: #4fc3f7;
-  --correct-color: #66bb6a;
-  --wrong-color: #ef5350;
+  --bg-color: #fffaf0;
+  --bg-gradient: linear-gradient(180deg, #e8f4fc 0%, #fffaf0 100%);
+  --primary-color: #4a7cdd;
+  --primary-glow: rgba(74, 124, 221, 0.3);
+  --secondary-color: #f2b84b;
+  --accent-color: #2d9d78;
+  --text-color: #17211f;
+  --text-muted: #63706d;
+  --card-bg: #ffffff;
+  --card-border: #17211f;
+  --orb-gradient: linear-gradient(135deg, #4fc3f7, #4a7cdd);
+  --orb-shadow: 0 8px 25px rgba(74, 124, 221, 0.3);
+  --slot-bg: rgba(74, 124, 221, 0.1);
+  --slot-border: #17211f;
+  --correct-color: #2d9d78;
+  --wrong-color: #e36b5a;
   --font-primary: "Fredoka", "Comic Sans MS", cursive;
   --font-secondary: "Nunito", sans-serif;
   --transition-fast: 0.2s ease;
@@ -43,24 +43,24 @@
   --spacing-unit: clamp(10px, 2vw, 20px);
 }
 
-/* Theme: Magic Forest - Warm purples and greens for fantasy feel */
+/* Theme: Magic Forest - Warm cream with forest green accents */
 body.theme-fantasy {
-  --bg-color: #f3e5f5;
-  --bg-gradient: linear-gradient(180deg, #ce93d8 0%, #f3e5f5 50%, #fff8e1 100%);
-  --primary-color: #ab47bc;
-  --primary-glow: rgba(171, 71, 188, 0.5);
-  --secondary-color: #ff7043;
-  --accent-color: #81c784;
-  --text-color: #4a148c;
-  --text-muted: #7b1fa2;
-  --card-bg: rgba(255, 255, 255, 0.95);
-  --card-border: rgba(171, 71, 188, 0.5);
-  --orb-gradient: linear-gradient(135deg, #ce93d8, #ab47bc);
-  --orb-shadow: 0 8px 25px rgba(171, 71, 188, 0.4);
-  --slot-bg: rgba(171, 71, 188, 0.15);
-  --slot-border: #ab47bc;
-  --correct-color: #81c784;
-  --wrong-color: #ff7043;
+  --bg-color: #fffaf0;
+  --bg-gradient: linear-gradient(180deg, #e2f3ee 0%, #fffaf0 100%);
+  --primary-color: #2d9d78;
+  --primary-glow: rgba(45, 157, 120, 0.3);
+  --secondary-color: #f2b84b;
+  --accent-color: #4a7cdd;
+  --text-color: #17211f;
+  --text-muted: #63706d;
+  --card-bg: #ffffff;
+  --card-border: #17211f;
+  --orb-gradient: linear-gradient(135deg, #81c784, #2d9d78);
+  --orb-shadow: 0 8px 25px rgba(45, 157, 120, 0.3);
+  --slot-bg: rgba(45, 157, 120, 0.1);
+  --slot-border: #17211f;
+  --correct-color: #2d9d78;
+  --wrong-color: #e36b5a;
   --font-primary: "Fredoka", "Comic Sans MS", cursive;
 }
 
@@ -297,20 +297,19 @@ body {
 .feature-card {
   background: var(--card-bg);
   border: 3px solid var(--card-border);
-  border-radius: 30px;
+  border-radius: 20px;
   padding: clamp(20px, 3vw, 30px);
   text-align: center;
   transition: all var(--transition-normal);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  box-shadow: 5px 5px 0 var(--card-border);
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
 .feature-card:hover {
-  transform: translateY(-10px);
-  border-color: var(--secondary-color);
-  box-shadow: 0 15px 40px rgba(255, 152, 0, 0.2);
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0 var(--card-border);
 }
 
 .feature-icon {
@@ -344,18 +343,18 @@ body {
   font-size: clamp(1.4rem, 3vw, 2.2rem);
   font-family: var(--font-primary);
   font-weight: 700;
-  color: white;
-  background: linear-gradient(135deg, var(--secondary-color), #fb8c00);
-  border: none;
-  border-radius: 60px;
+  color: #17211f;
+  background: var(--secondary-color);
+  border: 3px solid #17211f;
+  border-radius: 20px;
   cursor: pointer;
-  transition: all var(--transition-normal);
-  box-shadow: 0 8px 25px rgba(255, 152, 0, 0.4);
+  transition: all var(--transition-fast);
+  box-shadow: 5px 5px 0 #17211f;
 }
 
 .permission-btn:hover {
-  transform: scale(1.05) translateY(-5px);
-  box-shadow: 0 15px 40px rgba(255, 152, 0, 0.5);
+  transform: translate(-3px, -3px);
+  box-shadow: 8px 8px 0 #17211f;
 }
 
 .privacy-warning {
@@ -793,17 +792,17 @@ body {
   font-family: var(--font-primary);
   font-weight: 700;
   color: white;
-  background: linear-gradient(135deg, var(--correct-color), #4caf50);
-  border: none;
-  border-radius: 50px;
+  background: var(--correct-color);
+  border: 3px solid #17211f;
+  border-radius: 20px;
   cursor: pointer;
-  transition: all var(--transition-normal);
-  box-shadow: 0 6px 25px rgba(102, 187, 106, 0.4);
+  transition: all var(--transition-fast);
+  box-shadow: 5px 5px 0 #17211f;
 }
 
 .play-again-btn:hover {
-  transform: scale(1.1) translateY(-5px);
-  box-shadow: 0 12px 40px rgba(102, 187, 106, 0.5);
+  transform: translate(-3px, -3px);
+  box-shadow: 8px 8px 0 #17211f;
 }
 
 /* ============================================

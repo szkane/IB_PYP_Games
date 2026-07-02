@@ -23,6 +23,11 @@ class PlayScene extends Phaser.Scene {
   
   create() {
     const { width, height } = this.cameras.main;
+    
+    // Hide PYP Map link inside the active game
+    const mapLink = document.querySelector('.pyp-map-link');
+    if (mapLink) mapLink.style.display = 'none';
+
     this.words = this.game.registry.get('selectedWords') || ['CAT', 'DOG'];
     this.difficulty = this.game.registry.get('selectedDifficulty') || 'medium';
     this.audioManager = this.game.registry.get('audioManager');
@@ -35,10 +40,10 @@ class PlayScene extends Phaser.Scene {
     this.slotContainer = this.add.container(width / 2, height * 0.72);
     this.orbContainer = this.add.container(0, 0);
     
-    // Child-friendly cursor colors (orange instead of cyan)
+    // Child-friendly cursor colors (orange/gold instead of cyan)
     const cursorSize = Math.max(35, Math.min(width, height) * 0.04);
-    this.handCursor = this.add.circle(0, 0, cursorSize, 0xff9800, 0.5);
-    this.handCursor.setStrokeStyle(4, 0xff9800);
+    this.handCursor = this.add.circle(0, 0, cursorSize, 0xf2b84b, 0.5);
+    this.handCursor.setStrokeStyle(4, 0xf2b84b);
     this.handCursor.setVisible(false);
     this.handCursor.setDepth(100);
     
@@ -55,7 +60,33 @@ class PlayScene extends Phaser.Scene {
     const primaryColor = '#ffffff';  // Bright white for visibility
     const accentColor = '#66ff66';   // Bright green
     
-    this.wordCounterText = this.add.text(30, 30, '', { 
+    // Back to Menu button (neo-brutalist styled)
+    this.menuBtn = this.add.container(80, 45);
+    const menuBg = this.add.rectangle(0, 0, 100, 40, 0xe36b5a, 0.95).setStrokeStyle(3, 0x17211f);
+    menuBg.setInteractive();
+    menuBg.on('pointerdown', () => this.goBackToMenu());
+    
+    // Click hover effects
+    menuBg.on('pointerover', () => {
+      menuBg.setScale(1.05);
+      menuBg.setStrokeStyle(3, 0xf2b84b);
+    });
+    menuBg.on('pointerout', () => {
+      menuBg.setScale(1);
+      menuBg.setStrokeStyle(3, 0x17211f);
+    });
+    
+    const menuText = this.add.text(0, 0, '← Menu', {
+      fontSize: '16px',
+      fontFamily: 'Fredoka',
+      color: '#ffffff',
+      fontStyle: 'bold'
+    }).setOrigin(0.5);
+    this.menuBtn.add([menuBg, menuText]);
+    this.menuBtn.setData('bg', menuBg);
+    
+    // Shift word counter down to make space for Menu button
+    this.wordCounterText = this.add.text(30, 80, '', { 
       fontSize: `${fontSize}px`, 
       fontFamily: 'Fredoka', 
       color: primaryColor, 
@@ -80,7 +111,7 @@ class PlayScene extends Phaser.Scene {
       fontFamily: 'Fredoka', 
       fontStyle: 'bold', 
       color: '#ffffff',
-      stroke: '#ff9800',
+      stroke: '#f2b84b',
       strokeThickness: 4
     }).setOrigin(0.5).setAlpha(0);
     
@@ -92,10 +123,10 @@ class PlayScene extends Phaser.Scene {
       strokeThickness: 2
     }).setOrigin(0.5);
     
-    // Repeat button - larger and more visible
+    // Repeat button - larger and more visible (flat neo-brutalist circle style)
     const btnSize = Math.max(45, Math.min(width, height) * 0.05);
     this.repeatBtn = this.add.container(width - 100, height * 0.12);
-    const repeatBg = this.add.circle(0, 0, btnSize, 0xff9800, 0.95).setStrokeStyle(4, 0xffffff);
+    const repeatBg = this.add.circle(0, 0, btnSize, 0xf2b84b, 0.95).setStrokeStyle(3, 0x17211f);
     repeatBg.setInteractive();
     repeatBg.on('pointerdown', () => this.repeatWord());
     this.repeatBtn.add([repeatBg, this.add.text(0, 0, '🔊', { fontSize: `${btnSize}px` }).setOrigin(0.5)]);
@@ -169,10 +200,10 @@ class PlayScene extends Phaser.Scene {
     const positions = this.spawner.generateSpawnPositions(this.orbData.orbs.length, width, height);
     const theme = this.game.registry.get('selectedTheme') || 'scifi';
     
-    // Child-friendly bright colors
+    // Child-friendly project theme colors
     const colors = theme === 'fantasy' 
-      ? { fill: 0xce93d8, stroke: 0xab47bc, text: '#4a148c' } 
-      : { fill: 0x4fc3f7, stroke: 0x29b6f6, text: '#01579b' };
+      ? { fill: 0xe2f3ee, stroke: 0x2d9d78, text: '#17211f' } 
+      : { fill: 0xe8f4fc, stroke: 0x4a7cdd, text: '#17211f' };
     
     // Responsive orb sizing
     const orbRadius = Math.max(40, Math.min(width, height) * 0.05);
@@ -202,11 +233,30 @@ class PlayScene extends Phaser.Scene {
   onHandUpdate(data) {
     const { position, state } = data;
     this.handCursor.setPosition(position.x, position.y).setVisible(state !== 'IDLE');
-    this.handCursor.setFillStyle(state === 'FIST' ? 0xff00ff : 0x00f3ff, 0.5);
-    this.handCursor.setStrokeStyle(4, state === 'FIST' ? 0xff00ff : 0x00f3ff);
+    this.handCursor.setFillStyle(state === 'FIST' ? 0x2d9d78 : 0xf2b84b, 0.5);
+    this.handCursor.setStrokeStyle(4, state === 'FIST' ? 0x2d9d78 : 0xf2b84b);
     this.handCursor.setScale(state === 'FIST' ? 1.2 : 1);
     if (this.grabbedOrb) this.grabbedOrb.setPosition(position.x, position.y);
     
+    // Check for Menu button hover
+    if (this.menuBtn && this.menuBtn.visible) {
+      const menuBg = this.menuBtn.getData('bg');
+      const bounds = menuBg.getBounds();
+      if (bounds.contains(position.x, position.y)) {
+        menuBg.setScale(1.05);
+        menuBg.setStrokeStyle(3, 0xf2b84b);
+        if (!this.menuBtnHoverStart) {
+          this.menuBtnHoverStart = this.time.now;
+        } else if (this.time.now - this.menuBtnHoverStart > 1200) {
+          this.goBackToMenu();
+        }
+      } else {
+        menuBg.setScale(1);
+        menuBg.setStrokeStyle(3, 0x17211f);
+        this.menuBtnHoverStart = 0;
+      }
+    }
+
     // Check for repeat button hover
     if (this.repeatBtn && this.repeatBtn.visible) {
       const btnRadius = this.repeatBtn.getData('radius') || 45;
@@ -232,6 +282,17 @@ class PlayScene extends Phaser.Scene {
         this.repeatBtnHoverStart = 0;
       }
     }
+  }
+
+  goBackToMenu() {
+    this.game.events.off('handUpdate', this.onHandUpdate, this);
+    this.game.events.off('handStateChange', this.onHandStateChange, this);
+    
+    // Show PYP Map link on menu load
+    const mapLink = document.querySelector('.pyp-map-link');
+    if (mapLink) mapLink.style.display = 'inline-flex';
+    
+    this.scene.start('SetupScene');
   }
   
   onHandStateChange(newState, oldState) {

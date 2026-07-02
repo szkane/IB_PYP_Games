@@ -168,7 +168,7 @@ function renderSubject(subject) {
             </section>`;
 }
 
-function renderUnit(unit, index) {
+function renderUnit(unit, numberText) {
   const subjectSections = unit.subjects.map(renderSubject).join('');
   const profiles = [...(unit.learnerProfile || []), ...(unit.atlSkills || [])]
     .map(item => `<span>${escapeHtml(item)}</span>`)
@@ -177,11 +177,11 @@ function renderUnit(unit, index) {
   return `
         <article class="unit-band" data-unit="${escapeHtml(unit.id)}">
           <div class="unit-heading">
-            <div class="unit-number">${index + 1}</div>
+            <div class="unit-number">${escapeHtml(numberText)}</div>
             <div>
-              <p class="eyebrow">${escapeHtml(unit.label)} · ${escapeHtml(unit.theme)}</p>
+              <p class="eyebrow">${escapeHtml(unit.label)}${unit.theme ? ' · ' + escapeHtml(unit.theme) : ''}</p>
               <h3>${escapeHtml(unit.title)}</h3>
-              <p>${escapeHtml(unit.centralIdea)}</p>
+              ${unit.centralIdea ? `<p>${escapeHtml(unit.centralIdea)}</p>` : ''}
               <div class="profile-row">${profiles}</div>
             </div>
           </div>
@@ -193,7 +193,10 @@ function renderGrade(grade, index) {
   const units = grade.units || [];
   const isActive = index === 0 ? ' active' : '';
   const planned = grade.status === 'planned';
-  const content = planned ? `
+  
+  let content = '';
+  if (planned) {
+    content = `
         <section class="empty-grade">
           <h3>${escapeHtml(grade.label)} curriculum space is ready</h3>
           <p>${escapeHtml(grade.summary)}</p>
@@ -207,7 +210,15 @@ function renderGrade(grade, index) {
                 </div>
               </article>`).join('')}
           </div>
-        </section>` : units.map(renderUnit).join('');
+        </section>`;
+  } else {
+    let unitNumber = 1;
+    content = units.map(unit => {
+      const isHomeLearning = unit.id === 'home_learning';
+      const numberText = isHomeLearning ? '🏠' : (unitNumber++).toString();
+      return renderUnit(unit, numberText);
+    }).join('');
+  }
 
   return `
       <section class="grade-panel${isActive}" id="${escapeHtml(grade.id)}" aria-label="${escapeHtml(grade.label)}">

@@ -10,6 +10,10 @@ class ResultsScene extends Phaser.Scene {
   create() {
     const { width, height } = this.cameras.main;
     
+    // Hide PYP Map link in results scene
+    const mapLink = document.querySelector('.pyp-map-link');
+    if (mapLink) mapLink.style.display = 'none';
+    
     // Get results
     const score = this.game.registry.get('finalScore') || 0;
     const correct = this.game.registry.get('correctWords') || 0;
@@ -22,19 +26,16 @@ class ResultsScene extends Phaser.Scene {
     if (accuracy >= 0.9 && incorrect < 3) stars = 3;
     else if (accuracy >= 0.7) stars = 2;
     
-    // Theme
-    const theme = this.game.registry.get('selectedTheme') || 'scifi';
-    const primaryColor = theme === 'fantasy' ? '#ff66cc' : '#00f3ff';
-    
     // Background is transparent to show camera feed
     
     // Title
     const title = this.add.text(width / 2, 100, '🎉 Great Job! 🎉', {
       fontSize: '48px',
-      fontFamily: 'Orbitron, sans-serif',
-      fontStyle: 'bold'
+      fontFamily: 'Fredoka, sans-serif',
+      fontStyle: 'bold',
+      color: '#ffffff'
     }).setOrigin(0.5);
-    title.setTint(0x00f3ff, 0xff00ff, 0x00f3ff, 0xff00ff);
+    title.setTint(0xf2b84b, 0xe36b5a, 0xf2b84b, 0xe36b5a);
     
     // Stars container
     const starY = 200;
@@ -60,6 +61,8 @@ class ResultsScene extends Phaser.Scene {
             scaleY: 1.3,
             duration: 200,
             yoyo: true,
+            repeat: -1,
+            repeatDelay: 2000,
             ease: 'Quad.out'
           });
         });
@@ -69,21 +72,24 @@ class ResultsScene extends Phaser.Scene {
     // Stats
     this.add.text(width / 2, 320, `Score: ${score}`, {
       fontSize: '32px',
-      fontFamily: 'Orbitron, sans-serif',
-      color: '#00ff88'
+      fontFamily: 'Fredoka, sans-serif',
+      fontStyle: 'bold',
+      color: '#f2b84b'
     }).setOrigin(0.5);
     
     this.add.text(width / 2, 380, `Words: ${correct}/${total}`, {
       fontSize: '24px',
-      fontFamily: 'sans-serif',
-      color: '#8899aa'
+      fontFamily: 'Nunito, sans-serif',
+      fontStyle: 'bold',
+      color: '#ffffff'
     }).setOrigin(0.5);
     
     if (incorrect > 0) {
       this.add.text(width / 2, 420, `Mistakes: ${incorrect}`, {
         fontSize: '18px',
-        fontFamily: 'sans-serif',
-        color: '#ff6666'
+        fontFamily: 'Nunito, sans-serif',
+        fontStyle: 'bold',
+        color: '#e36b5a'
       }).setOrigin(0.5);
     }
     
@@ -91,15 +97,21 @@ class ResultsScene extends Phaser.Scene {
     const btnY = 520;
     const btn = this.add.container(width / 2, btnY);
     
-    const btnBg = this.add.rectangle(0, 0, 250, 60, 0x00f3ff);
+    // Solid shadow (neo-brutalist)
+    const btnShadow = this.add.rectangle(4, 4, 250, 60, 0x17211f);
+    btn.add(btnShadow);
+    
+    // Main button background
+    const btnBg = this.add.rectangle(0, 0, 250, 60, 0x2d9d78);
+    btnBg.setStrokeStyle(3, 0x17211f);
     btnBg.setInteractive();
     btn.add(btnBg);
     
     const btnText = this.add.text(0, 0, 'Play Again', {
       fontSize: '24px',
-      fontFamily: 'Orbitron, sans-serif',
+      fontFamily: 'Fredoka, sans-serif',
       fontStyle: 'bold',
-      color: '#0b0f19'
+      color: '#ffffff'
     }).setOrigin(0.5);
     btn.add(btnText);
     
@@ -137,17 +149,18 @@ class ResultsScene extends Phaser.Scene {
     // Home button
     const homeBtn = this.add.text(width / 2, btnY + 80, '🏠 Back to Menu', {
       fontSize: '18px',
-      fontFamily: 'sans-serif',
-      color: primaryColor
+      fontFamily: 'Fredoka, sans-serif',
+      fontStyle: 'bold',
+      color: '#ffffff'
     }).setOrigin(0.5).setInteractive();
     
     homeBtn.on('pointerdown', () => this.goHome());
     homeBtn.on('pointerover', () => homeBtn.setScale(1.1));
     homeBtn.on('pointerout', () => homeBtn.setScale(1));
     
-    // Hand cursor - STORE REFERENCE
-    this.handCursor = this.add.circle(0, 0, 30, 0x00f3ff, 0.5);
-    this.handCursor.setStrokeStyle(3, 0x00f3ff);
+    // Hand cursor - STORE REFERENCE (orange/gold instead of cyan)
+    this.handCursor = this.add.circle(0, 0, 30, 0xf2b84b, 0.5);
+    this.handCursor.setStrokeStyle(3, 0xf2b84b);
     this.handCursor.setVisible(false);
     this.handCursor.setDepth(100);
     
@@ -170,6 +183,10 @@ class ResultsScene extends Phaser.Scene {
   }
   
   playAgain() {
+    // Show PYP Map link on menu load
+    const mapLink = document.querySelector('.pyp-map-link');
+    if (mapLink) mapLink.style.display = 'inline-flex';
+
     this.cameras.main.fadeOut(300);
     this.cameras.main.once('camerafadeoutcomplete', () => {
       this.scene.start('SetupScene');
@@ -177,6 +194,10 @@ class ResultsScene extends Phaser.Scene {
   }
   
   goHome() {
+    // Show PYP Map link on menu load
+    const mapLink = document.querySelector('.pyp-map-link');
+    if (mapLink) mapLink.style.display = 'inline-flex';
+
     this.cameras.main.fadeOut(300);
     this.cameras.main.once('camerafadeoutcomplete', () => {
       this.scene.start('SetupScene');

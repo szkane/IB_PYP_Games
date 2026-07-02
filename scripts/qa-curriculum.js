@@ -15,11 +15,11 @@ const serviceWorkerPath = resolve(srcDir, 'sw.js');
 
 const requiredSubjects = ['uoi', 'literacy', 'math', 'science', 'chinese'];
 const newUoiGamePaths = [
-  'uoi/goal_steps_quest.html',
-  'uoi/community_helpers_sort.html',
-  'uoi/story_sequencer.html',
-  'uoi/needs_of_living_things.html',
-  'uoi/life_cycle_builder.html',
+  'uoi/g1_goal_steps_quest.html',
+  'uoi/g1_community_helpers_sort.html',
+  'uoi/g1_story_sequencer.html',
+  'uoi/g1_needs_of_living_things.html',
+  'uoi/g1_life_cycle_builder.html',
   'uoi/g2_vocabulary.html',
 ];
 const plannedThemes = [
@@ -176,22 +176,15 @@ function main() {
   if (!gradeOne) {
     errors.push('Missing Grade 1 curriculum entry.');
   } else {
-    if ((gradeOne.units || []).length !== 6) {
-      errors.push(`Expected Grade 1 to have 6 units, found ${(gradeOne.units || []).length}.`);
+    if ((gradeOne.units || []).length !== 7) {
+      errors.push(`Expected Grade 1 to have 7 units (including Home Learning), found ${(gradeOne.units || []).length}.`);
     }
 
     for (const unit of gradeOne.units || []) {
+      if (unit.id === 'home_learning') continue;
       const subjectIds = new Set((unit.subjects || []).map(subject => subject.id));
-      const missingSubjects = requiredSubjects.filter(subject => {
-        if (subject === 'science') {
-          return unit.id === 'u1' || unit.id === 'u2' || unit.id === 'u3' || unit.id === 'u6'
-            ? false
-            : !subjectIds.has(subject);
-        }
-        return !subjectIds.has(subject);
-      });
-      if (missingSubjects.length > 0) {
-        errors.push(`${unit.label} is missing subject lanes: ${missingSubjects.join(', ')}.`);
+      if (!subjectIds.has('uoi')) {
+        errors.push(`${unit.label} is missing the UOI subject lane.`);
       }
     }
   }

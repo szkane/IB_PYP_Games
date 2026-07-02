@@ -1,0 +1,2197 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <title>Spelling Bee for IB PYP G1</title>
+
+    <link
+      rel="manifest"
+      href="data:application/manifest+json;base64,ewogICJuYW1lIjogIlNwZWxsaW5nIEJlZSBmb3IgSUIgUFlQIEcxIiwKICAic2hvcnRfbmFtZSI6ICJTcGVsbGluZyIsCiAgInN0YXJ0X3VybCI6ICIuIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIuRjBGNEY4IiwKICAidGhlbWVfY29sb3IiOiAiIzRBOTBFMiIKfQ=="
+    />
+
+    <style>
+      :root {
+        --primary: #007aff;
+        --accent: #ff2d55;
+        --success: #34c759;
+        --warning: #ff9500;
+        --bg: #f5f5f7;
+        --key-bg: #ffffff;
+        --key-text: #1d1d1f;
+      }
+
+      * {
+        box-sizing: border-box;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue",
+          sans-serif;
+        background: var(--bg);
+        margin: 0;
+        height: 100dvh;
+        width: 100vw;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        overscroll-behavior: none;
+      }
+
+      /* Overlays */
+      .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.95);
+        z-index: 999;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(5px);
+      }
+
+      #start-overlay {
+        z-index: 1000;
+      }
+
+      #end-overlay {
+        display: none;
+        z-index: 1000;
+      }
+
+      .btn-large {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 15px 40px;
+        font-size: 1.5rem;
+        border-radius: 50px;
+        font-weight: bold;
+        box-shadow: 0 10px 20px rgba(0, 122, 255, 0.3);
+        cursor: pointer;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+
+        50% {
+          transform: scale(1.05);
+        }
+
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      /* DIY Modal */
+      #diy-overlay {
+        display: none;
+        background: rgba(0, 0, 0, 0.5);
+      }
+
+      .diy-box {
+        background: white;
+        width: 90%;
+        max-width: 500px;
+        border-radius: 20px;
+        padding: 25px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .diy-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #1d1d1f;
+        margin: 0;
+      }
+
+      .diy-desc {
+        font-size: 0.9rem;
+        color: #86868b;
+        margin: 0;
+      }
+
+      textarea#diy-input {
+        width: 100%;
+        height: 150px;
+        padding: 15px;
+        font-size: 1rem;
+        border: 2px solid #e5e5ea;
+        border-radius: 12px;
+        resize: none;
+        font-family: monospace;
+        outline: none;
+      }
+
+      textarea#diy-input:focus {
+        border-color: var(--primary);
+      }
+
+      .diy-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+      }
+
+      .btn-cancel {
+        background: #e5e5ea;
+        color: #1d1d1f;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .btn-save {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      /* Main App Layout */
+      #app {
+        display: flex;
+        flex-direction: column;
+        background: white;
+        width: 100%;
+        height: 100%;
+        max-width: 1024px;
+        max-height: 820px;
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      /* Landscape Layout (iPad) */
+      @media (min-width: 768px) and (orientation: landscape) {
+        #app {
+          flex-direction: row;
+          border-radius: 16px;
+          height: 96dvh;
+          margin: 10px;
+          border: 1px solid #d1d1d6;
+        }
+
+        .sidebar {
+          width: 260px;
+          border-right: 1px solid #e5e5ea;
+          padding: 15px !important;
+        }
+
+        .game-area {
+          flex: 1;
+          padding: 10px !important;
+        }
+
+        .puzzle-zone {
+          justify-content: flex-end !important;
+          padding-bottom: 10px !important;
+        }
+
+        .word-slot {
+          font-size: 2.8rem !important;
+          margin: 5px 0 !important;
+          min-height: 50px !important;
+          letter-spacing: 5px !important;
+        }
+
+        #user-input-display {
+          font-size: 1.8rem !important;
+          min-height: 2.5rem !important;
+          padding: 2px 20px !important;
+          margin-bottom: 5px !important;
+        }
+
+        .btn-listen {
+          padding: 8px 20px !important;
+          font-size: 0.9rem !important;
+        }
+
+        .keyboard-base {
+          padding: 8px !important;
+          padding-bottom: 10px !important;
+          gap: 5px !important;
+        }
+
+        .key {
+          height: 48px !important;
+        }
+      }
+
+      /* Portrait/Mobile Layout */
+      @media (max-width: 767px), (orientation: portrait) {
+        #app {
+          height: 100dvh;
+          border-radius: 0;
+          margin: 0;
+        }
+
+        .sidebar {
+          padding: 15px;
+          border-bottom: 1px solid #e5e5ea;
+          flex: none;
+          height: auto;
+          max-height: 35vh;
+        }
+
+        .game-area {
+          flex: 1;
+        }
+
+        .app-title {
+          font-size: 1.2rem !important;
+          margin-bottom: 5px !important;
+        }
+
+        .keyboard-base {
+          padding: 5px !important;
+          padding-bottom: 20px !important;
+        }
+
+        .key {
+          height: 44px !important;
+          font-size: 1rem !important;
+        }
+
+        .word-slot {
+          font-size: 2.5rem;
+          margin: 10px 0;
+        }
+      }
+
+      .sidebar {
+        background: #fafafc;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        overflow-y: auto;
+      }
+
+      .app-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #1d1d1f;
+        margin: 0;
+        line-height: 1.2;
+      }
+
+      .app-subtitle {
+        font-size: 0.9rem;
+        color: #86868b;
+        font-weight: 500;
+      }
+
+      /* Stats Block Upgrade (Timer + Score) */
+      .stats-block {
+        background: white;
+        padding: 12px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+      }
+
+      .stat-item {
+        text-align: center;
+        position: relative;
+      }
+
+      .stat-divider {
+        width: 1px;
+        height: 30px;
+        background: #e5e5ea;
+      }
+
+      .score-num {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--primary);
+        line-height: 1;
+      }
+
+      .timer-num {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #1d1d1f;
+        font-feature-settings: "tnum";
+        line-height: 1;
+      }
+
+      .score-label {
+        font-size: 0.7rem;
+        color: #86868b;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+      }
+
+      /* Restart Button */
+      .btn-restart {
+        position: absolute;
+        top: -5px;
+        right: -25px;
+        background: none;
+        border: none;
+        color: #86868b;
+        cursor: pointer;
+        font-size: 1.2rem;
+        opacity: 0.6;
+        transition: 0.2s;
+        padding: 5px;
+      }
+
+      .btn-restart:hover {
+        opacity: 1;
+        transform: rotate(180deg);
+        color: var(--accent);
+      }
+
+      .control-group h4 {
+        margin: 0 0 8px 0;
+        font-size: 0.75rem;
+        color: #86868b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .chip {
+        padding: 6px 12px;
+        border: 1px solid #d1d1d6;
+        border-radius: 16px;
+        font-size: 0.8rem;
+        background: white;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        color: #1d1d1f;
+      }
+
+      .chip:active {
+        transform: scale(0.96);
+      }
+
+      .chip.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+        box-shadow: 0 2px 6px rgba(0, 122, 255, 0.3);
+      }
+
+      .chip.random-mode {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      .chip.random-mode.active {
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+      }
+
+      .chip.diy-mode {
+        border-color: var(--warning);
+        color: var(--warning);
+      }
+
+      .chip.diy-mode.active {
+        background: var(--warning);
+        color: white;
+        border-color: var(--warning);
+      }
+
+      .game-area {
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        background: #ffffff;
+      }
+
+      .puzzle-zone {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        transition: all 0.3s;
+      }
+
+      .word-slot {
+        font-family: "Menlo", "Courier New", monospace;
+        font-size: 3.5rem;
+        color: #1d1d1f;
+        margin: 20px 0;
+        letter-spacing: 8px;
+        min-height: 60px;
+        text-align: center;
+        line-height: 1.2;
+      }
+
+      .missing {
+        color: var(--primary);
+        display: inline-block;
+        min-width: 0.5em;
+        text-align: center;
+      }
+
+      /* Action buttons container */
+      .action-buttons {
+        display: flex;
+        gap: 12px;
+        margin-top: 10px;
+      }
+
+      .btn-hint {
+        background: linear-gradient(135deg, #ffd60a 0%, #ff9500 100%);
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 20px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 12px rgba(255, 149, 0, 0.3);
+        transition: all 0.2s ease;
+      }
+
+      .btn-hint:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(255, 149, 0, 0.4);
+      }
+
+      .btn-hint:active {
+        transform: translateY(0);
+        background: linear-gradient(135deg, #e5c100 0%, #e58500 100%);
+      }
+
+      .btn-hint:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .btn-skip {
+        background: linear-gradient(135deg, #8e8e93 0%, #636366 100%);
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 20px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 12px rgba(99, 99, 102, 0.3);
+        transition: all 0.2s ease;
+      }
+
+      .btn-skip:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(99, 99, 102, 0.4);
+      }
+
+      .btn-skip:active {
+        transform: translateY(0);
+        background: linear-gradient(135deg, #7a7a7f 0%, #555558 100%);
+      }
+
+      .hint-counter {
+        font-size: 0.8rem;
+        opacity: 0.8;
+      }
+
+      #user-input-display {
+        font-size: 2rem;
+        min-height: 3rem;
+        border-bottom: 2px solid #e5e5ea;
+        padding: 5px 20px;
+        color: var(--primary);
+        font-weight: 600;
+        margin-bottom: 10px;
+        letter-spacing: 2px;
+      }
+
+      .btn-listen {
+        background: #f2f2f7;
+        color: var(--primary);
+        border: none;
+        padding: 10px 24px;
+        border-radius: 20px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .btn-listen:active {
+        background: #e5e5ea;
+      }
+
+      .keyboard-base {
+        background: #d5d6da;
+        padding: 12px;
+        padding-bottom: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        width: 100%;
+        border-top: 1px solid #c7c7cc;
+        flex-shrink: 0;
+      }
+
+      .kb-row {
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .kb-row:nth-child(2) {
+        padding-left: 20px;
+      }
+
+      .kb-row:nth-child(3) {
+        padding-left: 0;
+      }
+
+      .key {
+        background: #ffffff;
+        border-radius: 5px;
+        box-shadow: 0 1px 0 #888;
+        height: 50px;
+        width: 45px;
+        flex: 1;
+        max-width: 55px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: -apple-system, sans-serif;
+        font-size: 1.2rem;
+        color: #000;
+        cursor: pointer;
+        user-select: none;
+        transition: all 0.05s ease;
+        position: relative;
+      }
+
+      .key:active {
+        background: #d1d1d6;
+        transform: scale(0.92);
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .key.special {
+        font-size: 0.9rem;
+        background: #eef0f2;
+        color: #333;
+      }
+
+      .key-delete {
+        flex: 1.2;
+        max-width: 70px;
+        font-size: 1rem;
+      }
+
+      .key-return {
+        flex: 1.5;
+        max-width: 80px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        box-shadow: 0 1px 0 #0056b3;
+      }
+
+      .key-return:active {
+        background: #0051a8 !important;
+        transform: scale(0.92);
+      }
+
+      .key-shift {
+        flex: 1.2;
+        max-width: 70px;
+        align-items: flex-end;
+        padding-bottom: 12px;
+        padding-left: 8px;
+        justify-content: flex-start;
+      }
+
+      .key[data-char="f"]::after,
+      .key[data-char="j"]::after {
+        content: "";
+        position: absolute;
+        bottom: 8px;
+        width: 12px;
+        height: 2px;
+        background: #e5e5ea;
+        border-radius: 1px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="start-overlay" class="overlay">
+      <h1 style="color: #1d1d1f; margin-bottom: 10px">Ready, Let's Play !</h1>
+      <p style="color: #86868b; margin-bottom: 30px">5 Minutes Challenge! ⏳</p>
+      <button class="btn-large" onclick="game.start()">▶ Play</button>
+    </div>
+
+    <div id="end-overlay" class="overlay">
+      <h1 style="color: #ff2d55; margin-bottom: 10px">Time's Up! ⏰</h1>
+      <p style="color: #1d1d1f; margin-bottom: 30px; font-size: 1.2rem">
+        Final Score: <span id="final-score" style="font-weight: bold">0</span>
+      </p>
+      <button class="btn-large" onclick="game.restartGame()">
+        🔄 Play Again
+      </button>
+    </div>
+
+    <div id="diy-overlay" class="overlay">
+      <div class="diy-box">
+        <div>
+          <h3 class="diy-title">Custom Word List</h3>
+          <p class="diy-desc">Edit your words below (comma separated).</p>
+        </div>
+        <textarea
+          id="diy-input"
+          placeholder="Example: apple, banana, computer, science"
+        ></textarea>
+        <div class="diy-actions">
+          <button class="btn-cancel" onclick="game.closeDIY()">Cancel</button>
+          <button class="btn-save" onclick="game.saveDIY()">Save & Play</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="app">
+      <div class="sidebar">
+        <div>
+          <h1 class="app-title">Spelling Bee</h1>
+          <div class="app-subtitle">for IB PYP G1</div>
+        </div>
+
+        <div class="stats-block">
+          <div class="stat-item">
+            <div class="score-label">Time</div>
+            <div class="timer-num" id="timer">05:00</div>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <div class="score-label">Score</div>
+            <div class="score-num" id="score">0</div>
+            <button
+              class="btn-restart"
+              onclick="game.restartGame()"
+              title="Restart Game"
+            >
+              ↺
+            </button>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <h4>Level</h4>
+          <div class="chips" id="diff-chips"></div>
+        </div>
+
+        <div class="control-group">
+          <h4>Word List</h4>
+          <div class="chips" id="cat-chips"></div>
+        </div>
+
+        <div class="control-group">
+          <h4>Accent</h4>
+          <div class="chips" id="accent-chips"></div>
+        </div>
+      </div>
+
+      <div class="game-area">
+        <div class="puzzle-zone">
+          <button class="btn-listen" onclick="game.speak()">🔊 Listen</button>
+          <div class="word-slot" id="puzzle-display"></div>
+          <div id="user-input-display"></div>
+          <div
+            id="feedback"
+            style="color: var(--success); height: 24px; font-weight: 600"
+          ></div>
+          <div class="action-buttons">
+            <button class="btn-hint" id="btn-hint" onclick="game.showHint()">
+              💡 Hint <span class="hint-counter" id="hint-counter">(3)</span>
+            </button>
+            <button class="btn-skip" onclick="game.skipWord()">⏭️ Skip</button>
+          </div>
+        </div>
+
+        <div class="keyboard-base">
+          <div class="kb-row">
+            <div class="key" onclick="game.input('q')">Q</div>
+            <div class="key" onclick="game.input('w')">W</div>
+            <div class="key" onclick="game.input('e')">E</div>
+            <div class="key" onclick="game.input('r')">R</div>
+            <div class="key" onclick="game.input('t')">T</div>
+            <div class="key" onclick="game.input('y')">Y</div>
+            <div class="key" onclick="game.input('u')">U</div>
+            <div class="key" onclick="game.input('i')">I</div>
+            <div class="key" onclick="game.input('o')">O</div>
+            <div class="key" onclick="game.input('p')">P</div>
+            <div class="key special key-delete" onclick="game.input('BACK')">
+              delete
+            </div>
+          </div>
+          <div class="kb-row">
+            <div class="key" onclick="game.input('a')">A</div>
+            <div class="key" onclick="game.input('s')">S</div>
+            <div class="key" onclick="game.input('d')">D</div>
+            <div class="key" data-char="f" onclick="game.input('f')">F</div>
+            <div class="key" onclick="game.input('g')">G</div>
+            <div class="key" onclick="game.input('h')">H</div>
+            <div class="key" data-char="j" onclick="game.input('j')">J</div>
+            <div class="key" onclick="game.input('k')">K</div>
+            <div class="key" onclick="game.input('l')">L</div>
+            <div class="key key-return" onclick="game.check()">return</div>
+          </div>
+          <div class="kb-row">
+            <div class="key special key-shift">⇧</div>
+            <div class="key" onclick="game.input('z')">Z</div>
+            <div class="key" onclick="game.input('x')">X</div>
+            <div class="key" onclick="game.input('c')">C</div>
+            <div class="key" onclick="game.input('v')">V</div>
+            <div class="key" onclick="game.input('b')">B</div>
+            <div class="key" onclick="game.input('n')">N</div>
+            <div class="key" onclick="game.input('m')">M</div>
+            <div class="key special key-shift" style="flex: 1.2; opacity: 0.5">
+              ⇧
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const data = {
+        "G1-Dolch-A": {
+          name: "G1-Dolch-A",
+          words: [
+            "after",
+            "again",
+            "an",
+            "any",
+            "as",
+            "ask",
+            "by",
+            "could",
+            "every",
+            "fly",
+            "from",
+            "give",
+            "going",
+            "had",
+            "has",
+            "her",
+            "him",
+            "his",
+            "how",
+            "just",
+            "know",
+            "let",
+            "live",
+            "may",
+          ],
+        },
+        "G1-Dolch-B": {
+          name: "G1-Dolch-B",
+          words: [
+            "of",
+            "old",
+            "once",
+            "open",
+            "over",
+            "put",
+            "round",
+            "some",
+            "stop",
+            "take",
+            "thank",
+            "them",
+            "then",
+            "think",
+            "walk",
+            "were",
+            "when",
+            "what",
+            "white",
+            "who",
+            "will",
+            "with",
+            "yes",
+          ],
+        },
+        "G1-Fry-5": {
+          name: "G1-Fry-5",
+          words: [
+            "after",
+            "again",
+            "air",
+            "also",
+            "America",
+            "animal",
+            "another",
+            "answer",
+            "any",
+            "around",
+            "ask",
+            "away",
+            "back",
+            "because",
+            "before",
+            "big",
+            "boy",
+            "came",
+            "change",
+            "different",
+            "does",
+            "end",
+            "even",
+            "follow",
+            "form",
+          ],
+        },
+        "G1-Fry-6": {
+          name: "G1-Fry-6",
+          words: [
+            "found",
+            "give",
+            "good",
+            "great",
+            "hand",
+            "help",
+            "here",
+            "home",
+            "house",
+            "just",
+            "kind",
+            "know",
+            "land",
+            "large",
+            "learn",
+            "letter",
+            "line",
+            "little",
+            "live",
+            "man",
+            "me",
+            "means",
+            "men",
+            "most",
+            "mother",
+          ],
+        },
+        "G1-Fry-7": {
+          name: "G1-Fry-7",
+          words: [
+            "move",
+            "much",
+            "must",
+            "name",
+            "need",
+            "new",
+            "off",
+            "old",
+            "only",
+            "our",
+            "over",
+            "page",
+            "picture",
+            "place",
+            "play",
+            "point",
+            "put",
+            "read",
+            "right",
+            "same",
+            "say",
+            "sentence",
+            "set",
+            "should",
+            "show",
+          ],
+        },
+        "G1-Fry-8": {
+          name: "G1-Fry-8",
+          words: [
+            "small",
+            "sound",
+            "spell",
+            "still",
+            "study",
+            "such",
+            "take",
+            "tell",
+            "things",
+            "think",
+            "three",
+            "through",
+            "too",
+            "try",
+            "turn",
+            "us",
+            "very",
+            "want",
+            "well",
+            "went",
+            "where",
+            "why",
+            "work",
+            "world",
+            "years",
+          ],
+        },
+        "G1-LongA": {
+          name: "G1-LongA",
+          words: [
+            "cake",
+            "name",
+            "lake",
+            "gate",
+            "same",
+            "made",
+            "late",
+            "save",
+            "game",
+            "take",
+          ],
+        },
+        "G1-LongI": {
+          name: "G1-LongI",
+          words: [
+            "bike",
+            "time",
+            "five",
+            "kite",
+            "line",
+            "mile",
+            "ride",
+            "side",
+            "wise",
+            "hide",
+          ],
+        },
+        "G1-LongO": {
+          name: "G1-LongO",
+          words: [
+            "home",
+            "bone",
+            "nose",
+            "joke",
+            "rope",
+            "note",
+            "pole",
+            "cone",
+            "those",
+            "woke",
+          ],
+        },
+        "G1-LongU": {
+          name: "G1-LongU",
+          words: [
+            "cube",
+            "tube",
+            "June",
+            "use",
+            "flute",
+            "rule",
+            "mule",
+            "cute",
+            "tune",
+            "dude",
+          ],
+        },
+        "G1-Digraphs": {
+          name: "G1-Digraphs",
+          words: [
+            "chip",
+            "ship",
+            "that",
+            "when",
+            "what",
+            "then",
+            "chat",
+            "shop",
+            "thin",
+            "whale",
+          ],
+        },
+        "G1-LBlends": {
+          name: "G1-LBlends",
+          words: [
+            "blue",
+            "clap",
+            "flag",
+            "glass",
+            "plan",
+            "sled",
+            "block",
+            "flip",
+            "plug",
+            "slip",
+          ],
+        },
+        "G1-RBlends": {
+          name: "G1-RBlends",
+          words: [
+            "bring",
+            "crop",
+            "drum",
+            "frog",
+            "grab",
+            "press",
+            "truck",
+            "brush",
+            "green",
+            "brick",
+          ],
+        },
+        "G1-SBlends": {
+          name: "G1-SBlends",
+          words: [
+            "skip",
+            "small",
+            "snack",
+            "spin",
+            "stop",
+            "swim",
+            "scab",
+            "skin",
+            "smile",
+            "stump",
+          ],
+        },
+        "G1-Academic": {
+          name: "G1-Academic",
+          words: [
+            "annoy",
+            "attention",
+            "calm",
+            "comfortable",
+            "consequences",
+            "curious",
+            "curve",
+            "decide",
+            "directions",
+            "discover",
+            "disappointed",
+            "embarrassed",
+            "enormous",
+            "exhausted",
+            "explore",
+            "fair",
+            "fascinating",
+            "feast",
+            "focus",
+            "frustrated",
+            "gigantic",
+            "grumpy",
+            "huge",
+            "ignore",
+            "instead",
+            "investigate",
+            "invite",
+            "important",
+            "jealous",
+            "leader",
+            "list",
+            "listen",
+            "lovely",
+            "measuring",
+            "miserable",
+            "mumble",
+            "negative",
+            "nervous",
+            "nibbled",
+            "note",
+            "notice",
+            "observing",
+            "ordinary",
+            "positive",
+            "precious",
+            "prefer",
+            "problem",
+            "protect",
+            "proud",
+            "question",
+            "reminds",
+            "repeat",
+            "report",
+            "rhyme",
+            "respect",
+            "searching",
+            "special",
+            "spotless",
+            "squirm",
+            "stomped",
+            "suddenly",
+            "suggestion",
+            "surprise",
+            "uncomfortable",
+            "warning",
+            "worried",
+          ],
+        },
+        "G1-Math": {
+          name: "G1-Math",
+          words: [
+            "add",
+            "circle",
+            "cube",
+            "digit",
+            "equal",
+            "graph",
+            "number",
+            "subtract",
+            "sum",
+            "triangle",
+          ],
+        },
+        "G1-Science": {
+          name: "G1-Science",
+          words: [
+            "air",
+            "weather",
+            "magnet",
+            "pull",
+            "cloud",
+            "plant",
+            "habitat",
+            "leaf",
+            "observe",
+            "wind",
+            "predict",
+            "sun",
+          ],
+        },
+        "G1-Days": {
+          name: "G1-Days",
+          words: [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday",
+          ],
+        },
+        "G1-Months": {
+          name: "G1-Months",
+          words: [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December",
+          ],
+        },
+        "G1-Contractions": {
+          name: "G1-Contractions",
+          words: [
+            "I'm",
+            "you're",
+            "he's",
+            "she's",
+            "it's",
+            "can't",
+            "don't",
+            "we'll",
+            "that's",
+            "they're",
+          ],
+        },
+        "KG-ShortA": {
+          name: "KG-ShortA",
+          words: [
+            "cat",
+            "bat",
+            "dad",
+            "fan",
+            "bag",
+            "cap",
+            "sad",
+            "tag",
+            "wag",
+            "nap",
+          ],
+        },
+        "KG-ShortE": {
+          name: "KG-ShortE",
+          words: [
+            "bed",
+            "beg",
+            "let",
+            "ten",
+            "yes",
+            "web",
+            "den",
+            "peg",
+            "met",
+            "hen",
+          ],
+        },
+        "KG-ShortI": {
+          name: "KG-ShortI",
+          words: [
+            "sit",
+            "dig",
+            "him",
+            "pin",
+            "win",
+            "six",
+            "rib",
+            "fig",
+            "lip",
+            "mix",
+          ],
+        },
+        "KG-ShortO": {
+          name: "KG-ShortO",
+          words: [
+            "hot",
+            "fog",
+            "mop",
+            "log",
+            "box",
+            "not",
+            "rod",
+            "pot",
+            "fox",
+            "dog",
+          ],
+        },
+        "KG-ShortU": {
+          name: "KG-ShortU",
+          words: [
+            "sun",
+            "jug",
+            "cup",
+            "run",
+            "mud",
+            "hug",
+            "bus",
+            "tub",
+            "fun",
+            "gum",
+          ],
+        },
+        "KG-DolchPre": {
+          name: "KG-DolchPre",
+          words: [
+            "a",
+            "and",
+            "away",
+            "big",
+            "blue",
+            "can",
+            "come",
+            "down",
+            "find",
+            "for",
+            "funny",
+            "go",
+            "help",
+            "here",
+            "I",
+            "in",
+            "is",
+            "it",
+            "jump",
+            "little",
+            "look",
+            "make",
+            "me",
+            "my",
+            "not",
+            "one",
+            "play",
+            "red",
+            "run",
+            "said",
+            "see",
+            "the",
+            "three",
+            "to",
+            "two",
+            "up",
+            "we",
+            "where",
+            "yellow",
+            "you",
+          ],
+        },
+        "KG-DolchPrimer": {
+          name: "KG-DolchPrimer",
+          words: [
+            "all",
+            "am",
+            "are",
+            "at",
+            "ate",
+            "be",
+            "black",
+            "brown",
+            "but",
+            "came",
+            "did",
+            "do",
+            "eat",
+            "four",
+            "get",
+            "good",
+            "have",
+            "he",
+            "into",
+            "like",
+            "must",
+            "new",
+            "no",
+            "now",
+            "on",
+            "our",
+            "out",
+            "please",
+            "pretty",
+            "ran",
+            "ride",
+            "saw",
+            "say",
+            "she",
+            "so",
+            "soon",
+            "that",
+            "there",
+            "they",
+            "this",
+            "too",
+            "under",
+            "want",
+            "was",
+            "well",
+            "went",
+          ],
+        },
+        "KG-Fry-1": {
+          name: "KG-Fry-1",
+          words: [
+            "the",
+            "of",
+            "and",
+            "a",
+            "to",
+            "in",
+            "is",
+            "you",
+            "that",
+            "it",
+            "he",
+            "was",
+            "for",
+            "on",
+            "are",
+            "as",
+            "with",
+            "his",
+            "they",
+            "I",
+            "at",
+            "be",
+            "this",
+            "have",
+            "from",
+          ],
+        },
+        "KG-Fry-2": {
+          name: "KG-Fry-2",
+          words: [
+            "or",
+            "one",
+            "had",
+            "by",
+            "words",
+            "but",
+            "not",
+            "what",
+            "all",
+            "were",
+            "we",
+            "when",
+            "your",
+            "can",
+            "said",
+            "there",
+            "use",
+            "an",
+            "each",
+            "which",
+            "she",
+            "do",
+            "how",
+            "their",
+            "if",
+          ],
+        },
+        "KG-Fry-3": {
+          name: "KG-Fry-3",
+          words: [
+            "will",
+            "up",
+            "other",
+            "about",
+            "out",
+            "many",
+            "then",
+            "them",
+            "these",
+            "so",
+            "some",
+            "her",
+            "would",
+            "make",
+            "like",
+            "him",
+            "into",
+            "time",
+            "has",
+            "look",
+            "two",
+            "more",
+            "write",
+            "go",
+            "see",
+          ],
+        },
+        "KG-Fry-4": {
+          name: "KG-Fry-4",
+          words: [
+            "number",
+            "no",
+            "way",
+            "could",
+            "people",
+            "my",
+            "than",
+            "first",
+            "water",
+            "been",
+            "called",
+            "who",
+            "am",
+            "its",
+            "now",
+            "find",
+            "long",
+            "down",
+            "day",
+            "did",
+            "get",
+            "come",
+            "may",
+            "part",
+          ],
+        },
+        "KG-Math": {
+          name: "KG-Math",
+          words: [
+            "add",
+            "count",
+            "number",
+            "and (plus)",
+            "minus",
+            "equal",
+            "more",
+            "less",
+            "shape",
+            "size",
+          ],
+        },
+        "KG-Opposites": {
+          name: "KG-Opposites",
+          words: [
+            "big",
+            "little",
+            "hot",
+            "cold",
+            "fast",
+            "slow",
+            "happy",
+            "sad",
+            "up (meaning above)",
+            "down (meaning below)",
+          ],
+        },
+        "KG-Positional": {
+          name: "KG-Positional",
+          words: [
+            "up",
+            "down",
+            "in",
+            "out",
+            "over",
+            "under",
+            "above",
+            "below",
+            "before",
+            "after",
+          ],
+        },
+        "KG-Shapes": {
+          name: "KG-Shapes",
+          words: [
+            "circle",
+            "square",
+            "triangle",
+            "rectangle",
+            "oval",
+            "star",
+            "heart",
+          ],
+        },
+        "KG-Numbers": {
+          name: "KG-Numbers",
+          words: [
+            "zero",
+            "one",
+            "two",
+            "three",
+            "four",
+            "five",
+            "six",
+            "seven",
+            "eight",
+            "nine",
+            "ten",
+          ],
+        },
+        "KG-Colors": {
+          name: "KG-Colors",
+          words: [
+            "red",
+            "blue",
+            "yellow",
+            "green",
+            "orange",
+            "purple",
+            "black",
+            "white",
+            "brown",
+            "pink",
+          ],
+        },
+      };
+
+      // {
+      //   "sight_words": { "name": "Spelling Words", "words": ["about", "and", "animal", "answer", "around", "around", "bean", "because", "bedroom", "before", "boat", "brave", "broken", "but", "butterfly", "chart", "children", "clock", "column", "community", "completely", "count", "data", "date", "dessert", "digit", "down", "eat", "faster", "friend", "friendly", "helper", "home", "important", "inquire", "internet", "jumping", "letter", "life", "like", "listen", "look", "louder", "many", "measure", "month", "moon", "morning", "nighttime", "noun", "number", "our", "ourselves", "outfits", "outside", "painted", "peaceful", "people", "plant", "plus", "possible", "question", "rabbit", "replace", "said", "scream", "season", "sense", "smell", "snake", "some", "sound", "spring", "story", "subtraction", "sunny", "tally", "the", "their", "they", "think", "this", "thoughts", "thousand", "Thursday", "time", "title", "value", "vocabulary", "Wednesday", "what", "when", "where", "whisper", "why", "yesterday"] },
+      //   "phonics": {
+      //     "name": "Phonics", "words": ["like", "home", "time", "plant", "friend", "help", "play", "school", "book", "read",
+      //       "write", "draw", "day", "sun", "rain", "tree", "water", "food", "good", "happy",
+      //       "look", "see", "make", "come", "have", "said", "this", "that", "with", "they",
+      //       "what", "when", "where", "why", "how", "number", "color", "shape", "big", "small",
+      //       "fast", "slow", "up", "down", "in", "out", "cat", "dog", "fish", "bird"]
+      //   },
+      //   "uoi": {
+      //     "name": "UOI", "words": ["think", "question", "why", "what", "find", "learn", "change", "feel", "share", "group",
+      //       "family", "friend", "home", "school", "community", "help", "care", "rule", "safe", "place",
+      //       "live", "grow", "water", "plant", "animal", "food", "weather", "season", "recycle", "earth"]
+      //   },
+      //   "uoi1": {
+      //     "name": "UOI1 Goals", "words": ["goal", "plan", "step", "try", "learn", "grow", "choice", "action", "routine", "rule",
+      //       "school", "helper", "listen", "share", "effort", "brave", "strong", "better", "finish", "practice"]
+      //   },
+      //   "uoi2": {
+      //     "name": "UOI2 Community", "words": ["community", "family", "school", "class", "role", "job", "helper", "doctor", "teacher", "driver",
+      //       "place", "home", "care", "safe", "clean", "share", "team", "rule", "help", "because"]
+      //   },
+      //   "uoi3": {
+      //     "name": "UOI3 Stories", "words": ["story", "begin", "middle", "end", "share", "feel", "think", "value", "puppet", "ballet",
+      //       "listen", "ask", "tell", "retell", "event", "setting", "reader", "title", "because", "voice"]
+      //   },
+      //   "uoi4": {
+      //     "name": "UOI4 Living Things", "words": ["living", "plant", "animal", "water", "food", "air", "soil", "sun", "grow", "survive",
+      //       "protect", "care", "need", "data", "chart", "tally", "rabbit", "fish", "seed", "nature"]
+      //   },
+      //   "uoi5": {
+      //     "name": "UOI5 Cycles", "words": ["cycle", "pattern", "season", "moon", "sun", "day", "night", "month", "year", "before",
+      //       "after", "first", "next", "change", "shape", "edge", "side", "time", "nature", "adapt"]
+      //   },
+      //   "classmate": {
+      //     "name": "Classmate", "words": ["Hilson", "Mavis", "Callalily", "Lina", "Alex", "Yolanda", "Miranda", "Jinny", "Nelly", "Franky", "Jacob",
+      //       "Owen", "Carter", "Sian", "Floyd", "Gina", "Doris", "Demo", "Jayden", "Lulu", "Adam", "Chester", "Sean", "Nick", "Jonathan", "Lulu", "Adam", "Chester"
+      //     ]
+      //   }
+
+      // };
+
+      const game = {
+        difficulty: "easy",
+        category: "sight_words",
+        accent: "en-US",
+        customWords: [],
+        currentWord: "",
+        userText: "",
+        score: 0,
+        audioAllowed: false,
+        timerInterval: null,
+        timeLeft: 300,
+        gameActive: false,
+        hintsRemaining: 3,
+        revealedIndices: [],
+        missingIndices: [],
+        processingCorrectAnswer: false,
+        audioCtx: null,
+
+        init() {
+          const requestedSet = new URLSearchParams(window.location.search).get(
+            "set",
+          );
+          if (requestedSet && data[requestedSet]) {
+            this.category = requestedSet;
+          }
+
+          this.renderControls();
+
+          const savedDIY = localStorage.getItem("hilson_diy_words");
+          if (savedDIY) {
+            this.parseCustomWords(savedDIY);
+          }
+
+          document.addEventListener("keydown", (e) => {
+            if (!this.gameActive) return;
+            if (e.key === "Backspace") this.input("BACK");
+            else if (e.key === "Enter") this.check();
+            else if (/^[a-zA-Z]$/.test(e.key)) this.input(e.key);
+          });
+        },
+
+        start() {
+          this.audioAllowed = true;
+          this.gameActive = true;
+          // 初始化音频上下文
+          this.audioCtx = new (
+            window.AudioContext || window.webkitAudioContext
+          )();
+
+          document.getElementById("start-overlay").style.display = "none";
+          const u = new SpeechSynthesisUtterance("");
+          window.speechSynthesis.speak(u);
+          this.startTimer();
+          this.nextWord();
+        },
+
+        // 重启游戏：重置时间、分数、单词
+        restartGame() {
+          document.getElementById("end-overlay").style.display = "none";
+
+          // 核心逻辑：
+          this.timeLeft = 300; // 重置时间
+          this.score = 0; // 重置分数
+          this.hintsRemaining = 3; // 重置提示次数
+          document.getElementById("score").innerText = this.score;
+          this.updateHintUI();
+          this.processingCorrectAnswer = false;
+
+          this.gameActive = true; // 激活游戏状态
+          this.startTimer(); // 重启计时器
+          this.nextWord(); // 出新题
+        },
+
+        startTimer() {
+          clearInterval(this.timerInterval); // 防止多重计时器
+          this.updateTimerUI();
+
+          this.timerInterval = setInterval(() => {
+            if (this.timeLeft > 0) {
+              this.timeLeft--;
+              this.updateTimerUI();
+            } else {
+              this.endGame();
+            }
+          }, 1000);
+        },
+
+        updateTimerUI() {
+          const m = Math.floor(this.timeLeft / 60)
+            .toString()
+            .padStart(2, "0");
+          const s = (this.timeLeft % 60).toString().padStart(2, "0");
+          const timerEl = document.getElementById("timer");
+          timerEl.innerText = `${m}:${s}`;
+
+          if (this.timeLeft <= 30) timerEl.style.color = "var(--accent)";
+          else timerEl.style.color = "#1D1D1F";
+        },
+
+        endGame() {
+          clearInterval(this.timerInterval);
+          this.gameActive = false;
+          document.getElementById("final-score").innerText = this.score;
+          document.getElementById("end-overlay").style.display = "flex";
+        },
+
+        renderControls() {
+          const diffBox = document.getElementById("diff-chips");
+          diffBox.innerHTML = "";
+          ["easy", "normal", "hard"].forEach((level) => {
+            const btn = document.createElement("div");
+            btn.className = `chip ${this.difficulty === level ? "active" : ""}`;
+            btn.innerText = level.charAt(0).toUpperCase() + level.slice(1);
+            btn.onclick = () => this.setDifficulty(level);
+            diffBox.appendChild(btn);
+          });
+
+          const catBox = document.getElementById("cat-chips");
+          catBox.innerHTML = "";
+
+          Object.keys(data).forEach((key) => {
+            const d = document.createElement("div");
+            d.className = `chip ${key === this.category ? "active" : ""}`;
+            d.innerText = data[key].name;
+            d.onclick = () => this.setCategory(key);
+            catBox.appendChild(d);
+          });
+
+          const rnd = document.createElement("div");
+          rnd.className = `chip random-mode ${this.category === "random" ? "active" : ""}`;
+          rnd.innerText = "🎲 Random";
+          rnd.onclick = () => this.setCategory("random");
+          catBox.appendChild(rnd);
+
+          const diy = document.createElement("div");
+          diy.className = `chip diy-mode ${this.category === "diy" ? "active" : ""}`;
+          diy.innerText = "✏️ DIY";
+          diy.onclick = () => this.openDIYModal();
+          catBox.appendChild(diy);
+
+          const accentBox = document.getElementById("accent-chips");
+          accentBox.innerHTML = "";
+          const accents = [
+            { id: "en-US", label: "🇺🇸 US" },
+            { id: "en-GB", label: "🇬🇧 UK" },
+          ];
+          accents.forEach((acc) => {
+            const btn = document.createElement("div");
+            btn.className = `chip ${this.accent === acc.id ? "active" : ""}`;
+            btn.innerText = acc.label;
+            btn.onclick = () => this.setAccent(acc.id);
+            accentBox.appendChild(btn);
+          });
+        },
+
+        setDifficulty(level) {
+          this.difficulty = level;
+          this.renderControls();
+          if (this.gameActive) this.nextWord();
+        },
+
+        setCategory(cat) {
+          this.category = cat;
+          this.renderControls();
+          if (this.gameActive) this.nextWord();
+        },
+
+        setAccent(lang) {
+          this.accent = lang;
+          this.renderControls();
+          if (this.gameActive) this.speak();
+        },
+
+        openDIYModal() {
+          const modal = document.getElementById("diy-overlay");
+          const textarea = document.getElementById("diy-input");
+          const savedText = localStorage.getItem("hilson_diy_words") || "";
+          textarea.value = savedText;
+          modal.style.display = "flex";
+        },
+
+        closeDIY() {
+          document.getElementById("diy-overlay").style.display = "none";
+        },
+
+        saveDIY() {
+          const textarea = document.getElementById("diy-input");
+          const rawText = textarea.value;
+
+          if (this.parseCustomWords(rawText)) {
+            localStorage.setItem("hilson_diy_words", rawText);
+            this.category = "diy";
+            this.renderControls();
+            this.closeDIY();
+            if (this.gameActive) this.nextWord();
+          } else {
+            alert("Please enter at least one word!");
+          }
+        },
+
+        parseCustomWords(text) {
+          const words = text
+            .split(/[,，\n\r]+/)
+            .map((w) => w.trim())
+            .filter((w) => w.length > 0);
+          if (words.length > 0) {
+            this.customWords = words;
+            return true;
+          }
+          return false;
+        },
+
+        getWordList() {
+          if (this.category === "random") {
+            let allWords = [];
+            Object.values(data).forEach(
+              (cat) => (allWords = [...allWords, ...cat.words]),
+            );
+            return [...new Set(allWords)];
+          } else if (this.category === "diy") {
+            return this.customWords;
+          } else {
+            return data[this.category].words;
+          }
+        },
+
+        nextWord() {
+          const list = this.getWordList();
+          if (!list || list.length === 0) {
+            if (this.category === "diy") this.openDIYModal();
+            return;
+          }
+
+          this.currentWord = list[Math.floor(Math.random() * list.length)];
+          this.userText = "";
+          this.updateInputUI();
+
+          let display = "";
+          let indices = [];
+
+          if (this.difficulty === "easy")
+            indices = [Math.floor(Math.random() * this.currentWord.length)];
+          else if (this.difficulty === "normal") {
+            const count = Math.max(2, Math.floor(this.currentWord.length / 2));
+            while (indices.length < count) {
+              let r = Math.floor(Math.random() * this.currentWord.length);
+              if (!indices.includes(r)) indices.push(r);
+            }
+          }
+
+          this.missingIndices =
+            this.difficulty === "hard"
+              ? [...Array(this.currentWord.length).keys()]
+              : indices;
+          this.revealedIndices = [];
+
+          for (let i = 0; i < this.currentWord.length; i++) {
+            if (this.difficulty === "hard" || indices.includes(i)) {
+              display +=
+                '<span class="missing" data-index="' + i + '">_</span>';
+            } else {
+              display += this.currentWord[i];
+            }
+          }
+          document.getElementById("puzzle-display").innerHTML = display;
+          document.getElementById("feedback").innerText = "";
+
+          this.speak();
+        },
+
+        speak() {
+          if (!this.audioAllowed) return;
+          const u = new SpeechSynthesisUtterance(this.currentWord);
+          u.lang = this.accent;
+          u.rate = 0.75;
+          window.speechSynthesis.speak(u);
+        },
+
+        playKeySound() {
+          if (!this.audioAllowed || !this.audioCtx) return;
+          if (this.audioCtx.state === "suspended") this.audioCtx.resume();
+
+          const osc = this.audioCtx.createOscillator();
+          const gain = this.audioCtx.createGain();
+
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(150, this.audioCtx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(
+            0.01,
+            this.audioCtx.currentTime + 0.1,
+          );
+
+          gain.gain.setValueAtTime(0.1, this.audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(
+            0.01,
+            this.audioCtx.currentTime + 0.1,
+          );
+
+          osc.connect(gain);
+          gain.connect(this.audioCtx.destination);
+          osc.start();
+          osc.stop(this.audioCtx.currentTime + 0.1);
+        },
+
+        input(char) {
+          if (!this.gameActive) return;
+          this.playKeySound();
+          if (char === "BACK") {
+            this.userText = this.userText.slice(0, -1);
+          } else {
+            if (this.userText.length < 15) this.userText += char.toLowerCase();
+          }
+          this.updateInputUI();
+        },
+
+        updateInputUI() {
+          document.getElementById("user-input-display").innerText =
+            this.userText;
+        },
+
+        check() {
+          if (!this.gameActive) return;
+          if (this.processingCorrectAnswer) return;
+          if (!this.userText) return;
+          this.playKeySound();
+          const feedback = document.getElementById("feedback");
+          if (this.userText.toLowerCase() === this.currentWord.toLowerCase()) {
+            this.processingCorrectAnswer = true;
+            this.score += 10;
+            document.getElementById("score").innerText = this.score;
+            feedback.style.color = "var(--success)";
+            feedback.innerText = "Correct! 🎉";
+            setTimeout(() => {
+              this.nextWord();
+              this.processingCorrectAnswer = false;
+            }, 1200);
+          } else {
+            feedback.style.color = "#FF2D55";
+            feedback.innerText = "Try again!";
+            this.shake();
+          }
+        },
+
+        shake() {
+          const el = document.querySelector(".game-area");
+          el.style.transform = "translateX(8px)";
+          setTimeout(() => (el.style.transform = "translateX(-8px)"), 50);
+          setTimeout(() => (el.style.transform = "translateX(0)"), 100);
+        },
+
+        // 提示功能：显示一个缺失的字母
+        showHint() {
+          if (!this.gameActive || this.hintsRemaining <= 0) return;
+
+          // 找出还没被揭示的缺失字母
+          const unrevealed = this.missingIndices.filter(
+            (i) => !this.revealedIndices.includes(i),
+          );
+          if (unrevealed.length === 0) return;
+
+          // 随机选择一个字母揭示
+          const randomIndex =
+            unrevealed[Math.floor(Math.random() * unrevealed.length)];
+          this.revealedIndices.push(randomIndex);
+
+          // 更新UI显示揭示的字母
+          const missingSpans = document.querySelectorAll(".missing");
+          missingSpans.forEach((span) => {
+            const idx = parseInt(span.getAttribute("data-index"));
+            if (idx === randomIndex) {
+              span.innerHTML = this.currentWord[idx];
+              span.style.color = "var(--warning)";
+              span.style.animation = "pulse 0.5s ease";
+            }
+          });
+
+          // 减少提示次数
+          this.hintsRemaining--;
+          this.updateHintUI();
+
+          // 扣分惩罚（可选）
+          if (this.score > 0) {
+            this.score = Math.max(0, this.score - 2);
+            document.getElementById("score").innerText = this.score;
+          }
+
+          // 播放提示音效
+          this.playHintSound();
+        },
+
+        updateHintUI() {
+          const counter = document.getElementById("hint-counter");
+          const btn = document.getElementById("btn-hint");
+          counter.innerText = `(${this.hintsRemaining})`;
+          btn.disabled = this.hintsRemaining <= 0;
+        },
+
+        playHintSound() {
+          if (!this.audioAllowed || !this.audioCtx) return;
+          if (this.audioCtx.state === "suspended") this.audioCtx.resume();
+
+          const osc = this.audioCtx.createOscillator();
+          const gain = this.audioCtx.createGain();
+
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(800, this.audioCtx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(
+            1200,
+            this.audioCtx.currentTime + 0.1,
+          );
+
+          gain.gain.setValueAtTime(0.15, this.audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(
+            0.01,
+            this.audioCtx.currentTime + 0.2,
+          );
+
+          osc.connect(gain);
+          gain.connect(this.audioCtx.destination);
+          osc.start();
+          osc.stop(this.audioCtx.currentTime + 0.2);
+        },
+
+        // 跳过当前单词
+        skipWord() {
+          if (!this.gameActive) return;
+          if (this.processingCorrectAnswer) return;
+
+          const feedback = document.getElementById("feedback");
+          feedback.style.color = "var(--warning)";
+          feedback.innerText = `Skipped! Answer: ${this.currentWord}`;
+
+          // 扣分惩罚
+          if (this.score > 0) {
+            this.score = Math.max(0, this.score - 5);
+            document.getElementById("score").innerText = this.score;
+          }
+
+          // 播放跳过音效
+          this.playSkipSound();
+
+          // 延迟后显示下一个单词
+          this.processingCorrectAnswer = true;
+          setTimeout(() => {
+            this.nextWord();
+            this.processingCorrectAnswer = false;
+          }, 1500);
+        },
+
+        playSkipSound() {
+          if (!this.audioAllowed || !this.audioCtx) return;
+          if (this.audioCtx.state === "suspended") this.audioCtx.resume();
+
+          const osc = this.audioCtx.createOscillator();
+          const gain = this.audioCtx.createGain();
+
+          osc.type = "sawtooth";
+          osc.frequency.setValueAtTime(400, this.audioCtx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(
+            200,
+            this.audioCtx.currentTime + 0.15,
+          );
+
+          gain.gain.setValueAtTime(0.1, this.audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(
+            0.01,
+            this.audioCtx.currentTime + 0.15,
+          );
+
+          osc.connect(gain);
+          gain.connect(this.audioCtx.destination);
+          osc.start();
+          osc.stop(this.audioCtx.currentTime + 0.15);
+        },
+      };
+
+      window.onload = () => game.init();
+    </script>
+
+    <a
+      class="pyp-map-link"
+      href="../index.html"
+      aria-label="Back to PYP curriculum map"
+      >PYP Map</a
+    >
+    <style>
+      .pyp-map-link {
+        position: fixed;
+        top: 12px;
+        right: 12px;
+        z-index: 9999;
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        border: 2px solid #17211f;
+        border-radius: 8px;
+        padding: 8px 12px;
+        background: #fffaf0;
+        color: #17211f;
+        text-decoration: none;
+        font:
+          900 14px/1 ui-rounded,
+          "Avenir Next",
+          "Segoe UI",
+          sans-serif;
+        box-shadow: 3px 3px 0 #17211f;
+        letter-spacing: 0;
+      }
+      .pyp-map-link:focus-visible {
+        outline: 3px solid #f2b84b;
+        outline-offset: 2px;
+      }
+      @media print {
+        .pyp-map-link {
+          display: none;
+        }
+      }
+    </style>
+  </body>
+</html>
