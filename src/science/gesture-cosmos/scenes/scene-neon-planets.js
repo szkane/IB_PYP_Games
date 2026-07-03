@@ -24,6 +24,8 @@ let _currentSystem = null;
 let _bgStars = null;
 let _glowTexture = null;
 let _time = 0;
+let _uiEl = null;
+let _hudEl = null;
 
 let _disposables = [];
 
@@ -200,6 +202,42 @@ function loadPlanet(name) {
   _currentSystem = group;
 }
 
+function createUI() {
+  const container = document.getElementById('scene-ui-container');
+  if (!container) return;
+
+  // HUD
+  _hudEl = document.createElement('div');
+  _hudEl.className = 'scene-hud';
+  _hudEl.innerHTML = `
+    <h1 id="neon-planet-name">SUN</h1>
+    <div class="subtitle">Unit 5: Patterns and Cycles</div>
+  `;
+  container.appendChild(_hudEl);
+
+  // Sidebar Controls
+  _uiEl = document.createElement('div');
+  _uiEl.className = 'scene-controls';
+
+  Object.keys(PLANET_CONFIG).forEach(planetName => {
+    const btn = document.createElement('button');
+    btn.className = 'scene-btn' + (planetName === 'Sun' ? ' active' : '');
+    btn.textContent = planetName.substring(0, 3);
+    btn.addEventListener('click', () => {
+      loadPlanet(planetName);
+      const title = document.getElementById('neon-planet-name');
+      if (title) title.textContent = planetName.toUpperCase();
+      
+      const buttons = _uiEl.querySelectorAll('.scene-btn');
+      buttons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+    _uiEl.appendChild(btn);
+  });
+
+  container.appendChild(_uiEl);
+}
+
 export function init(ctx) {
   _ctx = ctx;
 
@@ -216,6 +254,7 @@ export function init(ctx) {
   ctx.scene.add(_bgStars);
 
   loadPlanet('Sun');
+  createUI();
 }
 
 export function update(dt, cmd) {
@@ -257,6 +296,11 @@ export function update(dt, cmd) {
 }
 
 export function dispose() {
+  if (_hudEl && _hudEl.parentNode) _hudEl.parentNode.removeChild(_hudEl);
+  if (_uiEl && _uiEl.parentNode) _uiEl.parentNode.removeChild(_uiEl);
+  _hudEl = null;
+  _uiEl = null;
+
   if (_currentSystem) {
     _ctx.scene.remove(_currentSystem);
     _currentSystem = null;
