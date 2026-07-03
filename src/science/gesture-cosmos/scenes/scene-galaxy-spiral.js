@@ -81,6 +81,9 @@ let _bgStars = null;
 let _glowTexture = null;
 let _time = 0;
 let _disposables = [];
+let _uiEl = null;
+let _hudEl = null;
+let _statusEl = null;
 
 function createGalaxyTexture() {
   const canvas = document.createElement('canvas');
@@ -215,6 +218,52 @@ function generateGalaxy(params) {
   _particleSystem = system;
 }
 
+function createUI() {
+  const container = document.getElementById('scene-ui-container');
+  if (!container) return;
+
+  // HUD
+  _hudEl = document.createElement('div');
+  _hudEl.className = 'scene-hud';
+  _hudEl.innerHTML = `
+    <h1 id="spiral-galaxy-name">MILKY WAY</h1>
+    <div class="subtitle">Unit 5: Patterns and Cycles</div>
+  `;
+  container.appendChild(_hudEl);
+
+  // Status HUD
+  _statusEl = document.createElement('div');
+  _statusEl.className = 'scene-status';
+  _statusEl.innerHTML = `
+    INVESTIGATION: <span id="spiral-tracking-status">MOUSE CONTROL</span><br>
+    FPS: <span id="spiral-fps">60</span>
+  `;
+  container.appendChild(_statusEl);
+
+  // Sidebar Controls
+  _uiEl = document.createElement('div');
+  _uiEl.className = 'scene-controls';
+
+  Object.keys(GALAXIES).forEach(key => {
+    const galaxy = GALAXIES[key];
+    const btn = document.createElement('button');
+    btn.className = 'scene-btn' + (key === 'milkyway' ? ' active' : '');
+    btn.textContent = galaxy.name;
+    btn.addEventListener('click', () => {
+      generateGalaxy(galaxy);
+      const title = document.getElementById('spiral-galaxy-name');
+      if (title) title.textContent = galaxy.name;
+      
+      const buttons = _uiEl.querySelectorAll('.scene-btn');
+      buttons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+    _uiEl.appendChild(btn);
+  });
+
+  container.appendChild(_uiEl);
+}
+
 export function init(ctx) {
   _ctx = ctx;
 
@@ -226,6 +275,7 @@ export function init(ctx) {
   ctx.scene.add(_bgStars);
 
   generateGalaxy(GALAXIES['milkyway']);
+  createUI();
 }
 
 export function update(dt, cmd) {
@@ -239,6 +289,20 @@ export function update(dt, cmd) {
     energy = Math.min(1, Math.abs(dx) + Math.abs(dy));
   }
 
+  // Update FPS / Status indicator
+  const statusEl = document.getElementById('spiral-tracking-status');
+  if (statusEl) {
+    if (_ctx.handEngine && _ctx.handEngine.isRunning && _ctx.handEngine.lastResults && _ctx.handEngine.lastResults.multiHandLandmarks && _ctx.handEngine.lastResults.multiHandLandmarks.length > 0) {
+      statusEl.textContent = 'GESTURE ACTIVE';
+    } else {
+      statusEl.textContent = 'MOUSE CONTROL';
+    }
+  }
+  const fpsEl = document.getElementById('spiral-fps');
+  if (fpsEl && dt > 0) {
+    fpsEl.textContent = Math.round(1 / dt);
+  }
+
   if (_particleSystem) {
     const rotSpeed = 0.0003 + energy * 0.005;
     _particleSystem.rotation.y -= rotSpeed;
@@ -248,10 +312,9 @@ export function update(dt, cmd) {
     }
 
     if (energy > 0.01) {
-      const positions = _particleSystem.geometry.attributes.position.array;
       const orig = _particleSystem.geometry.userData.originalPos;
-      const pulse = 1.0 + Math.sin(_time * 20) * energy * 0.05;
-
+      const positions = _particleSystem.geometry.attributes.position.array;
+      const pulse = 1 + Math.sin(_time * 10) * 0.05 * energy;
       for (let i = 0; i < positions.length; i += 3) {
         positions[i] = orig[i] * pulse + (Math.random() - 0.5) * energy;
         positions[i + 1] = orig[i + 1] * pulse + (Math.random() - 0.5) * energy;
@@ -263,6 +326,13 @@ export function update(dt, cmd) {
 }
 
 export function dispose() {
+  if (_hudEl && _hudEl.parentNode) _hudEl.parentNode.removeChild(_hudEl);
+  if (_statusEl && _statusEl.parentNode) _statusEl.parentNode.removeChild(_statusEl);
+  if (_uiEl && _uiEl.parentNode) _uiEl.parentNode.removeChild(_uiEl);
+  _hudEl = null;
+  _statusEl = null;
+  _uiEl = null;
+
   if (_particleSystem) {
     _ctx.scene.remove(_particleSystem);
     if (_particleSystem.geometry) _particleSystem.geometry.dispose();
@@ -271,15 +341,12 @@ export function dispose() {
   }
   if (_bgStars) {
     _ctx.scene.remove(_bgStars);
+    if (_bgStars.geometry) _bgStars.geometry.dispose();
     _bgStars = null;
   }
 
-  _disposables.forEach(obj => {
-    if (obj.isMaterial || obj.isTexture) {
-      obj.dispose();
-    } else if (obj.isBufferGeometry || obj.isGeometry) {
-      obj.dispose();
-    }
+  _disposables.forEach(d => {
+    if (d.dispose) d.dispose();
   });
 
   _ctx.scene.fog = null;
