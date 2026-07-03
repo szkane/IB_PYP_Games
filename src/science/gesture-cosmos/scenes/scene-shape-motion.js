@@ -9,6 +9,8 @@ let _material = null;
 let _targetPositions = null;
 let _removables = [];
 let _disposables = [];
+let _uiEl = null;
+let _hudEl = null;
 
 const PARTICLE_COUNT = 15000;
 const LERP_SPEED = 0.08;
@@ -163,6 +165,7 @@ export function init(ctx) {
   _removables.push(system);
 
   calculateShape('heart');
+  createUI();
 }
 
 export function update(dt, cmd) {
@@ -221,7 +224,70 @@ export function update(dt, cmd) {
   _particles.geometry.attributes.position.needsUpdate = true;
 }
 
+function createUI() {
+  const container = document.getElementById('scene-ui-container');
+  if (!container) return;
+
+  // HUD
+  _hudEl = document.createElement('div');
+  _hudEl.className = 'scene-hud';
+  _hudEl.innerHTML = `
+    <h1 id="shape-lab-title">HEART</h1>
+    <div class="subtitle">Unit 5: Patterns and Cycles</div>
+  `;
+  container.appendChild(_hudEl);
+
+  // Sidebar Controls
+  _uiEl = document.createElement('div');
+  _uiEl.className = 'scene-controls';
+
+  const shapes = ['heart', 'flower', 'saturn', 'helix', 'sphere', 'galaxy'];
+  shapes.forEach(shapeName => {
+    const btn = document.createElement('button');
+    btn.className = 'scene-btn' + (shapeName === 'heart' ? ' active' : '');
+    btn.textContent = shapeName;
+    btn.addEventListener('click', () => {
+      calculateShape(shapeName);
+      
+      const title = document.getElementById('shape-lab-title');
+      if (title) title.textContent = shapeName.toUpperCase();
+
+      const buttons = _uiEl.querySelectorAll('.scene-btn');
+      buttons.forEach(b => {
+        if (b.id !== 'btn-auto-color') b.classList.remove('active');
+      });
+      btn.classList.add('active');
+    });
+    _uiEl.appendChild(btn);
+  });
+
+  // Auto color button
+  const autoColorBtn = document.createElement('button');
+  autoColorBtn.className = 'scene-btn';
+  autoColorBtn.id = 'btn-auto-color';
+  autoColorBtn.textContent = 'Auto Color: Off';
+  autoColorBtn.addEventListener('click', () => {
+    _autoColor = !_autoColor;
+    if (_autoColor) {
+      autoColorBtn.textContent = 'Auto Color: On';
+      autoColorBtn.classList.add('active');
+    } else {
+      autoColorBtn.textContent = 'Auto Color: Off';
+      autoColorBtn.classList.remove('active');
+      _material.color.setHex(0x00ffcc); // Reset to base color
+    }
+  });
+  _uiEl.appendChild(autoColorBtn);
+
+  container.appendChild(_uiEl);
+}
+
 export function dispose() {
+  if (_hudEl && _hudEl.parentNode) _hudEl.parentNode.removeChild(_hudEl);
+  if (_uiEl && _uiEl.parentNode) _uiEl.parentNode.removeChild(_uiEl);
+  _hudEl = null;
+  _uiEl = null;
+
   _removables.forEach(obj => {
     if (obj.parent) obj.parent.remove(obj);
   });
