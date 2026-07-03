@@ -10,6 +10,8 @@ let _ctx = null;
 let _celestialBodies = [];
 let _removables = [];
 let _disposables = [];
+let _uiEl = null;
+let _hudEl = null;
 
 const AU = 50;
 const SIZES = {
@@ -282,6 +284,67 @@ export function init(ctx) {
   });
 
   createSolarSystem();
+  createUI();
+}
+
+function createUI() {
+  const container = document.getElementById('scene-ui-container');
+  if (!container) return;
+
+  // HUD
+  _hudEl = document.createElement('div');
+  _hudEl.className = 'scene-hud';
+  _hudEl.innerHTML = `
+    <h1>Solar System</h1>
+    <div class="subtitle">Unit 5: Patterns and Cycles</div>
+  `;
+  container.appendChild(_hudEl);
+
+  // Sidebar Controls
+  _uiEl = document.createElement('div');
+  _uiEl.className = 'scene-controls';
+  _uiEl.style.maxHeight = 'calc(100vh - 120px)';
+  _uiEl.style.overflowY = 'auto';
+
+  const overviewBtn = document.createElement('button');
+  overviewBtn.className = 'scene-btn active';
+  overviewBtn.textContent = 'Overview';
+  overviewBtn.id = 'btn-overview';
+  overviewBtn.addEventListener('click', () => {
+    _ctx.cameraRig.resetToOverview(AU * 5, Math.PI / 3, Math.PI / 4);
+    setActiveButton(overviewBtn);
+  });
+  _uiEl.appendChild(overviewBtn);
+
+  _celestialBodies.forEach(body => {
+    if (!body.orbitCenter || body.data.name === 'Sun') {
+      const btn = document.createElement('button');
+      btn.className = 'scene-btn';
+      btn.textContent = body.data.name;
+      btn.id = `btn-${body.data.name.toLowerCase()}`;
+      btn.addEventListener('click', () => {
+        focusOnBody(body);
+        setActiveButton(btn);
+      });
+      _uiEl.appendChild(btn);
+    }
+  });
+
+  container.appendChild(_uiEl);
+}
+
+function focusOnBody(body) {
+  const pos = new THREE.Vector3();
+  body.mesh.getWorldPosition(pos);
+  const offset = body.data.radius * 5 + 10;
+  _ctx.cameraRig.focusOn(pos, offset);
+}
+
+function setActiveButton(activeBtn) {
+  if (!_uiEl) return;
+  const buttons = _uiEl.querySelectorAll('.scene-btn');
+  buttons.forEach(btn => btn.classList.remove('active'));
+  if (activeBtn) activeBtn.classList.add('active');
 }
 
 export function update(dt, cmd) {
@@ -319,16 +382,20 @@ export function update(dt, cmd) {
       const hitMesh = intersects[0].object;
       const body = _celestialBodies.find(b => b.mesh === hitMesh);
       if (body) {
-        const pos = new THREE.Vector3();
-        body.mesh.getWorldPosition(pos);
-        const offset = body.data.radius * 5 + 10;
-        _ctx.cameraRig.focusOn(pos, offset);
+        focusOnBody(body);
+        const btn = document.getElementById(`btn-${body.data.name.toLowerCase()}`);
+        if (btn) setActiveButton(btn);
       }
     }
   }
 }
 
 export function dispose() {
+  if (_hudEl && _hudEl.parentNode) _hudEl.parentNode.removeChild(_hudEl);
+  if (_uiEl && _uiEl.parentNode) _uiEl.parentNode.removeChild(_uiEl);
+  _hudEl = null;
+  _uiEl = null;
+
   _removables.forEach(obj => {
     if (obj.parent) obj.parent.remove(obj);
   });
