@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Gesture Cosmos Exploration Hub</title>
+  <link rel="manifest" href="../manifest.json">
+  <meta name="theme-color" content="#000000">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      margin: 0; overflow: hidden; background: #000;
+      font-family: 'Rajdhani', 'Segoe UI', sans-serif; color: #fff;
+    }
+    canvas { display: block; }
+    .input_video { display: none; }
+    #canvas-container { width: 100vw; height: 100vh; }
+
+    /* Nav Bar */
+    #nav-bar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; flex-wrap: wrap; gap: 4px;
+      padding: 8px 12px;
+      background: linear-gradient(180deg, rgba(0,0,0,0.85) 60%, transparent);
+      pointer-events: auto;
+    }
+    .nav-btn {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.6);
+      padding: 6px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      font: 600 13px/1 'Rajdhani', sans-serif;
+      letter-spacing: 0.5px;
+      transition: all 0.25s ease;
+      pointer-events: auto;
+      white-space: nowrap;
+    }
+    .nav-btn:hover {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+    }
+    .nav-btn.active {
+      background: rgba(0,243,255,0.2);
+      border-color: #00f3ff;
+      color: #00f3ff;
+      box-shadow: 0 0 12px rgba(0,243,255,0.3);
+    }
+
+    /* Loading overlay */
+    #loader {
+      position: fixed; inset: 0; z-index: 200;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      background: #000; color: #00f3ff; letter-spacing: 3px;
+      font-size: 1.1rem;
+    }
+    .spinner {
+      width: 40px; height: 40px; margin-bottom: 20px;
+      border: 3px solid rgba(0,243,255,0.3);
+      border-top: 3px solid #00f3ff;
+      border-radius: 50%; animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loader-sub { font-size: 0.8rem; opacity: 0.6; margin-top: 10px; max-width: 300px; text-align: center; }
+
+    /* Permission overlay */
+    #permission-overlay {
+      position: fixed; inset: 0; z-index: 300;
+      display: none;
+      flex-direction: column;
+      align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.9);
+      backdrop-filter: blur(8px);
+    }
+    #permission-overlay.visible { display: flex; }
+    #enable-gestures {
+      padding: 16px 40px;
+      border: 2px solid #00f3ff;
+      background: transparent;
+      color: #00f3ff;
+      font: 700 18px 'Rajdhani', sans-serif;
+      letter-spacing: 3px;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    #enable-gestures:hover {
+      background: rgba(0,243,255,0.15);
+      box-shadow: 0 0 30px rgba(0,243,255,0.3);
+    }
+    #permission-hint {
+      margin-top: 16px; color: rgba(255,255,255,0.4);
+      font-size: 0.85rem; letter-spacing: 1px;
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed; bottom: 60px; left: 50%;
+      transform: translateX(-50%); z-index: 150;
+      background: rgba(0,0,0,0.85);
+      border: 1px solid rgba(255,255,255,0.15);
+      padding: 10px 20px; border-radius: 8px;
+      color: rgba(255,255,255,0.7); font-size: 0.85rem;
+      opacity: 0; transition: opacity 0.4s;
+      pointer-events: none;
+    }
+    #toast.visible { opacity: 1; }
+
+    /* Gesture indicator */
+    #gesture-indicator {
+      position: fixed; bottom: 20px; left: 50%;
+      transform: translateX(-50%); z-index: 50;
+      color: #00f3ff; font-size: 0.9rem;
+      letter-spacing: 2px; opacity: 0;
+      transition: opacity 0.4s;
+      text-shadow: 0 0 10px rgba(0,243,255,0.5);
+    }
+    #gesture-indicator.visible { opacity: 0.7; }
+  </style>
+  <!-- MediaPipe -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+  <!-- Three.js importmap -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.163.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="loader">
+    <div class="spinner"></div>
+    <div>LOADING COSMOS HUB</div>
+    <div class="loader-sub">Preparing six cosmic environments for exploration...</div>
+  </div>
+
+  <div id="permission-overlay" class="visible">
+    <button id="enable-gestures">ENABLE GESTURES</button>
+    <div id="permission-hint">Camera access required for hand tracking · Click to start</div>
+  </div>
+
+  <nav id="nav-bar">
+    <button class="nav-btn active" data-scene="solar-system">Solar System</button>
+    <button class="nav-btn" data-scene="neon-planets">Neon Planets</button>
+    <button class="nav-btn" data-scene="galaxy-spiral">Spiral Galaxy</button>
+    <button class="nav-btn" data-scene="crystal-galaxy">Crystal Galaxy</button>
+    <button class="nav-btn" data-scene="milky-way">Milky Way</button>
+    <button class="nav-btn" data-scene="shape-motion">Shape Lab</button>
+  </nav>
+
+  <div id="canvas-container"></div>
+  <video class="input_video"></video>
+
+  <div id="gesture-indicator">Move hand to explore</div>
+  <div id="toast"></div>
+
+  <a class="pyp-map-link" href="../index.html" aria-label="Back to PYP curriculum map">PYP Map</a>
+  <style>
+    .pyp-map-link { position: fixed; top: 12px; right: 12px; z-index: 9999; min-height: 44px; display: inline-flex; align-items: center; border: 2px solid #17211f; border-radius: 8px; padding: 8px 12px; background: #fffaf0; color: #17211f; text-decoration: none; font: 900 14px/1 ui-rounded, "Avenir Next", "Segoe UI", sans-serif; box-shadow: 3px 3px 0 #17211f; letter-spacing: 0; }
+    .pyp-map-link:focus-visible { outline: 3px solid #f2b84b; outline-offset: 2px; }
+    @media print { .pyp-map-link { display: none; } }
+    /* Responsive nav */
+    @media (max-width: 640px) {
+      #nav-bar { justify-content: center; gap: 3px; padding: 6px 8px; }
+      .nav-btn { font-size: 11px; padding: 4px 10px; }
+    }
+  </style>
+
+  <script type="module" src="./gesture-cosmos/main.js"></script>
+</body>
+</html>
