@@ -63,10 +63,22 @@ function createBackgroundStars() {
   return stars;
 }
 
+function disposeTracked() {
+  _disposables.forEach(obj => {
+    if (obj !== _glowTexture) {
+      if (obj.isMaterial || obj.isTexture) obj.dispose();
+      else if (obj.isBufferGeometry || obj.isGeometry) obj.dispose();
+      else if (obj.isLight && obj.parent) obj.parent.remove(obj);
+    }
+  });
+}
+
 function loadPlanet(name) {
   if (_currentSystem) {
     _ctx.scene.remove(_currentSystem);
     _currentSystem = null;
+    disposeTracked();
+    _disposables = [_glowTexture];
   }
 
   const config = PLANET_CONFIG[name];

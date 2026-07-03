@@ -122,7 +122,8 @@ function createBackground() {
 function generateGalaxy(params) {
   if (_particleSystem) {
     _ctx.scene.remove(_particleSystem);
-    _disposables.push(_particleSystem.geometry, _particleSystem.material);
+    if (_particleSystem.geometry) _particleSystem.geometry.dispose();
+    if (_particleSystem.material) _particleSystem.material.dispose();
     _particleSystem = null;
   }
 
@@ -274,9 +275,7 @@ export function dispose() {
   }
 
   _disposables.forEach(obj => {
-    if (obj.isTexture) {
-      obj.dispose();
-    } else if (obj.isMaterial || obj.isTexture) {
+    if (obj.isMaterial || obj.isTexture) {
       obj.dispose();
     } else if (obj.isBufferGeometry || obj.isGeometry) {
       obj.dispose();
