@@ -277,13 +277,8 @@ export function update(dt, cmd) {
 
     if (_currentSystem.scale.x < 1.0) {
       _currentSystem.scale.addScalar(0.05);
-    } else {
-      let targetScale = 1.0;
-      if (cmd && cmd.zoomFactor) {
-        targetScale = Math.max(0.5, Math.min(3.5, cmd.zoomFactor));
-      }
-      const s = _currentSystem.scale.x;
-      _currentSystem.scale.setScalar(s + (targetScale - s) * 0.1);
+    } else if (_currentSystem.scale.x !== 1.0) {
+      _currentSystem.scale.setScalar(1.0);
     }
 
     if (energy > 0.1) {
