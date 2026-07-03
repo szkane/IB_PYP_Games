@@ -341,7 +341,6 @@ export function dispose() {
   }
   if (_bgStars) {
     _ctx.scene.remove(_bgStars);
-    if (_bgStars.geometry) _bgStars.geometry.dispose();
     _bgStars = null;
   }
 

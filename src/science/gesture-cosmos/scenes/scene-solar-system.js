@@ -374,8 +374,8 @@ export function update(dt, cmd) {
   if (cmd && cmd.type === 'select') {
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2(
-      (cmd.screenX / window.innerWidth) * 2 - 1,
-      -(cmd.screenY / window.innerHeight) * 2 + 1
+      cmd.screenX * 2 - 1,
+      -cmd.screenY * 2 + 1
     );
     raycaster.setFromCamera(mouse, _ctx.camera);
 
