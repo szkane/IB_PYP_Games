@@ -13,12 +13,16 @@ let _uiEl = null;
 let _hudEl = null;
 
 const PARTICLE_COUNT = 15000;
-const LERP_SPEED = 0.08;
+const LERP_SPEED = 0.06;
 let _currentShape = 'heart';
-let _scale = 1;
-let _explosion = 0;
+let _explosion = 0;       // lerp target: 0 = collapsed, 1 = exploded
 let _colorHue = 0;
 let _autoColor = false;
+
+// Pre-computed stable explosion offsets — calculated ONCE on fist gesture start.
+// Re-used every frame until fist is released. No Math.random() inside the render loop.
+let _explodeOffsets = null;
+let _prevFist = false;    // edge detection for fist on/off
 
 function createParticleTexture() {
   const canvas = document.createElement('canvas');
@@ -168,57 +172,81 @@ export function init(ctx) {
   createUI();
 }
 
+/**
+ * Pre-compute stable explosion target offsets.
+ * Called ONCE when fist gesture is first detected.
+ * Each particle gets a random outward displacement stored permanently
+ * until the fist is released. No randomness during rendering.
+ */
+function computeExplodeOffsets() {
+  _explodeOffsets = new Float32Array(PARTICLE_COUNT * 3);
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    // Random point on unit sphere scaled by explosion radius
+    const theta = Math.random() * Math.PI * 2;
+    const phi   = Math.acos(2 * Math.random() - 1);
+    const r     = 8 + Math.random() * 10; // 8–18 units outward
+    _explodeOffsets[i * 3]     = r * Math.sin(phi) * Math.cos(theta);
+    _explodeOffsets[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+    _explodeOffsets[i * 3 + 2] = r * Math.cos(phi);
+  }
+}
+
 export function update(dt, cmd) {
   if (!_particles || !_targetPositions) return;
 
   const positions = _particles.geometry.attributes.position.array;
   const time = performance.now() * 0.001;
 
+  // Auto color cycle
   if (_autoColor) {
     _colorHue = (_colorHue + 0.001) % 1;
     _material.color.setHSL(_colorHue, 1.0, 0.5);
   }
 
-  if (cmd) {
-    if (cmd.energy > 0.1) {
-      _explosion += (1 - _explosion) * 0.1;
-    } else {
-      _explosion += (0 - _explosion) * 0.1;
-    }
-
-    if (cmd.dx !== undefined) {
-      _scale = Math.max(0.2, Math.min(3.0, 1 + cmd.dx * 2));
-    }
-  } else {
-    _explosion *= 0.9;
+  // ---- Fist state: detect RISING EDGE to pre-compute offsets ----
+  // cmd.fist is a stable debounced boolean from GestureRouter.
+  // We never call Math.random() here — only on the state transition.
+  const fistNow = !!(cmd && cmd.fist);
+  if (fistNow && !_prevFist) {
+    // Fist just activated: pre-compute stable explosion positions
+    computeExplodeOffsets();
   }
+  _prevFist = fistNow;
 
-  _particles.scale.setScalar(THREE.MathUtils.lerp(_particles.scale.x, _explosion > 0.1 ? _scale : 1.0, 0.1));
+  // Lerp explosion toward 1 when fist active, toward 0 when released
+  const explosionTarget = fistNow ? 1.0 : 0.0;
+  _explosion += (explosionTarget - _explosion) * 0.07;
+
+  // Keep particle system scale at 1 — no scale mutation from velocity
+  _particles.scale.setScalar(1.0);
   _particles.rotation.y += 0.002 * dt * 60;
   _particles.rotation.z = _currentShape === 'saturn' ? 0.2 : 0;
 
+  // ---- Per-particle update ----
+  // Target = shape target + (explosion * pre-computed offset)
+  // No Math.random() here — offsets were computed once at fist-on event.
   for (let i = 0; i < PARTICLE_COUNT; i++) {
     const px = i * 3;
-    const py = i * 3 + 1;
-    const pz = i * 3 + 2;
+    const py = px + 1;
+    const pz = px + 2;
 
     let tx = _targetPositions[px];
     let ty = _targetPositions[py];
     let tz = _targetPositions[pz];
 
-    if (_explosion > 0.1) {
-      const explForce = _explosion * 5;
-      tx += (Math.random() - 0.5) * explForce * 10;
-      ty += (Math.random() - 0.5) * explForce * 10;
-      tz += (Math.random() - 0.5) * explForce * 10;
+    if (_explosion > 0.01 && _explodeOffsets) {
+      tx += _explodeOffsets[px] * _explosion;
+      ty += _explodeOffsets[py] * _explosion;
+      tz += _explodeOffsets[pz] * _explosion;
     }
 
     positions[px] = THREE.MathUtils.lerp(positions[px], tx, LERP_SPEED);
     positions[py] = THREE.MathUtils.lerp(positions[py], ty, LERP_SPEED);
     positions[pz] = THREE.MathUtils.lerp(positions[pz], tz, LERP_SPEED);
 
-    positions[px] += Math.sin(time + positions[py]) * 0.01;
-    positions[py] += Math.cos(time + positions[px]) * 0.01;
+    // Gentle breathing motion — very subtle
+    positions[px] += Math.sin(time * 0.5 + i * 0.001) * 0.005;
+    positions[py] += Math.cos(time * 0.5 + i * 0.001) * 0.005;
   }
 
   _particles.geometry.attributes.position.needsUpdate = true;
@@ -308,9 +336,10 @@ export function dispose() {
   _targetPositions = null;
 
   _autoColor = false;
-  _scale = 1;
   _explosion = 0;
   _colorHue = 0;
+  _explodeOffsets = null;
+  _prevFist = false;
 
   _ctx = null;
 }

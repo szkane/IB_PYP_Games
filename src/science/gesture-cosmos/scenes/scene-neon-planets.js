@@ -278,13 +278,8 @@ export function update(dt, cmd) {
     if (_currentSystem.scale.x < 1.0) {
       _currentSystem.scale.setScalar(Math.min(1.0, _currentSystem.scale.x + 0.05));
     }
-
-    if (energy > 0.1) {
-      _currentSystem.position.x = (Math.random() - 0.5) * energy * 0.2;
-      _currentSystem.position.y = (Math.random() - 0.5) * energy * 0.2;
-    } else {
-      _currentSystem.position.set(0, 0, 0);
-    }
+    // Planet position is always (0,0,0) — no per-frame jitter
+    _currentSystem.position.set(0, 0, 0);
   }
 }
 
