@@ -8,15 +8,15 @@ import { createGestureState, applyGestureControl } from '../core/gesture-control
 export const name = 'neon-planets';
 
 const PLANET_CONFIG = {
-  'Sun':     { size: 3.5, speed: 0.005, colors: [0xff4d00, 0xffaa00, 0xffcc00], particles: 25000, type: 'star' },
-  'Mercury': { size: 2.8, speed: 0.01,  colors: [0xaaffff, 0x888888, 0xffffff], particles: 12000, type: 'rock' },
-  'Venus':   { size: 3.0, speed: 0.008, colors: [0xff8800, 0xffaa44, 0xcc6600], particles: 15000, type: 'gas'  },
-  'Earth':   { size: 3.2, speed: 0.01,  colors: [0x00f3ff, 0x0044ff, 0xffffff], particles: 20000, type: 'life' },
-  'Mars':    { size: 2.9, speed: 0.01,  colors: [0xff0044, 0xff5500, 0x880000], particles: 14000, type: 'rock' },
-  'Jupiter': { size: 4.5, speed: 0.02,  colors: [0xffaa00, 0xcc8800, 0xffebd7], particles: 30000, type: 'gas'  },
-  'Saturn':  { size: 4.0, speed: 0.015, colors: [0xe0c080, 0xffd700, 0x8a6c3c], particles: 25000, type: 'ring' },
-  'Uranus':  { size: 3.5, speed: 0.01,  colors: [0x00ffaa, 0x00cccc, 0xccffff], particles: 18000, type: 'gas'  },
-  'Neptune': { size: 3.5, speed: 0.01,  colors: [0x3333ff, 0x0000ff, 0x8888ff], particles: 18000, type: 'gas'  },
+  'Sun':     { size: 28,  speed: 0.005, colors: [0xff4d00, 0xffaa00, 0xffcc00], particles: 25000, type: 'star' },
+  'Mercury': { size: 22,  speed: 0.01,  colors: [0xaaffff, 0x888888, 0xffffff], particles: 12000, type: 'rock' },
+  'Venus':   { size: 24,  speed: 0.008, colors: [0xff8800, 0xffaa44, 0xcc6600], particles: 15000, type: 'gas'  },
+  'Earth':   { size: 26,  speed: 0.01,  colors: [0x00f3ff, 0x0044ff, 0xffffff], particles: 20000, type: 'life' },
+  'Mars':    { size: 23,  speed: 0.01,  colors: [0xff0044, 0xff5500, 0x880000], particles: 14000, type: 'rock' },
+  'Jupiter': { size: 36,  speed: 0.02,  colors: [0xffaa00, 0xcc8800, 0xffebd7], particles: 30000, type: 'gas'  },
+  'Saturn':  { size: 32,  speed: 0.015, colors: [0xe0c080, 0xffd700, 0x8a6c3c], particles: 25000, type: 'ring' },
+  'Uranus':  { size: 28,  speed: 0.01,  colors: [0x00ffaa, 0x00cccc, 0xccffff], particles: 18000, type: 'gas'  },
+  'Neptune': { size: 28,  speed: 0.01,  colors: [0x3333ff, 0x0000ff, 0x8888ff], particles: 18000, type: 'gas'  },
 };
 
 let _ctx = null;
@@ -158,7 +158,7 @@ function loadPlanet(planetName) {
     for (let i = 0; i < 15000; i++) {
       const angle = Math.random() * Math.PI * 2;
       const dist  = config.size * 1.4 + Math.random() * config.size * 1.5;
-      ringPos.push(Math.cos(angle) * dist, (Math.random() - 0.5) * 0.2, Math.sin(angle) * dist);
+      ringPos.push(Math.cos(angle) * dist, (Math.random() - 0.5) * config.size * 0.04, Math.sin(angle) * dist);
       const c = i % 2 === 0 ? 0xccaaff : 0x442255;
       colorObj.setHex(c);
       ringCol.push(colorObj.r, colorObj.g, colorObj.b);
@@ -180,13 +180,13 @@ function loadPlanet(planetName) {
     const glowGeom = new THREE.BufferGeometry();
     const glowPos  = [];
     for (let i = 0; i < 500; i++) {
-      const gr    = config.size * 1.2 + Math.random();
+      const glowR  = config.size * 1.05 + Math.random() * config.size * 0.1;
       const gtheta = Math.random() * Math.PI * 2;
       const gphi   = Math.acos(2 * Math.random() - 1);
       glowPos.push(
-        gr * Math.sin(gphi) * Math.cos(gtheta),
-        gr * Math.sin(gphi) * Math.sin(gtheta),
-        gr * Math.cos(gphi),
+        glowR * Math.sin(gphi) * Math.cos(gtheta),
+        glowR * Math.sin(gphi) * Math.sin(gtheta),
+        glowR * Math.cos(gphi),
       );
     }
     glowGeom.setAttribute('position', new THREE.Float32BufferAttribute(glowPos, 3));
@@ -249,9 +249,9 @@ export function init(ctx) {
   _bgStars = createBackgroundStars();
   ctx.scene.add(_bgStars);
 
-  // Move camera close so planet fills ~80 % of screen by default.
-  // Planet radius ≈ 3.5 units; at r=15 half-height = 15*tan(30°) ≈ 8.7 → 80 % fill.
-  ctx.cameraRig.resetToOverview(15, Math.PI / 8, 0);
+  // Reset camera to standard r=60 overview so the enlarged planet fills ~80 % of screen.
+  // (r=60: half-height = 60×tan30° ≈ 34.6 units; Sun radius 28 / 34.6 ≈ 80 % fill)
+  ctx.cameraRig.resetToOverview(60, Math.PI / 4, Math.PI / 4);
 
   _gs = createGestureState();
   loadPlanet('Sun');
