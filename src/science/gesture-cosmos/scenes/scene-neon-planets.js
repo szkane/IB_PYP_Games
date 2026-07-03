@@ -249,6 +249,10 @@ export function init(ctx) {
   _bgStars = createBackgroundStars();
   ctx.scene.add(_bgStars);
 
+  // Move camera close so planet fills ~80 % of screen by default.
+  // Planet radius ≈ 3.5 units; at r=15 half-height = 15*tan(30°) ≈ 8.7 → 80 % fill.
+  ctx.cameraRig.resetToOverview(15, Math.PI / 8, 0);
+
   _gs = createGestureState();
   loadPlanet('Sun');
   createUI();
@@ -329,5 +333,7 @@ export function dispose() {
   _explosion         = 0;
   _explodeOffsets    = null;
   _gs                = null;
+  // Restore standard camera distance so other scenes aren't affected
+  if (_ctx) _ctx.cameraRig.resetToOverview(60, Math.PI / 4, Math.PI / 4);
   _ctx               = null;
 }
