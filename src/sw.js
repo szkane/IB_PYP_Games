@@ -1,5 +1,5 @@
 // Cache version - auto-updated by build script
-const CACHE_VERSION = '20260702110721';
+const CACHE_VERSION = '20260703102800';
 const CACHE_NAME = `ib-pyp-games-${CACHE_VERSION}`;
 
 // Static assets to pre-cache during install
@@ -25,18 +25,13 @@ const PRECACHE_URLS = [
     '/math/g1_pictograph_tally_quiz_arcade.html',
     '/math/g1_pictograph_tally_story_journey.html',
     '/math/g1_position_explorer.html',
-    '/science/g1_3D_camara_galaxy.html',
-    '/science/g1_3D_camara_galaxy2.html',
-    '/science/g1_3D_camara_milkyway.html',
-    '/science/g1_3D_camara_obj.html',
-    '/science/g1_3D_camara_solar.html',
     '/science/g1_3D_camera_blueball.html',
     '/science/g1_3D_camera_dragonball.html',
     '/science/g1_3D_camera_test.html',
     '/science/g1_bike_gear.html',
     '/science/g1_day_and_night_detectives.html',
     '/science/g1_moon_phases.html',
-    '/science/g1_solar_system.html',
+    '/science/gesture-cosmos-hub.html',
     '/uoi/g1_community_helpers_sort.html',
     '/uoi/g1_goal_steps_quest.html',
     '/uoi/g1_life_cycle_builder.html',

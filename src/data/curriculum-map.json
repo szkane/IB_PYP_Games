@@ -338,40 +338,11 @@
                   "description": "Recognize moon phases as a natural cycle."
                 },
                 {
-                  "title": "Three.js Solar System",
-                  "path": "science/g1_solar_system.html",
-                  "type": "Existing",
-                  "description": "Explore planets, orbits, and repeated movement."
-                },
-                {
-                  "title": "NEON PLANETS - Particle Engine",
-                  "path": "science/g1_3D_camara_solar.html",
-                  "type": "Existing",
-                  "description": "A space and motion extension for observing repeated movement."
-                },
-                {
-                  "title": "Ultimate Galaxy Engine",
-                  "path": "science/g1_3D_camara_galaxy.html",
-                  "type": "Existing",
-                  "description": "Explore spiral motion and visual patterns in space."
-                },
-                {
-                  "title": "Crystal Galaxy",
-                  "path": "science/g1_3D_camara_galaxy2.html",
-                  "type": "Existing",
-                  "description": "Observe color, light, and repeated particle patterns."
-                },
-                {
-                  "title": "Milky Way Gesture Control",
-                  "path": "science/g1_3D_camara_milkyway.html",
-                  "type": "Existing",
-                  "description": "Use movement to explore a modeled galaxy scene."
-                },
-                {
-                  "title": "Hand-Controlled Particle System",
-                  "path": "science/g1_3D_camara_obj.html",
-                  "type": "Existing",
-                  "description": "Investigate how input changes a visual system."
+                  "title": "Gesture Cosmos Hub",
+                  "path": "science/gesture-cosmos-hub.html",
+                  "type": "New",
+                  "description": "Explore 6 cosmic scenes — solar system, neon planets, spiral galaxies, crystal galaxy, milky way, and particle shapes — with hand gesture control.",
+                  "tags": ["gesture", "3D", "cosmos", "hub"]
                 },
                 {
                   "title": "Blue Plasma Orb Interface",
