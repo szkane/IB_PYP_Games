@@ -23,11 +23,13 @@ let _ctx = null;
 let _currentSystem = null;
 let _bgStars = null;
 let _glowTexture = null;
+let _ambientLight = null;
 let _time = 0;
 let _uiEl = null;
 let _hudEl = null;
 
 let _disposables = [];
+let _staticDisposables = [];
 
 function createGlowTexture() {
   const canvas = document.createElement('canvas');
@@ -42,7 +44,7 @@ function createGlowTexture() {
   c.fillStyle = gradient;
   c.fillRect(0, 0, 64, 64);
   const tex = new THREE.CanvasTexture(canvas);
-  _disposables.push(tex);
+  _staticDisposables.push(tex);
   return tex;
 }
 
@@ -61,17 +63,15 @@ function createBackgroundStars() {
     color: 0x444455, size: 0.2, transparent: true, opacity: 0.6
   });
   const stars = new THREE.Points(geom, mat);
-  _disposables.push(geom, mat);
+  _staticDisposables.push(geom, mat);
   return stars;
 }
 
 function disposeTracked() {
   _disposables.forEach(obj => {
-    if (obj !== _glowTexture) {
-      if (obj.isMaterial || obj.isTexture) obj.dispose();
-      else if (obj.isBufferGeometry || obj.isGeometry) obj.dispose();
-      else if (obj.isLight && obj.parent) obj.parent.remove(obj);
-    }
+    if (obj.isMaterial || obj.isTexture) obj.dispose();
+    else if (obj.isBufferGeometry || obj.isGeometry) obj.dispose();
+    else if (obj.isLight && obj.parent) obj.parent.remove(obj);
   });
 }
 
@@ -80,7 +80,7 @@ function loadPlanet(name) {
     _ctx.scene.remove(_currentSystem);
     _currentSystem = null;
     disposeTracked();
-    _disposables = [_glowTexture];
+    _disposables = [];
   }
 
   const config = PLANET_CONFIG[name];
@@ -246,9 +246,9 @@ export function init(ctx) {
 
   _glowTexture = createGlowTexture();
 
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-  ctx.scene.add(ambientLight);
-  _disposables.push(ambientLight);
+  _ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+  ctx.scene.add(_ambientLight);
+  _staticDisposables.push(_ambientLight);
 
   _bgStars = createBackgroundStars();
   ctx.scene.add(_bgStars);
@@ -309,8 +309,22 @@ export function dispose() {
     _ctx.scene.remove(_bgStars);
     _bgStars = null;
   }
+  if (_ambientLight) {
+    _ctx.scene.remove(_ambientLight);
+    _ambientLight = null;
+  }
 
   _disposables.forEach(obj => {
+    if (obj.isMaterial || obj.isTexture) {
+      obj.dispose();
+    } else if (obj.isGeometry || obj.isBufferGeometry) {
+      obj.dispose();
+    } else if (obj.isLight) {
+      if (obj.parent) obj.parent.remove(obj);
+    }
+  });
+
+  _staticDisposables.forEach(obj => {
     if (obj.isMaterial || obj.isTexture) {
       obj.dispose();
     } else if (obj.isGeometry || obj.isBufferGeometry) {
@@ -323,5 +337,7 @@ export function dispose() {
   _ctx.scene.background = null;
   _ctx.scene.fog = null;
   _disposables = [];
+  _staticDisposables = [];
+  _glowTexture = null;
   _ctx = null;
 }

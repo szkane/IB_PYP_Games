@@ -306,5 +306,11 @@ export function dispose() {
   _geometry = null;
   _material = null;
   _targetPositions = null;
+
+  _autoColor = false;
+  _scale = 1;
+  _explosion = 0;
+  _colorHue = 0;
+
   _ctx = null;
 }

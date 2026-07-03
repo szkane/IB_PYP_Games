@@ -10,6 +10,7 @@ let _ctx = null;
 let _celestialBodies = [];
 let _removables = [];
 let _disposables = [];
+let _textures = [];
 let _uiEl = null;
 let _hudEl = null;
 
@@ -104,6 +105,7 @@ function createCelestialBody(data, parentGroup = null, orbitCenter = null) {
     material = new THREE.MeshBasicMaterial({ color: data.color });
   } else if (textureUrl) {
     const texture = _ctx.textureLoader.load(textureUrl);
+    _textures.push(texture);
     material = new THREE.MeshStandardMaterial({
       map: texture, color: 0xffffff, roughness: 0.8, metalness: 0.1
     });
@@ -225,6 +227,7 @@ function createSolarSystem() {
     if (planetData.hasRing && TEXTURES.SaturnRing) {
       const ringGeometry = new THREE.RingGeometry(planetData.radius * 1.2, planetData.radius * 2, 64);
       const ringTexture = _ctx.textureLoader.load(TEXTURES.SaturnRing);
+      _textures.push(ringTexture);
       const pos = ringGeometry.attributes.position;
       const v3 = new THREE.Vector3();
       const uv = ringGeometry.attributes.uv;
@@ -275,13 +278,14 @@ export function init(ctx) {
   ctx.scene.add(sunLight);
   _removables.push(sunLight);
 
-  ctx.textureLoader.load(TEXTURES.background, (texture) => {
+  const bgTexture = ctx.textureLoader.load(TEXTURES.background, (texture) => {
     texture.mapping = THREE.EquirectangularReflectionMapping;
     ctx.scene.background = texture;
   }, undefined, (err) => {
     console.error('[SolarSystem] Error loading background:', err);
     ctx.scene.background = new THREE.Color(0x000000);
   });
+  _textures.push(bgTexture);
 
   createSolarSystem();
   createUI();
@@ -409,6 +413,10 @@ export function dispose() {
       }
     }
   });
+  _textures.forEach(tex => {
+    if (tex) tex.dispose();
+  });
+  _textures = [];
   if (_ctx) {
     _ctx.scene.background = null;
   }
