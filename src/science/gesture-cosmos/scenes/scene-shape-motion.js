@@ -160,7 +160,7 @@ function createParticleSystem() {
   const texture = createParticleTexture();
   _material = new THREE.PointsMaterial({
     color:      0x00ffcc,
-    size:       0.15,
+    size:       0.40,
     map:        texture,
     transparent: true,
     opacity:    0.9,

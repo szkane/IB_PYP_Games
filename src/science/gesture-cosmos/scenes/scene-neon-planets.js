@@ -139,7 +139,7 @@ function loadPlanet(planetName) {
   geometry.userData.originalPos = Float32Array.from(positions);
 
   const material = new THREE.PointsMaterial({
-    size:        0.12,
+    size:        0.40,
     vertexColors: true,
     map:         _glowTexture,
     blending:    THREE.AdditiveBlending,
@@ -166,7 +166,7 @@ function loadPlanet(planetName) {
     ringGeom.setAttribute('position', new THREE.Float32BufferAttribute(ringPos, 3));
     ringGeom.setAttribute('color',    new THREE.Float32BufferAttribute(ringCol, 3));
     const ringMat = new THREE.PointsMaterial({
-      size: 0.12, vertexColors: true, map: _glowTexture,
+      size: 0.40, vertexColors: true, map: _glowTexture,
       blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0.9,
     });
     const ringMesh = new THREE.Points(ringGeom, ringMat);
@@ -191,7 +191,7 @@ function loadPlanet(planetName) {
     }
     glowGeom.setAttribute('position', new THREE.Float32BufferAttribute(glowPos, 3));
     const glowMat = new THREE.PointsMaterial({
-      color: config.colors[0], size: 0.4, map: _glowTexture,
+      color: config.colors[0], size: 0.8, map: _glowTexture,
       blending: THREE.AdditiveBlending, transparent: true, opacity: 0.4,
     });
     group.add(new THREE.Points(glowGeom, glowMat));
