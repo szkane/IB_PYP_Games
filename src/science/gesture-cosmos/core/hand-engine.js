@@ -23,10 +23,15 @@ export class HandEngine {
       throw new Error('MediaPipe Hands not loaded');
     }
     this.videoElement = videoElement;
-    this.hands = new Hands({
-      locateFile: (file) =>
-        `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
-    });
+    try {
+      this.hands = new Hands({
+        locateFile: (file) =>
+          `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+      });
+    } catch (err) {
+      if (this.onError) this.onError(err);
+      throw err;
+    }
     this.hands.setOptions({
       maxNumHands: 2,
       modelComplexity: 1,
@@ -42,16 +47,26 @@ export class HandEngine {
 
   async startCamera() {
     if (!this.hands) throw new Error('Call init() first');
-    this.camera = new Camera(this.videoElement, {
-      onFrame: async () => {
-        if (this.hands && this.videoElement.readyState >= 2) {
-          await this.hands.send({ image: this.videoElement });
-        }
-      },
-      width: 640,
-      height: 480
-    });
-    await this.camera.start();
+    if (typeof Camera === 'undefined') {
+      const err = new Error('MediaPipe Camera utility not loaded');
+      if (this.onError) this.onError(err);
+      throw err;
+    }
+    try {
+      this.camera = new Camera(this.videoElement, {
+        onFrame: async () => {
+          if (this.hands && this.videoElement.readyState >= 2) {
+            await this.hands.send({ image: this.videoElement });
+          }
+        },
+        width: 640,
+        height: 480
+      });
+      await this.camera.start();
+    } catch (err) {
+      if (this.onError) this.onError(err);
+      throw err;
+    }
     this.isRunning = true;
   }
 

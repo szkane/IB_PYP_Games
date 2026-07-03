@@ -7,7 +7,7 @@ import * as THREE from 'three';
 export class CameraRig {
   constructor(camera, domElement) {
     this.camera = camera;
-    this.domElement = domElement;
+    this.domElement = domElement; // Reserved for OrbitControls fallback
     this.target = new THREE.Vector3(0, 0, 0);
     this.spherical = new THREE.Spherical();
     this.zoom = 60;

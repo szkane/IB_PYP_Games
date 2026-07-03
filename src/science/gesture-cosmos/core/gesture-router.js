@@ -2,20 +2,18 @@
  * GestureRouter — normalizes hand landmarks into unified commands.
  *
  * Command types emitted:
- *   { type: 'orbit',  dx: number, dy: number }
- *   { type: 'zoom',   factor: number }         // 1 = no zoom, <1 = out, >1 = in
+ *   { type: 'orbit',  dx: number, dy: number, zoomFactor: number }
  *   { type: 'select', screenX: number, screenY: number }
  *   { type: 'reset' }
  *   null  // no hand
  */
 export class GestureRouter {
   constructor() {
-    this.lastCommand = null;
     this.openPalmTimer = 0;
     this.pointTimer = 0;
     this.openPalmThreshold = 0.6;  // seconds
     this.pointThreshold = 0.8;
-    this.prevLandmarks = null;
+    this._prevLandmarks = null;
   }
 
   /**
@@ -28,7 +26,7 @@ export class GestureRouter {
     if (!results || !results.multiHandLandmarks || results.multiHandLandmarks.length === 0) {
       this.openPalmTimer = 0;
       this.pointTimer = 0;
-      this.prevLandmarks = null;
+      this._prevLandmarks = null;
       return null;
     }
 
@@ -37,11 +35,11 @@ export class GestureRouter {
 
     // ---- Orbit: palm center (landmark 9) delta ----
     let dx = 0, dy = 0;
-    if (this.prevLandmarks) {
-      dx = (h[9].x - this.prevLandmarks[9].x) * 4;
-      dy = (h[9].y - this.prevLandmarks[9].y) * 4;
+    if (this._prevLandmarks) {
+      dx = (h[9].x - this._prevLandmarks[9].x) * 4;
+      dy = (h[9].y - this._prevLandmarks[9].y) * 4;
     }
-    this.prevLandmarks = h.map(l => ({ x: l.x, y: l.y, z: l.z }));
+    this._prevLandmarks = h.map(l => ({ x: l.x, y: l.y, z: l.z }));
 
     // ---- Zoom: thumb(4)↔index(8) pinch distance ----
     const pinchDist = Math.hypot(h[4].x - h[8].x, h[4].y - h[8].y, h[4].z - h[8].z);

@@ -39,14 +39,13 @@ export class SceneHost {
       }
     }
 
-    // Reset camera target
-    this.ctx.cameraRig.resetToOverview();
-
     // Init next
     this.current = next;
     this.currentName = name;
     try {
       this.current.init(this.ctx);
+      // Reset camera target only after successful init
+      this.ctx.cameraRig.resetToOverview();
     } catch (e) {
       console.error(`[SceneHost] Error initializing "${name}":`, e);
       this.current = null;
