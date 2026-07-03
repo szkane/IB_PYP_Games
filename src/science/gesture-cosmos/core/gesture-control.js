@@ -75,9 +75,7 @@ export function applyGestureControl(root, cmd, state, dt) {
   // ── Smooth scale lerp ─────────────────────────────────────────────────────
   // Clamp target to valid range first
   state.targetScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, state.targetScale));
-  state.currentScale = THREE.MathUtils
-    ? lerp(state.currentScale, state.targetScale, 0.06)
-    : state.currentScale + (state.targetScale - state.currentScale) * 0.06;
+  state.currentScale = lerp(state.currentScale, state.targetScale, 0.06);
 
   if (root) {
     root.scale.setScalar(state.currentScale);
