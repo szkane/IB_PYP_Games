@@ -3,16 +3,19 @@
  * Ported from g1_solar_system.html
  */
 import * as THREE from 'three';
+import { createGestureState, applyGestureControl } from '../core/gesture-control.js';
 
 export const name = 'solar-system';
 
 let _ctx = null;
 let _celestialBodies = [];
+let _solarRoot = null;   // all bodies parented here for uniform gesture scale/rotation
 let _removables = [];
 let _disposables = [];
 let _textures = [];
 let _uiEl = null;
 let _hudEl = null;
+let _gs = null;
 
 const AU = 50;
 const SIZES = {
@@ -152,13 +155,13 @@ function createCelestialBody(data, parentGroup = null, orbitCenter = null) {
 }
 
 function createSolarSystem() {
-  const scene = _ctx.scene;
+  const root = _solarRoot;
 
   const sunData = { name: 'Sun', radius: SIZES.sun, color: COLORS.sun, isLightSource: true };
   const sun = createCelestialBody(sunData, null, null);
   sun.mesh.castShadow = false;
   sun.mesh.receiveShadow = false;
-  scene.add(sun.mesh);
+  root.add(sun.mesh);
   _removables.push(sun.mesh);
   _celestialBodies.push(sun);
 
@@ -205,14 +208,14 @@ function createSolarSystem() {
 
   planetsData.forEach(planetData => {
     const planetSystem = new THREE.Group();
-    scene.add(planetSystem);
+    root.add(planetSystem);
     _removables.push(planetSystem);
 
     const planet = createCelestialBody(planetData, planetSystem, null);
     planetSystem.add(planet.mesh);
     _celestialBodies.push(planet);
 
-    createOrbitLine(planetData.orbitRadius, scene);
+    createOrbitLine(planetData.orbitRadius, root);
 
     if (planetData.moons && planetData.moons.length > 0) {
       planetData.moons.forEach(moonData => {
@@ -265,8 +268,12 @@ function createSolarSystem() {
 export function init(ctx) {
   _ctx = ctx;
 
+  _solarRoot = new THREE.Group();
+  ctx.scene.add(_solarRoot);
+  _removables.push(_solarRoot);
+
   const ambientLight = new THREE.AmbientLight(0x404040);
-  ctx.scene.add(ambientLight);
+  _solarRoot.add(ambientLight);
   _removables.push(ambientLight);
 
   const sunLight = new THREE.PointLight(0xffffff, 4, AU * 50);
@@ -275,7 +282,7 @@ export function init(ctx) {
   sunLight.shadow.mapSize.height = 1024;
   sunLight.shadow.camera.near = 10;
   sunLight.shadow.camera.far = AU * 20;
-  ctx.scene.add(sunLight);
+  _solarRoot.add(sunLight);
   _removables.push(sunLight);
 
   const bgTexture = ctx.textureLoader.load(TEXTURES.background, (texture) => {
@@ -287,6 +294,7 @@ export function init(ctx) {
   });
   _textures.push(bgTexture);
 
+  _gs = createGestureState();
   createSolarSystem();
   createUI();
 }
@@ -354,6 +362,9 @@ function setActiveButton(activeBtn) {
 export function update(dt, cmd) {
   if (!_ctx) return;
 
+  // Gesture: scale and rotate the whole solar root
+  applyGestureControl(_solarRoot, cmd, _gs, dt);
+
   _celestialBodies.forEach(body => {
     body.mesh.rotation.y += 0.05 * dt;
 
@@ -375,13 +386,11 @@ export function update(dt, cmd) {
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2(
       cmd.screenX * 2 - 1,
-      -cmd.screenY * 2 + 1
+      -cmd.screenY * 2 + 1,
     );
     raycaster.setFromCamera(mouse, _ctx.camera);
-
     const meshes = _celestialBodies.map(b => b.mesh);
     const intersects = raycaster.intersectObjects(meshes);
-
     if (intersects.length > 0) {
       const hitMesh = intersects[0].object;
       const body = _celestialBodies.find(b => b.mesh === hitMesh);
@@ -423,5 +432,7 @@ export function dispose() {
   _removables = [];
   _disposables = [];
   _celestialBodies = [];
+  _solarRoot = null;
+  _gs = null;
   _ctx = null;
 }

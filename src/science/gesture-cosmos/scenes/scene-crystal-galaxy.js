@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { createGestureState, applyGestureControl } from '../core/gesture-control.js';
 
 export const name = 'crystal-galaxy';
 
@@ -37,6 +38,7 @@ let _disposables = [];
 let _starFieldDisposables = [];
 let _uiEl = null;
 let _hudEl = null;
+let _gs = null;
 
 function createSharpTexture() {
   const canvas = document.createElement('canvas');
@@ -198,6 +200,7 @@ export function init(ctx) {
   ctx.scene.add(_starField);
   _removables.push(_starField);
 
+  _gs = createGestureState();
   generateGalaxy(GALAXIES['milkyway']);
   createUI();
 }
@@ -205,15 +208,12 @@ export function init(ctx) {
 export function update(dt, cmd) {
   if (!_system) return;
 
-  _system.rotation.y -= 0.0005 * dt * 60;
+  // Shared gesture control: scale + rotation from hand
+  applyGestureControl(_system, cmd, _gs, dt);
 
-  if (cmd && cmd.energy > 0.05) {
-    _system.position.x = (Math.random() - 0.5) * 0.05;
-    _system.position.y = (Math.random() - 0.5) * 0.05;
-    _system.rotation.y -= cmd.energy * 0.005 * dt * 60;
-  } else {
-    _system.position.set(0, 0, 0);
-  }
+  // Auto self-rotation
+  _system.rotation.y -= 0.0005 * dt * 60;
+  _system.position.set(0, 0, 0);
 }
 
 function createUI() {

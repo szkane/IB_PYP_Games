@@ -120,7 +120,7 @@ enableBtn.addEventListener('click', async () => {
     await handEngine.startCamera();
     permissionOverlay.classList.remove('visible');
     gestureIndicator.classList.add('visible');
-    showToast('Gestures active — move hand to orbit · pinch to zoom · fist to explode shapes · open palm to reset');
+    showToast('Gestures active — open palm: move forward/back to resize · slide left/right to rotate · fist to explode · open again to reconstruct');
   } catch (err) {
     console.error('[Hub] Camera/MediaPipe init failed:', err);
     showToast('Camera unavailable — using mouse controls');

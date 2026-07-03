@@ -1,9 +1,5 @@
-/**
- * Galaxy Spiral Scene
- * Ported from g1_3D_camara_galaxy.html
- * Massive particle-based galaxy explorer
- */
 import * as THREE from 'three';
+import { createGestureState, applyGestureControl } from '../core/gesture-control.js';
 
 export const name = 'galaxy-spiral';
 
@@ -84,6 +80,7 @@ let _disposables = [];
 let _uiEl = null;
 let _hudEl = null;
 let _statusEl = null;
+let _gs = null;
 
 function createGalaxyTexture() {
   const canvas = document.createElement('canvas');
@@ -274,6 +271,7 @@ export function init(ctx) {
   _bgStars = createBackground();
   ctx.scene.add(_bgStars);
 
+  _gs = createGestureState();
   generateGalaxy(GALAXIES['milkyway']);
   createUI();
 }
@@ -282,46 +280,31 @@ export function update(dt, cmd) {
   if (!_ctx) return;
   _time += 0.002;
 
-  let energy = 0;
-  if (cmd) {
-    const dx = cmd.dx || 0;
-    const dy = cmd.dy || 0;
-    energy = Math.min(1, Math.abs(dx) + Math.abs(dy));
-  }
-
-  // Update FPS / Status indicator
+  // Update status indicator
   const statusEl = document.getElementById('spiral-tracking-status');
   if (statusEl) {
-    if (_ctx.handEngine && _ctx.handEngine.isRunning && _ctx.handEngine.lastResults && _ctx.handEngine.lastResults.multiHandLandmarks && _ctx.handEngine.lastResults.multiHandLandmarks.length > 0) {
-      statusEl.textContent = 'GESTURE ACTIVE';
-    } else {
-      statusEl.textContent = 'MOUSE CONTROL';
-    }
+    const hasHand = _ctx.handEngine && _ctx.handEngine.isRunning &&
+      _ctx.handEngine.lastResults &&
+      _ctx.handEngine.lastResults.multiHandLandmarks &&
+      _ctx.handEngine.lastResults.multiHandLandmarks.length > 0;
+    statusEl.textContent = hasHand ? 'GESTURE ACTIVE' : 'MOUSE CONTROL';
   }
   const fpsEl = document.getElementById('spiral-fps');
-  if (fpsEl && dt > 0) {
-    fpsEl.textContent = Math.round(1 / dt);
-  }
+  if (fpsEl && dt > 0) fpsEl.textContent = Math.round(1 / dt);
 
   if (_particleSystem) {
-    const rotSpeed = 0.0003 + energy * 0.005;
-    _particleSystem.rotation.y -= rotSpeed;
+    // Shared gesture control: scale + rotation
+    applyGestureControl(_particleSystem, cmd, _gs, dt);
 
-    if (_particleSystem.scale.x < 1) {
-      _particleSystem.scale.addScalar(0.05);
+    // Auto self-rotation
+    _particleSystem.rotation.y -= 0.0003;
+
+    // Entry scale-up
+    if (_particleSystem.scale.x < 0.01) {
+      _particleSystem.scale.setScalar(0.01);
     }
 
-    if (energy > 0.01) {
-      const orig = _particleSystem.geometry.userData.originalPos;
-      const positions = _particleSystem.geometry.attributes.position.array;
-      const pulse = 1 + Math.sin(_time * 10) * 0.05 * energy;
-      for (let i = 0; i < positions.length; i += 3) {
-        positions[i] = orig[i] * pulse + (Math.random() - 0.5) * energy;
-        positions[i + 1] = orig[i + 1] * pulse + (Math.random() - 0.5) * energy;
-        positions[i + 2] = orig[i + 2] * pulse + (Math.random() - 0.5) * energy;
-      }
-      _particleSystem.geometry.attributes.position.needsUpdate = true;
-    }
+    _particleSystem.position.set(0, 0, 0);
   }
 }
 
