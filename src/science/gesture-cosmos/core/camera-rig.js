@@ -26,30 +26,28 @@ export class CameraRig {
    * Apply orbit command from gesture router.
    */
   applyCommand(cmd) {
-    if (!cmd) {
-      this.orbitControls.update();
-      return;
-    }
+    if (cmd) {
+      if (cmd.type === 'orbit') {
+        const offset = new THREE.Vector3().copy(this.camera.position).sub(this.orbitControls.target);
+        const spherical = new THREE.Spherical().setFromVector3(offset);
 
-    if (cmd.type === 'orbit') {
-      const offset = new THREE.Vector3().copy(this.camera.position).sub(this.orbitControls.target);
-      const spherical = new THREE.Spherical().setFromVector3(offset);
+        spherical.theta -= cmd.dx * 0.05;
+        spherical.phi = Math.max(0.1, Math.min(Math.PI - 0.1, spherical.phi + cmd.dy * 0.05));
+        
+        if (cmd.zoomFactor) {
+          spherical.radius /= cmd.zoomFactor;
+          spherical.radius = Math.max(this.minZoom, Math.min(this.maxZoom, spherical.radius));
+        }
 
-      spherical.theta -= cmd.dx * 0.05;
-      spherical.phi = Math.max(0.1, Math.min(Math.PI - 0.1, spherical.phi + cmd.dy * 0.05));
-      
-      if (cmd.zoomFactor) {
-        spherical.radius /= cmd.zoomFactor;
-        spherical.radius = Math.max(this.minZoom, Math.min(this.maxZoom, spherical.radius));
+        const newOffset = new THREE.Vector3().setFromSpherical(spherical);
+        this.camera.position.copy(this.orbitControls.target).add(newOffset);
+        this.camera.lookAt(this.orbitControls.target);
+      } else if (cmd.type === 'reset') {
+        this.resetToOverview();
+        return;
       }
-
-      const newOffset = new THREE.Vector3().setFromSpherical(spherical);
-      this.camera.position.copy(this.orbitControls.target).add(newOffset);
-      this.camera.lookAt(this.orbitControls.target);
-      this.orbitControls.update();
-    } else if (cmd.type === 'reset') {
-      this.resetToOverview();
     }
+    this.orbitControls.update();
   }
 
   /**

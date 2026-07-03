@@ -47,7 +47,10 @@ export class GestureRouter {
     const pinchDist = Math.hypot(h[4].x - h[8].x, h[4].y - h[8].y, h[4].z - h[8].z);
     let zoomFactor = 1.0;
     if (this._prevPinchDist !== undefined && this._prevPinchDist !== null) {
-      const deltaPinch = pinchDist - this._prevPinchDist;
+      let deltaPinch = pinchDist - this._prevPinchDist;
+      if (Math.abs(deltaPinch) < 0.003) {
+        deltaPinch = 0;
+      }
       const clampedDelta = Math.max(-0.05, Math.min(0.05, deltaPinch));
       zoomFactor = 1.0 + clampedDelta * 4.0;
     }

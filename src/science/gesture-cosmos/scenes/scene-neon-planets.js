@@ -276,9 +276,7 @@ export function update(dt, cmd) {
     _currentSystem.rotation.y += speed * rotationBoost;
 
     if (_currentSystem.scale.x < 1.0) {
-      _currentSystem.scale.addScalar(0.05);
-    } else if (_currentSystem.scale.x !== 1.0) {
-      _currentSystem.scale.setScalar(1.0);
+      _currentSystem.scale.setScalar(Math.min(1.0, _currentSystem.scale.x + 0.05));
     }
 
     if (energy > 0.1) {
