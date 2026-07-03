@@ -1,50 +1,54 @@
 /**
  * CameraRig — unified camera orbit controller.
- * Can be driven by gesture commands or mouse OrbitControls.
+ * Can be driven by gesture commands or OrbitControls.
  */
 import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 export class CameraRig {
   constructor(camera, domElement) {
     this.camera = camera;
-    this.domElement = domElement; // Reserved for OrbitControls fallback
+    this.domElement = domElement;
     this.target = new THREE.Vector3(0, 0, 0);
-    this.spherical = new THREE.Spherical();
-    this.zoom = 60;
     this.minZoom = 5;
-    this.maxZoom = 200;
+    this.maxZoom = 500;
 
-    // Get initial spherical from camera position
-    this._updateSpherical();
-  }
-
-  _updateSpherical() {
-    const offset = new THREE.Vector3().copy(this.camera.position).sub(this.target);
-    this.spherical.setFromVector3(offset);
-  }
-
-  _applySpherical() {
-    const offset = new THREE.Vector3().setFromSpherical(this.spherical);
-    this.camera.position.copy(this.target).add(offset);
-    this.camera.lookAt(this.target);
+    // Initialize OrbitControls
+    this.orbitControls = new OrbitControls(this.camera, this.domElement);
+    this.orbitControls.enableDamping = true;
+    this.orbitControls.dampingFactor = 0.05;
+    this.orbitControls.minDistance = this.minZoom;
+    this.orbitControls.maxDistance = this.maxZoom;
+    this.orbitControls.target.copy(this.target);
   }
 
   /**
    * Apply orbit command from gesture router.
    */
   applyCommand(cmd) {
-    if (!cmd) return;
+    if (!cmd) {
+      this.orbitControls.update();
+      return;
+    }
+
     if (cmd.type === 'orbit') {
-      this.spherical.theta -= cmd.dx * 0.05;
-      this.spherical.phi = Math.max(0.1, Math.min(Math.PI - 0.1, this.spherical.phi + cmd.dy * 0.05));
+      const offset = new THREE.Vector3().copy(this.camera.position).sub(this.orbitControls.target);
+      const spherical = new THREE.Spherical().setFromVector3(offset);
+
+      spherical.theta -= cmd.dx * 0.05;
+      spherical.phi = Math.max(0.1, Math.min(Math.PI - 0.1, spherical.phi + cmd.dy * 0.05));
+      
       if (cmd.zoomFactor) {
-        this.spherical.radius /= cmd.zoomFactor;
-        this.spherical.radius = Math.max(this.minZoom, Math.min(this.maxZoom, this.spherical.radius));
+        spherical.radius /= cmd.zoomFactor;
+        spherical.radius = Math.max(this.minZoom, Math.min(this.maxZoom, spherical.radius));
       }
-      this._applySpherical();
+
+      const newOffset = new THREE.Vector3().setFromSpherical(spherical);
+      this.camera.position.copy(this.orbitControls.target).add(newOffset);
+      this.camera.lookAt(this.orbitControls.target);
+      this.orbitControls.update();
     } else if (cmd.type === 'reset') {
-      this.spherical.set(60, Math.PI / 4, Math.PI / 4);
-      this._applySpherical();
+      this.resetToOverview();
     }
   }
 
@@ -52,25 +56,29 @@ export class CameraRig {
    * Focus on a world position.
    */
   focusOn(position, offsetRadius) {
-    this.target.copy(position);
-    this.spherical.radius = offsetRadius || 15;
-    this._applySpherical();
+    this.orbitControls.target.copy(position);
+    const offset = new THREE.Vector3(0, offsetRadius * 0.5, offsetRadius);
+    this.camera.position.copy(position).add(offset);
+    this.camera.lookAt(position);
+    this.orbitControls.update();
   }
 
   /**
    * Reset to overview.
    */
   resetToOverview(radius = 60, phi = Math.PI / 4, theta = Math.PI / 4) {
-    this.target.set(0, 0, 0);
-    this.spherical.set(radius, phi, theta);
-    this._applySpherical();
+    this.orbitControls.target.set(0, 0, 0);
+    const spherical = new THREE.Spherical(radius, phi, theta);
+    const offset = new THREE.Vector3().setFromSpherical(spherical);
+    this.camera.position.copy(this.orbitControls.target).add(offset);
+    this.camera.lookAt(this.orbitControls.target);
+    this.orbitControls.update();
   }
 
   /**
-   * Update — call every frame for smooth lerp if needed.
+   * Update called every frame.
    */
   update() {
-    // No smoothing needed — direct spherical application is instant.
-    // This hook exists for future lerp-based smoothing.
+    this.orbitControls.update();
   }
 }
