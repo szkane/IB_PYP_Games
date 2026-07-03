@@ -2,11 +2,41 @@ import * as THREE from 'three';
 
 export const name = 'crystal-galaxy';
 
+const GALAXIES = {
+  'milkyway': {
+    name: "MILKY", span: "WAY", subtitle: "200,000 DISCRETE PARTICLES",
+    count: 200000,
+    colors: { core: [0.5, 0.35, 0.15], arm: [0.2, 0.4, 0.9], dust: [0.1, 0.05, 0.2] },
+    params: { r: 50, spin: 3, arms: 2, bar: 12 }
+  },
+  'andromeda': {
+    name: "ANDRO", span: "MEDA", subtitle: "220,000 DISCRETE PARTICLES",
+    count: 220000,
+    colors: { core: [0.6, 0.6, 0.55], arm: [0.3, 0.5, 0.7], dust: [0.1, 0.15, 0.2] },
+    params: { r: 60, spin: 5, arms: 4, bar: 0 }
+  },
+  'whirlpool': {
+    name: "WHIRL", span: "POOL", subtitle: "180,000 DISCRETE PARTICLES",
+    count: 180000,
+    colors: { core: [0.6, 0.6, 0.6], arm: [0.5, 0.3, 0.6], dust: [0.2, 0.0, 0.05] },
+    params: { r: 45, spin: 4, arms: 2, bar: 0 }
+  },
+  'sombrero': {
+    name: "SOMB", span: "RERO", subtitle: "160,000 DISCRETE PARTICLES",
+    count: 160000,
+    colors: { core: [0.6, 0.3, 0.05], arm: [0.4, 0.15, 0.05], dust: [0.0, 0.0, 0.0] },
+    params: { r: 50, spin: 10, arms: 0, bar: 0, bulge: 10 }
+  }
+};
+
 let _ctx = null;
 let _system = null;
 let _starField = null;
 let _removables = [];
 let _disposables = [];
+let _starFieldDisposables = [];
+let _uiEl = null;
+let _hudEl = null;
 
 function createSharpTexture() {
   const canvas = document.createElement('canvas');
@@ -23,12 +53,13 @@ function createSharpTexture() {
   return new THREE.CanvasTexture(canvas);
 }
 
-function generateGalaxy() {
-  const cfg = {
-    count: 200000,
-    colors: { core: [0.5, 0.35, 0.15], arm: [0.2, 0.4, 0.9], dust: [0.1, 0.05, 0.2] },
-    params: { r: 50, spin: 3, arms: 2, bar: 12 }
-  };
+function generateGalaxy(cfg) {
+  if (_system) {
+    _ctx.scene.remove(_system);
+    _system = null;
+    disposeTracked();
+    _disposables = [];
+  }
 
   const count = cfg.count;
   const positions = new Float32Array(count * 3);
@@ -37,7 +68,7 @@ function generateGalaxy() {
   const colCore = cfg.colors.core;
   const colArm = cfg.colors.arm;
   const colDust = cfg.colors.dust;
-  const barL = cfg.params.bar;
+  const barL = cfg.params.bar || 0;
 
   for (let i = 0; i < count; i++) {
     let x, y, z, r, angle;
@@ -48,7 +79,7 @@ function generateGalaxy() {
     else if (size > 0.9) size = 1.2;
     else size = 0.5;
 
-    if (i < count * 0.2) {
+    if (barL > 0 && i < count * 0.2) {
       const lx = (Math.random() - 0.5) * barL * 2;
       const lz = (Math.random() - 0.5) * 2 * (1 - Math.abs(lx) / barL);
       const rot = 0.8;
@@ -61,7 +92,12 @@ function generateGalaxy() {
       const dist = Math.random() * (cfg.params.r - barL);
       r = barL + dist;
       const spin = (dist / cfg.params.r) * cfg.params.spin;
-      const arm = (Math.random() < 0.5 ? 0 : Math.PI);
+      
+      let arm = 0;
+      if (cfg.params.arms > 0) {
+        arm = (Math.floor(Math.random() * cfg.params.arms) / cfg.params.arms) * Math.PI * 2;
+      }
+      
       const spread = (Math.random() - 0.5) * (0.5 + dist / 20);
       angle = arm + spin + spread + 0.8;
       x = Math.cos(angle) * r;
@@ -125,7 +161,19 @@ function generateGalaxy() {
   });
 
   _disposables.push({ geometry: geom, material, texture: dotTexture });
-  return new THREE.Points(geom, material);
+  
+  const mesh = new THREE.Points(geom, material);
+  mesh.rotation.x = 0.4;
+  _ctx.scene.add(mesh);
+  _system = mesh;
+}
+
+function disposeTracked() {
+  _disposables.forEach(d => {
+    if (d.geometry) d.geometry.dispose();
+    if (d.material) d.material.dispose();
+    if (d.texture) d.texture.dispose();
+  });
 }
 
 function createStarField() {
@@ -137,7 +185,7 @@ function createStarField() {
   const geom = new THREE.BufferGeometry();
   geom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
   const material = new THREE.PointsMaterial({ color: 0x555555, size: 1.5, sizeAttenuation: false });
-  _disposables.push({ geometry: geom, material });
+  _starFieldDisposables.push({ geometry: geom, material });
   return new THREE.Points(geom, material);
 }
 
@@ -150,9 +198,8 @@ export function init(ctx) {
   ctx.scene.add(_starField);
   _removables.push(_starField);
 
-  _system = generateGalaxy();
-  ctx.scene.add(_system);
-  _removables.push(_system);
+  generateGalaxy(GALAXIES['milkyway']);
+  createUI();
 }
 
 export function update(dt, cmd) {
@@ -169,15 +216,67 @@ export function update(dt, cmd) {
   }
 }
 
+function createUI() {
+  const container = document.getElementById('scene-ui-container');
+  if (!container) return;
+
+  // HUD
+  _hudEl = document.createElement('div');
+  _hudEl.className = 'scene-hud';
+  _hudEl.innerHTML = `
+    <h1 id="crystal-galaxy-name">MILKY <span>WAY</span></h1>
+    <div class="subtitle" id="crystal-galaxy-sub">200,000 DISCRETE PARTICLES</div>
+  `;
+  container.appendChild(_hudEl);
+
+  // Sidebar Controls
+  _uiEl = document.createElement('div');
+  _uiEl.className = 'scene-controls';
+
+  Object.keys(GALAXIES).forEach(key => {
+    const galaxy = GALAXIES[key];
+    const btn = document.createElement('button');
+    btn.className = 'scene-btn' + (key === 'milkyway' ? ' active' : '');
+    btn.textContent = key;
+    btn.addEventListener('click', () => {
+      generateGalaxy(galaxy);
+      
+      const title = document.getElementById('crystal-galaxy-name');
+      if (title) title.innerHTML = `${galaxy.name} <span>${galaxy.span}</span>`;
+      const subtitle = document.getElementById('crystal-galaxy-sub');
+      if (subtitle) subtitle.textContent = galaxy.subtitle;
+
+      const buttons = _uiEl.querySelectorAll('.scene-btn');
+      buttons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+    _uiEl.appendChild(btn);
+  });
+
+  container.appendChild(_uiEl);
+}
+
 export function dispose() {
+  if (_hudEl && _hudEl.parentNode) _hudEl.parentNode.removeChild(_hudEl);
+  if (_uiEl && _uiEl.parentNode) _uiEl.parentNode.removeChild(_uiEl);
+  _hudEl = null;
+  _uiEl = null;
+
+  if (_system && _ctx) {
+    _ctx.scene.remove(_system);
+  }
+
   _removables.forEach(obj => {
     if (obj.parent) obj.parent.remove(obj);
   });
-  _disposables.forEach(d => {
+  disposeTracked();
+  
+  _starFieldDisposables.forEach(d => {
     if (d.geometry) d.geometry.dispose();
     if (d.material) d.material.dispose();
-    if (d.texture) d.texture.dispose();
   });
+  _starFieldDisposables = [];
+
   if (_ctx) {
     _ctx.scene.background = null;
     _ctx.scene.fog = null;
