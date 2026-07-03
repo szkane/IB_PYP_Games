@@ -14,6 +14,7 @@ export class GestureRouter {
     this.openPalmThreshold = 0.6;  // seconds
     this.pointThreshold = 0.8;
     this._prevLandmarks = null;
+    this._prevPinchDist = null;
   }
 
   /**
@@ -27,6 +28,7 @@ export class GestureRouter {
       this.openPalmTimer = 0;
       this.pointTimer = 0;
       this._prevLandmarks = null;
+      this._prevPinchDist = null;
       return null;
     }
 
@@ -43,7 +45,13 @@ export class GestureRouter {
 
     // ---- Zoom: thumb(4)↔index(8) pinch distance ----
     const pinchDist = Math.hypot(h[4].x - h[8].x, h[4].y - h[8].y, h[4].z - h[8].z);
-    const zoomFactor = 1 + (0.5 - pinchDist) * 2; // ~0.3 → zoom out, ~0.7 → zoom in
+    let zoomFactor = 1.0;
+    if (this._prevPinchDist !== undefined && this._prevPinchDist !== null) {
+      const deltaPinch = pinchDist - this._prevPinchDist;
+      const clampedDelta = Math.max(-0.05, Math.min(0.05, deltaPinch));
+      zoomFactor = 1.0 + clampedDelta * 4.0;
+    }
+    this._prevPinchDist = pinchDist;
 
     // ---- Open palm detection for RESET ----
     const fingerTips = [8, 12, 16, 20];
