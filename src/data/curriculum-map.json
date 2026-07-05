@@ -34,6 +34,13 @@
                   "path": "literacy/g1_pronunciation.html",
                   "type": "Existing",
                   "description": "Hear and repeat sounds for early phonics practice."
+                },
+                {
+                  "title": "WordQuest - Word Search & Crossword",
+                  "path": "literacy/wordquest/index.html",
+                  "type": "New",
+                  "description": "Find hidden words and fill crosswords across KG-G3 vocabulary categories.",
+                  "tags": ["vocabulary", "wordsearch", "crossword"]
                 }
               ]
             },
