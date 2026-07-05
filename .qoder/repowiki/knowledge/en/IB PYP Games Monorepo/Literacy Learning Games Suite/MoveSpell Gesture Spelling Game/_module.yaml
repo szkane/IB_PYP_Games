@@ -1,0 +1,8 @@
+schema_version: 1
+module_path: literacy/movespelling
+title: MoveSpell Gesture Spelling Game
+scope:
+    - src/literacy/movespelling/
+source_files: []
+depends_on: []
+related_to: []

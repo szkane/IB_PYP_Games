@@ -1,0 +1,1 @@
+A collection of standalone browser-based literacy games (flashcards, gesture spelling, word search/crossword) sharing a common Minecraft-themed visual identity and child-friendly UX.

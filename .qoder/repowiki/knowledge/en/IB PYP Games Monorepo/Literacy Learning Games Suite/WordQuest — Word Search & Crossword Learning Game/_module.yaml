@@ -1,0 +1,8 @@
+schema_version: 1
+module_path: literacy/wordquest
+title: WordQuest — Word Search & Crossword Learning Game
+scope:
+    - src/literacy/wordquest/
+source_files: []
+depends_on: []
+related_to: []

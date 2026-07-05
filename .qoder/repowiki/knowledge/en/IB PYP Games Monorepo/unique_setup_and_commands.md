@@ -1,0 +1,1 @@
+`npm run dev` — Vite dev server rooted at `src/`; `npm run build` — runs `generate-index.js` then `qa:curriculum` then `vite build` into `dist/`; `npm run qa:curriculum` — fails fast on curriculum/game contract violations.

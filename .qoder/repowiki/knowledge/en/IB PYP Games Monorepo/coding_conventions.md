@@ -1,0 +1,4 @@
+- Each game lives as a self-contained single-file HTML app under `src/<category>/<game>/index.html` (or a flat `*.html`) carrying its own embedded `<style>` and `<script>` blocks — no external CSS/JS files.
+- Every game page includes a responsive viewport meta tag and a `pyp-map-link` / `map-link` anchor whose href resolves back to the category's `index.html`.
+- New games are registered in `src/data/curriculum-map.json` before they appear in the generated learning map or service-worker precache.
+- Standalone assets live in per-game `js/`, `css/`, `assets/`, or `res/` directories and are copied verbatim by the Vite closeBundle hook.

@@ -1,0 +1,5 @@
+- Each game is a single-file application: all CSS lives in a top-of-file `<style>` block and all logic in a trailing `<script>` block, with no external JS/CSS files referenced except CDN libraries.
+- Curriculum content is modeled as plain JavaScript objects/arrays declared near the top of the script (e.g. `courseData`, `data.{two,three,whole}`, `CHAR_FAMILIES`) rather than fetched from a backend.
+- Chinese pronunciation is produced through the browser's native `window.speechSynthesis` API with `lang='zh-CN'` and a user-selectable voice dropdown, instead of audio assets.
+- Print-friendly output is achieved with dedicated `@media print` blocks that hide controls, reset backgrounds, and set `page-break-after: always` on `.a4-paper` elements.
+- Every page ends with a fixed-position `<a class="pyp-map-link">PYP Map</a>` link back to the project root, hidden under `@media print`.

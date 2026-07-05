@@ -1,0 +1,2 @@
+- Each game owns its own `index.html` + `css/` + `js/` layout rather than sharing templates across apps.
+- Minecraft assets are stored once under `mc_words/res/images/<Category>/` and loaded via relative paths by all three games to keep visuals consistent.

@@ -1,0 +1,1 @@
+A browser-based literacy game for PYP grades KG–G3 that lets children practice vocabulary through word-search and crossword puzzles with speech, sound effects, and progress tracking.

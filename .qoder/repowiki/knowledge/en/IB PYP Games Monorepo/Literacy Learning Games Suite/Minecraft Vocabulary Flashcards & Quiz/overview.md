@@ -1,0 +1,1 @@
+A standalone browser-based flashcard and quiz app for learning ~320 Minecraft English vocabulary words, organized into 13 themed scenes with TTS pronunciation.

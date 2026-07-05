@@ -1,0 +1,1 @@
+Pure HTML5/CSS3/ES6 JavaScript with no bundler or framework; typography from Google Fonts (Fredoka for headings, Nunito for body); 3D rendering uses an inline `<canvas>` element; deployment target is Cloudflare Pages (`assets/math-preview.png` referenced in OG meta).

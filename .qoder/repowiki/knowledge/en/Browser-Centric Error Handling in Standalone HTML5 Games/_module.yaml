@@ -1,0 +1,12 @@
+schema_version: 1
+module_path: error_handling
+title: Browser-Centric Error Handling in Standalone HTML5 Games
+scope: []
+source_files:
+    - src/literacy/wordquest/js/screens.js
+    - src/literacy/wordquest/js/main.js
+    - src/literacy/movespelling/js/main.js
+    - src/literacy/movespelling/js/core/hand-tracker.js
+    - src/science/gesture-cosmos/core/hand-engine.js
+depends_on: []
+related_to: []

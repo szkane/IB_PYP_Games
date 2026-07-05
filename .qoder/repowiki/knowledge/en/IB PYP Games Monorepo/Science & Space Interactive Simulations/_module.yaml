@@ -1,0 +1,8 @@
+schema_version: 1
+module_path: science
+title: Science & Space Interactive Simulations
+scope:
+    - src/science/
+source_files: []
+depends_on: []
+related_to: []

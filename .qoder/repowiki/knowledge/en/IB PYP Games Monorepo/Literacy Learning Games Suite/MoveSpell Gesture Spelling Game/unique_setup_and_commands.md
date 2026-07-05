@@ -1,0 +1,1 @@
+Run by opening `index.html` directly in a browser; camera access requires HTTPS or `localhost` due to `getUserMedia` security policy. A debug overlay can be toggled at any time by pressing `D` to show the MediaPipe skeleton on a hidden preview canvas.

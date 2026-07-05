@@ -1,0 +1,5 @@
+- Each game controller is an ES class exposing a `start()` / `destroy()` lifecycle; controllers are constructed with a container element and an options object carrying `onComplete`/`onFound`/`onBack` callbacks rather than using events or globals.
+- Audio calls are wrapped in try/catch blocks and marked 'non-critical' so missing SpeechSynthesis or blocked audio never crashes the game flow.
+- Per-controller CSS is defined as a template literal constant and injected once into `<head>` via a unique `<style id="...-styles">` element guarded by an existence check.
+- DOM elements are created through a local `el(tag, className?, text?)` helper and navigation goes exclusively through `router.navigate(hash)` instead of direct `window.location.hash = ...` assignments.
+- Vocabulary data is treated as immutable and auto-generated (`// DO NOT EDIT MANUALLY - run: node scripts/convert-vocab.js`); new words are added to the source markdown, not to `data.js`.

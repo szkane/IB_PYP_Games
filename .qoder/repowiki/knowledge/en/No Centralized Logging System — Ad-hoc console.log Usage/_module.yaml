@@ -1,0 +1,7 @@
+schema_version: 1
+module_path: logging_system
+title: No Centralized Logging System — Ad-hoc console.log Usage
+scope: []
+source_files: []
+depends_on: []
+related_to: []

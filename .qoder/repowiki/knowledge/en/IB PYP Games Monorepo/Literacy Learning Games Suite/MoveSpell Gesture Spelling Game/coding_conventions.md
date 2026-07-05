@@ -1,0 +1,6 @@
+- Each feature lives in its own file under `js/core/` or `js/game/` and exposes a single named class (e.g. `HandTracker`, `PlayScene`, `Spawner`) instantiated by `main.js` rather than using a module system.
+- Cross-module communication goes through `game.events.emit/on` (`handUpdate`, `handStateChange`) instead of direct imports between scenes.
+- Shared runtime state is passed via `game.registry.set/get('key', value)` (wordData, audioManager, handTracker, selectedTheme, etc.) rather than globals.
+- All UI sizing is computed relative to `Math.min(width, height)` with `Math.max(..., Math.min(...))` clamps so elements scale across desktop, iPad, and 4K screens.
+- Async user-facing flows are wired with `try/catch` around `navigator.mediaDevices.getUserMedia` and `fetch`, surfacing typed errors back to the DOM overlay instead of crashing.
+- External assets are versioned with query-string cache-busters (`?v=202607021052`) appended to every script and data URL.

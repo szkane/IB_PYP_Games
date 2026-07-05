@@ -1,0 +1,8 @@
+schema_version: 1
+module_path: chinese
+title: Grade 1 Chinese Character & Pinyin Learning Games
+scope:
+    - src/Chinese/
+source_files: []
+depends_on: []
+related_to: []

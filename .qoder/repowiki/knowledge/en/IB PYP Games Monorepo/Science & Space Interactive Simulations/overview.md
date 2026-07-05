@@ -1,0 +1,1 @@
+Browser-based science and space visualizations for PYP, combining standalone Three.js/MediaPipe hand-gesture demos with a modular gesture-cosmos hub of six switchable 3D scenes.

@@ -1,0 +1,9 @@
+This repository contains no server-side code, middleware, or centralized error-handling framework. Error handling is entirely browser-side and follows a per-game, ad-hoc pattern with three recurring strategies:
+
+1. User-facing UI fallbacks — When an operation fails (camera permission denied, missing vocabulary data, unsupported API), the game renders an inline error message into the DOM and offers a back button or retry prompt. Examples: src/literacy/wordquest/js/screens.js renderError helper; src/literacy/movespelling/js/main.js which injects a permission-error paragraph describing HTTPS/camera requirements.
+
+2. Silent degradation via try/catch + console.warn/error — Non-fatal operations (audio unlock on iOS Safari, MediaPipe frame processing) are wrapped in try/catch blocks that log to console.error/console.warn and continue execution. The audio unlock in src/literacy/wordquest/js/main.js and src/literacy/movespelling/js/core/hand-tracker.js frame loop both swallow failures so the game remains playable without sound.
+
+3. Explicit throw new Error for fatal initialization failures — Hand-tracking and gesture engines throw when required globals (Hands, Camera) are absent or when camera access cannot be obtained. Callers catch these at the top-level boot path and surface them to the user rather than crashing silently. See src/science/gesture-cosmos/core/hand-engine.js and src/literacy/movespelling/js/core/hand-tracker.js.
+
+There is no shared error type, no sentinel errors, no global unhandled-rejection handler, and no structured logging library. Each game (WordQuest, MoveSpell, Gesture Cosmos, Minecraft Words) manages its own errors independently. Build/validation scripts under scripts/ and .agents/skills/*/scripts/ use Node-style try/catch + console.error/main().catch(err => console.error(...)) but are not part of the runtime games.

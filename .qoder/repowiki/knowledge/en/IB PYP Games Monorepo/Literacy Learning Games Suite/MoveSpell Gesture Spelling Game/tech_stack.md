@@ -1,0 +1,1 @@
+Phaser 3 (arcade physics, scene graph) + Google MediaPipe Hands (21-landmark hand pose, loaded from jsDelivr CDN) + Web Speech API for offline US/UK TTS; no build step or bundler — plain ES modules loaded via script tags.

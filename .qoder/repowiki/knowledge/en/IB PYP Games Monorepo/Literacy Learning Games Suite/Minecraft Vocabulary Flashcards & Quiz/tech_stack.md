@@ -1,0 +1,1 @@
+Plain HTML/CSS/JS with no bundler or framework; speech synthesis via the Web Speech API for text-to-speech; image assets in mixed `.webp`/`.png`/`.gif` formats.

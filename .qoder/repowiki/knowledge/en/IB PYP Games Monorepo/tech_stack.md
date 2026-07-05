@@ -1,0 +1,1 @@
+Vite 5 (multi-HTML entry) + terser minification; Node ESM scripts drive the build; Three.js is externalised via importmap rather than bundled.

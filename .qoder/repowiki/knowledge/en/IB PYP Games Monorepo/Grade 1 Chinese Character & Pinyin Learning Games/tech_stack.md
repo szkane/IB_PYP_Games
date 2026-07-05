@@ -1,0 +1,1 @@
+Pure client-side HTML/CSS/JS with no bundler. External libraries loaded via CDN: `pinyin-pro@3.19.0` (pinyin rendering), Tailwind CSS (pinyin trainer UI), GSAP 3.12.5 (wheel spin animation). Chinese fonts pulled from Google Fonts (Noto Sans SC, Zcool KuaiLe, Baloo 2, KaiTi variants).

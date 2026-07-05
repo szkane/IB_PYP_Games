@@ -1,0 +1,6 @@
+- All global state lives in one `currentState` object (with a nested `quiz` sub-object) rather than scattered globals, keeping view logic stateless except for this central store.
+- DOM element access is centralized through small getter helpers like `getQuizElements()` that cache `document.getElementById` results instead of querying repeatedly.
+- User input is normalized before comparison using `normalizeQuizAnswer` (lowercase + strip non-alphanumeric) so quiz answers are case- and punctuation-insensitive.
+- Dynamic HTML fragments are built with template literals but passed through `escapeHtml` before insertion into `innerHTML` to prevent XSS.
+- Each word entry follows a fixed shape `{word, en, zh, file}` and is rendered uniformly as a `.cpt-pixel-flashcard` containing a cover `<img>` plus `.pixel-en` / `.pixel-zh` spans.
+- TTS calls go through a single `speakText(text, {lang, rate, force})` wrapper that cancels any prior utterance when `force` is true, ensuring only one voice plays at a time.

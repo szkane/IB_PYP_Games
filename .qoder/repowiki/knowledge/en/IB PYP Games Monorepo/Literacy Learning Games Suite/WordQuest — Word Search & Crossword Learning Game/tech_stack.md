@@ -1,0 +1,1 @@
+Vanilla ES2015+ modules loaded as `<script type="module">`; hash-based client-side routing (no framework); Web Speech Synthesis API for TTS; Pointer Events for drag-to-select word search; HTML5 Drag-and-Drop as a desktop enhancement for crosswords; localStorage for progress persistence.

@@ -46,6 +46,7 @@ export class WordSearchGame {
 
     this._destroyed = false;
     this._confettiAnimId = null;
+    this._lastNoteIndex = -1;
     this._bound = {};
   }
 
@@ -421,6 +422,7 @@ export class WordSearchGame {
     this.selecting = true;
     this.selStart = { r: cell.r, c: cell.c };
     this.selCells = [{ r: cell.r, c: cell.c }];
+    this._lastNoteIndex = -1;
     this.highlightSelection();
   }
 
@@ -461,6 +463,7 @@ export class WordSearchGame {
     this.clearHighlight();
     this.selStart = null;
     this.selCells = [];
+    this._lastNoteIndex = -1;
   }
 
   /**
@@ -543,6 +546,13 @@ export class WordSearchGame {
       if (el) {
         el.classList.add('selected');
       }
+    }
+    // Play scale note based on selection count (1-based → 0-based index)
+    const noteIndex = this.selCells.length - 1;
+    const prevIndex = this._lastNoteIndex !== undefined ? this._lastNoteIndex : -1;
+    if (noteIndex !== prevIndex) {
+      this._lastNoteIndex = noteIndex;
+      try { sfx.note(noteIndex); } catch (e) { /* non-critical */ }
     }
   }
 
@@ -780,6 +790,7 @@ export class WordSearchGame {
     this.selStart = null;
     this.selCells = [];
     this.cellElements = [];
+    this._lastNoteIndex = -1;
     this.start();
   }
 

@@ -1,0 +1,6 @@
+Flat collection of independent, self-contained HTML5 pages under `src/math/`, each file being one complete app (HTML + embedded CSS + JS) with zero external framework dependency, matching the plan in `pictograph_tally_games_plan.md`. The module splits into three content families:
+- Worksheet generator: `g1_arithmetic.html` provides configurable addition/subtraction/mixed problems with print-friendly output.
+- 3D geometry explorer: `g1_3D_shape.html` renders selectable polyhedra on a full-screen canvas behind glassmorphism side panels.
+- Pictograph & tally games: `g1_pictograph_tally_story_journey.html` and `g1_pictograph_tally_quiz_arcade.html` implement two 10-question missions (story-driven vs arcade-card) with bilingual EN/ZH text, large tap targets, and deterministic randomized pools.
+- Supporting assets: `g1_Kangaroo_Math.html`, `g1_living_things_eco_detective.html`, `g1_position_explorer.html` are additional standalone Grade-1 math/science cross-over activities.
+There is no shared library or build pipeline; each page is independently deployable and navigated via the project's top-level map link.

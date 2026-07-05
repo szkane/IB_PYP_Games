@@ -1,0 +1,5 @@
+- Each scene module exports a plain object conforming to `{ name, init(ctx), update(dt, cmd), dispose() }` so `SceneHost` can manage lifecycle uniformly.
+- Shared runtime objects (scene, camera, renderer, textureLoader, cameraRig, handEngine, gestureRouter) are passed through a single `ctx` map rather than imported directly, keeping scenes decoupled from the hub.
+- Gesture recognition is centralized in `GestureRouter`, which emits a normalized `{handDepth, rotateY, fist, openness}` command per frame; scenes consume this command instead of reading MediaPipe landmarks themselves.
+- Fist/open-palm transitions use hysteresis timers (`_fistOnTimer` / `_fistOffTimer` with separate on/off delays) to debounce noisy hand-tracking frames.
+- Standalone demos load Three.js and MediaPipe via `<script src="https://cdn...">` tags and access them as global `THREE`, `Hands`, `Camera` variables rather than using imports.

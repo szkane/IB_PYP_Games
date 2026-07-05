@@ -1,0 +1,14 @@
+schema_version: 1
+module_path: frontend_style
+title: Standalone Game CSS with Per-App Theme Systems
+scope: []
+source_files:
+    - src/literacy/movespelling/css/style.css
+    - src/literacy/wordquest/css/style.css
+    - src/literacy/mc_words/css/mc_words_styles.css
+    - src/Chinese/g1_pinyin_training.html
+    - src/literacy/g1_before_after.html
+    - src/math/g1_Kangaroo_Math.html
+    - src/math/g1_position_explorer.html
+depends_on: []
+related_to: []

@@ -1,0 +1,11 @@
+schema_version: 1
+module_path: dependency_management
+title: Dual-Strategy Browser Dependency Management (CDN + Vite Bundling)
+scope: []
+source_files:
+    - package.json
+    - package-lock.json
+    - vite.config.js
+    - src/science/gesture-cosmos-hub.html
+depends_on: []
+related_to: []

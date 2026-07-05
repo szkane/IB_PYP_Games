@@ -1,0 +1,4 @@
+- Each activity ships as a single `.html` file that embeds its own `<style>` and `<script>` blocks, avoiding any external JS/CSS dependencies.
+- Grade-1 UX follows the plan's rules: minimum 44px tap targets, icon-first visuals, one task per screen with no scrolling, and high-contrast candy color palettes defined via CSS custom properties in `:root`.
+- Question content is stored as deterministic arrays with light randomization rather than server-side generation, keeping every page offline-capable.
+- Bilingual strings are handled by embedding both English and Chinese labels directly in the DOM rather than using a localization library.

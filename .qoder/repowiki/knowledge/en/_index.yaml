@@ -1,0 +1,167 @@
+# 知识卡导出索引文件
+schema_version: 1
+locale: en-US
+branch: main
+nodes_managed: true
+exported_at: "2026-07-05T08:54:38Z"
+modules:
+    "":
+        dir_name: IB PYP Games Monorepo
+        title: IB PYP Games Monorepo
+        scope:
+            - README.md
+            - AGENTS.md
+            - .gitignore
+            - index.html
+            - package.json
+            - package-lock.json
+            - vite.config.js
+            - docs/
+            - scripts/
+            - tmp/
+            - LICENSE
+        source_files: []
+        children:
+            - chinese
+            - literacy
+            - math
+            - science
+        depends_on: []
+        related_to: []
+    build_system:
+        dir_name: Vite-based Multi-Entry HTML5 Game Build Pipeline
+        title: Vite-based Multi-Entry HTML5 Game Build Pipeline
+        scope: []
+        source_files:
+            - package.json
+            - vite.config.js
+            - scripts/generate-index.js
+            - scripts/qa-curriculum.js
+            - scripts/list-qa-urls.js
+        children: []
+        depends_on: []
+        related_to: []
+    chinese:
+        dir_name: Grade 1 Chinese Character & Pinyin Learning Games
+        title: Grade 1 Chinese Character & Pinyin Learning Games
+        scope:
+            - src/Chinese/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
+    configuration_system:
+        dir_name: No Centralized Configuration System
+        title: No Centralized Configuration System
+        scope: []
+        source_files:
+            - vite.config.js
+            - package.json
+        children: []
+        depends_on: []
+        related_to: []
+    dependency_management:
+        dir_name: Dual-Strategy Browser Dependency Management (CDN + Vite Bundling)
+        title: Dual-Strategy Browser Dependency Management (CDN + Vite Bundling)
+        scope: []
+        source_files:
+            - package.json
+            - package-lock.json
+            - vite.config.js
+            - src/science/gesture-cosmos-hub.html
+        children: []
+        depends_on: []
+        related_to: []
+    error_handling:
+        dir_name: Browser-Centric Error Handling in Standalone HTML5 Games
+        title: Browser-Centric Error Handling in Standalone HTML5 Games
+        scope: []
+        source_files:
+            - src/literacy/wordquest/js/screens.js
+            - src/literacy/wordquest/js/main.js
+            - src/literacy/movespelling/js/main.js
+            - src/literacy/movespelling/js/core/hand-tracker.js
+            - src/science/gesture-cosmos/core/hand-engine.js
+        children: []
+        depends_on: []
+        related_to: []
+    frontend_style:
+        dir_name: Standalone Game CSS with Per-App Theme Systems
+        title: Standalone Game CSS with Per-App Theme Systems
+        scope: []
+        source_files:
+            - src/literacy/movespelling/css/style.css
+            - src/literacy/wordquest/css/style.css
+            - src/literacy/mc_words/css/mc_words_styles.css
+            - src/Chinese/g1_pinyin_training.html
+            - src/literacy/g1_before_after.html
+            - src/math/g1_Kangaroo_Math.html
+            - src/math/g1_position_explorer.html
+        children: []
+        depends_on: []
+        related_to: []
+    literacy:
+        dir_name: Literacy Learning Games Suite
+        title: Literacy Learning Games Suite
+        scope:
+            - src/literacy/
+        source_files: []
+        children:
+            - literacy/mc_words
+            - literacy/movespelling
+            - literacy/wordquest
+        depends_on: []
+        related_to: []
+    literacy/mc_words:
+        dir_name: Minecraft Vocabulary Flashcards & Quiz
+        title: Minecraft Vocabulary Flashcards & Quiz
+        scope:
+            - src/literacy/mc_words/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
+    literacy/movespelling:
+        dir_name: MoveSpell Gesture Spelling Game
+        title: MoveSpell Gesture Spelling Game
+        scope:
+            - src/literacy/movespelling/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
+    literacy/wordquest:
+        dir_name: WordQuest — Word Search & Crossword Learning Game
+        title: WordQuest — Word Search & Crossword Learning Game
+        scope:
+            - src/literacy/wordquest/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
+    logging_system:
+        dir_name: No Centralized Logging System — Ad-hoc console.log Usage
+        title: No Centralized Logging System — Ad-hoc console.log Usage
+        scope: []
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
+    math:
+        dir_name: Grade 1 Math Games & Tools
+        title: Grade 1 Math Games & Tools
+        scope:
+            - src/math/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
+    science:
+        dir_name: Science & Space Interactive Simulations
+        title: Science & Space Interactive Simulations
+        scope:
+            - src/science/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []

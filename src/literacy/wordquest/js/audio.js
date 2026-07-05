@@ -197,5 +197,34 @@ export const sfx = {
   found() {
     this._tone(659.25, 0.1, 'sine', 0.25);
     setTimeout(() => this._tone(880, 0.15, 'sine', 0.25), 60);
+  },
+
+  /**
+   * Play a musical scale note based on selection count.
+   * Used during word search sliding selection.
+   * @param {number} index - 0-based note index (0=do, 1=re, ..., 7=do')
+   */
+  note(index) {
+    if (!this._ctx) return;
+    // C major scale: do, re, mi, fa, sol, la, ti, do'
+    const freqs = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25];
+    const i = Math.min(Math.max(index, 0), freqs.length - 1);
+    try {
+      const t = this._ctx.currentTime;
+      const osc = this._ctx.createOscillator();
+      const gain = this._ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freqs[i];
+      gain.gain.setValueAtTime(0.22, t);
+      // Hold for ~0.1s then exponential fade-out tail to 0.25s
+      gain.gain.setValueAtTime(0.22, t + 0.08);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+      osc.connect(gain);
+      gain.connect(this._ctx.destination);
+      osc.start(t);
+      osc.stop(t + 0.26);
+    } catch (e) {
+      // Silently ignore - non-critical
+    }
   }
 };

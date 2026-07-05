@@ -1,0 +1,1 @@
+Three.js r128 (loaded from CDN in standalone pages; ES module import in gesture-cosmos) plus Google MediaPipe Hands (`@mediapipe/hands`, `@mediapipe/camera_utils`) for real-time hand landmark detection; gesture-cosmos uses native ES modules with dynamic `import()` for lazy scene loading.

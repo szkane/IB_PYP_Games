@@ -1,0 +1,12 @@
+schema_version: 1
+module_path: build_system
+title: Vite-based Multi-Entry HTML5 Game Build Pipeline
+scope: []
+source_files:
+    - package.json
+    - vite.config.js
+    - scripts/generate-index.js
+    - scripts/qa-curriculum.js
+    - scripts/list-qa-urls.js
+depends_on: []
+related_to: []
