@@ -1,1 +1,0 @@
-Three standalone HTML5 learning games for primary-grade Chinese: a printable character-practice worksheet generator, a pinyin tone-placement trainer, and a radical-combination spinner wheel.

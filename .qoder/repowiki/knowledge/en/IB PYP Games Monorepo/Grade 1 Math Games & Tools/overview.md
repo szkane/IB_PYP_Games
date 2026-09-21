@@ -1,1 +1,0 @@
-Standalone Grade-1 math activities — printable arithmetic worksheet generator, a 3D shape explorer, and pictograph/tally games — delivered as single-file HTML5 apps with no build step.

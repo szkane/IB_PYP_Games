@@ -1,0 +1,4073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Hilson's Quest Pad · 学习打卡台</title>
+<!-- ============================================================
+     Hilson's iPad Quest App
+     - Native iPad App layout: Zero vertical page scrolling (100dvh)
+     - Bottom Navigation Bar (Tasks, Goals, Rewards, Parent Hub)
+     - Isolated Category Tabs at top: Study, Earn Money, Sport, Life
+     - Main task content: Horizontal swipe card carousel (1 task = 1 card)
+     - Minimalist check-in UI so kids finish fast & focus on real life
+     - Standalone single-file HTML5 (zero CDN dependencies)
+     - English default with Simplified Chinese switcher
+     ============================================================ -->
+<style>
+:root {
+  /* Warm paper background and ink */
+  --paper: #fcf9f2;
+  --surface: #ffffff;
+  --ink: #1e293b;
+  --muted: #64748b;
+  --line: #1e293b;
+  --line-soft: #e2e8f0;
+
+  /* Fresh, Kid-Friendly Primary Accents */
+  --blue: #3b82f6;
+  --blue-soft: #eff6ff;
+  --blue-dark: #1d4ed8;
+
+  --green: #10b981;
+  --green-soft: #ecfdf5;
+  --green-dark: #047857;
+
+  --yellow: #f59e0b;
+  --yellow-soft: #fef3c7;
+  --yellow-dark: #b45309;
+
+  --coral: #f97316;
+  --coral-soft: #fff7ed;
+
+  --pink: #f43f5e;
+  --pink-soft: #fff1f2;
+
+  --teal: #06b6d4;
+  --mint: #a7f3d0;
+
+  /* 4 Distinct, Kid-Friendly Category Identities */
+  --cat-study: #3b82f6; /* Study 🌟 - Friendly Royal Blue */
+  --cat-money: #f59e0b; /* Earn Money 💰 - Golden Amber */
+  --cat-sport: #f97316; /* Sport ⚡ - Energy Coral Orange */
+  --cat-life:  #f43f5e; /* Life ❤️ - Caring Rose Pink */
+
+  --font: ui-rounded, "Avenir Next", "Nunito", "SF Pro Rounded", "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --r-card: 18px;
+  --r-btn: 10px;
+  --r-pill: 9999px;
+  --shadow-block: 3.5px 3.5px 0 var(--ink);
+  --shadow-block-sm: 2px 2px 0 var(--ink);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden; /* Strict zero vertical scroll on main window */
+  position: fixed;
+  inset: 0;
+}
+body {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(135deg, rgba(59, 130, 246, 0.04), transparent 32%),
+    linear-gradient(45deg, transparent 0 48%, rgba(245, 158, 11, 0.05) 48% 52%, transparent 52%),
+    var(--paper);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.45;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+h1, h2, h3, h4, p { margin: 0; }
+button { font-family: inherit; font-size: inherit; color: inherit; background: none; border: 0; cursor: pointer; touch-action: manipulation; }
+input, select, textarea { font-family: inherit; font-size: 15px; color: var(--ink); }
+svg { display: block; flex-shrink: 0; }
+.hint { color: var(--muted); font-size: 13px; font-weight: 700; }
+
+/* ---------- Fullscreen App Container ---------- */
+#app {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+/* ---------- 1. Compact Top Bar (~50px) ---------- */
+.topbar {
+  flex: none;
+  height: 52px;
+  background: var(--blue);
+  border-bottom: 2px solid var(--ink);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
+  z-index: 20;
+}
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.brand-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #fff;
+}
+.brand-title .brand-name {
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: -0.2px;
+  color: #fff;
+}
+.brand-title span.badge-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 900;
+  color: var(--ink);
+  background: var(--yellow-soft);
+  border: 1.5px solid var(--ink);
+  box-shadow: 2px 2px 0 var(--ink);
+  padding: 3px 11px;
+  border-radius: var(--r-pill);
+  line-height: 1.2;
+}
+.brand-title span.badge-date svg {
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.lang-switcher {
+  display: inline-flex;
+  border: 2px solid var(--ink);
+  border-radius: var(--r-btn);
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 2px 2px 0 var(--ink);
+  padding: 2px;
+  gap: 2px;
+}
+.lang-btn {
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 900;
+  color: #fff;
+}
+.lang-btn.active {
+  background: var(--surface);
+  color: var(--ink);
+}
+.lock-btn {
+  height: 34px;
+  padding: 0 12px;
+  border: 2px solid var(--ink);
+  border-radius: var(--r-btn);
+  background: var(--coral);
+  color: #fff;
+  font-weight: 900;
+  font-size: 13px;
+  box-shadow: var(--shadow-block-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.lock-btn:active { transform: translate(1.5px, 1.5px); box-shadow: 1px 1px 0 var(--ink); }
+
+/* ---------- 2. Category Tabs Bar (~48px) ---------- */
+.category-bar {
+  flex: none;
+  height: 48px;
+  background: rgba(255, 250, 240, 0.95);
+  border-bottom: 2px solid var(--line-soft);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.category-bar::-webkit-scrollbar { display: none; }
+.cat-tab {
+  flex: none;
+  height: 38px;
+  padding: 0 16px;
+  border: 2px solid var(--line-soft);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 13.5px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  box-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.04);
+  transition: all 0.12s ease;
+}
+.cat-tab:hover { border-color: var(--ink); }
+.cat-tab:active { transform: translate(1px, 1px); }
+.cat-tab.active {
+  background: var(--c, var(--blue));
+  border-color: var(--ink);
+  color: #fff;
+  font-weight: 900;
+  box-shadow: 2px 2px 0 var(--ink);
+  transform: translate(1px, 1px);
+}
+.cat-tab .cnt-badge {
+  background: #f1f5f9;
+  color: var(--ink);
+  border: 1px solid var(--line-soft);
+  font-size: 11px;
+  font-weight: 900;
+  padding: 1px 6px;
+  border-radius: 6px;
+}
+.cat-tab.active .cnt-badge {
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* ---------- 3. Main Workspace Viewport (Flex: 1, Zero Vertical Scroll in Kid Mode) ---------- */
+.app-viewport {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Kid Task Cards Carousel (Horizontal Scroll Snap) */
+.cards-carousel {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding: 14px 18px;
+  gap: 18px;
+}
+.cards-carousel::-webkit-scrollbar { height: 6px; }
+.cards-carousel::-webkit-scrollbar-thumb { background: #d0d7cf; border-radius: 3px; }
+
+/* Single Task Card (Fits 100% of the carousel height) */
+.task-hero-card {
+  flex: 0 0 calc(50% - 10px);
+  min-width: 320px;
+  max-width: 580px;
+  height: 100%;
+  max-height: 100%;
+  background: var(--surface);
+  border: 2.5px solid var(--ink);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow-block);
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 18px;
+  position: relative;
+  overflow: hidden;
+}
+@media (max-width: 768px) {
+  .task-hero-card { flex: 0 0 calc(100% - 4px); min-width: 280px; }
+}
+/* If only 1 card in current category, expand nicely */
+.cards-carousel.single-card .task-hero-card {
+  flex: 0 0 min(680px, calc(100% - 10px));
+  margin: 0 auto;
+}
+
+.task-hero-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  background: var(--c, var(--green));
+}
+.task-hero-card.done {
+  background: #f7fdfa;
+  border-color: var(--green);
+}
+
+/* Card Header */
+.th-header {
+  flex: none;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--line-soft);
+  padding-left: 6px;
+}
+.th-title {
+  font-size: 19px;
+  font-weight: 900;
+  line-height: 1.3;
+}
+.th-badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 26px;
+  padding: 0 8px;
+  border: 1.5px solid var(--ink);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 900;
+  box-shadow: 1.5px 1.5px 0 var(--ink);
+  white-space: nowrap;
+}
+
+/* Card Middle: Step Items List (Paced and legible, fits remaining height) */
+.th-steps-list {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  gap: 8px;
+  padding: 8px 0;
+}
+.step-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border: 1.5px solid var(--line-soft);
+  border-radius: var(--r-btn);
+  background: #ffffff;
+  box-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.03);
+  transition: all 0.12s ease;
+}
+.step-item.cur {
+  background: #ffffff;
+  border: 2px solid var(--c, var(--blue));
+  box-shadow: 3px 3px 0 var(--ink);
+  transform: scale(1.005);
+}
+.step-item.done {
+  background: #f0fdf4;
+  border: 1.5px solid #bbf7d0;
+  box-shadow: none;
+}
+.step-idx {
+  width: 28px;
+  height: 28px;
+  border: 1.5px solid var(--line-soft);
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+.step-item.done .step-idx { background: var(--green); color: #fff; border-color: var(--green-dark); }
+.step-item.cur .step-idx { background: var(--c, var(--blue)); color: #fff; border-color: var(--ink); box-shadow: 1px 1px 0 var(--ink); }
+
+.step-info { flex: 1; min-width: 0; }
+.step-name { font-weight: 900; font-size: 15px; }
+.step-meta { font-size: 12px; color: var(--muted); font-weight: 800; margin-top: 2px; }
+.step-act { flex: none; display: flex; align-items: center; gap: 6px; }
+
+/* Card Footer */
+.th-footer {
+  flex: none;
+  padding-top: 10px;
+  border-top: 2px solid var(--line-soft);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Completed celebration hero inside card */
+.card-completed-banner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 10px;
+  padding: 16px;
+  background: var(--green-soft);
+  border: 2px solid var(--green);
+  border-radius: var(--r-btn);
+}
+.card-completed-banner b { font-size: 20px; font-weight: 900; color: var(--green-dark); }
+.card-completed-banner p { font-size: 14px; color: var(--ink); font-weight: 700; max-width: 320px; }
+
+/* Empty state */
+.card-empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 30px;
+  color: var(--muted);
+}
+
+/* ---------- 4. Scrollable Panels for Goals, Rewards, Parent Hub ---------- */
+.scrollable-view {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 16px 20px 40px;
+  max-width: 1080px;
+  margin: 0 auto;
+  width: 100%;
+}
+.card {
+  background: var(--surface);
+  border: 2px solid var(--ink);
+  border-radius: var(--r-card);
+  padding: 18px;
+  box-shadow: var(--shadow-block);
+  margin-bottom: 16px;
+}
+.card-h {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.card-h h2 { font-size: 18px; font-weight: 900; display: flex; align-items: center; gap: 8px; }
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.stat {
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: var(--r-btn);
+  box-shadow: var(--shadow-block-sm);
+  padding: 10px 12px;
+}
+.stat b { font-size: 20px; font-weight: 900; line-height: 1.2; }
+.stat span { font-size: 12px; color: var(--muted); font-weight: 800; display: block; margin-top: 2px; }
+.bar {
+  height: 14px;
+  border: 2px solid var(--ink);
+  border-radius: var(--r-pill);
+  background: #f1f3ed;
+  overflow: hidden;
+  margin: 8px 0;
+}
+.bar > i {
+  display: block;
+  height: 100%;
+  border-radius: var(--r-pill);
+  background: linear-gradient(90deg, var(--teal) 0%, var(--green) 50%, var(--yellow) 100%);
+  transition: width 0.4s ease;
+}
+
+/* Rows */
+.rows { display: flex; flex-direction: column; gap: 10px; }
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 2px solid var(--ink);
+  border-radius: var(--r-btn);
+  background: var(--surface);
+  box-shadow: var(--shadow-block-sm);
+}
+.row-main { flex: 1; min-width: 0; }
+.row-title { font-weight: 900; font-size: 15.5px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.row-sub { font-size: 12.5px; color: var(--muted); font-weight: 700; margin-top: 2px; }
+.row-acts { display: flex; gap: 8px; flex: none; }
+
+/* Redeem Grid */
+.seg {
+  display: flex;
+  gap: 6px;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: var(--r-btn);
+  padding: 3px;
+  margin-bottom: 14px;
+}
+.seg button {
+  flex: 1;
+  min-height: 38px;
+  border-radius: 6px;
+  font-weight: 900;
+  font-size: 14px;
+  color: var(--muted);
+  border: 1.5px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+.seg button:hover:not(.on):not(.active) {
+  color: var(--ink);
+  background: rgba(0, 0, 0, 0.05);
+}
+.seg button.on,
+.seg button.active {
+  background: var(--green);
+  color: #fff;
+  border: 1.5px solid var(--ink);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+.redeem-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+.ri {
+  border: 2px solid var(--ink);
+  border-radius: var(--r-card);
+  padding: 14px;
+  background: var(--surface);
+  box-shadow: var(--shadow-block-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ri-name { font-size: 16px; font-weight: 900; }
+.ri-cost { font-size: 13px; color: var(--muted); font-weight: 800; }
+.ri-cost b { font-size: 19px; color: var(--ink); }
+.ri-foot { margin-top: auto; padding-top: 6px; }
+
+/* ---------- 5. Bottom Navigation Bar (~56px + safe-area) ---------- */
+.bottom-bar {
+  flex: none;
+  background: var(--surface);
+  border-top: 2px solid var(--ink);
+  box-shadow: 0 -3px 0 rgba(23, 33, 31, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding-bottom: env(safe-area-inset-bottom);
+  height: calc(56px + env(safe-area-inset-bottom));
+  z-index: 30;
+}
+.bottom-tab-btn {
+  flex: 1;
+  height: 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 900;
+  position: relative;
+  transition: all 0.12s ease;
+}
+.bottom-tab-btn:active { transform: scale(0.96); }
+.bottom-tab-btn.active {
+  color: var(--green);
+}
+.bottom-tab-btn.active svg {
+  transform: scale(1.1);
+  fill: var(--green);
+}
+.bottom-tab-btn .badge {
+  position: absolute;
+  top: 4px;
+  right: calc(50% - 22px);
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  background: var(--coral);
+  color: #fff;
+  border: 1px solid var(--ink);
+  font-size: 10.5px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+}
+
+/* ---------- Common UI Buttons & Badges ---------- */
+.btn {
+  min-height: 42px;
+  padding: 0 16px;
+  border: 2px solid var(--ink);
+  border-radius: var(--r-btn);
+  background: var(--green);
+  color: #fff;
+  font-weight: 900;
+  font-size: 14.5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: var(--shadow-block-sm);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  white-space: nowrap;
+}
+.btn:active { transform: translate(1.5px, 1.5px); box-shadow: 1px 1px 0 var(--ink); }
+.btn.ghost { background: var(--green-soft); color: var(--green-dark); }
+.btn.soft { background: var(--paper); color: var(--ink); }
+.btn.yellow { background: var(--yellow); color: var(--ink); }
+.btn.coral { background: var(--coral); color: #fff; }
+.btn.blue { background: var(--blue); color: #fff; }
+.btn.line { background: var(--surface); color: var(--ink); }
+.btn.sm { min-height: 36px; padding: 0 12px; font-size: 13.5px; }
+.btn.block { width: 100%; }
+.btn[disabled] { opacity: 0.45; pointer-events: none; }
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--ink);
+  border-radius: var(--r-btn);
+  background: var(--surface);
+  box-shadow: var(--shadow-block-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+.icon-btn:active { transform: translate(1.5px, 1.5px); box-shadow: 1px 1px 0 var(--ink); }
+.icon-btn.danger { background: var(--coral-soft); color: var(--coral); }
+
+/* ---------- Modals ---------- */
+.modal-layer[hidden] { display: none; }
+.modal-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(23, 33, 31, 0.65);
+  backdrop-filter: blur(6px);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+}
+.modal {
+  background: var(--surface);
+  border: 3px solid var(--ink);
+  border-radius: var(--r-card);
+  width: 100%;
+  max-width: 540px;
+  max-height: 86vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 6px 6px 0 var(--ink);
+  animation: modalPop 0.16s ease-out;
+}
+@keyframes modalPop {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+.modal-h {
+  padding: 14px 18px;
+  border-bottom: 2px solid var(--ink);
+  background: var(--paper);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.modal-h h3 { font-size: 18px; font-weight: 900; }
+.modal-b { padding: 18px; overflow-y: auto; }
+.modal-f {
+  padding: 12px 18px;
+  border-top: 2px solid var(--ink);
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  background: var(--paper);
+}
+.field { margin-bottom: 14px; }
+.field > label { display: block; font-size: 13.5px; font-weight: 900; margin-bottom: 5px; }
+.input, select.input, textarea.input {
+  width: 100%;
+  min-height: 44px;
+  border: 2px solid var(--ink);
+  border-radius: var(--r-btn);
+  padding: 8px 12px;
+  background: var(--paper);
+  outline: none;
+  font-weight: 800;
+}
+.input:focus { background: #fff; border-color: var(--green); }
+textarea.input { min-height: 72px; resize: vertical; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* Parent Subnav */
+.parent-subnav {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+}
+.parent-subnav::-webkit-scrollbar { display: none; }
+.subnav-btn {
+  flex: none;
+  height: 38px;
+  padding: 0 14px;
+  border: 2px solid var(--ink);
+  border-radius: var(--r-btn);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 13.5px;
+  font-weight: 900;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: var(--shadow-block-sm);
+  transition: all 0.12s ease;
+}
+.subnav-btn:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--ink); }
+.subnav-btn.active {
+  background: var(--green);
+  color: #fff;
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+.subnav-btn .badge {
+  background: var(--coral);
+  color: #fff;
+  border-radius: 9px;
+  padding: 1px 6px;
+  font-size: 11px;
+}
+
+/* Step Edit rows in Modal */
+.step-edit-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.step-edit-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  border-radius: var(--r-btn);
+  padding: 6px 10px;
+}
+.step-edit-row .idx {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: var(--green-soft);
+  border: 1px solid var(--ink);
+  font-size: 12px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+.step-edit-row input.t { flex: 1; min-width: 0; }
+.step-edit-row input.m { width: 68px; flex: none; text-align: center; }
+
+/* Weekday Picker pills in Modal */
+.day-pick { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+.day-btn {
+  width: 42px;
+  height: 38px;
+  border: 2px solid var(--ink);
+  border-radius: var(--r-btn);
+  background: var(--paper);
+  font-size: 13px;
+  font-weight: 900;
+  box-shadow: 2px 2px 0 var(--ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.day-btn.on {
+  background: var(--green);
+  color: #fff;
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+
+/* Category Picker in Modal */
+.cat-pick-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+.cat-pick-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 2px solid var(--ink);
+  border-radius: var(--r-btn);
+  background: var(--surface);
+  box-shadow: var(--shadow-block-sm);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.12s ease;
+}
+.cat-pick-card:hover:not(.active) {
+  background: var(--paper);
+}
+.cat-pick-card.active {
+  background: var(--cat-c, var(--green));
+  color: #fff;
+  transform: translate(1.5px, 1.5px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+.cat-pick-card.active .cat-pick-dot {
+  background: #fff !important;
+}
+.cat-pick-card.active .cat-pick-bal {
+  color: rgba(255, 255, 255, 0.95);
+}
+.cat-pick-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cat-pick-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid var(--ink);
+  flex-shrink: 0;
+}
+.cat-pick-title {
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+.cat-pick-bal {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  line-height: 1.2;
+}
+
+.cat-iso-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--yellow-soft);
+  border: 1.5px solid var(--ink);
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 750;
+  line-height: 1.4;
+  color: var(--ink);
+  margin-bottom: 12px;
+}
+.cat-iso-notice svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* Common small icon button */
+.icon-btn {
+  width: 34px;
+  height: 34px;
+  border: 1.5px solid var(--ink);
+  border-radius: 8px;
+  background: var(--surface);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 1.5px 1.5px 0 var(--ink);
+  cursor: pointer;
+}
+.icon-btn:active { transform: translate(1px, 1px); box-shadow: none; }
+.icon-btn.danger { background: var(--coral-soft); color: var(--coral); border-color: var(--coral); }
+.icon-btn.soft { background: var(--paper); }
+
+.step-pills-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.step-pill-preview {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 12px;
+  font-weight: 800;
+}
+.step-pill-preview .s-num {
+  background: var(--ink);
+  color: #fff;
+  border-radius: 3px;
+  padding: 0 4px;
+  font-size: 10px;
+}
+
+/* PIN Pad */
+.pin-pad {
+  display: grid;
+  grid-template-columns: repeat(3, 68px);
+  gap: 10px;
+  justify-content: center;
+  margin: 14px auto;
+}
+.pin-key {
+  height: 52px;
+  border: 2px solid var(--ink);
+  border-radius: var(--r-btn);
+  background: var(--paper);
+  box-shadow: 2.5px 2.5px 0 var(--ink);
+  font-size: 21px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pin-key:active { transform: translate(1.5px, 1.5px); box-shadow: 1px 1px 0 var(--ink); }
+.pin-key.action { font-size: 14px; color: var(--muted); }
+
+/* ---------- Toast Notification ---------- */
+.toast-layer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(68px + env(safe-area-inset-bottom));
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 300;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: all 0.2s ease;
+}
+.toast-layer.on { opacity: 1; transform: translateY(0); }
+.toast {
+  background: var(--ink);
+  color: #fff;
+  border: 2px solid #fff;
+  padding: 10px 20px;
+  border-radius: var(--r-pill);
+  font-size: 14.5px;
+  font-weight: 900;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.toast.good { background: var(--green); }
+.toast.bad { background: var(--coral); }
+
+/* Celebration Overlay & Confetti Canvas */
+.confetti-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 500;
+}
+.celebration-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 450;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: celebFadeIn 0.25s ease-out;
+}
+.celebration-layer[hidden] {
+  display: none !important;
+}
+@keyframes celebFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.celebration-card {
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  border-radius: 28px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.3), 6px 6px 0 var(--ink);
+  padding: 32px 28px 24px;
+  text-align: center;
+  max-width: 440px;
+  width: 90%;
+  animation: celebPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+}
+@keyframes celebPop {
+  0% { transform: scale(0.6); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.celebration-emoji {
+  font-size: 64px;
+  line-height: 1;
+  margin-bottom: 12px;
+  display: inline-block;
+  animation: celebBounce 1s infinite alternate ease-in-out;
+}
+@keyframes celebBounce {
+  from { transform: translateY(0) scale(1); }
+  to { transform: translateY(-8px) scale(1.1); }
+}
+.celebration-title {
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--ink);
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+}
+.celebration-phrase {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--blue);
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
+.celebration-reward-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  color: var(--ink);
+  font-size: 18px;
+  font-weight: 900;
+  border: 2px solid var(--ink);
+  border-radius: var(--r-pill);
+  padding: 6px 18px;
+  box-shadow: 2px 2px 0 var(--ink);
+  margin-bottom: 20px;
+}
+.celebration-btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 900;
+  background: var(--green);
+  color: #fff;
+  border: 2px solid var(--ink);
+  border-radius: var(--r-btn);
+  box-shadow: 2px 2px 0 var(--ink);
+  cursor: pointer;
+}
+.celebration-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: none;
+}
+
+/* Points Badge (Clean white background so every emoji pops with 100% contrast) */
+.tag.pts-badge {
+  background: #ffffff;
+  color: var(--ink);
+  border: 1.5px solid var(--ink);
+  font-weight: 900;
+  box-shadow: 1.5px 1.5px 0 var(--ink);
+}
+
+/* Full-Screen Focus Timer Mode */
+.timer-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: timerFadeIn 0.25s ease-out;
+  padding: 20px;
+}
+.timer-layer[hidden] {
+  display: none !important;
+}
+@keyframes timerFadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+.timer-focus-card {
+  background: var(--surface);
+  border: 3px solid var(--ink);
+  border-radius: 28px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.4), 6px 6px 0 var(--ink);
+  padding: 34px 28px 24px;
+  text-align: center;
+  max-width: 480px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  position: relative;
+  overflow: hidden;
+  animation: timerCardPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.2);
+}
+@keyframes timerCardPop {
+  0% { transform: scale(0.92); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.timer-focus-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: var(--c, var(--blue));
+}
+.timer-focus-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+.timer-focus-cat-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 14px;
+  border-radius: var(--r-pill);
+  font-size: 13px;
+  font-weight: 900;
+  color: #fff;
+  border: 1.5px solid var(--ink);
+  box-shadow: 1.5px 1.5px 0 var(--ink);
+}
+.timer-focus-quest {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--ink);
+  line-height: 1.3;
+}
+.timer-focus-step {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--muted);
+  line-height: 1.4;
+}
+.timer-clock-wrap {
+  margin: 6px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  border: 4px solid var(--c, var(--blue));
+  background: #f8fafc;
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.06), 3px 3px 0 var(--ink);
+  position: relative;
+}
+.timer-clock-val {
+  font-size: 54px;
+  font-weight: 900;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -1px;
+  line-height: 1;
+}
+.timer-clock-target {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--muted);
+  margin-top: 6px;
+}
+.timer-focus-hint {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--c, var(--blue));
+}
+.timer-focus-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  margin-top: 6px;
+}
+.timer-btn-finish {
+  width: 100%;
+  height: 52px;
+  border-radius: var(--r-btn);
+  background: var(--green);
+  color: #fff;
+  border: 2px solid var(--ink);
+  font-size: 17px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 2.5px 2.5px 0 var(--ink);
+  cursor: pointer;
+}
+.timer-btn-finish:active {
+  transform: translate(1.5px, 1.5px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+.timer-btn-cancel {
+  width: 100%;
+  height: 42px;
+  border-radius: var(--r-btn);
+  background: #ffffff;
+  color: var(--muted);
+  border: 1.5px solid #cbd5e1;
+  font-size: 14px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.timer-btn-cancel:hover {
+  color: var(--ink);
+  border-color: var(--ink);
+}
+.timer-btn-cancel:active {
+  transform: scale(0.99);
+}
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+<input type="file" id="impFile" accept="application/json,.json" hidden>
+<div id="modalLayer" class="modal-layer" hidden></div>
+<div id="celebrationLayer" class="celebration-layer" hidden style="display:none"></div>
+<div id="timerLayer" class="timer-layer" hidden style="display:none"></div>
+<div id="toastLayer" class="toast-layer"></div>
+
+<script>
+'use strict';
+
+/* =========================================================
+   1. Storage & Categories (Study, Earn Money, Sport, Life)
+   ========================================================= */
+var LS_KEY = 'wb_hilson_workbench_v1';
+var LS_LANG_KEY = 'wb_hilson_lang';
+
+/* Category Metadata */
+var CAT_DEFS = [
+  { id:'cat_study', name:'Study',      nameZh:'学习', color:'#3b82f6', icon:'book',  points:10, pointName:'IQ',     pointNameZh:'智力', emoji:'🌟' },
+  { id:'cat_money', name:'Earn Money', nameZh:'赚钱', color:'#f59e0b', icon:'coin',  points:15, pointName:'Coin',   pointNameZh:'币',   emoji:'💰' },
+  { id:'cat_sport', name:'Sport',      nameZh:'运动', color:'#f97316', icon:'run',   points:12, pointName:'Energy', pointNameZh:'能量', emoji:'⚡' },
+  { id:'cat_life',  name:'Life',       nameZh:'生活', color:'#f43f5e', icon:'home',  points:8,  pointName:'Care',   pointNameZh:'爱心', emoji:'❤️' }
+];
+
+/* =========================================================
+   2. Bilingual Dictionary
+   ========================================================= */
+var I18N = {
+  en: {
+    hub_back: "PYP Map",
+    app_subtitle: "Daily Quest & Check-in",
+    role_kid: "Quest Mode",
+    role_parent: "Parent Hub",
+    nav_tasks: "Today's Quests",
+    nav_goals: "Big Goals",
+    nav_rewards: "Reward Vault",
+    nav_parent: "Parent Settings",
+    month: "Month",
+    back_to_cur_month: "Current",
+    lock: "Lock",
+    locked_back: "Locked. Switched to Quest Mode.",
+
+    // Task Card
+    pts_tag: "+{n}",
+    completed_badge: "Completed ✓",
+    all_done_title: "Quest Accomplished!",
+    all_done_sub: "Great inquiry and agency! Take a well-deserved break.",
+    time_target: "Target: {min} min",
+    time_spent: "Spent: {time}",
+    btn_start: "Start Timer",
+    btn_done: "Done Step ✓",
+    btn_cancel: "Cancel",
+    btn_undo_step: "Undo",
+    btn_undo_last: "Undo Last Step",
+    no_tasks_in_cat: "No quests scheduled in this category today.",
+    completed_steps_info: "{done}/{total} steps completed",
+
+    // Goals & Stats
+    goals_title: "Monthly Inquiry Goals",
+    no_goals_set: "No goals set for this month yet.",
+    goals_progress: "{done}/{target} accomplished · {steps} total steps",
+    pts_balance_title: "Points & Balances Wallet",
+    pts_unit: "pts",
+    earned_today: "Today +{n}",
+
+    // Rewards
+    celebration_vault: "Celebration Vault",
+    choose_wish_hint: "Choose your reward, then submit for parent approval",
+    daily_tier: "Daily",
+    weekly_tier: "Weekly",
+    monthly_tier: "Monthly",
+    no_rewards_tier: "No rewards listed in this tier yet.",
+    request_reward: "Request Reward",
+    not_enough_stars: "Need more points",
+    period_limit: "Limit reached",
+    unlimited: "Unlimited",
+    left_quota: "{n} left this period",
+    needs_stars: "Cost: {cost} · Balance: {bal}",
+    my_requests: "My Reward Requests",
+    no_requests: "No reward requests yet.",
+    status_approved: "Approved",
+    status_rejected: "Declined",
+    status_pending: "Awaiting Parent",
+
+    // Parent Hub
+    parent_overview: "Today's Overview · {date}",
+    pending_approvals: "Reward Requests Awaiting Approval",
+    approve: "Approve",
+    reject: "Decline",
+    no_pending: "All clear! No pending reward requests.",
+    manage_quests: "Manage Daily Quests",
+    new_quest: "New Quest",
+    manage_goals: "Manage Monthly Goals",
+    new_goal: "New Goal",
+    backup_data: "Backup & Restore",
+    export_json: "Export JSON",
+    import_json: "Import JSON",
+    reset_demo: "Reset to Demo",
+    clear_all: "Clear All Data",
+    change_pin: "Change Parent PIN",
+
+    // Parent Subnav & Controls
+    parent_tab_tasks: "Tasks & Steps",
+    parent_tab_goals: "Big Goals",
+    parent_tab_points: "Point System",
+    parent_tab_rewards: "Reward Vault",
+    parent_tab_settings: "PIN & Backup",
+    add_new_task: "+ Add Quest",
+    add_new_goal: "+ Add Goal",
+    add_new_reward: "+ Add Reward",
+    adjust_points: "+/- Adjust Points",
+    scoring_mode: "Scoring Mode",
+    mode_per_step: "Every step earns points (per-step)",
+    mode_on_complete: "Entire task must be complete (all-at-once)",
+    mode_hint: "Task points are divided evenly across steps. Remainder goes to the last step.",
+    category_default_points: "Category Points & Balances",
+    manual_adjust_title: "Manual Points Adjustment",
+    recent_ledger: "Points Transaction Ledger",
+    task_title: "Quest Title",
+    task_cat: "Category",
+    task_pts: "Reward Amount",
+    task_goal: "Associated Big Goal",
+    no_goal_assoc: "None (Standalone Quest)",
+    task_days: "Repeat on Days",
+    task_steps: "Sub-steps (completed in order)",
+    step_minutes_hint: "min",
+    add_step: "+ Add Step",
+    step_name_placeholder: "Step description (e.g. Read 10 pages)",
+    goal_title: "Goal Title",
+    goal_desc: "Encouragement / Notes",
+    goal_month: "Target Month",
+    goal_target: "Target Completion Count",
+    reward_name: "Reward Name",
+    reward_cost: "Point Cost",
+    reward_cat: "Deduct From Category",
+    cat_iso_hint: "Points earned from different categories cannot be interchanged. Choose which category will be deducted for this reward.",
+    reward_limit: "Period Limit (0 = Unlimited)",
+    reward_tier: "Tier",
+    reward_desc: "Notes / Details",
+    child_name: "Child's Name",
+    change_pin_btn: "Change PIN",
+    status_active: "Active",
+    status_inactive: "Paused",
+    toggle_active: "Pause / Resume",
+    del_task_confirm: "Delete this quest? Points already earned remain in ledger.",
+    del_goal_confirm: "Delete this goal? Associated quests will be preserved.",
+    del_reward_confirm: "Delete this reward from vault?",
+    adjust_cat: "Category",
+    adjust_delta: "Amount (+ to reward, - to deduct)",
+    adjust_reason: "Reason / Note (e.g. Extra chore, Good agency)",
+    saved_toast: "Saved successfully!",
+    deleted_toast: "Deleted.",
+    pin_new: "New 4-Digit PIN",
+    pin_confirm: "Confirm 4-Digit PIN",
+    pin_changed: "PIN updated successfully!",
+    pin_mismatch: "PINs do not match.",
+
+    // Modals & PIN
+    modal_cancel: "Cancel",
+    modal_save: "Save",
+    pin_enter: "Parent Access PIN",
+    pin_hint: "Enter 4-digit PIN (Default: 1234)",
+    pin_wrong: "Incorrect PIN. Please try again.",
+    pin_unlocked: "Parent Hub unlocked!",
+    modal_confirm: "Confirm",
+
+    // Days
+    days_short: ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
+  },
+  zh: {
+    hub_back: "探究主页",
+    app_subtitle: "每日探究与打卡",
+    role_kid: "探究打卡",
+    role_parent: "家长后台",
+    nav_tasks: "今日任务",
+    nav_goals: "探究目标",
+    nav_rewards: "心愿兑换",
+    nav_parent: "家长后台",
+    month: "月份",
+    back_to_cur_month: "本月",
+    lock: "锁定",
+    locked_back: "已锁定，回到打卡端。",
+
+    // Task Card
+    pts_tag: "+{n}",
+    completed_badge: "全部完成 ✓",
+    all_done_title: "恭喜！任务全部完成！",
+    all_done_sub: "自主探究行动力太棒了！快去休息与自由探索吧！",
+    time_target: "建议：{min} 分钟",
+    time_spent: "用时：{time}",
+    btn_start: "开始计时",
+    btn_done: "完成本步 ✓",
+    btn_cancel: "取消",
+    btn_undo_step: "撤销",
+    btn_undo_last: "撤销最后一步",
+    no_tasks_in_cat: "该分类今天没有安排任务，好好休息吧！",
+    completed_steps_info: "已完成 {done}/{total} 步",
+
+    // Goals & Stats
+    goals_title: "月度探究目标",
+    no_goals_set: "本月还没有设置目标。",
+    goals_progress: "已完成 {done}/{target} 次 · 累计 {steps} 步",
+    calendar_title: "月度打卡日历",
+    pts_balance_title: "各分类积分与结余",
+    pts_unit: "分",
+    earned_today: "今日 +{n}",
+
+    // Rewards
+    celebration_vault: "心愿兑换屋",
+    choose_wish_hint: "选好心愿奖励，提交给家长确认",
+    daily_tier: "每日",
+    weekly_tier: "每周",
+    monthly_tier: "每月",
+    no_rewards_tier: "这一档还没有奖励。",
+    request_reward: "申请兑换",
+    not_enough_stars: "积分不足",
+    period_limit: "本期已达上限",
+    unlimited: "不限次",
+    left_quota: "本期还可换 {n} 次",
+    needs_stars: "消耗 {cost} · 结余 {bal}",
+    my_requests: "我的心愿申请",
+    no_requests: "暂无申请记录。",
+    status_approved: "已通过",
+    status_rejected: "未通过",
+    status_pending: "等家长确认",
+
+    // Parent Hub
+    parent_overview: "今日概览 · {date}",
+    pending_approvals: "待确认的心愿兑换",
+    approve: "通过并扣分",
+    reject: "驳回",
+    no_pending: "暂无待确认申请。",
+    manage_quests: "管理每日任务",
+    new_quest: "新增任务",
+    manage_goals: "管理月度目标",
+    new_goal: "新增目标",
+    backup_data: "数据备份与恢复",
+    export_json: "导出 JSON 备份",
+    import_json: "导入恢复",
+    reset_demo: "重置为示例",
+    clear_all: "清空全部数据",
+    change_pin: "修改家长密码",
+
+    // Parent Subnav & Controls
+    parent_tab_tasks: "任务与步骤",
+    parent_tab_goals: "月度目标",
+    parent_tab_points: "积分与规则",
+    parent_tab_rewards: "兑换管理",
+    parent_tab_settings: "密码与数据",
+    add_new_task: "+ 新增任务",
+    add_new_goal: "+ 新增目标",
+    add_new_reward: "+ 新增心愿",
+    adjust_points: "+/- 奖惩积分",
+    scoring_mode: "计分规则",
+    mode_per_step: "每完成一步就得该步积分",
+    mode_on_complete: "整个任务全部完成才给分",
+    mode_hint: "任务积分会自动平摊到各个步骤，余数归最后一步。",
+    category_default_points: "分类默认分值与结余",
+    manual_adjust_title: "手动调整积分",
+    recent_ledger: "积分明细流水",
+    task_title: "任务名称",
+    task_cat: "所属分类",
+    task_pts: "奖励积分",
+    task_goal: "关联月度目标",
+    no_goal_assoc: "不关联目标",
+    task_days: "每周哪几天要做",
+    task_steps: "步骤拆解（孩子按顺序打卡）",
+    step_minutes_hint: "分钟",
+    add_step: "+ 添加步骤",
+    step_name_placeholder: "步骤名称（如 读课文10页）",
+    goal_title: "目标名称",
+    goal_desc: "给孩子的鼓励与说明",
+    goal_month: "目标月份",
+    goal_target: "目标完成次数",
+    reward_name: "心愿名称",
+    reward_cost: "消耗积分",
+    reward_cat: "从哪个分类扣分",
+    cat_iso_hint: "不同分类赚取的积分不能通用。请选择兑换此心愿将扣除哪一个分类的专属积分。",
+    reward_limit: "周期次数上限（0表示不限）",
+    reward_tier: "所属档位",
+    reward_desc: "心愿备注",
+    child_name: "孩子名字",
+    change_pin_btn: "修改密码",
+    status_active: "进行中",
+    status_inactive: "已暂停",
+    toggle_active: "启用/暂停",
+    del_task_confirm: "确定删除此任务吗？已获得的积分将保留在流水中。",
+    del_goal_confirm: "确定删除该目标吗？关联的任务会保留为独立任务。",
+    del_reward_confirm: "确定删除该心愿兑换项吗？",
+    adjust_cat: "选择分类",
+    adjust_delta: "增加/扣减积分（如 +20 或 -15）",
+    adjust_reason: "奖惩原因（如 帮忙做家务）",
+    saved_toast: "保存成功！",
+    deleted_toast: "已删除。",
+    pin_new: "新 4 位密码",
+    pin_confirm: "再次输入确认",
+    pin_changed: "密码修改成功！",
+    pin_mismatch: "两次输入的密码不一致。",
+
+    // Modals & PIN
+    modal_cancel: "取消",
+    modal_save: "保存",
+    pin_enter: "输入家长密码",
+    pin_hint: "请输入 4 位密码（默认 1234）",
+    pin_wrong: "密码错误，请重试。",
+    pin_unlocked: "已进入家长后台！",
+    modal_confirm: "确认",
+
+    // Days
+    days_short: ["日","一","二","三","四","五","六"]
+  }
+};
+
+function t(key, params) {
+  var lang = state.lang || 'en';
+  var dict = I18N[lang] || I18N.en;
+  var str = dict[key] !== undefined ? dict[key] : (I18N.en[key] !== undefined ? I18N.en[key] : key);
+  if (typeof str !== 'string') return str;
+  if (params) {
+    Object.keys(params).forEach(function(k){
+      str = str.replace(new RegExp('\\{' + k + '\\}', 'g'), params[k]);
+    });
+  }
+  return str;
+}
+
+/* =========================================================
+   3. Global State
+   ========================================================= */
+var state = {
+  lang: localStorage.getItem(LS_LANG_KEY) || 'en',
+  activeNav: 'tasks',          // tasks | goals | rewards | parent
+  parentTab: 'tasks',          // tasks | goals | points | rewards | settings
+  activeCategory: 'cat_study', // cat_study | cat_money | cat_sport | cat_life
+  parentUnlocked: false,
+  month: '',
+  modal: null,
+  redeemTier: 'daily'
+};
+var db = null;
+
+/* =========================================================
+   4. Utility Functions
+   ========================================================= */
+function uid(p){ return (p||'id') + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function pad2(n){ return n<10 ? '0'+n : ''+n; }
+function dateKey(d){
+  if (typeof d === 'string') return d;
+  d = d ? new Date(d) : new Date();
+  return d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate());
+}
+function monthKey(d){
+  if (typeof d === 'string') return d.slice(0,7);
+  d = d ? new Date(d) : new Date();
+  return d.getFullYear() + '-' + pad2(d.getMonth()+1);
+}
+function parseKey(k){
+  var p = String(k).split('-').map(Number);
+  return new Date(p[0], p[1]-1, p[2] || 1);
+}
+function addDays(k, n){
+  var d = parseKey(k); d.setDate(d.getDate()+n); return dateKey(d);
+}
+function monthDays(mk){
+  var p = mk.split('-').map(Number);
+  return new Date(p[0], p[1], 0).getDate();
+}
+function fmtDate(k){
+  var d = parseKey(k);
+  if (state.lang === 'zh') return (d.getMonth()+1) + '月' + d.getDate() + '日';
+  var monthsEn = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return monthsEn[d.getMonth()] + ' ' + d.getDate();
+}
+function fmtHeaderDate(k){
+  var d = parseKey(k);
+  var dw = d.getDay();
+  if (state.lang === 'zh') {
+    var dwZh = ['周日','周一','周二','周三','周四','周五','周六'][dw];
+    return dwZh + ' · ' + (d.getMonth()+1) + '月' + d.getDate() + '日';
+  }
+  var dwEn = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dw];
+  var monthsEn = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return dwEn + ' · ' + monthsEn[d.getMonth()] + ' ' + d.getDate();
+}
+function fmtMonth(mk){
+  var p = mk.split('-').map(Number);
+  if (state.lang === 'zh') return p[0] + '年' + p[1] + '月';
+  var monthsEn = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  return monthsEn[p[1]-1] + ' ' + p[0];
+}
+function fmtDur(sec){
+  if (sec === null || sec === undefined || sec === '') return '—';
+  sec = Math.max(0, Math.round(sec));
+  var m = Math.floor(sec/60), s = sec % 60;
+  return pad2(m) + ':' + pad2(s);
+}
+function esc(s){
+  return String(s === null || s === undefined ? '' : s).replace(/[&<>"']/g, function(c){
+    return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c];
+  });
+}
+function clamp(n, a, b){ n = Number(n); if (isNaN(n)) n = a; return Math.max(a, Math.min(b, n)); }
+
+/* =========================================================
+   5. Seed Database (English Default: Study, Earn Money, Sport, Life)
+   ========================================================= */
+function blankDB(){
+  return {
+    version: 3,
+    createdAt: Date.now(),
+    settings: {
+      childName: 'Hilson',
+      parentPin: '1234',
+      stepMode: 'perStep'
+    },
+    categories: CAT_DEFS.slice(),
+    goals: [],
+    tasks: [],
+    checkins: {},
+    ledger: [],
+    redeems: { daily:[], weekly:[], monthly:[] },
+    redemptions: [],
+    timer: null
+  };
+}
+
+function catById(id){
+  for (var i=0; i<db.categories.length; i++){
+    if (db.categories[i].id === id) return db.categories[i];
+  }
+  return CAT_DEFS[0];
+}
+function catColor(id){ return catById(id).color; }
+function catName(id){
+  var c = catById(id);
+  return (state.lang === 'zh' && c.nameZh) ? c.nameZh : c.name;
+}
+function catPointEmoji(id){
+  var c = catById(id);
+  if (c && c.emoji) return c.emoji;
+  if (id === 'cat_study') return '🌟';
+  if (id === 'cat_money') return '💰';
+  if (id === 'cat_sport') return '⚡';
+  if (id === 'cat_life') return '❤️';
+  return '🌟';
+}
+function catPointName(id, count){
+  return catPointEmoji(id);
+}
+function catPointIcon(id){
+  if (id === 'cat_study') return 'bulb';
+  if (id === 'cat_money') return 'coin';
+  if (id === 'cat_sport') return 'bolt';
+  if (id === 'cat_life') return 'heart';
+  return 'star';
+}
+
+function seedDemo(){
+  var d = blankDB();
+  var today = dateKey();
+  var mk = monthKey(today);
+  var gid = uid('goal');
+
+  d.goals.push({
+    id: gid,
+    month: mk,
+    title: 'Monthly Self-Management & Growth',
+    desc: 'Take small steps daily, build strong agency, and celebrate achievements!',
+    targetCount: 30,
+    createdAt: Date.now() - 86400000 * 3
+  });
+
+  var ALL = [0,1,2,3,4,5,6];
+  var WEEKEND = [0,6];
+
+  function mkTask(title, catId, points, steps, days){
+    return {
+      id: uid('task'),
+      month: mk,
+      goalId: gid,
+      title: title,
+      categoryId: catId,
+      points: points,
+      weekdays: days.slice(),
+      active: true,
+      steps: steps.map(function(s){ return { id: uid('st'), title: s[0], minutes: s[1] }; }),
+      createdAt: Date.now()
+    };
+  }
+
+  // 1. Study
+  d.tasks.push(mkTask('Reading & Vocabulary Quest', 'cat_study', 10, [
+    ['Read 10 pages in storybook', 10],
+    ['Mark & write down 3 words', 5],
+    ['Share a 1-sentence reflection', 3]
+  ], ALL));
+
+  d.tasks.push(mkTask('Math Thinking Sprint', 'cat_study', 10, [
+    ['Mental math warm-up', 3],
+    ['Solve 15 challenge problems', 8],
+    ['Review mistakes & explain', 4]
+  ], ALL));
+
+  // 2. Earn Money
+  d.tasks.push(mkTask('Clean Bedroom & Organize Desk', 'cat_money', 15, [
+    ['Make the bed neat', 3],
+    ['Clear & wipe study desk', 5],
+    ['Put away toys & books', 7]
+  ], ALL));
+
+  d.tasks.push(mkTask('Help with Family Dinner', 'cat_money', 15, [
+    ['Set table & utensils', 4],
+    ['Clear dishes after dinner', 5],
+    ['Wipe clean dining table', 4]
+  ], WEEKEND));
+
+  // 3. Sport
+  d.tasks.push(mkTask('Daily Jump Rope Challenge', 'cat_sport', 12, [
+    ['Dynamic joint warm-up', 2],
+    ['Jump rope 500 times', 8],
+    ['Cool down & stretch legs', 3]
+  ], ALL));
+
+  d.tasks.push(mkTask('Outdoor Movement & Run', 'cat_sport', 12, [
+    ['15-min jog or scooter ride', 15],
+    ['Ball play / park exercise', 10]
+  ], ALL));
+
+  // 4. Life
+  d.tasks.push(mkTask('Morning Routine & Water Plants', 'cat_life', 8, [
+    ['Wash face & drink warm water', 3],
+    ['Water the balcony plants', 4],
+    ['Pack school backpack', 4]
+  ], ALL));
+
+  d.tasks.push(mkTask('Evening Self-Care & Lights Out', 'cat_life', 8, [
+    ['Prepare tomorrow clothes', 4],
+    ['20-min quiet bedtime reading', 20],
+    ['Brush teeth & lights out', 5]
+  ], ALL));
+
+  // Preset demo progress
+  var t1 = d.tasks[0];
+  d.checkins[today] = {};
+  d.checkins[today][t1.id] = { steps:{}, used:{}, note:'' };
+  d.checkins[today][t1.id].steps[t1.steps[0].id] = true;
+  d.checkins[today][t1.id].used[t1.steps[0].id] = 120;
+
+  // Rewards in English
+  d.redeems.daily = [
+    { id: uid('rd'), tier:'daily', name:'20 min Free Choice Play / Cartoon', cost:30, catId:'cat_study', limit:1, desc:'Redeem after daily tasks' },
+    { id: uid('rd'), tier:'daily', name:'Pick Today\'s Favorite Snack', cost:15, catId:'cat_life', limit:1, desc:'' },
+    { id: uid('rd'), tier:'daily', name:'20 min Cozy Bedtime Story', cost:25, catId:'cat_study', limit:1, desc:'' }
+  ];
+  d.redeems.weekly = [
+    { id: uid('rd'), tier:'weekly', name:'Weekend Park Bike Adventure', cost:120, catId:'cat_sport', limit:1, desc:'Plan time with parents' },
+    { id: uid('rd'), tier:'weekly', name:'Pick a New Book or Comic', cost:150, catId:'cat_study', limit:1, desc:'' },
+    { id: uid('rd'), tier:'weekly', name:'Earn $5 Pocket Money / Allowance', cost:150, catId:'cat_money', limit:1, desc:'Savings or spending' }
+  ];
+  d.redeems.monthly = [
+    { id: uid('rd'), tier:'monthly', name:'Family Theme Park or Nature Trip', cost:500, catId:'cat_sport', limit:1, desc:'Discuss destination together' },
+    { id: uid('rd'), tier:'monthly', name:'Wishlist Lego / Craft Kit', cost:750, catId:'cat_money', limit:1, desc:'Within agreed budget' }
+  ];
+
+  d.tasks.forEach(function(t){
+    Object.keys(d.checkins).forEach(function(dt){ syncPointsIn(d, dt, t); });
+  });
+
+  return d;
+}
+
+function loadDB(){
+  try{
+    var raw = localStorage.getItem(LS_KEY);
+    if (!raw) return null;
+    var obj = JSON.parse(raw);
+    if (!obj || !obj.categories || !obj.tasks) return null;
+    obj.checkins = obj.checkins || {};
+    obj.ledger = obj.ledger || [];
+    obj.redemptions = obj.redemptions || [];
+    obj.redeems = obj.redeems || { daily:[], weekly:[], monthly:[] };
+    obj.categories.forEach(function(c){
+      var def = null;
+      for (var j=0; j<CAT_DEFS.length; j++) if (CAT_DEFS[j].id === c.id) def = CAT_DEFS[j];
+      if (def) {
+        c.pointName = def.pointName;
+        c.pointNameZh = def.pointNameZh;
+        c.emoji = def.emoji;
+        c.color = def.color;
+      }
+    });
+    return obj;
+  }catch(e){ return null; }
+}
+
+function saveDB(){
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(db)); }
+  catch(e){}
+}
+
+/* =========================================================
+   6. Computed Queries & Points
+   ========================================================= */
+function tasksOfDate(date){
+  var mk = monthKey(date);
+  var dow = parseKey(date).getDay();
+  return db.tasks.filter(function(t){
+    if (t.active === false) return false;
+    if (t.month !== mk) return false;
+    var wd = (t.weekdays && t.weekdays.length) ? t.weekdays : [0,1,2,3,4,5,6];
+    return wd.indexOf(dow) >= 0;
+  });
+}
+function tasksOfCategory(catId, date){
+  return tasksOfDate(date).filter(function(t){ return t.categoryId === catId; });
+}
+function doneStepCount(date, task, customDb){
+  var database = customDb || db;
+  if (!database || !database.checkins) return 0;
+  var r = (database.checkins[date] || {})[task.id];
+  if (!r || !r.steps) return 0;
+  var n = 0;
+  task.steps.forEach(function(s){ if (r.steps[s.id]) n++; });
+  return n;
+}
+function isTaskComplete(date, task, customDb){
+  if (!task.steps || !task.steps.length) return false;
+  return doneStepCount(date, task, customDb) >= task.steps.length;
+}
+function firstOpenIdx(date, task){
+  var r = (db.checkins[date] || {})[task.id];
+  for (var i=0; i<task.steps.length; i++){
+    if (!r || !r.steps || !r.steps[task.steps[i].id]) return i;
+  }
+  return -1;
+}
+function stepPoints(task){
+  var arr = [];
+  var n = task.steps ? task.steps.length : 0;
+  if (!n) return arr;
+  var pts = Math.max(0, Math.round(Number(task.points) || 0));
+  var base = Math.floor(pts / n), rest = pts - base*n;
+  for (var i=0; i<n; i++){ arr.push(i === n-1 ? base + rest : base); }
+  return arr;
+}
+function taskTimer(date, taskId){
+  if (!db.timer) return null;
+  return (db.timer.date === date && db.timer.taskId === taskId) ? db.timer : null;
+}
+function catBalance(catId){
+  return db.ledger.reduce(function(s, e){ return e.catId === catId ? s + e.delta : s; }, 0);
+}
+function catEarnOn(catId, date){
+  return db.ledger.reduce(function(s, e){
+    return (e.catId === catId && e.date === date && e.delta > 0) ? s + e.delta : s;
+  }, 0);
+}
+
+function syncPointsIn(d, date, task){
+  var rec = (d.checkins[date] || {})[task.id] || null;
+  var pts = stepPoints(task);
+  var mode = (d.settings && d.settings.stepMode) || 'perStep';
+  var wanted = {};
+  var isDone = isTaskComplete(date, task, d);
+
+  if (mode === 'onComplete'){
+    if (isDone){
+      wanted[date + '|' + task.id + '|all'] = { delta: Number(task.points) || 0, reason: task.title + ' (' + t('completed_badge') + ')' };
+    }
+  } else {
+    task.steps.forEach(function(s, i){
+      if (rec && rec.steps && rec.steps[s.id]) {
+        wanted[date + '|' + task.id + '|' + s.id] = { delta: pts[i], reason: task.title + ' · ' + s.title };
+      }
+    });
+  }
+
+  d.ledger = d.ledger.filter(function(e){
+    if (e.kind !== 'earn') return true;
+    if (e.taskId !== task.id || e.date !== date) return true;
+    return !!wanted[e.id];
+  });
+  Object.keys(wanted).forEach(function(id){
+    var w = wanted[id];
+    var ex = null;
+    for (var i=0; i<d.ledger.length; i++) if (d.ledger[i].id === id){ ex = d.ledger[i]; break; }
+    if (ex){ ex.delta = w.delta; ex.reason = w.reason; ex.catId = task.categoryId; }
+    else d.ledger.push({ id:id, ts:Date.now(), date:date, catId:task.categoryId, delta:w.delta, reason:w.reason, taskId:task.id, kind:'earn' });
+  });
+}
+function syncPoints(date, task){ syncPointsIn(db, date, task); }
+
+/* =========================================================
+   7. Sound Effects & Celebration Engine (Mario Retro Audio & Confetti)
+   ========================================================= */
+var audioCtx = null;
+function getAudioCtx(){
+  if (!audioCtx){
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (AC) audioCtx = new AC();
+  }
+  if (audioCtx && audioCtx.state === 'suspended'){
+    audioCtx.resume();
+  }
+  return audioCtx;
+}
+
+// Mario-like Coin / Unlock Chime on Step Done
+function playSoundStepDone(){
+  try {
+    var ctx = getAudioCtx();
+    if (!ctx) return;
+    var now = ctx.currentTime;
+
+    var o1 = ctx.createOscillator();
+    var g1 = ctx.createGain();
+    o1.type = 'sine';
+    o1.frequency.setValueAtTime(987.77, now); // B5
+    g1.gain.setValueAtTime(0.24, now);
+    g1.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+    o1.connect(g1); g1.connect(ctx.destination);
+    o1.start(now); o1.stop(now + 0.1);
+
+    var o2 = ctx.createOscillator();
+    var g2 = ctx.createGain();
+    o2.type = 'sine';
+    o2.frequency.setValueAtTime(1318.51, now + 0.08); // E6
+    g2.gain.setValueAtTime(0.3, now + 0.08);
+    g2.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
+    o2.connect(g2); g2.connect(ctx.destination);
+    o2.start(now + 0.08); o2.stop(now + 0.42);
+  } catch(e){}
+}
+
+// Mario-like Level Clear / Power-up Fanfare on Quest Accomplished
+function playSoundQuestAccomplished(){
+  try {
+    var ctx = getAudioCtx();
+    if (!ctx) return;
+    var now = ctx.currentTime;
+    var notes = [
+      { f: 392.00, t: 0, d: 0.10 },     // G4
+      { f: 523.25, t: 0.10, d: 0.10 },  // C5
+      { f: 659.25, t: 0.20, d: 0.10 },  // E5
+      { f: 783.99, t: 0.30, d: 0.12 },  // G5
+      { f: 1046.50, t: 0.42, d: 0.15 }, // C6
+      { f: 1318.51, t: 0.57, d: 0.45 }  // E6 triumphant hold
+    ];
+    notes.forEach(function(n){
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(n.f, now + n.t);
+      gain.gain.setValueAtTime(0.25, now + n.t);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + n.t + n.d);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(now + n.t); osc.stop(now + n.t + n.d);
+    });
+  } catch(e){}
+}
+
+var ENCOURAGING_PHRASES = {
+  en: [
+    "Awesome Job! You're a superstar! 🌟",
+    "Mission Accomplished! Keep shining! 🚀",
+    "Fantastic inquiry and great agency! 🎉",
+    "You crushed it! Super proud of you! 💪",
+    "Level up! Brilliant effort today! ✨",
+    "Quest Master! Well-deserved break! 🏆",
+    "Unstoppable energy! High five! ⚡",
+    "Bullseye! You reached your goal! 🎯"
+  ],
+  zh: [
+    "太棒了！今天也是闪闪发光的小英雄！🌟",
+    "任务圆满达成！自律的孩子最帅气！🚀",
+    "哇！太厉害啦！为你的专注点赞！🎉",
+    "超级棒！继续保持这份热情与好奇！💪",
+    "探究力拉满！今天又成长了一大步！✨",
+    "达成成就！享受属于你的高光时刻吧！🏆",
+    "活力充沛！行动力满分！⚡",
+    "完美收官！休息一下继续出发！🎯"
+  ]
+};
+
+function getRandomEncouragement(){
+  var list = (state.lang === 'zh') ? ENCOURAGING_PHRASES.zh : ENCOURAGING_PHRASES.en;
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+var confettiAnimId = null;
+function runConfetti(canvas, durationMs){
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  if (confettiAnimId) {
+    cancelAnimationFrame(confettiAnimId);
+    confettiAnimId = null;
+  }
+
+  var w = canvas.width = window.innerWidth;
+  var h = canvas.height = window.innerHeight;
+
+  var colors = ['#f2b84b', '#4a7cdd', '#2f6f62', '#e36b5a', '#a855f7', '#ec4899', '#06b6d4', '#10b981'];
+  var count = 75;
+  var particles = [];
+
+  for (var i = 0; i < count; i++){
+    var angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.5;
+    var speed = 5 + Math.random() * 9;
+    particles.push({
+      x: w / 2 + (Math.random() - 0.5) * 80,
+      y: h / 2 - 40 + (Math.random() - 0.5) * 60,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 6 - Math.random() * 4,
+      size: 7 + Math.random() * 8,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      rotation: Math.random() * 360,
+      rotSpeed: (Math.random() - 0.5) * 12,
+      gravity: 0.28 + Math.random() * 0.12,
+      alpha: 1
+    });
+  }
+
+  var startTs = Date.now();
+  durationMs = durationMs || 2800;
+
+  function render(){
+    var elapsed = Date.now() - startTs;
+    if (elapsed > durationMs){
+      ctx.clearRect(0, 0, w, h);
+      confettiAnimId = null;
+      return;
+    }
+
+    ctx.clearRect(0, 0, w, h);
+    var fade = elapsed > durationMs - 700 ? (durationMs - elapsed) / 700 : 1;
+
+    for (var i = 0; i < particles.length; i++){
+      var p = particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += p.gravity;
+      p.vx *= 0.98;
+      p.rotation += p.rotSpeed;
+
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, p.alpha * fade);
+      ctx.translate(p.x, p.y);
+      ctx.rotate((p.rotation * Math.PI) / 180);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+      ctx.restore();
+    }
+
+    confettiAnimId = requestAnimationFrame(render);
+  }
+
+  confettiAnimId = requestAnimationFrame(render);
+}
+
+var celebTimeout = null;
+function closeCelebration(){
+  var lay = document.getElementById('celebrationLayer');
+  if (confettiAnimId) { cancelAnimationFrame(confettiAnimId); confettiAnimId = null; }
+  if (celebTimeout) { clearTimeout(celebTimeout); celebTimeout = null; }
+  if (lay){
+    lay.hidden = true;
+    lay.style.display = 'none';
+    lay.innerHTML = '';
+  }
+}
+
+function celebrateQuestAccomplished(task){
+  var lay = document.getElementById('celebrationLayer');
+  if (!lay) return;
+
+  var phrase = getRandomEncouragement();
+  var emoji = catPointEmoji(task.categoryId);
+  var pts = Number(task.points) || 10;
+  var title = (state.lang === 'zh') ? '任务达成！' : 'Quest Accomplished!';
+  var btnText = (state.lang === 'zh') ? '太棒啦！' : 'Awesome!';
+
+  lay.innerHTML = '<canvas class="confetti-canvas"></canvas>' +
+    '<div class="celebration-card" onclick="event.stopPropagation()">' +
+    '<div class="celebration-emoji">' + emoji + '</div>' +
+    '<h2 class="celebration-title">' + title + '</h2>' +
+    '<div class="celebration-phrase">' + phrase + '</div>' +
+    '<div class="celebration-reward-pill">+' + pts + ' ' + emoji + '</div>' +
+    '<button class="celebration-btn" data-act="closeCelebration">' + btnText + '</button>' +
+  '</div>';
+
+  lay.hidden = false;
+  lay.style.display = 'flex';
+  var cvs = lay.querySelector('canvas');
+  if (cvs) runConfetti(cvs, 3000);
+
+  if (celebTimeout) clearTimeout(celebTimeout);
+  celebTimeout = setTimeout(function(){
+    closeCelebration();
+  }, 4000);
+}
+
+/* =========================================================
+   8. Action Handlers
+   ========================================================= */
+function startTimer(date, taskId, stepId){
+  db.timer = { date:date, taskId:taskId, stepId:stepId, startTs:Date.now() };
+  saveDB(); refreshAll();
+  toast(state.lang==='zh'?'专注计时开始！':'Timer started. Focus and do your best!', 'good');
+}
+function cancelTimer(){
+  db.timer = null; saveDB(); refreshAll(); toast(state.lang==='zh'?'已取消计时':'Timer cancelled.');
+}
+function finishStep(date, taskId, stepId){
+  var task = null;
+  for (var i=0; i<db.tasks.length; i++) if (db.tasks[i].id === taskId) task = db.tasks[i];
+  if (!task) return;
+  if (!db.checkins[date]) db.checkins[date] = {};
+  if (!db.checkins[date][taskId]) db.checkins[date][taskId] = { steps:{}, used:{}, note:'' };
+  var r = db.checkins[date][taskId];
+  r.steps[stepId] = true;
+  var tm = (db.timer && db.timer.taskId === taskId && db.timer.stepId === stepId) ? db.timer : taskTimer(date, taskId);
+  if (tm && tm.stepId === stepId){
+    r.used[stepId] = Math.max(1, Math.round((Date.now() - tm.startTs)/1000));
+    db.timer = null;
+  }
+  syncPoints(date, task);
+  saveDB(); refreshAll();
+  var complete = isTaskComplete(date, task);
+  if (complete){
+    playSoundQuestAccomplished();
+    celebrateQuestAccomplished(task);
+  } else {
+    playSoundStepDone();
+    toast(state.lang==='zh'?'完成一步，继续加油！':'Step complete! Keep going!', 'good');
+  }
+}
+function undoStep(date, taskId, stepId){
+  var task = null;
+  for (var i=0; i<db.tasks.length; i++) if (db.tasks[i].id === taskId) task = db.tasks[i];
+  if (!task) return;
+  var r = (db.checkins[date] || {})[taskId];
+  if (!r || !r.steps[stepId]) return;
+  delete r.steps[stepId];
+  if (r.used) delete r.used[stepId];
+  syncPoints(date, task);
+  saveDB(); refreshAll();
+  toast(state.lang==='zh'?'已撤销这一步':'Step undone.');
+}
+
+function applyRedeem(id){
+  var today = dateKey();
+  var item = null;
+  ['daily','weekly','monthly'].forEach(function(k){
+    (db.redeems[k]||[]).forEach(function(r){ if (r.id === id) item = r; });
+  });
+  if (!item) return;
+  var bal = catBalance(item.catId);
+  if (bal < item.cost){
+    toast(t('not_enough_stars'), 'bad');
+    return;
+  }
+  db.redemptions.push({
+    id: uid('rp'), ts: Date.now(), tier: item.tier, itemId: item.id, name: item.name,
+    cost: item.cost, catId: item.catId, status: 'pending', appliedDate: today
+  });
+  saveDB(); refreshAll();
+  toast(state.lang==='zh'?'心愿申请已提交！':'Reward requested!', 'good');
+}
+function approveRedeem(id){
+  var r = null;
+  for (var i=0; i<db.redemptions.length; i++) if (db.redemptions[i].id === id) r = db.redemptions[i];
+  if (!r || r.status !== 'pending') return;
+  r.status = 'approved'; r.decidedAt = Date.now();
+  db.ledger.push({
+    id: 'spend|' + r.id, ts: Date.now(), date: dateKey(), catId: r.catId,
+    delta: -r.cost, reason: 'Reward: ' + r.name, kind: 'spend', redemptionId: r.id
+  });
+  saveDB(); refreshAll();
+  toast(state.lang==='zh'?'已批准并扣分':'Approved & points deducted', 'good');
+}
+function rejectRedeem(id){
+  var r = null;
+  for (var i=0; i<db.redemptions.length; i++) if (db.redemptions[i].id === id) r = db.redemptions[i];
+  if (!r || r.status !== 'pending') return;
+  r.status = 'rejected'; r.decidedAt = Date.now();
+  saveDB(); refreshAll();
+  toast(state.lang==='zh'?'已驳回':'Declined');
+}
+
+function switchLang(lang){
+  if (lang === state.lang) return;
+  state.lang = lang;
+  localStorage.setItem(LS_LANG_KEY, lang);
+  document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+  refreshAll();
+}
+
+/* =========================================================
+   8. Icons & Visual Templates
+   ========================================================= */
+function icon(name, size, color){
+  var s = size || 20, c = color || 'currentColor';
+  var paths = {
+    hub: 'M12 2.5 3 9.5v11.5a1 1 0 0 0 1 1h5v-6h6v6h5a1 1 0 0 0 1-1V9.5L12 2.5Z',
+    book: 'M4 4.5A1.5 1.5 0 0 1 5.5 3H18a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5.5A1.5 1.5 0 0 1 4 17.5v-13Zm2 .5v12h11V5H6Zm2 2h7v1.6H8V7Zm0 3.4h7v1.6H8V10.4Z',
+    coin: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 5v1.2c1.6.3 2.6 1.2 2.6 2.5h-1.9c0-.6-.6-1-1.7-1-1.1 0-1.6.4-1.6.9 0 .5.4.8 1.9 1.1 2 .4 3.3 1.1 3.3 2.8 0 1.4-1.1 2.4-2.6 2.7V18h-2v-1c-1.8-.3-2.9-1.3-2.9-2.7H11c.1.7.8 1.2 1.9 1.2 1.2 0 1.7-.4 1.7-.9s-.5-.8-2-1.1C10.7 13 9.5 12.3 9.5 10.6c0-1.3 1-2.3 2.5-2.6V7h2Z',
+    run: 'M13.5 3a2 2 0 1 1 0 4 2 2 0 0 1 0-4ZM9.8 8.6l2.4-1.2 2.6 2 2.6 1.1-.8 1.9-3-1.3-1.5-.8-.7 1.6 2 2.2 1.4 4.4-1.9.6-1.3-3.9-2.6-2.8-.6 3.4 1.6 2.2-1.6 1.1-2-2.8.9-5.4-2.2 1.1-1.9 2.1-1.4-1.3 2.6-2.8 2.4-.8Z',
+    home: 'M12 3 3 10h2.2v10h5.3v-6h3v6h5.3V10H21L12 3Z',
+    target: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 3a7 7 0 1 1 0 14 7 7 0 0 1 0-14Zm0 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm0 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z',
+    gift: 'M3 8h18v3H3V8Zm1 4h16v8H4v-8Zm5-9h6l1 2h3v2H3V5h3l1-2Zm2 2h2V5h-2v1Z',
+    shield: 'M12 2 4 5v6.5c0 5 3.4 9 8 10.5 4.6-1.5 8-5.5 8-10.5V5l-8-3Z',
+    settings: 'M19.4 13a7.8 7.8 0 0 0 .1-1 7.8 7.8 0 0 0-.1-1l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1l-.4-2.7h-4l-.4 2.7a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5 2.1 1.6a7.8 7.8 0 0 0-.1 1c0 .3 0 .7.1 1l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1l.4 2.7h4l.4-2.7a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5-2.1-1.6ZM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Z',
+    check: 'M9.6 16.2 5.4 12l-1.4 1.4 5.6 5.6 9-9-1.4-1.4-7.6 7.6Z',
+    close: 'M6.4 4.6 12 10.2l5.6-5.6 1.8 1.8-5.6 5.6 5.6 5.6-1.8 1.8L12 13.8l-5.6 5.6-1.8-1.8 5.6-5.6L4.6 6.4l1.8-1.8Z',
+    star: 'M12 2.5 14.9 8.4l6.5.9-4.7 4.6 1.1 6.5-5.8-3-5.8 3 1.1-6.5-4.7-4.6 6.5-.9L12 2.5Z',
+    clock: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 2a8 8 0 1 1 0 16 8 8 0 0 1 0-16Zm-1 3v6l5 3 1-1.6-4-2.4V7h-2Z',
+    play: 'M8 5v14l11-7z',
+    plus: 'M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6V5Z',
+    edit: 'M4 17.2 14.9 6.3l2.8 2.8L6.8 20H4v-2.8Zm14.7-11.5 1.5 1.5a1.4 1.4 0 0 1 0 2L18.9 11 16 8.1l1.3-1.3a1.4 1.4 0 0 1 2 0Z',
+    trash: 'M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 12H7L6 9Zm3 2v8h1.6v-8H9Zm4.4 0v8H15v-8h-1.6Z',
+    arrowUp: 'M12 4l-6 6h4v10h4V10h4L12 4Z',
+    arrowDown: 'M12 20l6-6h-4V4h-4v10H6l6 6Z',
+    calendar: 'M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Zm0 16H5V10h14v10ZM5 8V6h14v2H5Zm2 4h3v3H7v-3Zm5 0h3v3h-3v-3Z',
+    bulb: 'M12 2a7 7 0 0 0-4.8 12.1c.5.5.8 1.1.8 1.9v1c0 .6.4 1 1 1h6c.6 0 1-.4 1-1v-1c0-.8.3-1.4.8-1.9A7 7 0 0 0 12 2Zm-2 18h4v1c0 .6-.4 1-1 1h-2c-.6 0-1-.4-1-1v-1Z',
+    bolt: 'M11 21h-1l1-7H7.5c-.58 0-.57-.32-.38-.66.19-.34.05-.08.07-.12C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.9 17.5 11 21 11 21Z',
+    heart: 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35Z'
+  };
+  var d = paths[name] || paths.star;
+  return '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" fill="' + c + '" aria-hidden="true"><path d="' + d + '"/></svg>';
+}
+
+function renderTopbar(){
+  var today = dateKey();
+  var isParent = (state.activeNav === 'parent' && state.parentUnlocked);
+  var lockBtn = isParent ? '<button class="lock-btn" data-act="lockParent">' + icon('shield', 14, '#fff') + t('lock') + '</button>' : '';
+
+  return '' +
+  '<header class="topbar">' +
+    '<div class="topbar-left">' +
+      '<div class="brand-title">' +
+        '<span class="brand-name">' + esc(db.settings.childName) + (state.lang === 'zh' ? ' 的打卡台' : '\'s Quest Pad') + '</span>' +
+        '<span class="badge-date">' + icon('calendar', 14, 'var(--ink)') + '<span>' + fmtHeaderDate(today) + '</span></span>' +
+      '</div>' +
+    '</div>' +
+    '<div class="topbar-right">' +
+      lockBtn +
+      '<div class="lang-switcher">' +
+        '<button class="lang-btn ' + (state.lang === 'en' ? 'active' : '') + '" data-act="lang" data-lang="en">EN</button>' +
+        '<button class="lang-btn ' + (state.lang === 'zh' ? 'active' : '') + '" data-act="lang" data-lang="zh">中文</button>' +
+      '</div>' +
+    '</div>' +
+  '</header>';
+}
+
+function renderCategoryBar(){
+  if (state.activeNav !== 'tasks') return '';
+  var today = dateKey();
+  var h = '<nav class="category-bar">';
+  db.categories.forEach(function(c){
+    var isCur = (state.activeCategory === c.id);
+    var tasks = tasksOfCategory(c.id, today);
+    var done = tasks.filter(function(t){ return isTaskComplete(today, t); }).length;
+    h += '<button class="cat-tab ' + (isCur ? 'active' : '') + '" data-act="catTab" data-cat="' + c.id + '" style="--c:' + esc(c.color) + '">' +
+      icon(c.icon || 'book', 16, isCur ? '#fff' : 'var(--ink)') +
+      '<span>' + esc(catName(c.id)) + '</span>' +
+      '<span class="cnt-badge">' + done + '/' + tasks.length + '</span>' +
+      '</button>';
+  });
+  h += '</nav>';
+  return h;
+}
+
+/* ---------- 1 Task = 1 Full Screen-Height Card (Horizontal Scroll) ---------- */
+function renderTaskCard(task, date){
+  var color = catColor(task.categoryId);
+  var total = task.steps.length;
+  var done = doneStepCount(date, task);
+  var complete = isTaskComplete(date, task);
+  var curIdx = firstOpenIdx(date, task);
+  var tm = taskTimer(date, task.id);
+  var rec = (db.checkins[date] || {})[task.id] || { steps:{}, used:{} };
+  var pts = stepPoints(task);
+
+  var h = '<article class="task-hero-card ' + (complete ? 'done' : '') + '" style="--c:' + esc(color) + '">';
+
+  // Top header
+  h += '<div class="th-header">' +
+    '<div><div class="th-title">' + esc(task.title) + '</div>' +
+    '<div class="hint" style="margin-top:2px">' + t('completed_steps_info', { done: done, total: total }) + '</div></div>' +
+    '<div class="th-badges">' +
+      '<span class="tag" style="background:' + esc(color) + ';color:#fff">' + esc(catName(task.categoryId)) + '</span>' +
+      '<span class="tag pts-badge">+' + (Number(task.points)||0) + ' ' + catPointName(task.categoryId, Number(task.points)||0) + '</span>' +
+      (complete ? '<span class="tag" style="background:var(--green-soft);color:var(--green-dark);border-color:var(--green)">' + t('completed_badge') + '</span>' : '') +
+    '</div></div>';
+
+  // Middle: If all done, show clean celebratory praise; otherwise show the step items!
+  if (complete){
+    var cEmoji = catPointEmoji(task.categoryId);
+    var pPhrase = (state.lang === 'zh')
+      ? '太棒啦！任务圆满达成，自主探究闪闪发光！✨'
+      : 'Awesome work! Great inquiry and agency! Keep shining! 🌟';
+    h += '<div class="card-completed-banner">' +
+      '<div style="font-size:42px;line-height:1;margin-bottom:2px">' + cEmoji + '</div>' +
+      '<b>' + t('all_done_title') + '</b>' +
+      '<p style="margin:4px 0 10px;font-size:14px;color:var(--green-dark);font-weight:800">' + pPhrase + '</p>' +
+      '<button class="btn sm line" data-act="undoStep" data-date="' + date + '" data-id="' + task.id + '" data-step="' + task.steps[total-1].id + '">' +
+      t('btn_undo_last') + '</button>' +
+      '</div>';
+  } else {
+    h += '<div class="th-steps-list">';
+    task.steps.forEach(function(s, i){
+      var ok = rec.steps && rec.steps[s.id];
+      var isCur = (!ok && i === curIdx);
+      var isTiming = (tm && tm.stepId === s.id);
+
+      h += '<div class="step-item ' + (ok ? 'done' : (isCur ? 'cur' : '')) + '">';
+      h += '<div class="step-idx">' + (ok ? icon('check', 14, '#fff') : (i+1)) + '</div>';
+      h += '<div class="step-info">';
+      h += '<div class="step-name">' + esc(s.title) + '</div>';
+      h += '<div class="step-meta">' + t('time_target', { min: s.minutes||5 }) + ' · +' + (pts[i]||0) + ' ' + catPointName(task.categoryId, pts[i]||0) + '</div>';
+      h += '</div>';
+
+      h += '<div class="step-act">';
+      if (ok){
+        h += '<button class="btn sm line" data-act="undoStep" data-date="' + date + '" data-id="' + task.id + '" data-step="' + s.id + '">' + t('btn_undo_step') + '</button>';
+      } else if (isTiming){
+        h += '<span class="clock" data-timer-live data-start="' + tm.startTs + '" style="font-size:14px;padding:3px 7px">00:00</span>' +
+             '<button class="btn sm green" data-act="finishStep" data-date="' + date + '" data-id="' + task.id + '" data-step="' + s.id + '">' + t('btn_done') + '</button>' +
+             '<button class="btn sm line" data-act="cancelTimer">' + t('btn_cancel') + '</button>';
+      } else if (isCur){
+        h += '<button class="btn sm soft" data-act="startTimer" data-date="' + date + '" data-id="' + task.id + '" data-step="' + s.id + '">' + icon('play', 12, 'var(--ink)') + t('btn_start') + '</button>' +
+             '<button class="btn sm green" data-act="finishStep" data-date="' + date + '" data-id="' + task.id + '" data-step="' + s.id + '">' + t('btn_done') + '</button>';
+      } else {
+        h += '<span class="hint" style="opacity:0.5">' + (i+1) + '</span>';
+      }
+      h += '</div></div>';
+    });
+    h += '</div>';
+  }
+
+  // Footer: current category points status
+  var ear = catEarnOn(task.categoryId, date);
+  var ptUnit = catPointName(task.categoryId, ear);
+  var balUnit = catPointName(task.categoryId, catBalance(task.categoryId));
+  h += '<div class="th-footer">' +
+    '<span class="hint">' + (state.lang==='zh'?'今日已获得: ':'Earned today: ') + '+' + ear + ' ' + ptUnit + '</span>' +
+    '<span class="hint" style="color:var(--ink);font-weight:900">' + catName(task.categoryId) + ': ' + catBalance(task.categoryId) + ' ' + balUnit + '</span>' +
+    '</div>';
+
+  h += '</article>';
+  return h;
+}
+
+function renderTasksViewport(){
+  var today = dateKey();
+  var tasks = tasksOfCategory(state.activeCategory, today);
+
+  if (!tasks.length){
+    return '<div class="app-viewport"><div class="card-empty-state">' +
+      '<div style="margin-bottom:10px">' + icon(catById(state.activeCategory).icon || 'book', 44, 'var(--muted)') + '</div>' +
+      '<b style="font-size:18px">' + t('no_tasks_in_cat') + '</b>' +
+      '</div></div>';
+  }
+
+  var isSingle = (tasks.length === 1);
+  var h = '<div class="app-viewport">' +
+    '<div class="cards-carousel ' + (isSingle ? 'single-card' : '') + '">';
+  tasks.forEach(function(t){ h += renderTaskCard(t, today); });
+  h += '</div></div>';
+  return h;
+}
+
+/* ---------- Other Views: Goals, Rewards, Parent ---------- */
+function renderGoalsViewport(){
+  var mk = monthKey();
+  var goals = (db.goals||[]).filter(function(g){ return g.month === mk; });
+  var h = '<div class="app-viewport"><div class="scrollable-view">';
+  h += '<section class="card"><div class="card-h"><h2>' + icon('target', 22, 'var(--green)') + t('goals_title') + '</h2>' +
+    '<span class="pill green">' + fmtMonth(mk) + '</span></div>';
+
+  if (!goals.length){
+    h += '<div class="empty">' + t('no_goals_set') + '</div>';
+  } else {
+    goals.forEach(function(g){
+      var tasks = db.tasks.filter(function(t){ return t.goalId === g.id; });
+      var done = 0, steps = 0;
+      Object.keys(db.checkins).forEach(function(d){
+        if (monthKey(d) !== g.month) return;
+        tasks.forEach(function(t){
+          var r = (db.checkins[d] || {})[t.id];
+          if (!r || !r.steps) return;
+          var sd = 0;
+          t.steps.forEach(function(s){ if (r.steps[s.id]) sd++; });
+          steps += sd;
+          if (t.steps.length && sd >= t.steps.length) done++;
+        });
+      });
+      var target = Math.max(0, Number(g.targetCount) || 0);
+      var pct = target ? Math.min(100, Math.round(done/target*100)) : 0;
+
+      h += '<div style="margin-bottom:12px">' +
+        '<div class="row-title" style="font-size:16.5px">' + esc(g.title) + '</div>' +
+        (g.desc ? '<div class="row-sub">' + esc(g.desc) + '</div>' : '') +
+        '<div class="bar"><i style="width:' + pct + '%"></i></div>' +
+        '<div class="row-sub">' + t('goals_progress', { done: done, target: target, steps: steps }) + '</div>' +
+        '</div>';
+    });
+  }
+  h += '</section>';
+
+  // Points Balance Grid
+  h += '<section class="card"><div class="card-h"><h2>' + icon('coin', 22, 'var(--yellow)') + t('pts_balance_title') + '</h2></div>';
+  h += '<div class="stat-grid">';
+  db.categories.forEach(function(c){
+    var bal = catBalance(c.id);
+    var pName = catPointName(c.id, bal);
+    h += '<div class="stat" style="border-left:5px solid ' + c.color + '">' +
+      '<b>' + bal + ' <span style="font-size:18px;vertical-align:middle;margin-left:2px">' + pName + '</span></b>' +
+      '<span>' + esc(catName(c.id)) + '</span>' +
+    '</div>';
+  });
+  h += '</div></section>';
+
+  h += '</div></div>';
+  return h;
+}
+
+function renderRewardsViewport(){
+  var tier = state.redeemTier || 'daily';
+  var items = db.redeems[tier] || [];
+  var today = dateKey();
+  var h = '<div class="app-viewport"><div class="scrollable-view">';
+
+  h += '<section class="card"><div class="card-h"><h2>' + icon('gift', 22, 'var(--coral)') + t('celebration_vault') + '</h2>' +
+    '<span class="hint">' + t('choose_wish_hint') + '</span></div>';
+
+  h += '<div class="seg">';
+  ['daily','weekly','monthly'].forEach(function(k){
+    var label = (k === 'daily') ? t('daily_tier') : ((k === 'weekly') ? t('weekly_tier') : t('monthly_tier'));
+    h += '<button class="' + (tier === k ? 'active on' : '') + '" data-act="redeemTier" data-tier="' + k + '">' + label + '</button>';
+  });
+  h += '</div>';
+
+  if (!items.length){
+    h += '<div class="empty">' + t('no_rewards_tier') + '</div>';
+  } else {
+    h += '<div class="redeem-grid">';
+    items.forEach(function(it){
+      var col = catColor(it.catId);
+      var bal = catBalance(it.catId);
+      var cObj = catById(it.catId);
+      var cName = catName(it.catId);
+      var can = bal >= it.cost;
+      var pName = catPointName(it.catId, it.cost);
+      var pBalName = catPointName(it.catId, bal);
+      var diff = it.cost - bal;
+      h += '<div class="ri" style="border-top: 5px solid ' + col + '">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;gap:6px">' +
+          '<span class="tag" style="background:' + col + '22;color:' + col + ';font-weight:900;display:inline-flex;align-items:center;gap:4px">' +
+            icon(cObj.icon || 'book', 14, col) + ' ' + esc(cName) +
+          '</span>' +
+          '<span class="tag pts-badge">' + it.cost + ' ' + pName + '</span>' +
+        '</div>' +
+        '<div class="ri-name">' + esc(it.name) + '</div>' +
+        '<div class="ri-cost" style="font-size:12.5px;font-weight:800;color:' + (can ? 'var(--green-dark)' : 'var(--coral)') + '">' +
+          (state.lang === 'zh'
+            ? ('消耗 ' + it.cost + ' ' + pName + ' · 结余 ' + bal + ' ' + pBalName + (!can ? (' (还差 ' + diff + ' ' + pName + ')') : ''))
+            : ('Requires ' + it.cost + ' ' + pName + ' · You have ' + bal + ' ' + pBalName + (!can ? (' (Need ' + diff + ' more)') : ''))) +
+        '</div>' +
+        (it.desc ? '<div class="hint">' + esc(it.desc) + '</div>' : '') +
+        '<div class="ri-foot">' +
+        (can ? '<button class="btn block yellow sm" data-act="applyRedeem" data-id="' + it.id + '">' + t('request_reward') + '</button>'
+             : '<button class="btn block line sm" disabled>' + t('not_enough_stars') + '</button>') +
+        '</div></div>';
+    });
+    h += '</div>';
+  }
+  h += '</section>';
+
+  // My redemption records
+  var mine = (db.redemptions || []).slice().reverse().slice(0, 10);
+  h += '<section class="card"><div class="card-h"><h2>' + t('my_requests') + '</h2></div>';
+  if (!mine.length){
+    h += '<div class="empty">' + t('no_requests') + '</div>';
+  } else {
+    h += '<div class="rows">';
+    mine.forEach(function(r){
+      var stPill = r.status === 'approved' ? '<span class="tag" style="background:var(--mint)">' + t('status_approved') + '</span>'
+                 : (r.status === 'rejected' ? '<span class="tag" style="background:var(--coral-soft)">' + t('status_rejected') + '</span>'
+                 : '<span class="tag" style="background:var(--yellow-soft)">' + t('status_pending') + '</span>');
+      h += '<div class="row"><div class="row-main">' +
+        '<div class="row-title">' + esc(r.name) + '</div>' +
+        '<div class="row-sub">' + fmtDate(r.appliedDate) + ' · ' + esc(catName(r.catId)) + ' ' + r.cost + ' ' + catPointName(r.catId, r.cost) + '</div>' +
+        '</div><div class="row-acts">' + stPill + '</div></div>';
+    });
+    h += '</div>';
+  }
+  h += '</section>';
+
+  h += '</div></div>';
+  return h;
+}
+
+/* =========================================================
+   Parent Settings Helper Functions & Tabs
+   ========================================================= */
+function goalsOfMonth(mk){
+  return db.goals.filter(function(g){ return !mk || g.month === mk; });
+}
+
+function tasksOfMonth(mk){
+  return db.tasks.filter(function(t){ return !mk || t.month === mk; });
+}
+
+function goalOf(id){
+  for (var i=0; i<db.goals.length; i++) if (db.goals[i].id === id) return db.goals[i];
+  return null;
+}
+
+function goalProgress(g){
+  var ts = db.tasks.filter(function(t){ return t.goalId === g.id; });
+  var count = 0;
+  Object.keys(db.checkins).forEach(function(dt){
+    if (monthKey(dt) === g.month){
+      var anyDone = ts.some(function(t){ return isTaskComplete(dt, t); });
+      if (anyDone) count++;
+    }
+  });
+  var target = Math.max(1, Number(g.targetCount) || 30);
+  return { done: count, target: target, pct: Math.min(100, Math.round(count / target * 100)) };
+}
+
+function repeatLabel(wd){
+  wd = (wd || []).slice().sort(function(a,b){ return a-b; });
+  if (!wd.length || wd.length === 7) return state.lang==='zh' ? '每天' : 'Every day';
+  if (wd.join(',') === '0,6') return state.lang==='zh' ? '周末' : 'Weekends';
+  if (wd.join(',') === '1,2,3,4,5') return state.lang==='zh' ? '工作日' : 'Weekdays';
+  var names = I18N[state.lang].days_short;
+  return (state.lang==='zh' ? '每周 ' : 'Weekly: ') + wd.map(function(d){ return names[d]; }).join(', ');
+}
+
+function catOptions(sel){
+  return db.categories.map(function(c){
+    var name = (state.lang === 'zh' && c.nameZh) ? c.nameZh : c.name;
+    var pt = catPointName(c.id);
+    return '<option value="' + esc(c.id) + '"' + (c.id === sel ? ' selected' : '') + '>' + esc(name) + ' ' + esc(pt) + '</option>';
+  }).join('');
+}
+
+function goalOptions(sel, mk){
+  var opts = '<option value=""' + (!sel ? ' selected' : '') + '>' + t('no_goal_assoc') + '</option>';
+  db.goals.forEach(function(g){
+    if (mk && g.month !== mk) return;
+    opts += '<option value="' + esc(g.id) + '"' + (g.id === sel ? ' selected' : '') + '>' + esc(fmtMonth(g.month) + ' · ' + g.title) + '</option>';
+  });
+  return opts;
+}
+
+function stepEditRows(d){
+  var steps = d.steps || [];
+  return steps.map(function(s, i){
+    return '<div class="step-edit-row">' +
+      '<div class="idx">' + (i+1) + '</div>' +
+      '<input class="input t" data-field="stepTitle" data-idx="' + i + '" value="' + esc(s.title) + '" placeholder="' + t('step_name_placeholder') + '">' +
+      '<input class="input m" type="number" min="1" max="180" data-field="stepMin" data-idx="' + i + '" value="' + (Number(s.minutes) || 5) + '">' +
+      '<span class="hint" style="flex:none">' + t('step_minutes_hint') + '</span>' +
+      '<button class="icon-btn soft" data-act="stepUp" data-idx="' + i + '" title="Move Up">' + icon('arrowUp', 16) + '</button>' +
+      '<button class="icon-btn soft" data-act="stepDown" data-idx="' + i + '" title="Move Down">' + icon('arrowDown', 16) + '</button>' +
+      '<button class="icon-btn danger" data-act="stepDel" data-idx="' + i + '" title="Delete">' + icon('trash', 16, 'var(--coral)') + '</button>' +
+    '</div>';
+  }).join('');
+}
+
+function draftTask(id){
+  if (id){
+    for (var i=0; i<db.tasks.length; i++) {
+      if (db.tasks[i].id === id) {
+        var tItem = db.tasks[i];
+        return {
+          id: tItem.id,
+          month: tItem.month || monthKey(),
+          goalId: tItem.goalId || '',
+          title: tItem.title,
+          categoryId: tItem.categoryId,
+          points: Number(tItem.points) || 10,
+          weekdays: (tItem.weekdays || [0,1,2,3,4,5,6]).slice(),
+          steps: tItem.steps.map(function(s){ return { id: s.id, title: s.title, minutes: s.minutes }; })
+        };
+      }
+    }
+  }
+  return {
+    id: '',
+    month: state.month || monthKey(),
+    goalId: '',
+    title: '',
+    categoryId: (db.categories[0] || {}).id || 'cat_study',
+    points: 10,
+    weekdays: [0,1,2,3,4,5,6],
+    steps: [
+      { id: uid('st'), title: state.lang === 'zh' ? '阅读并摘录' : 'Reading and inquiry', minutes: 10 },
+      { id: uid('st'), title: state.lang === 'zh' ? '反思总结' : 'Review & reflection', minutes: 5 }
+    ]
+  };
+}
+
+function draftGoal(id){
+  if (id){
+    for (var i=0; i<db.goals.length; i++) {
+      if (db.goals[i].id === id) {
+        var g = db.goals[i];
+        return { id: g.id, month: g.month, title: g.title, desc: g.desc || '', targetCount: g.targetCount || 30 };
+      }
+    }
+  }
+  return { id: '', month: state.month || monthKey(), title: '', desc: '', targetCount: 30 };
+}
+
+function draftRedeem(tier, id){
+  if (id){
+    var list = db.redeems[tier] || [];
+    for (var i=0; i<list.length; i++) {
+      if (list[i].id === id) {
+        var r = list[i];
+        return { id: r.id, tier: tier, name: r.name, cost: r.cost, catId: r.catId, limit: r.limit || 0, desc: r.desc || '' };
+      }
+    }
+  }
+  return { id: '', tier: tier || 'daily', name: '', cost: 25, catId: (db.categories[0] || {}).id || 'cat_study', limit: 1, desc: '' };
+}
+
+function saveTask(draft){
+  if (!draft.title.trim()){ toast(state.lang==='zh'?'请输入任务名称':'Please enter quest title', 'bad'); return false; }
+  var tItem = null;
+  if (draft.id){
+    for (var i=0; i<db.tasks.length; i++) if (db.tasks[i].id === draft.id) tItem = db.tasks[i];
+  }
+  if (!tItem){
+    tItem = { id: uid('task'), createdAt: Date.now(), active: true };
+    db.tasks.push(tItem);
+  }
+  tItem.title = draft.title.trim();
+  tItem.categoryId = draft.categoryId || 'cat_study';
+  tItem.month = draft.month || monthKey();
+  tItem.goalId = draft.goalId || '';
+  tItem.points = Math.max(0, Number(draft.points) || 0);
+  tItem.weekdays = (draft.weekdays && draft.weekdays.length) ? draft.weekdays.slice() : [0,1,2,3,4,5,6];
+  tItem.steps = (draft.steps || []).map(function(s){
+    return {
+      id: s.id || uid('st'),
+      title: s.title ? s.title.trim() : (state.lang==='zh'?'步骤':'Step'),
+      minutes: Math.max(1, Number(s.minutes) || 5)
+    };
+  });
+  if (!tItem.steps.length) tItem.steps = [{ id: uid('st'), title: state.lang==='zh'?'完成探究':'Complete quest', minutes: 10 }];
+
+  syncPoints(dateKey(), tItem);
+  saveDB();
+  refreshAll();
+  toast(t('saved_toast'), 'good');
+  return true;
+}
+
+function delTask(id){
+  db.tasks = db.tasks.filter(function(t){ return t.id !== id; });
+  db.ledger = db.ledger.filter(function(e){ return e.taskId !== id; });
+  saveDB();
+  refreshAll();
+  toast(t('deleted_toast'));
+}
+
+function toggleTaskActive(id){
+  for (var i=0; i<db.tasks.length; i++){
+    if (db.tasks[i].id === id){
+      db.tasks[i].active = !db.tasks[i].active;
+      break;
+    }
+  }
+  saveDB();
+  refreshAll();
+}
+
+function saveGoal(draft){
+  if (!draft.title.trim()){ toast(state.lang==='zh'?'请输入目标名称':'Please enter goal title', 'bad'); return false; }
+  var g = null;
+  if (draft.id){
+    for (var i=0; i<db.goals.length; i++) if (db.goals[i].id === draft.id) g = db.goals[i];
+  }
+  if (!g){
+    g = { id: uid('goal'), createdAt: Date.now() };
+    db.goals.push(g);
+  }
+  g.title = draft.title.trim();
+  g.desc = draft.desc || '';
+  g.month = draft.month || monthKey();
+  g.targetCount = Math.max(1, Number(draft.targetCount) || 30);
+  saveDB();
+  refreshAll();
+  toast(t('saved_toast'), 'good');
+  return true;
+}
+
+function delGoal(id){
+  db.goals = db.goals.filter(function(g){ return g.id !== id; });
+  db.tasks.forEach(function(t){ if (t.goalId === id) t.goalId = ''; });
+  saveDB();
+  refreshAll();
+  toast(t('deleted_toast'));
+}
+
+function saveReward(draft){
+  if (!draft.name.trim()){ toast(state.lang==='zh'?'请输入心愿名称':'Please enter reward name', 'bad'); return false; }
+  var tier = draft.tier || 'daily';
+  if (draft.id){
+    ['daily','weekly','monthly'].forEach(function(k){
+      if (db.redeems[k]){
+        db.redeems[k] = db.redeems[k].filter(function(x){ return x.id !== draft.id; });
+      }
+    });
+  }
+  var list = db.redeems[tier] || (db.redeems[tier] = []);
+  var r = {
+    id: draft.id || uid('rd'),
+    tier: tier,
+    name: draft.name.trim(),
+    cost: Math.max(1, Number(draft.cost) || 10),
+    catId: draft.catId || 'cat_study',
+    limit: Math.max(0, Number(draft.limit) || 0),
+    desc: draft.desc || ''
+  };
+  list.push(r);
+  saveDB();
+  refreshAll();
+  toast(t('saved_toast'), 'good');
+  return true;
+}
+
+function delReward(tier, id){
+  if (db.redeems[tier]){
+    db.redeems[tier] = db.redeems[tier].filter(function(r){ return r.id !== id; });
+  }
+  saveDB();
+  refreshAll();
+  toast(t('deleted_toast'));
+}
+
+function adjustStars(catId, delta, reason){
+  delta = Number(delta) || 0;
+  if (!delta){ toast(state.lang==='zh'?'请输入非零分值':'Enter non-zero stars', 'bad'); return false; }
+  db.ledger.push({
+    id: uid('adj'),
+    ts: Date.now(),
+    date: dateKey(),
+    catId: catId || 'cat_study',
+    delta: delta,
+    reason: reason || (delta > 0 ? (state.lang==='zh'?'家长奖励':'Parent Reward') : (state.lang==='zh'?'家长调整':'Parent Deduction')),
+    kind: 'adjust'
+  });
+  saveDB();
+  refreshAll();
+  toast(state.lang==='zh'?'积分已调整！':'Stars adjusted!', 'good');
+  return true;
+}
+
+function setScoringMode(mode){
+  db.settings.stepMode = mode === 'onComplete' ? 'onComplete' : 'perStep';
+  db.tasks.forEach(function(t){
+    Object.keys(db.checkins).forEach(function(d){ syncPoints(d, t); });
+  });
+  saveDB();
+  refreshAll();
+  toast(state.lang==='zh'?'计分方式已切换！':'Scoring mode updated!', 'good');
+}
+
+function syncStepDraftFromDOM(){
+  if (!state.modal || state.modal.type !== 'task' || !state.modal.draft) return;
+  var d = state.modal.draft;
+  var titleEl = document.getElementById('taskTitleInput');
+  var catEl = document.getElementById('taskCatInput');
+  var ptsEl = document.getElementById('taskPointsInput');
+  var monthEl = document.getElementById('taskMonthInput');
+  var goalEl = document.getElementById('taskGoalInput');
+
+  if (titleEl) d.title = titleEl.value;
+  if (catEl) d.categoryId = catEl.value;
+  if (ptsEl) d.points = Number(ptsEl.value) || 0;
+  if (monthEl) d.month = monthEl.value;
+  if (goalEl) d.goalId = goalEl.value;
+
+  var stepRows = document.querySelectorAll('.step-edit-row');
+  if (stepRows && stepRows.length && d.steps){
+    for (var i=0; i<stepRows.length && i<d.steps.length; i++){
+      var row = stepRows[i];
+      var tIn = row.querySelector('input.t');
+      var mIn = row.querySelector('input.m');
+      if (tIn) d.steps[i].title = tIn.value;
+      if (mIn) d.steps[i].minutes = Number(mIn.value) || 5;
+    }
+  }
+}
+
+/* =========================================================
+   Parent Settings Views
+   ========================================================= */
+function renderParentTasksTab(){
+  var tasks = db.tasks || [];
+  var h = '<section class="card">' +
+    '<div class="card-h">' +
+      '<h2>' + icon('book', 22, 'var(--green)') + ' ' + t('parent_tab_tasks') + ' (' + tasks.length + ')</h2>' +
+      '<button class="btn sm green" data-act="taskNew">' + icon('plus', 16, '#fff') + ' ' + t('add_new_task') + '</button>' +
+    '</div>' +
+    '<div class="hint" style="margin-bottom:14px">' +
+      (state.lang==='zh'?'每个任务均支持多步骤拆解与用时建议。孩子按步骤打卡，赚取对应分类的专属积分（智力、币、能量、爱心）。':'Each quest supports sub-steps with target durations. Children check in step-by-step and earn category currency (IQ, Coins, Energy, Care).') +
+    '</div>';
+
+  if (!tasks.length){
+    h += '<div class="empty">' + (state.lang==='zh'?'暂无任务，请点击右上角新增任务':'No quests yet. Click Add Quest to create one.') + '</div>';
+  } else {
+    h += '<div class="rows">';
+    tasks.forEach(function(tItem){
+      var col = catColor(tItem.categoryId);
+      var cName = catName(tItem.categoryId);
+      var totalMin = (tItem.steps || []).reduce(function(acc, s){ return acc + (Number(s.minutes) || 0); }, 0);
+      var g = tItem.goalId ? goalOf(tItem.goalId) : null;
+      var pts = stepPoints(tItem);
+      var isActive = tItem.active !== false;
+
+      h += '<div class="row" style="align-items:flex-start">' +
+        '<div class="row-main">' +
+          '<div class="row-title">' +
+            esc(tItem.title) + ' ' +
+            '<span class="tag" style="background:' + col + '22;color:' + col + ';font-weight:900">' + esc(cName) + '</span> ' +
+            '<span class="tag pts-badge">+' + (Number(tItem.points)||0) + ' ' + catPointName(tItem.categoryId, Number(tItem.points)||0) + '</span> ' +
+            (isActive ? '<span class="pill green">' + t('status_active') + '</span>' : '<span class="pill coral">' + t('status_inactive') + '</span>') +
+          '</div>' +
+          '<div class="row-sub">' +
+            esc(repeatLabel(tItem.weekdays)) + ' · ' + (tItem.steps || []).length + ' ' + (state.lang==='zh'?'步骤':'steps') +
+            ' · ' + totalMin + ' ' + t('step_minutes_hint') +
+            (g ? ' · ' + (state.lang==='zh'?'归属目标：':'Goal: ') + esc(g.title) : '') +
+          '</div>' +
+          '<div class="step-pills-wrap">';
+      (tItem.steps || []).forEach(function(s, idx){
+        h += '<span class="step-pill-preview"><span class="s-num">' + (idx+1) + '</span> ' + esc(s.title) + ' <span class="hint">(' + (s.minutes||5) + '\' / +' + (pts[idx]||0) + ' ' + catPointName(tItem.categoryId, pts[idx]||0) + ')</span></span>';
+      });
+      h += '</div>' +
+        '</div>' +
+        '<div class="row-acts" style="align-self:center">' +
+          '<button class="btn sm soft" data-act="taskEdit" data-id="' + tItem.id + '">' + icon('edit', 16) + ' ' + (state.lang==='zh'?'编辑':'Edit') + '</button>' +
+          '<button class="btn sm ' + (isActive ? 'line' : 'soft') + '" data-act="toggleActive" data-id="' + tItem.id + '">' + (isActive ? (state.lang==='zh'?'暂停':'Pause') : (state.lang==='zh'?'启用':'Resume')) + '</button>' +
+          '<button class="icon-btn danger" data-act="taskDel" data-id="' + tItem.id + '" title="Delete">' + icon('trash', 16, 'var(--coral)') + '</button>' +
+        '</div>' +
+      '</div>';
+    });
+    h += '</div>';
+  }
+
+  h += '</section>';
+  return h;
+}
+
+function renderParentGoalsTab(){
+  var goals = db.goals || [];
+  var h = '<section class="card">' +
+    '<div class="card-h">' +
+      '<h2>' + icon('target', 22, 'var(--green)') + ' ' + t('parent_tab_goals') + ' (' + goals.length + ')</h2>' +
+      '<button class="btn sm green" data-act="goalNew">' + icon('plus', 16, '#fff') + ' ' + t('add_new_goal') + '</button>' +
+    '</div>' +
+    '<div class="hint" style="margin-bottom:14px">' +
+      (state.lang==='zh'?'设定月度自主探究与习惯养成目标，关联任务完成时自动累计打卡进度。':'Set monthly inquiry and growth goals. Linked quest completions automatically increment goal progress.') +
+    '</div>';
+
+  if (!goals.length){
+    h += '<div class="empty">' + (state.lang==='zh'?'暂无月度目标，请点击右上角新增目标':'No monthly goals yet. Click Add Goal to create one.') + '</div>';
+  } else {
+    h += '<div class="rows">';
+    goals.forEach(function(g){
+      var prog = goalProgress(g);
+      var linkedTasks = db.tasks.filter(function(t){ return t.goalId === g.id; });
+      h += '<div class="row">' +
+        '<div class="row-main">' +
+          '<div class="row-title">' +
+            esc(g.title) + ' ' +
+            '<span class="pill blue">' + esc(fmtMonth(g.month)) + '</span>' +
+          '</div>' +
+          '<div class="row-sub">' +
+            (g.desc ? esc(g.desc) + ' · ' : '') +
+            (state.lang==='zh'?'目标完成 ':'Target: ') + g.targetCount + ' ' + (state.lang==='zh'?'次 · 已达成 ':'times · Completed: ') + '<b>' + prog.done + '</b>' + ' (' + prog.pct + '%) · ' +
+            linkedTasks.length + ' ' + (state.lang==='zh'?'个关联任务':'linked quests') +
+          '</div>' +
+          '<div class="bar" style="margin-top:8px"><i style="width:' + prog.pct + '%"></i></div>' +
+        '</div>' +
+        '<div class="row-acts">' +
+          '<button class="btn sm soft" data-act="goalEdit" data-id="' + g.id + '">' + icon('edit', 16) + ' ' + (state.lang==='zh'?'编辑':'Edit') + '</button>' +
+          '<button class="icon-btn danger" data-act="goalDel" data-id="' + g.id + '" title="Delete">' + icon('trash', 16, 'var(--coral)') + '</button>' +
+        '</div>' +
+      '</div>';
+    });
+    h += '</div>';
+  }
+
+  h += '</section>';
+  return h;
+}
+
+function renderParentPointsTab(){
+  var mode = db.settings.stepMode || 'perStep';
+  var h = '';
+
+  // 1. Scoring Mode
+  h += '<section class="card">' +
+    '<div class="card-h">' +
+      '<h2>' + icon('star', 22, 'var(--yellow)') + ' ' + t('scoring_mode') + '</h2>' +
+    '</div>' +
+    '<div class="seg" style="margin-bottom:10px">' +
+      '<button class="' + (mode === 'perStep' ? 'active on' : '') + '" data-act="stepMode" data-mode="perStep">' + t('mode_per_step') + '</button>' +
+      '<button class="' + (mode === 'onComplete' ? 'active on' : '') + '" data-act="stepMode" data-mode="onComplete">' + t('mode_on_complete') + '</button>' +
+    '</div>' +
+    '<div class="hint">' + t('mode_hint') + '</div>' +
+  '</section>';
+
+  // 2. Category Default Points & Balances
+  h += '<section class="card">' +
+    '<div class="card-h">' +
+      '<h2>' + t('category_default_points') + '</h2>' +
+      '<button class="btn sm yellow" data-act="adjustPoints">' + t('adjust_points') + '</button>' +
+    '</div>' +
+    '<div class="rows">';
+  db.categories.forEach(function(c){
+    var bal = catBalance(c.id);
+    var cTasks = db.tasks.filter(function(t){ return t.categoryId === c.id; }).length;
+    var name = (state.lang === 'zh' && c.nameZh) ? c.nameZh : c.name;
+    h += '<div class="row">' +
+      '<div class="row-main">' +
+        '<div class="row-title">' +
+          '<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:' + c.color + ';border:1px solid var(--ink);margin-right:4px"></span>' +
+          esc(name) +
+        '</div>' +
+        '<div class="row-sub">' +
+          (state.lang==='zh'?'默认每任务 ':'Default: ') + (c.points || 10) + ' ' + catPointName(c.id, c.points||10) + ' · ' +
+          cTasks + ' ' + (state.lang==='zh'?'个任务':'quests') +
+        '</div>' +
+      '</div>' +
+      '<div class="row-acts">' +
+        '<span class="tag" style="background:' + c.color + '22;color:var(--ink);font-weight:900">' + bal + ' ' + catPointName(c.id, bal) + '</span>' +
+        '<button class="btn sm soft" data-act="catEdit" data-id="' + c.id + '">' + icon('edit', 16) + ' ' + (state.lang==='zh'?'修改默认分':'Edit') + '</button>' +
+      '</div>' +
+    '</div>';
+  });
+  h += '</div></section>';
+
+  // 3. Recent Transactions Ledger
+  var recentLedger = (db.ledger || []).slice(-25).reverse();
+  h += '<section class="card">' +
+    '<div class="card-h"><h2>' + t('recent_ledger') + '</h2><span class="hint">' + (state.lang==='zh'?'最近 25 条':'Last 25 entries') + '</span></div>';
+  if (!recentLedger.length){
+    h += '<div class="empty">' + (state.lang==='zh'?'暂无积分记录':'No transactions yet.') + '</div>';
+  } else {
+    h += '<div class="rows">';
+    recentLedger.forEach(function(entry){
+      var isPlus = entry.delta >= 0;
+      var cCol = catColor(entry.catId);
+      var cN = catName(entry.catId);
+      var pName = catPointName(entry.catId, Math.abs(entry.delta));
+      h += '<div class="row">' +
+        '<div class="row-main">' +
+          '<div class="row-title">' +
+            esc(entry.reason || 'Point adjustment') + ' ' +
+            '<span class="tag" style="background:' + cCol + '22;color:' + cCol + ';font-weight:900">' + esc(cN) + '</span>' +
+          '</div>' +
+          '<div class="row-sub">' + fmtDate(entry.date) + ' · ' + (entry.kind || 'points') + '</div>' +
+        '</div>' +
+        '<div class="row-acts">' +
+          '<span class="tag" style="background:' + (isPlus ? 'var(--green-soft);color:var(--green)' : 'var(--coral-soft);color:var(--coral)') + ';font-weight:900">' +
+            (isPlus ? '+' : '') + entry.delta + ' ' + pName +
+          '</span>' +
+        '</div>' +
+      '</div>';
+    });
+    h += '</div>';
+  }
+  h += '</section>';
+
+  return h;
+}
+
+function renderParentRewardsTab(){
+  var pend = (db.redemptions || []).filter(function(r){ return r.status === 'pending'; });
+  var curTier = state.redeemTier || 'daily';
+  var h = '';
+
+  // 1. Pending Approvals
+  h += '<section class="card">' +
+    '<div class="card-h">' +
+      '<h2>' + icon('shield', 22, 'var(--green)') + ' ' + t('pending_approvals') + '</h2>' +
+      '<span class="pill ' + (pend.length ? 'coral' : 'green') + '">' + pend.length + '</span>' +
+    '</div>';
+  if (!pend.length){
+    h += '<div class="empty" style="color:var(--green);font-weight:800">' + t('no_pending') + '</div>';
+  } else {
+    h += '<div class="rows">';
+    pend.forEach(function(r){
+      var bal = catBalance(r.catId);
+      var canAfford = bal >= r.cost;
+      var pName = catPointName(r.catId, r.cost);
+      var pBalName = catPointName(r.catId, bal);
+      h += '<div class="row">' +
+        '<div class="row-main">' +
+          '<div class="row-title">' + esc(r.name) + '</div>' +
+          '<div class="row-sub">' +
+            fmtDate(r.appliedDate) + ' · ' + (state.lang==='zh'?'消耗：':'Cost: ') + catName(r.catId) + ' ' + r.cost + ' ' + pName +
+            ' · ' + (state.lang==='zh'?'当前结余：':'Balance: ') + '<b>' + bal + ' ' + pBalName + '</b> ' +
+            (canAfford ? '' : '<span style="color:var(--coral);font-weight:900">(' + t('not_enough_stars') + ')</span>') +
+          '</div>' +
+        '</div>' +
+        '<div class="row-acts">' +
+          '<button class="btn sm green" data-act="approveRedeem" data-id="' + r.id + '">' + t('approve') + '</button>' +
+          '<button class="btn sm line" data-act="rejectRedeem" data-id="' + r.id + '">' + t('reject') + '</button>' +
+        '</div>' +
+      '</div>';
+    });
+    h += '</div>';
+  }
+  h += '</section>';
+
+  // 2. Rewards Management
+  var items = (db.redeems && db.redeems[curTier]) ? db.redeems[curTier] : [];
+  h += '<section class="card">' +
+    '<div class="card-h">' +
+      '<h2>' + icon('gift', 22, 'var(--coral)') + ' ' + t('celebration_vault') + '</h2>' +
+      '<button class="btn sm green" data-act="rdNew" data-tier="' + curTier + '">' + icon('plus', 16, '#fff') + ' ' + t('add_new_reward') + '</button>' +
+    '</div>' +
+    '<div class="seg" style="margin-bottom:14px">' +
+      '<button class="' + (curTier === 'daily' ? 'active on' : '') + '" data-act="redeemTier" data-tier="daily">' + t('daily_tier') + '</button>' +
+      '<button class="' + (curTier === 'weekly' ? 'active on' : '') + '" data-act="redeemTier" data-tier="weekly">' + t('weekly_tier') + '</button>' +
+      '<button class="' + (curTier === 'monthly' ? 'active on' : '') + '" data-act="redeemTier" data-tier="monthly">' + t('monthly_tier') + '</button>' +
+    '</div>';
+
+  if (!items.length){
+    h += '<div class="empty">' + t('no_rewards_tier') + '</div>';
+  } else {
+    h += '<div class="rows">';
+    items.forEach(function(item){
+      var cCol = catColor(item.catId);
+      var cObj = catById(item.catId);
+      var cN = catName(item.catId);
+      var pName = catPointName(item.catId, item.cost);
+      h += '<div class="row">' +
+        '<div class="row-main">' +
+          '<div class="row-title">' +
+            esc(item.name) + ' ' +
+            '<span class="tag" style="background:' + cCol + '22;color:' + cCol + ';font-weight:900;display:inline-flex;align-items:center;gap:4px">' +
+              icon(cObj.icon || 'book', 13, cCol) + ' ' + esc(cN) +
+            '</span> ' +
+            '<span class="tag pts-badge">' + item.cost + ' ' + pName + '</span>' +
+          '</div>' +
+          '<div class="row-sub">' +
+            (item.desc ? esc(item.desc) + ' · ' : '') +
+            (state.lang==='zh' ? ('扣除分类：' + esc(cN) + ' (' + pName + ') · ') : ('Deducts from: ' + esc(cN) + ' (' + pName + ') · ')) +
+            (Number(item.limit) ? (state.lang==='zh'?'每期最多 ':'Limit: ') + item.limit + ' ' + (state.lang==='zh'?'次':'times') : t('unlimited')) +
+          '</div>' +
+        '</div>' +
+        '<div class="row-acts">' +
+          '<button class="btn sm soft" data-act="rdEdit" data-id="' + item.id + '" data-tier="' + curTier + '">' + icon('edit', 16) + ' ' + (state.lang==='zh'?'编辑':'Edit') + '</button>' +
+          '<button class="icon-btn danger" data-act="rdDel" data-id="' + item.id + '" data-tier="' + curTier + '" title="Delete">' + icon('trash', 16, 'var(--coral)') + '</button>' +
+        '</div>' +
+      '</div>';
+    });
+    h += '</div>';
+  }
+  h += '</section>';
+
+  return h;
+}
+
+function renderParentSettingsTab(){
+  var h = '';
+
+  // 1. Child & PIN Security
+  h += '<section class="card">' +
+    '<div class="card-h"><h2>' + icon('settings', 22, 'var(--green)') + ' ' + (state.lang==='zh'?'基础信息与密码':'Child Info & PIN') + '</h2></div>' +
+    '<div class="grid2" style="align-items:flex-end;margin-bottom:12px">' +
+      '<div class="field" style="margin-bottom:0">' +
+        '<label>' + t('child_name') + '</label>' +
+        '<div style="display:flex;gap:8px">' +
+          '<input class="input" id="childNameInput" value="' + esc(db.settings.childName || 'Hilson') + '">' +
+          '<button class="btn sm green" data-act="saveChildName">' + t('modal_save') + '</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="field" style="margin-bottom:0">' +
+        '<label>' + t('change_pin') + '</label>' +
+        '<button class="btn sm soft block" data-act="pinChange">' + icon('shield', 16) + ' ' + t('change_pin_btn') + '</button>' +
+      '</div>' +
+    '</div>' +
+  '</section>';
+
+  // 2. Backup & Restore
+  h += '<section class="card">' +
+    '<div class="card-h"><h2>' + t('backup_data') + '</h2></div>' +
+    '<div class="btn-row" style="margin-bottom:14px">' +
+      '<button class="btn sm green" data-act="expJson">' + t('export_json') + '</button>' +
+      '<button class="btn sm soft" data-act="impJson">' + t('import_json') + '</button>' +
+      '<button class="btn sm yellow" data-act="demoReset">' + t('reset_demo') + '</button>' +
+      '<button class="btn sm coral" data-act="clearAll">' + t('clear_all') + '</button>' +
+    '</div>' +
+    '<div class="stat-grid">' +
+      '<div class="stat"><b>' + db.tasks.length + '</b><span>' + (state.lang==='zh'?'任务总数':'Total Quests') + '</span></div>' +
+      '<div class="stat"><b>' + db.goals.length + '</b><span>' + (state.lang==='zh'?'目标总数':'Total Goals') + '</span></div>' +
+      '<div class="stat"><b>' + Object.keys(db.checkins).length + '</b><span>' + (state.lang==='zh'?'打卡天数':'Check-in Days') + '</span></div>' +
+      '<div class="stat"><b>' + db.ledger.length + '</b><span>' + (state.lang==='zh'?'积分流水':'Ledger Records') + '</span></div>' +
+    '</div>' +
+  '</section>';
+
+  return h;
+}
+
+function renderParentViewport(){
+  var curTab = state.parentTab || 'tasks';
+  var pend = (db.redemptions || []).filter(function(r){ return r.status === 'pending'; }).length;
+
+  var h = '<div class="app-viewport"><div class="scrollable-view">';
+
+  // Parent Subnav
+  h += '<nav class="parent-subnav">' +
+    '<button class="subnav-btn ' + (curTab==='tasks'?'active':'') + '" data-act="parentTab" data-tab="tasks">' +
+      icon('book', 18) + '<span>' + t('parent_tab_tasks') + '</span>' +
+    '</button>' +
+    '<button class="subnav-btn ' + (curTab==='goals'?'active':'') + '" data-act="parentTab" data-tab="goals">' +
+      icon('target', 18) + '<span>' + t('parent_tab_goals') + '</span>' +
+    '</button>' +
+    '<button class="subnav-btn ' + (curTab==='points'?'active':'') + '" data-act="parentTab" data-tab="points">' +
+      icon('star', 18) + '<span>' + t('parent_tab_points') + '</span>' +
+    '</button>' +
+    '<button class="subnav-btn ' + (curTab==='rewards'?'active':'') + '" data-act="parentTab" data-tab="rewards">' +
+      icon('gift', 18) + '<span>' + t('parent_tab_rewards') + '</span>' +
+      (pend ? '<span class="badge">' + pend + '</span>' : '') +
+    '</button>' +
+    '<button class="subnav-btn ' + (curTab==='settings'?'active':'') + '" data-act="parentTab" data-tab="settings">' +
+      icon('settings', 18) + '<span>' + t('parent_tab_settings') + '</span>' +
+    '</button>' +
+  '</nav>';
+
+  if (curTab === 'tasks') h += renderParentTasksTab();
+  else if (curTab === 'goals') h += renderParentGoalsTab();
+  else if (curTab === 'points') h += renderParentPointsTab();
+  else if (curTab === 'rewards') h += renderParentRewardsTab();
+  else if (curTab === 'settings') h += renderParentSettingsTab();
+
+  h += '</div></div>';
+  return h;
+}
+
+/* ---------- 6. Bottom Dock Bar ---------- */
+function renderBottomBar(){
+  var cur = state.activeNav;
+  var pend = (db.redemptions || []).filter(function(r){ return r.status === 'pending'; }).length;
+
+  return '' +
+  '<nav class="bottom-bar">' +
+    '<button class="bottom-tab-btn ' + (cur==='tasks'?'active':'') + '" data-act="nav" data-nav="tasks">' +
+      icon('book', 22) + '<span>' + t('nav_tasks') + '</span>' +
+    '</button>' +
+    '<button class="bottom-tab-btn ' + (cur==='goals'?'active':'') + '" data-act="nav" data-nav="goals">' +
+      icon('target', 22) + '<span>' + t('nav_goals') + '</span>' +
+    '</button>' +
+    '<button class="bottom-tab-btn ' + (cur==='rewards'?'active':'') + '" data-act="nav" data-nav="rewards">' +
+      icon('gift', 22) + '<span>' + t('nav_rewards') + '</span>' +
+    '</button>' +
+    '<button class="bottom-tab-btn ' + (cur==='parent'?'active':'') + '" data-act="nav" data-nav="parent">' +
+      icon('settings', 22) + '<span>' + t('nav_parent') + '</span>' +
+      (pend ? '<span class="badge">' + pend + '</span>' : '') +
+    '</button>' +
+  '</nav>';
+}
+
+/* =========================================================
+   9. Modals (PIN Pad, Confirm, Tasks, Goals, Rewards, Points)
+   ========================================================= */
+function pinDots(n){
+  var s = '';
+  for (var i=0; i<4; i++){
+    s += '<span style="display:inline-block;width:16px;height:16px;border:2px solid var(--ink);border-radius:50%;background:' +
+      (i < n ? 'var(--green)' : 'var(--paper)') + ';transition:all 0.12s ease"></span>';
+  }
+  return s;
+}
+
+function renderModal(){
+  var layer = document.getElementById('modalLayer');
+  if (!layer) return;
+  var m = state.modal;
+  if (!m){ layer.hidden = true; layer.innerHTML = ''; return; }
+  layer.hidden = false;
+
+  var fCancel = '<button class="btn soft sm" data-act="closeModal">' + t('modal_cancel') + '</button>';
+
+  // 1. PIN Keypad
+  if (m.type === 'pin'){
+    var n = (m.draft.pin || '').length;
+    var pad = '';
+    for (var i=1; i<=9; i++) pad += '<button class="pin-key" data-act="pinKey" data-key="' + i + '">' + i + '</button>';
+    pad += '<button class="pin-key action" data-act="pinBack">⌫</button>';
+    pad += '<button class="pin-key" data-act="pinKey" data-key="0">0</button>';
+    pad += '<button class="pin-key action" data-act="pinOk" style="background:var(--green);color:#fff">' + icon('check', 18, '#fff') + '</button>';
+
+    layer.innerHTML = '<div class="modal-mask" data-act="maskClose"><div class="modal" role="dialog">' +
+      '<div class="modal-h"><h3>' + t('pin_enter') + '</h3><button class="icon-btn" data-act="closeModal">' + icon('close', 16) + '</button></div>' +
+      '<div class="modal-b" style="text-align:center">' +
+      '<div class="hint" style="margin-bottom:14px">' + t('pin_hint') + '</div>' +
+      '<div style="display:flex;gap:12px;justify-content:center;margin-bottom:16px">' + pinDots(n) + '</div>' +
+      '<div class="pin-pad">' + pad + '</div>' +
+      '</div></div></div>';
+    return;
+  }
+
+  // 2. Change PIN
+  if (m.type === 'pinChange'){
+    var dPin = m.draft || {};
+    layer.innerHTML = '<div class="modal-mask" data-act="maskClose"><div class="modal" role="dialog">' +
+      '<div class="modal-h"><h3>' + t('change_pin') + '</h3><button class="icon-btn" data-act="closeModal">' + icon('close', 16) + '</button></div>' +
+      '<div class="modal-b">' +
+        '<div class="field"><label>' + t('pin_new') + '</label><input class="input" type="password" maxlength="4" inputmode="numeric" id="modalPin1" value="' + esc(dPin.pin1 || '') + '"></div>' +
+        '<div class="field"><label>' + t('pin_confirm') + '</label><input class="input" type="password" maxlength="4" inputmode="numeric" id="modalPin2" value="' + esc(dPin.pin2 || '') + '"></div>' +
+      '</div>' +
+      '<div class="modal-f">' + fCancel + '<button class="btn sm green" data-act="savePinChange">' + t('modal_save') + '</button></div>' +
+    '</div></div>';
+    return;
+  }
+
+  // 3. Confirm Modal
+  if (m.type === 'confirm'){
+    layer.innerHTML = '<div class="modal-mask" data-act="maskClose"><div class="modal" role="dialog">' +
+      '<div class="modal-h"><h3>' + (m.title || t('modal_confirm')) + '</h3><button class="icon-btn" data-act="closeModal">' + icon('close', 16) + '</button></div>' +
+      '<div class="modal-b"><p style="font-size:16px;font-weight:700">' + esc(m.text) + '</p></div>' +
+      '<div class="modal-f">' +
+        fCancel +
+        '<button class="btn sm ' + (m.danger ? 'coral' : 'green') + '" data-act="doConfirm">' + (m.confirmLabel || t('modal_confirm')) + '</button>' +
+      '</div></div></div>';
+    return;
+  }
+
+  // 4. Task Modal
+  if (m.type === 'task'){
+    var dt = m.draft || {};
+    var wds = dt.weekdays || [0,1,2,3,4,5,6];
+    var dayButtons = [1,2,3,4,5,6,0].map(function(dw){
+      var on = wds.indexOf(dw) >= 0;
+      var lbl = I18N[state.lang].days_short[dw];
+      return '<button class="day-btn ' + (on ? 'on' : '') + '" data-act="dayToggle" data-day="' + dw + '">' + lbl + '</button>';
+    }).join('');
+
+    layer.innerHTML = '<div class="modal-mask" data-act="maskClose"><div class="modal" role="dialog" style="max-width:620px">' +
+      '<div class="modal-h"><h3>' + (dt.id ? (state.lang==='zh'?'编辑任务':'Edit Quest') : t('add_new_task')) + '</h3><button class="icon-btn" data-act="closeModal">' + icon('close', 16) + '</button></div>' +
+      '<div class="modal-b">' +
+        '<div class="field"><label>' + t('task_title') + '</label><input class="input" id="taskTitleInput" value="' + esc(dt.title) + '" placeholder="' + (state.lang==='zh'?'例如：自主阅读与反思':'e.g. Reading & Inquiry') + '"></div>' +
+        '<div class="grid2">' +
+          '<div class="field"><label>' + t('task_cat') + '</label><select class="input" id="taskCatInput">' + catOptions(dt.categoryId) + '</select></div>' +
+          '<div class="field"><label>' + t('task_pts') + '</label><input class="input" type="number" min="0" max="1000" id="taskPointsInput" value="' + (Number(dt.points) || 10) + '"></div>' +
+        '</div>' +
+        '<div class="grid2">' +
+          '<div class="field"><label>' + t('goal_month') + '</label><input class="input" type="month" id="taskMonthInput" value="' + esc(dt.month || monthKey()) + '"></div>' +
+          '<div class="field"><label>' + t('task_goal') + '</label><select class="input" id="taskGoalInput">' + goalOptions(dt.goalId, dt.month) + '</select></div>' +
+        '</div>' +
+        '<div class="field"><label>' + t('task_days') + '</label><div class="day-pick">' + dayButtons + '</div></div>' +
+        '<div class="field"><label>' + t('task_steps') + '</label>' +
+          '<div class="step-edit-list">' + stepEditRows(dt) + '</div>' +
+          '<button class="btn sm soft block" data-act="stepAdd">' + icon('plus', 16) + ' ' + t('add_step') + '</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="modal-f">' +
+        fCancel +
+        '<button class="btn sm green" data-act="saveTaskModal">' + t('modal_save') + '</button>' +
+      '</div>' +
+    '</div></div>';
+    return;
+  }
+
+  // 5. Goal Modal
+  if (m.type === 'goal'){
+    var dg = m.draft || {};
+    layer.innerHTML = '<div class="modal-mask" data-act="maskClose"><div class="modal" role="dialog">' +
+      '<div class="modal-h"><h3>' + (dg.id ? (state.lang==='zh'?'编辑目标':'Edit Goal') : t('add_new_goal')) + '</h3><button class="icon-btn" data-act="closeModal">' + icon('close', 16) + '</button></div>' +
+      '<div class="modal-b">' +
+        '<div class="field"><label>' + t('goal_title') + '</label><input class="input" id="goalTitleInput" value="' + esc(dg.title) + '" placeholder="' + (state.lang==='zh'?'例如：自主学习与习惯养成':'e.g. Daily Self-Management') + '"></div>' +
+        '<div class="field"><label>' + t('goal_desc') + '</label><textarea class="input" id="goalDescInput" placeholder="' + (state.lang==='zh'?'写一句给孩子的鼓励与期许':'A sentence of encouragement') + '">' + esc(dg.desc) + '</textarea></div>' +
+        '<div class="grid2">' +
+          '<div class="field"><label>' + t('goal_month') + '</label><input class="input" type="month" id="goalMonthInput" value="' + esc(dg.month || monthKey()) + '"></div>' +
+          '<div class="field"><label>' + t('goal_target') + '</label><input class="input" type="number" min="1" max="999" id="goalTargetInput" value="' + (Number(dg.targetCount) || 30) + '"></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="modal-f">' +
+        fCancel +
+        '<button class="btn sm green" data-act="saveGoalModal">' + t('modal_save') + '</button>' +
+      '</div>' +
+    '</div></div>';
+    return;
+  }
+
+  // 6. Category Points Modal
+  if (m.type === 'cat'){
+    var dc = m.draft || {};
+    var catObj = catById(dc.id);
+    var cTitle = (state.lang === 'zh' && catObj.nameZh) ? catObj.nameZh : catObj.name;
+    var cPtName = catPointName(catObj.id);
+    layer.innerHTML = '<div class="modal-mask" data-act="maskClose"><div class="modal" role="dialog">' +
+      '<div class="modal-h"><h3>' + (state.lang==='zh' ? ('修改' + cTitle + '默认分值') : ('Edit Default ' + cPtName + ' per Quest')) + '</h3><button class="icon-btn" data-act="closeModal">' + icon('close', 16) + '</button></div>' +
+      '<div class="modal-b">' +
+        '<div class="field"><label>' + t('task_cat') + '</label><input class="input" value="' + esc(cTitle) + '" readonly></div>' +
+        '<div class="field"><label>' + (state.lang==='zh' ? ('默认每任务' + cPtName) : ('Default ' + cPtName + ' per Quest')) + '</label><input class="input" type="number" min="1" max="1000" id="catPointsInput" value="' + (Number(catObj.points) || 10) + '"></div>' +
+      '</div>' +
+      '<div class="modal-f">' +
+        fCancel +
+        '<button class="btn sm green" data-act="saveCatModal">' + t('modal_save') + '</button>' +
+      '</div>' +
+    '</div></div>';
+    return;
+  }
+
+  // 7. Manual Star Adjustment Modal
+  if (m.type === 'adjustPoints'){
+    layer.innerHTML = '<div class="modal-mask" data-act="maskClose"><div class="modal" role="dialog">' +
+      '<div class="modal-h"><h3>' + t('manual_adjust_title') + '</h3><button class="icon-btn" data-act="closeModal">' + icon('close', 16) + '</button></div>' +
+      '<div class="modal-b">' +
+        '<div class="field"><label>' + t('adjust_cat') + '</label><select class="input" id="adjCatInput">' + catOptions('cat_study') + '</select></div>' +
+        '<div class="field"><label>' + t('adjust_delta') + '</label><input class="input" type="number" id="adjDeltaInput" placeholder="+15 or -10" value="10"></div>' +
+        '<div class="field"><label>' + t('adjust_reason') + '</label><input class="input" id="adjReasonInput" placeholder="' + (state.lang==='zh'?'例如：自主打扫卫生 / 额外探究表现优秀':'e.g. Helping clean up after dinner') + '"></div>' +
+      '</div>' +
+      '<div class="modal-f">' +
+        fCancel +
+        '<button class="btn sm green" data-act="saveAdjustModal">' + t('modal_save') + '</button>' +
+      '</div>' +
+    '</div></div>';
+    return;
+  }
+
+  // 8. Reward Modal
+  if (m.type === 'redeem'){
+    var dr = m.draft || {};
+    var curCatId = dr.catId || 'cat_study';
+    var tiers = [
+      { id:'daily', name: t('daily_tier') },
+      { id:'weekly', name: t('weekly_tier') },
+      { id:'monthly', name: t('monthly_tier') }
+    ];
+    var tierOpts = tiers.map(function(tr){
+      return '<option value="' + tr.id + '"' + (tr.id === dr.tier ? ' selected' : '') + '>' + esc(tr.name) + '</option>';
+    }).join('');
+
+    var catCards = db.categories.map(function(c){
+      var isSel = (c.id === curCatId);
+      var bal = catBalance(c.id);
+      var cN = (state.lang === 'zh' && c.nameZh) ? c.nameZh : c.name;
+      var ptLabel = catPointName(c.id, bal);
+      return '<button type="button" class="cat-pick-card ' + (isSel ? 'active' : '') + '" data-act="pickRedeemCat" data-cat="' + c.id + '" style="--cat-c:' + c.color + '">' +
+        '<div class="cat-pick-top">' +
+          '<span class="cat-pick-dot" style="background:' + c.color + '"></span>' +
+          icon(c.icon || 'book', 18, isSel ? '#fff' : c.color) +
+          '<span class="cat-pick-title">' + esc(cN) + '</span>' +
+        '</div>' +
+        '<div class="cat-pick-bal">' +
+          (state.lang==='zh' ? '当前结余: ' : 'Balance: ') + '<b>' + bal + ' ' + ptLabel + '</b>' +
+        '</div>' +
+      '</button>';
+    }).join('');
+
+    layer.innerHTML = '<div class="modal-mask" data-act="maskClose"><div class="modal" role="dialog" style="max-width:560px">' +
+      '<div class="modal-h"><h3>' + (dr.id ? (state.lang==='zh'?'编辑心愿奖励':'Edit Reward') : t('add_new_reward')) + '</h3><button class="icon-btn" data-act="closeModal">' + icon('close', 16) + '</button></div>' +
+      '<div class="modal-b">' +
+        '<div class="cat-iso-notice">' +
+          icon('star', 16, 'var(--ink)') +
+          '<span>' + t('cat_iso_hint') + '</span>' +
+        '</div>' +
+        '<div class="field"><label>' + t('reward_name') + '</label><input class="input" id="rdNameInput" value="' + esc(dr.name) + '" placeholder="' + (state.lang==='zh'?'例如：20分钟自由游戏':'e.g. 20 min Free Choice Play') + '"></div>' +
+        '<div class="field">' +
+          '<label style="display:flex;justify-content:space-between;align-items:center;">' +
+            '<span>' + t('reward_cat') + '</span>' +
+            '<span style="font-size:11.5px;color:var(--coral);font-weight:800">' + (state.lang==='zh'?'各分类积分独立结算':'Strictly category-isolated') + '</span>' +
+          '</label>' +
+          '<div class="cat-pick-grid">' + catCards + '</div>' +
+          '<input type="hidden" id="rdCatInput" value="' + esc(curCatId) + '">' +
+        '</div>' +
+        '<div class="grid2">' +
+          '<div class="field"><label>' + t('reward_cost') + '</label><input class="input" type="number" min="1" max="9999" id="rdCostInput" value="' + (Number(dr.cost) || 25) + '"></div>' +
+          '<div class="field"><label>' + t('reward_tier') + '</label><select class="input" id="rdTierInput">' + tierOpts + '</select></div>' +
+        '</div>' +
+        '<div class="field"><label>' + t('reward_limit') + '</label><input class="input" type="number" min="0" max="99" id="rdLimitInput" value="' + (Number(dr.limit) || 0) + '"><span class="hint" style="display:block;margin-top:3px">' + (state.lang==='zh'?'0 表示不限兑换次数':'0 means unlimited redemptions') + '</span></div>' +
+        '<div class="field"><label>' + t('reward_desc') + '</label><textarea class="input" id="rdDescInput" placeholder="' + (state.lang==='zh'?'补充说明（如需提前和父母约定时间）':'Notes or conditions') + '">' + esc(dr.desc) + '</textarea></div>' +
+      '</div>' +
+      '<div class="modal-f">' +
+        fCancel +
+        '<button class="btn sm green" data-act="saveRedeemModal">' + t('modal_save') + '</button>' +
+      '</div>' +
+    '</div></div>';
+    return;
+  }
+}
+
+/* =========================================================
+   Modal Save Actions
+   ========================================================= */
+function saveTaskModal(){
+  var m = state.modal;
+  if (!m || m.type !== 'task') return;
+  var d = m.draft;
+  var titleEl = document.getElementById('taskTitleInput');
+  var catEl = document.getElementById('taskCatInput');
+  var ptsEl = document.getElementById('taskPointsInput');
+  var monthEl = document.getElementById('taskMonthInput');
+  var goalEl = document.getElementById('taskGoalInput');
+
+  if (titleEl) d.title = titleEl.value;
+  if (catEl) d.categoryId = catEl.value;
+  if (ptsEl) d.points = Number(ptsEl.value) || 0;
+  if (monthEl) d.month = monthEl.value;
+  if (goalEl) d.goalId = goalEl.value;
+
+  if (!d.title.trim()){
+    toast(state.lang==='zh'?'请输入任务名称':'Please enter quest title', 'bad');
+    return;
+  }
+
+  var stepRows = document.querySelectorAll('.step-edit-row');
+  if (stepRows && stepRows.length){
+    d.steps = [];
+    for (var i=0; i<stepRows.length; i++){
+      var row = stepRows[i];
+      var tIn = row.querySelector('input.t');
+      var mIn = row.querySelector('input.m');
+      d.steps.push({
+        id: uid('st'),
+        title: (tIn && tIn.value.trim()) ? tIn.value.trim() : (state.lang==='zh'?'步骤 '+(i+1):'Step '+(i+1)),
+        minutes: (mIn && Number(mIn.value)) ? Number(mIn.value) : 5
+      });
+    }
+  }
+
+  if (saveTask(d)){
+    state.modal = null;
+    refreshAll();
+  }
+}
+
+function saveGoalModal(){
+  var m = state.modal;
+  if (!m || m.type !== 'goal') return;
+  var d = m.draft;
+  var titleEl = document.getElementById('goalTitleInput');
+  var descEl = document.getElementById('goalDescInput');
+  var monthEl = document.getElementById('goalMonthInput');
+  var targetEl = document.getElementById('goalTargetInput');
+
+  if (titleEl) d.title = titleEl.value;
+  if (descEl) d.desc = descEl.value;
+  if (monthEl) d.month = monthEl.value;
+  if (targetEl) d.targetCount = Number(targetEl.value) || 30;
+
+  if (!d.title.trim()){
+    toast(state.lang==='zh'?'请输入目标名称':'Please enter goal title', 'bad');
+    return;
+  }
+
+  if (saveGoal(d)){
+    state.modal = null;
+    refreshAll();
+  }
+}
+
+function saveCatModal(){
+  var m = state.modal;
+  if (!m || m.type !== 'cat') return;
+  var ptsEl = document.getElementById('catPointsInput');
+  var pts = ptsEl ? Number(ptsEl.value) || 10 : 10;
+  for (var i=0; i<db.categories.length; i++){
+    if (db.categories[i].id === m.draft.id){
+      db.categories[i].points = pts;
+      break;
+    }
+  }
+  saveDB();
+  state.modal = null;
+  refreshAll();
+  toast(t('saved_toast'), 'good');
+}
+
+function saveAdjustModal(){
+  var catEl = document.getElementById('adjCatInput');
+  var deltaEl = document.getElementById('adjDeltaInput');
+  var reasonEl = document.getElementById('adjReasonInput');
+
+  var catId = catEl ? catEl.value : 'cat_study';
+  var delta = deltaEl ? Number(deltaEl.value) || 0 : 0;
+  var reason = reasonEl ? reasonEl.value.trim() : '';
+
+  if (adjustStars(catId, delta, reason)){
+    state.modal = null;
+    refreshAll();
+  }
+}
+
+function saveRedeemModal(){
+  var m = state.modal;
+  if (!m || m.type !== 'redeem') return;
+  var d = m.draft;
+  var nameEl = document.getElementById('rdNameInput');
+  var costEl = document.getElementById('rdCostInput');
+  var catEl = document.getElementById('rdCatInput');
+  var tierEl = document.getElementById('rdTierInput');
+  var limitEl = document.getElementById('rdLimitInput');
+  var descEl = document.getElementById('rdDescInput');
+
+  if (nameEl) d.name = nameEl.value;
+  if (costEl) d.cost = Number(costEl.value) || 10;
+  if (catEl) d.catId = catEl.value;
+  if (tierEl) d.tier = tierEl.value;
+  if (limitEl) d.limit = Number(limitEl.value) || 0;
+  if (descEl) d.desc = descEl.value;
+
+  if (!d.name.trim()){
+    toast(state.lang==='zh'?'请输入心愿名称':'Please enter reward name', 'bad');
+    return;
+  }
+
+  if (saveReward(d)){
+    state.modal = null;
+    refreshAll();
+  }
+}
+
+function savePinChangeModal(){
+  var p1 = document.getElementById('modalPin1');
+  var p2 = document.getElementById('modalPin2');
+  var v1 = (p1 && p1.value) ? p1.value.trim() : '';
+  var v2 = (p2 && p2.value) ? p2.value.trim() : '';
+
+  if (v1.length !== 4 || !/^\d{4}$/.test(v1)){
+    toast(state.lang==='zh'?'请输入 4 位纯数字密码':'PIN must be 4 digits', 'bad');
+    return;
+  }
+  if (v1 !== v2){
+    toast(t('pin_mismatch'), 'bad');
+    return;
+  }
+  db.settings.parentPin = v1;
+  saveDB();
+  state.modal = null;
+  refreshAll();
+  toast(t('pin_changed'), 'good');
+}
+
+function saveChildName(){
+  var el = document.getElementById('childNameInput');
+  if (!el || !el.value.trim()) return;
+  db.settings.childName = el.value.trim();
+  saveDB();
+  refreshAll();
+  toast(t('saved_toast'), 'good');
+}
+
+/* =========================================================
+   10. App Render Loop & Full-Screen Focus Timer
+   ========================================================= */
+function renderTimerLayer(){
+  var lay = document.getElementById('timerLayer');
+  if (!lay) return;
+  var tm = db.timer;
+  if (!tm || !tm.taskId || !tm.stepId){
+    lay.hidden = true;
+    lay.style.display = 'none';
+    lay.innerHTML = '';
+    return;
+  }
+
+  var task = null;
+  for (var i=0; i<db.tasks.length; i++) if (db.tasks[i].id === tm.taskId) task = db.tasks[i];
+  if (!task){
+    db.timer = null;
+    lay.hidden = true;
+    lay.style.display = 'none';
+    lay.innerHTML = '';
+    return;
+  }
+
+  var step = null;
+  var stepIdx = 0;
+  for (var j=0; j<task.steps.length; j++){
+    if (task.steps[j].id === tm.stepId){
+      step = task.steps[j];
+      stepIdx = j;
+    }
+  }
+  if (!step){
+    db.timer = null;
+    lay.hidden = true;
+    lay.style.display = 'none';
+    lay.innerHTML = '';
+    return;
+  }
+
+  var color = catColor(task.categoryId);
+  var cName = catName(task.categoryId);
+  var cEmoji = catPointEmoji(task.categoryId);
+  var pts = stepPoints(task);
+  var sPts = pts[stepIdx] || Math.round(task.points / task.steps.length);
+  var targetMin = step.minutes || 5;
+
+  var focusHint = (state.lang === 'zh')
+    ? '沉浸专注，向着目标全速前进！✨'
+    : 'Deep Focus Mode · Do your best! ✨';
+  var targetLabel = (state.lang === 'zh')
+    ? ('目标建议: ' + targetMin + ' 分钟')
+    : ('Target: ' + targetMin + ' min');
+  var rewardLabel = '+' + sPts + ' ' + cEmoji;
+
+  lay.innerHTML = '<div class="timer-focus-card" style="--c:' + color + '">' +
+    '<div class="timer-focus-header">' +
+      '<div class="timer-focus-cat-tag" style="background:' + color + '">' + cEmoji + ' ' + esc(cName) + ' · ' + rewardLabel + '</div>' +
+      '<div class="timer-focus-quest">' + esc(task.title) + '</div>' +
+      '<div class="timer-focus-step">' + (stepIdx+1) + '. ' + esc(step.title) + '</div>' +
+    '</div>' +
+    '<div class="timer-clock-wrap">' +
+      '<div class="timer-clock-val" data-timer-live data-start="' + tm.startTs + '">00:00</div>' +
+      '<div class="timer-clock-target">' + targetLabel + '</div>' +
+    '</div>' +
+    '<div class="timer-focus-hint">' + focusHint + '</div>' +
+    '<div class="timer-focus-actions">' +
+      '<button class="timer-btn-finish" data-act="finishStep" data-date="' + tm.date + '" data-id="' + task.id + '" data-step="' + step.id + '">' +
+        icon('check', 20, '#fff') + ' ' + t('btn_done') +
+      '</button>' +
+      '<button class="timer-btn-cancel" data-act="cancelTimer">' +
+        t('btn_cancel') +
+      '</button>' +
+    '</div>' +
+  '</div>';
+
+  lay.hidden = false;
+  lay.style.display = 'flex';
+}
+
+function renderApp(){
+  var app = document.getElementById('app');
+  if (!app) return;
+
+  var viewportHtml = '';
+  if (state.activeNav === 'tasks') viewportHtml = renderTasksViewport();
+  else if (state.activeNav === 'goals') viewportHtml = renderGoalsViewport();
+  else if (state.activeNav === 'rewards') viewportHtml = renderRewardsViewport();
+  else if (state.activeNav === 'parent') viewportHtml = renderParentViewport();
+
+  var catBarHtml = (state.activeNav === 'tasks') ? renderCategoryBar() : '';
+  app.innerHTML = renderTopbar() + catBarHtml + viewportHtml + renderBottomBar();
+  renderModal();
+  renderTimerLayer();
+  updateTimerLabels();
+}
+
+function refreshAll(){
+  renderApp();
+}
+
+var toastTimer = null;
+function toast(msg, kind){
+  var layer = document.getElementById('toastLayer');
+  if (!layer) return;
+  layer.innerHTML = '<div class="toast ' + (kind||'') + '"><span>' + esc(msg) + '</span></div>';
+  layer.classList.add('on');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ layer.classList.remove('on'); }, 2000);
+}
+
+function updateTimerLabels(){
+  var nodes = document.querySelectorAll('[data-timer-live]');
+  for (var i=0; i<nodes.length; i++){
+    var n = nodes[i];
+    var start = Number(n.getAttribute('data-start')) || 0;
+    var sec = Math.round((Date.now() - start)/1000);
+    n.textContent = fmtDur(sec);
+  }
+}
+setInterval(updateTimerLabels, 1000);
+
+/* =========================================================
+   11. Event Delegation
+   ========================================================= */
+function onAppClick(e){
+  if (e.target && (e.target.id === 'celebrationLayer' || e.target.classList.contains('celebration-layer'))){
+    closeCelebration();
+    return;
+  }
+  var el = e.target.closest ? e.target.closest('[data-act]') : null;
+  if (!el) return;
+  if (el.disabled || el.hasAttribute('disabled')) return;
+  var act = el.getAttribute('data-act');
+  var id = el.getAttribute('data-id') || '';
+  var date = el.getAttribute('data-date') || dateKey();
+  var step = el.getAttribute('data-step') || '';
+  var cat = el.getAttribute('data-cat') || '';
+  var nav = el.getAttribute('data-nav') || '';
+  var lang = el.getAttribute('data-lang') || '';
+  var tier = el.getAttribute('data-tier') || '';
+  var tab = el.getAttribute('data-tab') || '';
+  var mode = el.getAttribute('data-mode') || '';
+
+  switch (act){
+    case 'closeCelebration': closeCelebration(); return;
+    case 'lang': switchLang(lang); return;
+    case 'catTab': state.activeCategory = cat; refreshAll(); return;
+    case 'parentTab': state.parentTab = tab; refreshAll(); return;
+    case 'nav':
+      if (nav === 'parent' && !state.parentUnlocked){
+        state.modal = { type:'pin', draft:{ pin:'' } };
+        refreshAll(); return;
+      }
+      state.activeNav = nav; refreshAll(); return;
+    case 'lockParent':
+      state.parentUnlocked = false; state.activeNav = 'tasks'; toast(t('locked_back')); refreshAll(); return;
+    case 'redeemTier': state.redeemTier = tier; refreshAll(); return;
+    case 'startTimer': startTimer(date, id, step); return;
+    case 'cancelTimer': cancelTimer(); return;
+    case 'finishStep': finishStep(date, id, step); return;
+    case 'undoStep': undoStep(date, id, step); return;
+    case 'applyRedeem': applyRedeem(id); return;
+    case 'approveRedeem': approveRedeem(id); return;
+    case 'rejectRedeem': rejectRedeem(id); return;
+
+    // Parent Settings Actions
+    case 'stepMode': setScoringMode(mode); return;
+    case 'taskNew': state.modal = { type:'task', draft: draftTask('') }; refreshAll(); return;
+    case 'taskEdit': state.modal = { type:'task', draft: draftTask(id) }; refreshAll(); return;
+    case 'taskDel':
+      state.modal = {
+        type: 'confirm',
+        title: state.lang==='zh'?'删除任务':'Delete Quest',
+        danger: true,
+        text: t('del_task_confirm'),
+        confirmLabel: state.lang==='zh'?'删除':'Delete',
+        action: 'taskDel',
+        targetId: id
+      };
+      refreshAll();
+      return;
+    case 'toggleActive': toggleTaskActive(id); return;
+    case 'goalNew': state.modal = { type:'goal', draft: draftGoal('') }; refreshAll(); return;
+    case 'goalEdit': state.modal = { type:'goal', draft: draftGoal(id) }; refreshAll(); return;
+    case 'goalDel':
+      state.modal = {
+        type: 'confirm',
+        title: state.lang==='zh'?'删除目标':'Delete Goal',
+        danger: true,
+        text: t('del_goal_confirm'),
+        confirmLabel: state.lang==='zh'?'删除':'Delete',
+        action: 'goalDel',
+        targetId: id
+      };
+      refreshAll();
+      return;
+    case 'catEdit': state.modal = { type:'cat', draft:{ id: id } }; refreshAll(); return;
+    case 'adjustPoints': state.modal = { type:'adjustPoints' }; refreshAll(); return;
+    case 'rdNew': state.modal = { type:'redeem', draft: draftRedeem(tier, '') }; refreshAll(); return;
+    case 'rdEdit': state.modal = { type:'redeem', draft: draftRedeem(tier, id) }; refreshAll(); return;
+    case 'rdDel':
+      state.modal = {
+        type: 'confirm',
+        title: state.lang==='zh'?'删除心愿':'Delete Reward',
+        danger: true,
+        text: t('del_reward_confirm'),
+        confirmLabel: state.lang==='zh'?'删除':'Delete',
+        action: 'rdDel',
+        targetId: id,
+        targetTier: tier
+      };
+      refreshAll();
+      return;
+    case 'pickRedeemCat':
+      if (state.modal && state.modal.draft){
+        var nameEl = document.getElementById('rdNameInput');
+        var costEl = document.getElementById('rdCostInput');
+        var tierEl = document.getElementById('rdTierInput');
+        var limitEl = document.getElementById('rdLimitInput');
+        var descEl = document.getElementById('rdDescInput');
+        if (nameEl) state.modal.draft.name = nameEl.value;
+        if (costEl) state.modal.draft.cost = Number(costEl.value) || 10;
+        if (tierEl) state.modal.draft.tier = tierEl.value;
+        if (limitEl) state.modal.draft.limit = Number(limitEl.value) || 0;
+        if (descEl) state.modal.draft.desc = descEl.value;
+
+        var cBtn = ev.target.closest('[data-cat]');
+        if (cBtn){
+          state.modal.draft.catId = cBtn.getAttribute('data-cat');
+          renderModal();
+        }
+      }
+      return;
+
+    // Modal Saving
+    case 'saveTaskModal': saveTaskModal(); return;
+    case 'saveGoalModal': saveGoalModal(); return;
+    case 'saveCatModal': saveCatModal(); return;
+    case 'saveAdjustModal': saveAdjustModal(); return;
+    case 'saveRedeemModal': saveRedeemModal(); return;
+    case 'savePinChange': savePinChangeModal(); return;
+    case 'saveChildName': saveChildName(); return;
+    case 'pinChange': state.modal = { type:'pinChange', draft:{} }; refreshAll(); return;
+
+    // Step List in Modal
+    case 'stepAdd':
+      if (state.modal && state.modal.draft && state.modal.draft.steps){
+        syncStepDraftFromDOM();
+        state.modal.draft.steps.push({ id: uid('st'), title: '', minutes: 5 });
+        refreshAll();
+      }
+      return;
+    case 'stepDel':
+      if (state.modal && state.modal.draft && state.modal.draft.steps){
+        syncStepDraftFromDOM();
+        var idx = Number(el.getAttribute('data-idx'));
+        if (state.modal.draft.steps.length > 1){
+          state.modal.draft.steps.splice(idx, 1);
+          refreshAll();
+        } else {
+          toast(state.lang==='zh'?'至少保留一个步骤':'Keep at least 1 step', 'bad');
+        }
+      }
+      return;
+    case 'stepUp':
+    case 'stepDown':
+      if (state.modal && state.modal.draft && state.modal.draft.steps){
+        syncStepDraftFromDOM();
+        var idx = Number(el.getAttribute('data-idx'));
+        var targetIdx = act === 'stepUp' ? idx - 1 : idx + 1;
+        var arr = state.modal.draft.steps;
+        if (targetIdx >= 0 && targetIdx < arr.length){
+          var tmp = arr[idx];
+          arr[idx] = arr[targetIdx];
+          arr[targetIdx] = tmp;
+          refreshAll();
+        }
+      }
+      return;
+    case 'dayToggle':
+      if (state.modal && state.modal.draft && state.modal.draft.weekdays){
+        syncStepDraftFromDOM();
+        var dw = Number(el.getAttribute('data-day'));
+        var wds = state.modal.draft.weekdays;
+        var wpos = wds.indexOf(dw);
+        if (wpos >= 0) wds.splice(wpos, 1); else wds.push(dw);
+        refreshAll();
+      }
+      return;
+
+    // PIN Keypad
+    case 'pinKey':
+      if (state.modal && state.modal.type === 'pin'){
+        state.modal.draft.pin = (state.modal.draft.pin || '') + el.getAttribute('data-key');
+        refreshAll();
+        if (state.modal.draft.pin.length === 4){
+          if (state.modal.draft.pin === String(db.settings.parentPin)){
+            state.parentUnlocked = true;
+            state.activeNav = 'parent';
+            state.modal = null;
+            refreshAll();
+            toast(t('pin_unlocked'), 'good');
+          } else {
+            toast(t('pin_wrong'), 'bad');
+            state.modal.draft.pin = '';
+            refreshAll();
+          }
+        }
+      }
+      return;
+    case 'pinBack':
+      if (state.modal && state.modal.type === 'pin'){
+        state.modal.draft.pin = (state.modal.draft.pin || '').slice(0, -1);
+        refreshAll();
+      }
+      return;
+    case 'pinOk':
+      if (state.modal && state.modal.type === 'pin'){
+        if (state.modal.draft.pin === String(db.settings.parentPin)){
+          state.parentUnlocked = true;
+          state.activeNav = 'parent';
+          state.modal = null;
+          refreshAll();
+          toast(t('pin_unlocked'), 'good');
+        } else {
+          toast(t('pin_wrong'), 'bad');
+          state.modal.draft.pin = '';
+          refreshAll();
+        }
+      }
+      return;
+    case 'closeModal': state.modal = null; refreshAll(); return;
+    case 'maskClose':
+      if (e.target && e.target.classList && e.target.classList.contains('modal-mask')){
+        state.modal = null; refreshAll();
+      }
+      return;
+    case 'expJson': {
+      var data = JSON.stringify(db, null, 2);
+      var blob = new Blob([data], { type:'application/json' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = 'hilson-quest-backup-' + dateKey() + '.json';
+      document.body.appendChild(a); a.click();
+      setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 200);
+      toast('Backup exported', 'good');
+      return;
+    }
+    case 'impJson': {
+      var f = document.getElementById('impFile');
+      if (f){ f.value = ''; f.click(); }
+      return;
+    }
+    case 'demoReset':
+      state.modal = { type:'confirm', title:t('reset_demo'), danger:false,
+        text: state.lang==='zh'?'确定重置为示例任务吗？现有数据将被覆盖。':'Reset all quests to demo English version?',
+        confirmLabel:t('reset_demo'), action:'resetDemo' };
+      refreshAll(); return;
+    case 'clearAll':
+      state.modal = { type:'confirm', title:t('clear_all'), danger:true,
+        text: state.lang==='zh'?'确定清空所有数据吗？此操作不可逆。':'Clear all data permanently?',
+        confirmLabel:t('clear_all'), action:'clearAll' };
+      refreshAll(); return;
+    case 'doConfirm':
+      if (state.modal){
+        var mAct = state.modal.action;
+        var tId = state.modal.targetId;
+        var tTier = state.modal.targetTier;
+        var payload = state.modal.payload;
+        state.modal = null;
+
+        if (mAct === 'taskDel') delTask(tId);
+        else if (mAct === 'goalDel') delGoal(tId);
+        else if (mAct === 'rdDel') delReward(tTier, tId);
+        else if (mAct === 'resetDemo') { db = seedDemo(); saveDB(); refreshAll(); toast('Demo quests reset', 'good'); }
+        else if (mAct === 'clearAll') { db = blankDB(); saveDB(); refreshAll(); toast('All data cleared'); }
+        else if (mAct === 'import') { db = payload; saveDB(); refreshAll(); toast('Data restored', 'good'); }
+        else refreshAll();
+      }
+      return;
+    default: return;
+  }
+}
+
+function onAppChange(e){
+  if (e.target.id === 'impFile'){
+    var file = e.target.files && e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      try{
+        var obj = JSON.parse(String(reader.result));
+        if (!obj || !obj.categories || !obj.tasks) throw new Error('Invalid');
+        state.modal = { type:'confirm', title:t('import_json'), text:'Replace current data with imported backup?',
+          confirmLabel:t('import_json'), action:'import', payload:obj };
+        refreshAll();
+      }catch(err){ toast('Invalid file format', 'bad'); }
+    };
+    reader.readAsText(file);
+  }
+}
+
+/* =========================================================
+   12. Init
+   ========================================================= */
+function init(){
+  db = loadDB();
+  // Always verify categories match the 4 requested: Study, Earn Money, Sport, Life
+  var hasNewCategories = db && db.categories && db.categories.some(function(c){ return c.id === 'cat_money'; });
+  if (!db || !hasNewCategories){
+    db = seedDemo();
+    saveDB();
+  }
+  state.month = monthKey();
+  document.documentElement.lang = state.lang === 'zh' ? 'zh-CN' : 'en';
+
+  document.addEventListener('click', onAppClick);
+  document.addEventListener('change', onAppChange);
+
+  refreshAll();
+}
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();
+</script>
+</body>
+</html>

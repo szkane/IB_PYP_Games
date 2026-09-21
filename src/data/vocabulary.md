@@ -1,4 +1,4 @@
-#KG - Grade 1 - Grade 3 Vocabulary
+# KG - Grade 1 - Grade 3 Vocabulary
 
 # Grade 3
 

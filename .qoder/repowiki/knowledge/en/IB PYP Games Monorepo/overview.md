@@ -1,1 +1,0 @@
-Top-level monorepo that builds, validates, and serves a curriculum-linked hub for standalone Grade 1–5 HTML5 learning games across literacy, math, science, and Chinese.

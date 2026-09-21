@@ -1,1 +1,0 @@
-A zero-touch, camera-driven spelling game for children that uses MediaPipe hand tracking and Phaser 3 to let kids grab floating letter orbs with fist gestures and drop them into word slots.
