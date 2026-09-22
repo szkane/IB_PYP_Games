@@ -1,10 +1,12 @@
 // Cache version - auto-updated by build script
-const CACHE_VERSION = '20260922183255';
+const CACHE_VERSION = '20260922214831';
 const CACHE_NAME = `ib-pyp-games-${CACHE_VERSION}`;
 
 // Static assets to pre-cache during install
 const PRECACHE_URLS = [
     '/',
+    '/apple-touch-icon-180x180.png',
+    '/apple-touch-icon.png',
     '/Chinese/g1_chinese-practice-print.html',
     '/Chinese/g1_pinyin_training.html',
     '/Chinese/g1_word_spinner.html',

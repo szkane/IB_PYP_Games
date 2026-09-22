@@ -76,7 +76,7 @@ export default defineConfig({
         const distDir = resolve(__dirname, 'dist');
         
         // Copy root static files
-        const staticFiles = ['manifest.json', 'sw.js', 'icon-192.png', 'icon-512.png'];
+        const staticFiles = ['manifest.json', 'sw.js', 'icon-192.png', 'icon-512.png', 'apple-touch-icon-180x180.png', 'apple-touch-icon.png'];
         for (const file of staticFiles) {
           const srcPath = resolve(srcDir, file);
           const destPath = resolve(distDir, file);
@@ -89,7 +89,7 @@ export default defineConfig({
 
         // Vite rewrites <link rel="manifest"> into dist/assets/manifest-*.json.
         // Keep icon paths valid for that generated manifest as well as root manifest.json.
-        for (const file of ['icon-192.png', 'icon-512.png']) {
+        for (const file of ['icon-192.png', 'icon-512.png', 'apple-touch-icon-180x180.png', 'apple-touch-icon.png']) {
           const srcPath = resolve(srcDir, file);
           const destPath = resolve(distDir, 'assets', file);
           if (existsSync(srcPath)) {
