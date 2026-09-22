@@ -832,6 +832,93 @@ textarea.input { min-height: 72px; resize: vertical; }
   box-shadow: 1px 1px 0 var(--ink);
 }
 
+/* Multi-Month Picker in Task Modal */
+.month-pick-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
+}
+.month-pick-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.month-year-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.month-year-badge {
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--ink);
+  padding: 0 6px;
+  min-width: 48px;
+  text-align: center;
+}
+.month-pick-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+}
+@media (max-width: 480px) {
+  .month-pick-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+.month-btn {
+  height: 38px;
+  border: 2px solid var(--ink);
+  border-radius: var(--r-btn);
+  background: var(--paper);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ink);
+  box-shadow: 2px 2px 0 var(--ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  user-select: none;
+}
+.month-btn:hover:not(.on) {
+  background: #f1f5f9;
+}
+.month-btn.on {
+  background: var(--green);
+  color: #fff;
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+.month-summary-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-btn);
+  padding: 6px 12px;
+}
+.month-summary-tag {
+  font-weight: 800;
+  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.tag.month-tag {
+  background: #0ea5e922;
+  color: #0284c7;
+  font-weight: 800;
+}
+
 /* Category Picker in Modal */
 .cat-pick-grid {
   display: grid;
@@ -1415,6 +1502,12 @@ var I18N = {
     goal_title: "Goal Title",
     goal_desc: "Encouragement / Notes",
     goal_month: "Target Month",
+    task_months: "Target Months",
+    task_months_multi: "Multi-select",
+    month_select_all: "All Year",
+    month_cur_only: "This Month",
+    months_selected_count: "months selected",
+    at_least_one_month: "Please select at least one month",
     goal_target: "Target Completion Count",
     reward_name: "Reward Name",
     reward_cost: "Point Cost",
@@ -1557,6 +1650,12 @@ var I18N = {
     goal_title: "目标名称",
     goal_desc: "给孩子的鼓励与说明",
     goal_month: "目标月份",
+    task_months: "适用月份",
+    task_months_multi: "支持多选",
+    month_select_all: "全年12个月",
+    month_cur_only: "仅当月",
+    months_selected_count: "个适用月份",
+    at_least_one_month: "请至少选择一个适用月份",
     goal_target: "目标完成次数",
     reward_name: "心愿名称",
     reward_cost: "消耗积分",
@@ -1674,6 +1773,27 @@ function fmtMonth(mk){
   var monthsEn = ['January','February','March','April','May','June','July','August','September','October','November','December'];
   return monthsEn[p[1]-1] + ' ' + p[0];
 }
+function taskMonths(t){
+  if (t && t.months && Array.isArray(t.months) && t.months.length) return t.months;
+  if (t && t.month) return [t.month];
+  return [];
+}
+function formatTaskMonths(tItem){
+  var ms = taskMonths(tItem);
+  if (!ms.length) return state.lang === 'zh' ? '全周期' : 'All Months';
+  if (ms.length === 1) return fmtMonth(ms[0]);
+  var yr = ms[0].split('-')[0];
+  if (ms.length === 12 && ms.every(function(m){ return m.indexOf(yr + '-') === 0; })) {
+    return yr + (state.lang === 'zh' ? ' 全年 (12个月)' : ' All Year (12 mos)');
+  }
+  if (ms.length <= 3) {
+    return ms.map(function(m){
+      var p = m.split('-');
+      return p[0] + '.' + p[1];
+    }).join(', ');
+  }
+  return ms[0].replace('-', '.') + ' ~ ' + ms[ms.length - 1].replace('-', '.') + ' (' + ms.length + (state.lang === 'zh' ? '个月' : ' mos') + ')';
+}
 function fmtDur(sec){
   if (sec === null || sec === undefined || sec === '') return '—';
   sec = Math.max(0, Math.round(sec));
@@ -1763,6 +1883,7 @@ function seedDemo(){
     return {
       id: uid('task'),
       month: mk,
+      months: [mk],
       goalId: gid,
       title: title,
       categoryId: catId,
@@ -1875,6 +1996,12 @@ function loadDB(){
         c.color = def.color;
       }
     });
+    obj.tasks.forEach(function(t){
+      if (!t.months || !Array.isArray(t.months) || !t.months.length) {
+        t.months = t.month ? [t.month] : [monthKey()];
+      }
+      if (!t.month) t.month = t.months[0];
+    });
     return obj;
   }catch(e){ return null; }
 }
@@ -1892,7 +2019,8 @@ function tasksOfDate(date){
   var dow = parseKey(date).getDay();
   return db.tasks.filter(function(t){
     if (t.active === false) return false;
-    if (t.month !== mk) return false;
+    var ms = taskMonths(t);
+    if (ms.length && ms.indexOf(mk) < 0) return false;
     var wd = (t.weekdays && t.weekdays.length) ? t.weekdays : [0,1,2,3,4,5,6];
     return wd.indexOf(dow) >= 0;
   });
@@ -2597,7 +2725,11 @@ function goalsOfMonth(mk){
 }
 
 function tasksOfMonth(mk){
-  return db.tasks.filter(function(t){ return !mk || t.month === mk; });
+  return db.tasks.filter(function(t){
+    if (!mk) return true;
+    var ms = taskMonths(t);
+    return ms.indexOf(mk) >= 0;
+  });
 }
 
 function goalOf(id){
@@ -2635,10 +2767,11 @@ function catOptions(sel){
   }).join('');
 }
 
-function goalOptions(sel, mk){
+function goalOptions(sel, months){
+  var mList = Array.isArray(months) ? months : (months ? [months] : []);
   var opts = '<option value=""' + (!sel ? ' selected' : '') + '>' + t('no_goal_assoc') + '</option>';
   db.goals.forEach(function(g){
-    if (mk && g.month !== mk) return;
+    if (mList.length && mList.indexOf(g.month) < 0 && g.id !== sel) return;
     opts += '<option value="' + esc(g.id) + '"' + (g.id === sel ? ' selected' : '') + '>' + esc(fmtMonth(g.month) + ' · ' + g.title) + '</option>';
   });
   return opts;
@@ -2664,9 +2797,13 @@ function draftTask(id){
     for (var i=0; i<db.tasks.length; i++) {
       if (db.tasks[i].id === id) {
         var tItem = db.tasks[i];
+        var ms = taskMonths(tItem);
+        if (!ms.length) ms = [monthKey()];
         return {
           id: tItem.id,
-          month: tItem.month || monthKey(),
+          months: ms.slice(),
+          month: ms[0] || monthKey(),
+          viewYear: parseInt((ms[0] || monthKey()).split('-')[0], 10),
           goalId: tItem.goalId || '',
           title: tItem.title,
           categoryId: tItem.categoryId,
@@ -2677,9 +2814,12 @@ function draftTask(id){
       }
     }
   }
+  var curM = state.month || monthKey();
   return {
     id: '',
-    month: state.month || monthKey(),
+    months: [curM],
+    month: curM,
+    viewYear: parseInt(curM.split('-')[0], 10),
     goalId: '',
     title: '',
     categoryId: (db.categories[0] || {}).id || 'cat_study',
@@ -2729,7 +2869,12 @@ function saveTask(draft){
   }
   tItem.title = draft.title.trim();
   tItem.categoryId = draft.categoryId || 'cat_study';
-  tItem.month = draft.month || monthKey();
+  var ms = (draft.months && draft.months.length) ? draft.months.slice() : (draft.month ? [draft.month] : [monthKey()]);
+  var uniqueMs = [];
+  ms.forEach(function(m){ if (uniqueMs.indexOf(m) < 0) uniqueMs.push(m); });
+  uniqueMs.sort();
+  tItem.months = uniqueMs;
+  tItem.month = uniqueMs[0] || monthKey();
   tItem.goalId = draft.goalId || '';
   tItem.points = Math.max(0, Number(draft.points) || 0);
   tItem.weekdays = (draft.weekdays && draft.weekdays.length) ? draft.weekdays.slice() : [0,1,2,3,4,5,6];
@@ -2866,14 +3011,13 @@ function syncStepDraftFromDOM(){
   var titleEl = document.getElementById('taskTitleInput');
   var catEl = document.getElementById('taskCatInput');
   var ptsEl = document.getElementById('taskPointsInput');
-  var monthEl = document.getElementById('taskMonthInput');
   var goalEl = document.getElementById('taskGoalInput');
 
   if (titleEl) d.title = titleEl.value;
   if (catEl) d.categoryId = catEl.value;
   if (ptsEl) d.points = Number(ptsEl.value) || 0;
-  if (monthEl) d.month = monthEl.value;
   if (goalEl) d.goalId = goalEl.value;
+  if (d.months && d.months.length) d.month = d.months[0];
 
   var stepRows = document.querySelectorAll('.step-edit-row');
   if (stepRows && stepRows.length && d.steps){
@@ -2919,6 +3063,7 @@ function renderParentTasksTab(){
             esc(tItem.title) + ' ' +
             '<span class="tag" style="background:' + col + '22;color:' + col + ';font-weight:900">' + esc(cName) + '</span> ' +
             '<span class="tag pts-badge">+' + (Number(tItem.points)||0) + ' ' + catPointName(tItem.categoryId, Number(tItem.points)||0) + '</span> ' +
+            '<span class="tag month-tag">' + esc(formatTaskMonths(tItem)) + '</span> ' +
             (isActive ? '<span class="pill green">' + t('status_active') + '</span>' : '<span class="pill coral">' + t('status_inactive') + '</span>') +
           '</div>' +
           '<div class="row-sub">' +
@@ -3336,6 +3481,35 @@ function renderModal(){
       return '<button class="day-btn ' + (on ? 'on' : '') + '" data-act="dayToggle" data-day="' + dw + '">' + lbl + '</button>';
     }).join('');
 
+    var selMonths = (dt.months && dt.months.length) ? dt.months : (dt.month ? [dt.month] : [monthKey()]);
+    dt.months = selMonths;
+    var viewYear = dt.viewYear || (selMonths[0] ? parseInt(selMonths[0].split('-')[0], 10) : new Date().getFullYear());
+    dt.viewYear = viewYear;
+
+    var monthButtons = [];
+    for (var mIdx = 1; mIdx <= 12; mIdx++) {
+      var mKeyStr = viewYear + '-' + (mIdx < 10 ? '0' + mIdx : mIdx);
+      var mOn = selMonths.indexOf(mKeyStr) >= 0;
+      var mLbl = state.lang === 'zh' ? (mIdx + '月') : ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][mIdx-1];
+      monthButtons.push('<button type="button" class="month-btn ' + (mOn ? 'on' : '') + '" data-act="taskMonthToggle" data-m="' + mKeyStr + '">' + mLbl + '</button>');
+    }
+
+    var summaryText = '';
+    if (!selMonths.length) {
+      summaryText = '<span style="color:var(--coral);font-weight:800">' + t('at_least_one_month') + '</span>';
+    } else {
+      var summaryDetail = selMonths.length + ' ' + t('months_selected_count');
+      if (selMonths.length === 12 && selMonths.every(function(m){ return m.indexOf(viewYear + '-') === 0; })) {
+        summaryDetail = viewYear + (state.lang === 'zh' ? ' 全年12个月' : ' All 12 Months');
+      } else {
+        summaryDetail += ': ' + selMonths.map(function(m){
+          var p = m.split('-');
+          return p[0] + '.' + p[1];
+        }).join(', ');
+      }
+      summaryText = '<span class="month-summary-tag">' + icon('calendar', 14, 'var(--ink)') + ' ' + esc(summaryDetail) + '</span>';
+    }
+
     layer.innerHTML = '<div class="modal-mask" data-act="maskClose"><div class="modal" role="dialog" style="max-width:620px">' +
       '<div class="modal-h"><h3>' + (dt.id ? (state.lang==='zh'?'编辑任务':'Edit Quest') : t('add_new_task')) + '</h3><button class="icon-btn" data-act="closeModal">' + icon('close', 16) + '</button></div>' +
       '<div class="modal-b">' +
@@ -3344,10 +3518,23 @@ function renderModal(){
           '<div class="field"><label>' + t('task_cat') + '</label><select class="input" id="taskCatInput">' + catOptions(dt.categoryId) + '</select></div>' +
           '<div class="field"><label>' + t('task_pts') + '</label><input class="input" type="number" min="0" max="1000" id="taskPointsInput" value="' + (Number(dt.points) || 10) + '"></div>' +
         '</div>' +
-        '<div class="grid2">' +
-          '<div class="field"><label>' + t('goal_month') + '</label><input class="input" type="month" id="taskMonthInput" value="' + esc(dt.month || monthKey()) + '"></div>' +
-          '<div class="field"><label>' + t('task_goal') + '</label><select class="input" id="taskGoalInput">' + goalOptions(dt.goalId, dt.month) + '</select></div>' +
+        '<div class="field">' +
+          '<div class="month-pick-wrap">' +
+            '<div class="month-pick-header">' +
+              '<label style="margin-bottom:0">' + t('task_months') + ' <span class="hint" style="font-weight:normal">(' + t('task_months_multi') + ')</span></label>' +
+              '<div class="month-year-nav">' +
+                '<button type="button" class="btn xs soft month-year-nav" data-act="taskYearDelta" data-delta="-1" title="Previous Year">◀</button>' +
+                '<span class="month-year-badge">' + viewYear + '</span>' +
+                '<button type="button" class="btn xs soft month-year-nav" data-act="taskYearDelta" data-delta="1" title="Next Year">▶</button>' +
+                '<button type="button" class="btn xs line" data-act="taskAllYear" style="margin-left:6px">' + t('month_select_all') + '</button>' +
+                '<button type="button" class="btn xs line" data-act="taskCurMonth">' + t('month_cur_only') + '</button>' +
+              '</div>' +
+            '</div>' +
+            '<div class="month-pick-grid">' + monthButtons.join('') + '</div>' +
+            '<div class="month-summary-bar">' + summaryText + '</div>' +
+          '</div>' +
         '</div>' +
+        '<div class="field"><label>' + t('task_goal') + '</label><select class="input" id="taskGoalInput">' + goalOptions(dt.goalId, selMonths) + '</select></div>' +
         '<div class="field"><label>' + t('task_days') + '</label><div class="day-pick">' + dayButtons + '</div></div>' +
         '<div class="field"><label>' + t('task_steps') + '</label>' +
           '<div class="step-edit-list">' + stepEditRows(dt) + '</div>' +
@@ -3492,19 +3679,23 @@ function saveTaskModal(){
   var titleEl = document.getElementById('taskTitleInput');
   var catEl = document.getElementById('taskCatInput');
   var ptsEl = document.getElementById('taskPointsInput');
-  var monthEl = document.getElementById('taskMonthInput');
   var goalEl = document.getElementById('taskGoalInput');
 
   if (titleEl) d.title = titleEl.value;
   if (catEl) d.categoryId = catEl.value;
   if (ptsEl) d.points = Number(ptsEl.value) || 0;
-  if (monthEl) d.month = monthEl.value;
   if (goalEl) d.goalId = goalEl.value;
 
   if (!d.title.trim()){
     toast(state.lang==='zh'?'请输入任务名称':'Please enter quest title', 'bad');
     return;
   }
+
+  if (!d.months || !d.months.length){
+    toast(t('at_least_one_month'), 'bad');
+    return;
+  }
+  d.month = d.months[0] || monthKey();
 
   var stepRows = document.querySelectorAll('.step-edit-row');
   if (stepRows && stepRows.length){
@@ -3933,6 +4124,71 @@ function onAppClick(e){
         var wpos = wds.indexOf(dw);
         if (wpos >= 0) wds.splice(wpos, 1); else wds.push(dw);
         refreshAll();
+      }
+      return;
+    case 'taskYearDelta':
+      if (state.modal && state.modal.type === 'task' && state.modal.draft){
+        syncStepDraftFromDOM();
+        var delta = Number(el.getAttribute('data-delta')) || 0;
+        state.modal.draft.viewYear = (state.modal.draft.viewYear || new Date().getFullYear()) + delta;
+        renderModal();
+      }
+      return;
+    case 'taskMonthToggle':
+      if (state.modal && state.modal.type === 'task' && state.modal.draft){
+        syncStepDraftFromDOM();
+        var mKey = el.getAttribute('data-m');
+        var d = state.modal.draft;
+        d.months = (d.months && d.months.length) ? d.months.slice() : (d.month ? [d.month] : [monthKey()]);
+        var mIdx = d.months.indexOf(mKey);
+        if (mIdx >= 0) {
+          if (d.months.length <= 1) {
+            toast(t('at_least_one_month'), 'bad');
+            return;
+          }
+          d.months.splice(mIdx, 1);
+        } else {
+          d.months.push(mKey);
+          d.months.sort();
+        }
+        d.month = d.months[0] || monthKey();
+        renderModal();
+      }
+      return;
+    case 'taskAllYear':
+      if (state.modal && state.modal.type === 'task' && state.modal.draft){
+        syncStepDraftFromDOM();
+        var d = state.modal.draft;
+        var yr = d.viewYear || new Date().getFullYear();
+        var allYrMonths = [];
+        for (var mi = 1; mi <= 12; mi++) {
+          allYrMonths.push(yr + '-' + (mi < 10 ? '0' + mi : mi));
+        }
+        d.months = (d.months && d.months.length) ? d.months.slice() : (d.month ? [d.month] : [monthKey()]);
+        var allIn = allYrMonths.every(function(m){ return d.months.indexOf(m) >= 0; });
+        if (!allIn) {
+          allYrMonths.forEach(function(m){
+            if (d.months.indexOf(m) < 0) d.months.push(m);
+          });
+          d.months.sort();
+        } else {
+          var rem = d.months.filter(function(m){ return allYrMonths.indexOf(m) < 0; });
+          if (rem.length) d.months = rem;
+          else d.months = [allYrMonths[0]];
+        }
+        d.month = d.months[0] || monthKey();
+        renderModal();
+      }
+      return;
+    case 'taskCurMonth':
+      if (state.modal && state.modal.type === 'task' && state.modal.draft){
+        syncStepDraftFromDOM();
+        var d = state.modal.draft;
+        var cMonth = monthKey();
+        d.months = [cMonth];
+        d.month = cMonth;
+        d.viewYear = parseInt(cMonth.split('-')[0], 10);
+        renderModal();
       }
       return;
 
