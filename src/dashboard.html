@@ -778,6 +778,64 @@ textarea.input { min-height: 72px; resize: vertical; }
   font-size: 11px;
 }
 
+/* Parent Task Category Tabs */
+.parent-task-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 2px 2px 6px 2px;
+}
+.parent-task-tabs::-webkit-scrollbar { display: none; }
+.parent-cat-tab {
+  flex: none;
+  height: 38px;
+  padding: 0 14px;
+  border: 2px solid var(--ink);
+  border-radius: var(--r-btn);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 13.5px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  box-shadow: var(--shadow-block-sm);
+  cursor: pointer;
+  transition: all 0.12s ease;
+  user-select: none;
+}
+.parent-cat-tab:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+.parent-cat-tab:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+.parent-cat-tab.active {
+  background: var(--tab-c, var(--ink));
+  border-color: var(--ink);
+  color: #fff;
+  font-weight: 900;
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+.parent-cat-tab .cnt-badge {
+  background: rgba(0, 0, 0, 0.08);
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 900;
+  padding: 2px 7px;
+  border-radius: 999px;
+  line-height: 1.2;
+}
+.parent-cat-tab.active .cnt-badge {
+  background: rgba(255, 255, 255, 0.28);
+  color: #fff;
+}
+
 /* Step Edit rows in Modal */
 .step-edit-list {
   display: flex;
@@ -1716,6 +1774,7 @@ var state = {
   lang: localStorage.getItem(LS_LANG_KEY) || 'en',
   activeNav: 'tasks',          // tasks | goals | rewards | parent
   parentTab: 'tasks',          // tasks | goals | points | rewards | settings
+  parentTaskCat: 'all',        // all | cat_study | cat_money | cat_sport | cat_life
   activeCategory: 'cat_study', // cat_study | cat_money | cat_sport | cat_life
   parentUnlocked: false,
   month: '',
@@ -2468,7 +2527,9 @@ function icon(name, size, color){
     calendar: 'M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Zm0 16H5V10h14v10ZM5 8V6h14v2H5Zm2 4h3v3H7v-3Zm5 0h3v3h-3v-3Z',
     bulb: 'M12 2a7 7 0 0 0-4.8 12.1c.5.5.8 1.1.8 1.9v1c0 .6.4 1 1 1h6c.6 0 1-.4 1-1v-1c0-.8.3-1.4.8-1.9A7 7 0 0 0 12 2Zm-2 18h4v1c0 .6-.4 1-1 1h-2c-.6 0-1-.4-1-1v-1Z',
     bolt: 'M11 21h-1l1-7H7.5c-.58 0-.57-.32-.38-.66.19-.34.05-.08.07-.12C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.9 17.5 11 21 11 21Z',
-    heart: 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35Z'
+    heart: 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35Z',
+    grid: 'M4 4h7v7H4V4Zm9 0h7v7h-7V4ZM4 13h7v7H4v-7Zm9 0h7v7h-7v-7Z',
+    layers: 'M12 2 2 7l10 5 10-5-10-5ZM2 17l10 5 10-5M2 12l10 5 10-5'
   };
   var d = paths[name] || paths.star;
   return '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" fill="' + c + '" aria-hidden="true"><path d="' + d + '"/></svg>';
@@ -2855,6 +2916,7 @@ function draftTask(id){
     }
   }
   var curM = state.month || monthKey();
+  var defaultCat = (state.parentTaskCat && state.parentTaskCat !== 'all') ? state.parentTaskCat : ((db.categories[0] || {}).id || 'cat_study');
   return {
     id: '',
     months: [curM],
@@ -2862,7 +2924,7 @@ function draftTask(id){
     viewYear: parseInt(curM.split('-')[0], 10),
     goalId: '',
     title: '',
-    categoryId: (db.categories[0] || {}).id || 'cat_study',
+    categoryId: defaultCat,
     points: 10,
     weekdays: [0,1,2,3,4,5,6],
     steps: [
@@ -3112,6 +3174,14 @@ function syncGoalDraftFromDOM(){
    ========================================================= */
 function renderParentTasksTab(){
   var tasks = db.tasks || [];
+  var curCat = state.parentTaskCat || 'all';
+  if (curCat !== 'all' && !db.categories.some(function(c){ return c.id === curCat; })) {
+    curCat = 'all';
+    state.parentTaskCat = 'all';
+  }
+
+  var filteredTasks = curCat === 'all' ? tasks : tasks.filter(function(t){ return t.categoryId === curCat; });
+
   var h = '<section class="card">' +
     '<div class="card-h">' +
       '<h2>' + icon('book', 22, 'var(--green)') + ' ' + t('parent_tab_tasks') + ' (' + tasks.length + ')</h2>' +
@@ -3121,11 +3191,36 @@ function renderParentTasksTab(){
       (state.lang==='zh'?'每个任务均支持多步骤拆解与用时建议。孩子按步骤打卡，赚取对应分类的专属积分（智力、币、能量、爱心）。':'Each quest supports sub-steps with target durations. Children check in step-by-step and earn category currency (IQ, Coins, Energy, Care).') +
     '</div>';
 
+  // Category Tabs
+  h += '<div class="parent-task-tabs">';
+  var isCurAll = (curCat === 'all');
+  h += '<button class="parent-cat-tab ' + (isCurAll ? 'active' : '') + '" data-act="parentTaskCat" data-cat="all" style="--tab-c:var(--ink)">' +
+    icon('grid', 15, isCurAll ? '#fff' : 'var(--ink)') +
+    '<span>' + (state.lang === 'zh' ? '全部' : 'All') + '</span>' +
+    '<span class="cnt-badge">' + tasks.length + '</span>' +
+  '</button>';
+
+  db.categories.forEach(function(c){
+    var isCur = (curCat === c.id);
+    var cCount = tasks.filter(function(t){ return t.categoryId === c.id; }).length;
+    h += '<button class="parent-cat-tab ' + (isCur ? 'active' : '') + '" data-act="parentTaskCat" data-cat="' + esc(c.id) + '" style="--tab-c:' + esc(c.color) + '">' +
+      icon(c.icon || 'book', 15, isCur ? '#fff' : c.color) +
+      '<span>' + esc(catName(c.id)) + '</span>' +
+      '<span class="cnt-badge">' + cCount + '</span>' +
+    '</button>';
+  });
+  h += '</div>';
+
   if (!tasks.length){
     h += '<div class="empty">' + (state.lang==='zh'?'暂无任务，请点击右上角新增任务':'No quests yet. Click Add Quest to create one.') + '</div>';
+  } else if (!filteredTasks.length){
+    var selName = catName(curCat);
+    h += '<div class="empty">' +
+      (state.lang==='zh' ? ('「' + esc(selName) + '」分类下暂无任务，请点击右上角新增任务') : ('No quests under "' + esc(selName) + '". Click Add Quest above to create one.')) +
+    '</div>';
   } else {
     h += '<div class="rows">';
-    tasks.forEach(function(tItem){
+    filteredTasks.forEach(function(tItem){
       var col = catColor(tItem.categoryId);
       var cName = catName(tItem.categoryId);
       var totalMin = (tItem.steps || []).reduce(function(acc, s){ return acc + (Number(s.minutes) || 0); }, 0);
@@ -4105,6 +4200,7 @@ function onAppClick(e){
     case 'lang': switchLang(lang); return;
     case 'catTab': state.activeCategory = cat; refreshAll(); return;
     case 'parentTab': state.parentTab = tab; refreshAll(); return;
+    case 'parentTaskCat': state.parentTaskCat = cat || 'all'; refreshAll(); return;
     case 'nav':
       if (nav === 'parent' && !state.parentUnlocked){
         state.modal = { type:'pin', draft:{ pin:'' } };
