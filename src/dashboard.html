@@ -1794,6 +1794,27 @@ function formatTaskMonths(tItem){
   }
   return ms[0].replace('-', '.') + ' ~ ' + ms[ms.length - 1].replace('-', '.') + ' (' + ms.length + (state.lang === 'zh' ? '个月' : ' mos') + ')';
 }
+function goalMonths(g){
+  if (g && g.months && Array.isArray(g.months) && g.months.length) return g.months;
+  if (g && g.month) return [g.month];
+  return [];
+}
+function formatGoalMonths(g){
+  var ms = goalMonths(g);
+  if (!ms.length) return state.lang === 'zh' ? '全周期' : 'All Months';
+  if (ms.length === 1) return fmtMonth(ms[0]);
+  var yr = ms[0].split('-')[0];
+  if (ms.length === 12 && ms.every(function(m){ return m.indexOf(yr + '-') === 0; })) {
+    return yr + (state.lang === 'zh' ? ' 全年 (12个月)' : ' All Year (12 mos)');
+  }
+  if (ms.length <= 3) {
+    return ms.map(function(m){
+      var p = m.split('-');
+      return p[0] + '.' + p[1];
+    }).join(', ');
+  }
+  return ms[0].replace('-', '.') + ' ~ ' + ms[ms.length - 1].replace('-', '.') + ' (' + ms.length + (state.lang === 'zh' ? '个月' : ' mos') + ')';
+}
 function fmtDur(sec){
   if (sec === null || sec === undefined || sec === '') return '—';
   sec = Math.max(0, Math.round(sec));
@@ -1870,6 +1891,7 @@ function seedDemo(){
   d.goals.push({
     id: gid,
     month: mk,
+    months: [mk],
     title: 'Monthly Self-Management & Growth',
     desc: 'Take small steps daily, build strong agency, and celebrate achievements!',
     targetCount: 30,
@@ -2001,6 +2023,13 @@ function loadDB(){
         t.months = t.month ? [t.month] : [monthKey()];
       }
       if (!t.month) t.month = t.months[0];
+    });
+    obj.goals = obj.goals || [];
+    obj.goals.forEach(function(g){
+      if (!g.months || !Array.isArray(g.months) || !g.months.length) {
+        g.months = g.month ? [g.month] : [monthKey()];
+      }
+      if (!g.month) g.month = g.months[0];
     });
     return obj;
   }catch(e){ return null; }
@@ -2589,7 +2618,10 @@ function renderTasksViewport(){
 /* ---------- Other Views: Goals, Rewards, Parent ---------- */
 function renderGoalsViewport(){
   var mk = monthKey();
-  var goals = (db.goals||[]).filter(function(g){ return g.month === mk; });
+  var goals = (db.goals||[]).filter(function(g){
+    var ms = goalMonths(g);
+    return ms.indexOf(mk) >= 0;
+  });
   var h = '<div class="app-viewport"><div class="scrollable-view">';
   h += '<section class="card"><div class="card-h"><h2>' + icon('target', 22, 'var(--green)') + t('goals_title') + '</h2>' +
     '<span class="pill green">' + fmtMonth(mk) + '</span></div>';
@@ -2600,8 +2632,9 @@ function renderGoalsViewport(){
     goals.forEach(function(g){
       var tasks = db.tasks.filter(function(t){ return t.goalId === g.id; });
       var done = 0, steps = 0;
+      var gMs = goalMonths(g);
       Object.keys(db.checkins).forEach(function(d){
-        if (monthKey(d) !== g.month) return;
+        if (gMs.indexOf(monthKey(d)) < 0) return;
         tasks.forEach(function(t){
           var r = (db.checkins[d] || {})[t.id];
           if (!r || !r.steps) return;
@@ -2721,7 +2754,11 @@ function renderRewardsViewport(){
    Parent Settings Helper Functions & Tabs
    ========================================================= */
 function goalsOfMonth(mk){
-  return db.goals.filter(function(g){ return !mk || g.month === mk; });
+  return db.goals.filter(function(g){
+    if (!mk) return true;
+    var ms = goalMonths(g);
+    return ms.indexOf(mk) >= 0;
+  });
 }
 
 function tasksOfMonth(mk){
@@ -2740,8 +2777,9 @@ function goalOf(id){
 function goalProgress(g){
   var ts = db.tasks.filter(function(t){ return t.goalId === g.id; });
   var count = 0;
+  var gMs = goalMonths(g);
   Object.keys(db.checkins).forEach(function(dt){
-    if (monthKey(dt) === g.month){
+    if (gMs.indexOf(monthKey(dt)) >= 0){
       var anyDone = ts.some(function(t){ return isTaskComplete(dt, t); });
       if (anyDone) count++;
     }
@@ -2771,8 +2809,10 @@ function goalOptions(sel, months){
   var mList = Array.isArray(months) ? months : (months ? [months] : []);
   var opts = '<option value=""' + (!sel ? ' selected' : '') + '>' + t('no_goal_assoc') + '</option>';
   db.goals.forEach(function(g){
-    if (mList.length && mList.indexOf(g.month) < 0 && g.id !== sel) return;
-    opts += '<option value="' + esc(g.id) + '"' + (g.id === sel ? ' selected' : '') + '>' + esc(fmtMonth(g.month) + ' · ' + g.title) + '</option>';
+    var gMs = goalMonths(g);
+    var overlaps = !mList.length || gMs.some(function(m){ return mList.indexOf(m) >= 0; });
+    if (!overlaps && g.id !== sel) return;
+    opts += '<option value="' + esc(g.id) + '"' + (g.id === sel ? ' selected' : '') + '>' + esc(formatGoalMonths(g) + ' · ' + g.title) + '</option>';
   });
   return opts;
 }
@@ -2837,11 +2877,30 @@ function draftGoal(id){
     for (var i=0; i<db.goals.length; i++) {
       if (db.goals[i].id === id) {
         var g = db.goals[i];
-        return { id: g.id, month: g.month, title: g.title, desc: g.desc || '', targetCount: g.targetCount || 30 };
+        var ms = goalMonths(g);
+        if (!ms.length) ms = [monthKey()];
+        return {
+          id: g.id,
+          months: ms.slice(),
+          month: ms[0] || monthKey(),
+          viewYear: parseInt((ms[0] || monthKey()).split('-')[0], 10),
+          title: g.title,
+          desc: g.desc || '',
+          targetCount: g.targetCount || 30
+        };
       }
     }
   }
-  return { id: '', month: state.month || monthKey(), title: '', desc: '', targetCount: 30 };
+  var curM = state.month || monthKey();
+  return {
+    id: '',
+    months: [curM],
+    month: curM,
+    viewYear: parseInt(curM.split('-')[0], 10),
+    title: '',
+    desc: '',
+    targetCount: 30
+  };
 }
 
 function draftRedeem(tier, id){
@@ -2925,7 +2984,12 @@ function saveGoal(draft){
   }
   g.title = draft.title.trim();
   g.desc = draft.desc || '';
-  g.month = draft.month || monthKey();
+  var ms = (draft.months && draft.months.length) ? draft.months.slice() : (draft.month ? [draft.month] : [monthKey()]);
+  var uniqueMs = [];
+  ms.forEach(function(m){ if (uniqueMs.indexOf(m) < 0) uniqueMs.push(m); });
+  uniqueMs.sort();
+  g.months = uniqueMs;
+  g.month = uniqueMs[0] || monthKey();
   g.targetCount = Math.max(1, Number(draft.targetCount) || 30);
   saveDB();
   refreshAll();
@@ -3031,6 +3095,18 @@ function syncStepDraftFromDOM(){
   }
 }
 
+function syncGoalDraftFromDOM(){
+  if (!state.modal || state.modal.type !== 'goal' || !state.modal.draft) return;
+  var d = state.modal.draft;
+  var titleEl = document.getElementById('goalTitleInput');
+  var descEl = document.getElementById('goalDescInput');
+  var targetEl = document.getElementById('goalTargetInput');
+  if (titleEl) d.title = titleEl.value;
+  if (descEl) d.desc = descEl.value;
+  if (targetEl) d.targetCount = Number(targetEl.value) || 30;
+  if (d.months && d.months.length) d.month = d.months[0];
+}
+
 /* =========================================================
    Parent Settings Views
    ========================================================= */
@@ -3113,7 +3189,7 @@ function renderParentGoalsTab(){
         '<div class="row-main">' +
           '<div class="row-title">' +
             esc(g.title) + ' ' +
-            '<span class="pill blue">' + esc(fmtMonth(g.month)) + '</span>' +
+            '<span class="pill blue">' + esc(formatGoalMonths(g)) + '</span>' +
           '</div>' +
           '<div class="row-sub">' +
             (g.desc ? esc(g.desc) + ' · ' : '') +
@@ -3552,15 +3628,57 @@ function renderModal(){
   // 5. Goal Modal
   if (m.type === 'goal'){
     var dg = m.draft || {};
+    var selMonths = (dg.months && dg.months.length) ? dg.months : (dg.month ? [dg.month] : [monthKey()]);
+    dg.months = selMonths;
+    var viewYear = dg.viewYear || (selMonths[0] ? parseInt(selMonths[0].split('-')[0], 10) : new Date().getFullYear());
+    dg.viewYear = viewYear;
+
+    var monthButtons = [];
+    for (var mIdx = 1; mIdx <= 12; mIdx++) {
+      var mKeyStr = viewYear + '-' + (mIdx < 10 ? '0' + mIdx : mIdx);
+      var mOn = selMonths.indexOf(mKeyStr) >= 0;
+      var mLbl = state.lang === 'zh' ? (mIdx + '月') : ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][mIdx-1];
+      monthButtons.push('<button type="button" class="month-btn ' + (mOn ? 'on' : '') + '" data-act="goalMonthToggle" data-m="' + mKeyStr + '">' + mLbl + '</button>');
+    }
+
+    var summaryText = '';
+    if (!selMonths.length) {
+      summaryText = '<span style="color:var(--coral);font-weight:800">' + t('at_least_one_month') + '</span>';
+    } else {
+      var summaryDetail = selMonths.length + ' ' + t('months_selected_count');
+      if (selMonths.length === 12 && selMonths.every(function(m){ return m.indexOf(viewYear + '-') === 0; })) {
+        summaryDetail = viewYear + (state.lang === 'zh' ? ' 全年12个月' : ' All 12 Months');
+      } else {
+        summaryDetail += ': ' + selMonths.map(function(m){
+          var p = m.split('-');
+          return p[0] + '.' + p[1];
+        }).join(', ');
+      }
+      summaryText = '<span class="month-summary-tag">' + icon('calendar', 14, 'var(--ink)') + ' ' + esc(summaryDetail) + '</span>';
+    }
+
     layer.innerHTML = '<div class="modal-mask" data-act="maskClose"><div class="modal" role="dialog">' +
       '<div class="modal-h"><h3>' + (dg.id ? (state.lang==='zh'?'编辑目标':'Edit Goal') : t('add_new_goal')) + '</h3><button class="icon-btn" data-act="closeModal">' + icon('close', 16) + '</button></div>' +
       '<div class="modal-b">' +
         '<div class="field"><label>' + t('goal_title') + '</label><input class="input" id="goalTitleInput" value="' + esc(dg.title) + '" placeholder="' + (state.lang==='zh'?'例如：自主学习与习惯养成':'e.g. Daily Self-Management') + '"></div>' +
         '<div class="field"><label>' + t('goal_desc') + '</label><textarea class="input" id="goalDescInput" placeholder="' + (state.lang==='zh'?'写一句给孩子的鼓励与期许':'A sentence of encouragement') + '">' + esc(dg.desc) + '</textarea></div>' +
-        '<div class="grid2">' +
-          '<div class="field"><label>' + t('goal_month') + '</label><input class="input" type="month" id="goalMonthInput" value="' + esc(dg.month || monthKey()) + '"></div>' +
-          '<div class="field"><label>' + t('goal_target') + '</label><input class="input" type="number" min="1" max="999" id="goalTargetInput" value="' + (Number(dg.targetCount) || 30) + '"></div>' +
+        '<div class="field">' +
+          '<div class="month-pick-wrap">' +
+            '<div class="month-pick-header">' +
+              '<label style="margin-bottom:0">' + t('goal_month') + ' <span class="hint" style="font-weight:normal">(' + t('task_months_multi') + ')</span></label>' +
+              '<div class="month-year-nav">' +
+                '<button type="button" class="btn xs soft month-year-nav" data-act="goalYearDelta" data-delta="-1" title="Previous Year">◀</button>' +
+                '<span class="month-year-badge">' + viewYear + '</span>' +
+                '<button type="button" class="btn xs soft month-year-nav" data-act="goalYearDelta" data-delta="1" title="Next Year">▶</button>' +
+                '<button type="button" class="btn xs line" data-act="goalAllYear" style="margin-left:6px">' + t('month_select_all') + '</button>' +
+                '<button type="button" class="btn xs line" data-act="goalCurMonth">' + t('month_cur_only') + '</button>' +
+              '</div>' +
+            '</div>' +
+            '<div class="month-pick-grid">' + monthButtons.join('') + '</div>' +
+            '<div class="month-summary-bar">' + summaryText + '</div>' +
+          '</div>' +
         '</div>' +
+        '<div class="field"><label>' + t('goal_target') + '</label><input class="input" type="number" min="1" max="999" id="goalTargetInput" value="' + (Number(dg.targetCount) || 30) + '"></div>' +
       '</div>' +
       '<div class="modal-f">' +
         fCancel +
@@ -3724,18 +3842,22 @@ function saveGoalModal(){
   var d = m.draft;
   var titleEl = document.getElementById('goalTitleInput');
   var descEl = document.getElementById('goalDescInput');
-  var monthEl = document.getElementById('goalMonthInput');
   var targetEl = document.getElementById('goalTargetInput');
 
   if (titleEl) d.title = titleEl.value;
   if (descEl) d.desc = descEl.value;
-  if (monthEl) d.month = monthEl.value;
   if (targetEl) d.targetCount = Number(targetEl.value) || 30;
 
   if (!d.title.trim()){
     toast(state.lang==='zh'?'请输入目标名称':'Please enter goal title', 'bad');
     return;
   }
+
+  if (!d.months || !d.months.length){
+    toast(t('at_least_one_month'), 'bad');
+    return;
+  }
+  d.month = d.months[0] || monthKey();
 
   if (saveGoal(d)){
     state.modal = null;
@@ -4183,6 +4305,71 @@ function onAppClick(e){
     case 'taskCurMonth':
       if (state.modal && state.modal.type === 'task' && state.modal.draft){
         syncStepDraftFromDOM();
+        var d = state.modal.draft;
+        var cMonth = monthKey();
+        d.months = [cMonth];
+        d.month = cMonth;
+        d.viewYear = parseInt(cMonth.split('-')[0], 10);
+        renderModal();
+      }
+      return;
+    case 'goalYearDelta':
+      if (state.modal && state.modal.type === 'goal' && state.modal.draft){
+        syncGoalDraftFromDOM();
+        var delta = Number(el.getAttribute('data-delta')) || 0;
+        state.modal.draft.viewYear = (state.modal.draft.viewYear || new Date().getFullYear()) + delta;
+        renderModal();
+      }
+      return;
+    case 'goalMonthToggle':
+      if (state.modal && state.modal.type === 'goal' && state.modal.draft){
+        syncGoalDraftFromDOM();
+        var mKey = el.getAttribute('data-m');
+        var d = state.modal.draft;
+        d.months = (d.months && d.months.length) ? d.months.slice() : (d.month ? [d.month] : [monthKey()]);
+        var mIdx = d.months.indexOf(mKey);
+        if (mIdx >= 0) {
+          if (d.months.length <= 1) {
+            toast(t('at_least_one_month'), 'bad');
+            return;
+          }
+          d.months.splice(mIdx, 1);
+        } else {
+          d.months.push(mKey);
+          d.months.sort();
+        }
+        d.month = d.months[0] || monthKey();
+        renderModal();
+      }
+      return;
+    case 'goalAllYear':
+      if (state.modal && state.modal.type === 'goal' && state.modal.draft){
+        syncGoalDraftFromDOM();
+        var d = state.modal.draft;
+        var yr = d.viewYear || new Date().getFullYear();
+        var allYrMonths = [];
+        for (var mi = 1; mi <= 12; mi++) {
+          allYrMonths.push(yr + '-' + (mi < 10 ? '0' + mi : mi));
+        }
+        d.months = (d.months && d.months.length) ? d.months.slice() : (d.month ? [d.month] : [monthKey()]);
+        var allIn = allYrMonths.every(function(m){ return d.months.indexOf(m) >= 0; });
+        if (!allIn) {
+          allYrMonths.forEach(function(m){
+            if (d.months.indexOf(m) < 0) d.months.push(m);
+          });
+          d.months.sort();
+        } else {
+          var rem = d.months.filter(function(m){ return allYrMonths.indexOf(m) < 0; });
+          if (rem.length) d.months = rem;
+          else d.months = [allYrMonths[0]];
+        }
+        d.month = d.months[0] || monthKey();
+        renderModal();
+      }
+      return;
+    case 'goalCurMonth':
+      if (state.modal && state.modal.type === 'goal' && state.modal.draft){
+        syncGoalDraftFromDOM();
         var d = state.modal.draft;
         var cMonth = monthKey();
         d.months = [cMonth];
