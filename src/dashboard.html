@@ -3870,9 +3870,11 @@ function onAppClick(e){
         if (limitEl) state.modal.draft.limit = Number(limitEl.value) || 0;
         if (descEl) state.modal.draft.desc = descEl.value;
 
-        var cBtn = ev.target.closest('[data-cat]');
-        if (cBtn){
-          state.modal.draft.catId = cBtn.getAttribute('data-cat');
+        var targetCat = cat || (el ? el.getAttribute('data-cat') : '') || (e.target && e.target.closest ? (e.target.closest('[data-cat]') ? e.target.closest('[data-cat]').getAttribute('data-cat') : '') : '');
+        if (targetCat){
+          state.modal.draft.catId = targetCat;
+          var hiddenIn = document.getElementById('rdCatInput');
+          if (hiddenIn) hiddenIn.value = targetCat;
           renderModal();
         }
       }
