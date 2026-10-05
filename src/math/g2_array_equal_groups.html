@@ -1,0 +1,704 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Array & Equal Groups Visualizer</title>
+  <style>
+    :root {
+      --bg: #FFFDF0;
+      --ink: #111111;
+      --yellow: #FFE156;
+      --coral: #FF6584;
+      --teal: #4ECDC4;
+      --blue: #38B6FF;
+      --purple: #B388FF;
+      --white: #FFFFFF;
+      --border: 3.5px solid var(--ink);
+      --shadow: 4px 4px 0 var(--ink);
+      --shadow-sm: 2px 2px 0 var(--ink);
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      background-image:
+        radial-gradient(circle at 10% 20%, rgba(255, 225, 86, 0.15) 0%, transparent 25%),
+        radial-gradient(circle at 90% 80%, rgba(78, 205, 196, 0.15) 0%, transparent 25%);
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 14px 16px 36px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    /* Top Nav */
+    .nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .pyp-map-link {
+      display: inline-flex;
+      align-items: center;
+      background: var(--yellow);
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 900;
+      font-size: 0.95rem;
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 8px 16px;
+      min-height: 44px;
+      cursor: pointer;
+      transition: transform 0.1s ease;
+    }
+
+    .pyp-map-link:active,
+    .pyp-map-link:hover {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .unit-tag {
+      background: var(--yellow);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 8px 14px;
+      font-weight: 800;
+      font-size: 0.88rem;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    /* Hero Header */
+    .hero-card {
+      background: var(--white);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px 18px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .hero-title h1 {
+      font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+      font-weight: 900;
+      margin-bottom: 2px;
+    }
+
+    .hero-title p {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #4B5563;
+    }
+
+    .score-badge {
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
+      padding: 6px 14px;
+      font-weight: 900;
+      font-size: 0.9rem;
+      box-shadow: var(--shadow-sm);
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--teal);
+    }
+
+    /* Main Grid */
+    .math-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .card {
+      background: var(--white);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 900;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Interactive Matrix Array Display */
+    .array-board {
+      background: #F8FAFC;
+      border: 3px solid var(--ink);
+      border-radius: 12px;
+      padding: 16px;
+      min-height: 280px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+      position: relative;
+    }
+
+    .matrix-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .matrix-row {
+      display: flex;
+      gap: 10px;
+      background: #E2E8F0;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 2px dashed #94A3B8;
+    }
+
+    .matrix-item {
+      width: 44px;
+      height: 44px;
+      background: var(--white);
+      border: 2.5px solid var(--ink);
+      border-radius: 8px;
+      box-shadow: 2px 2px 0 var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      user-select: none;
+      transition: transform 0.1s ease;
+    }
+
+    .matrix-item:hover {
+      transform: scale(1.1);
+    }
+
+    /* Mathematical Relationships Banner */
+    .equation-banner {
+      background: #FEF3C7;
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
+      padding: 12px 14px;
+      text-align: center;
+      font-family: monospace;
+      font-size: 1.35rem;
+      font-weight: 900;
+      margin-bottom: 14px;
+    }
+
+    /* Question & Input Form */
+    .question-block {
+      background: #F3F4F6;
+      border: 2px solid var(--ink);
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .input-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      gap: 8px;
+    }
+
+    .input-row label {
+      font-weight: 800;
+      font-size: 0.9rem;
+    }
+
+    .stepper-control {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .step-btn {
+      font-family: inherit;
+      width: 44px;
+      height: 44px;
+      min-height: 44px;
+      background: var(--yellow);
+      color: var(--ink);
+      border: 2.5px solid var(--ink);
+      border-radius: 8px;
+      font-size: 1.3rem;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 2px 2px 0 var(--ink);
+      transition: all 0.1s ease;
+      user-select: none;
+    }
+
+    .step-btn:hover {
+      background: #FFF9D2;
+    }
+
+    .step-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0 0 0;
+    }
+
+    .input-box {
+      font-family: monospace;
+      font-size: 1.25rem;
+      font-weight: 900;
+      width: 65px;
+      height: 44px;
+      padding: 6px;
+      border: 2.5px solid var(--ink);
+      border-radius: 8px;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+      background: #FFFFFF;
+    }
+
+    /* Feedback Box */
+    .feedback-box {
+      display: none;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 2.5px solid var(--ink);
+      font-size: 0.9rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+      line-height: 1.35;
+    }
+
+    .feedback-box.success {
+      display: block;
+      background: #D1FAE5;
+      color: #065F46;
+    }
+
+    .feedback-box.error {
+      display: block;
+      background: #FEE2E2;
+      color: #991B1B;
+    }
+
+    .btn-submit {
+      font-family: inherit;
+      width: 100%;
+      background: var(--coral);
+      color: var(--white);
+      border: var(--border);
+      border-radius: 10px;
+      font-size: 1.05rem;
+      font-weight: 900;
+      padding: 12px 18px;
+      min-height: 48px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      margin-top: auto;
+      transition: transform 0.1s ease;
+    }
+
+    .btn-submit:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-next-quest {
+      width: 100%;
+      background: var(--yellow);
+      color: var(--ink);
+      border: var(--border);
+      border-radius: 10px;
+      font-size: 1.05rem;
+      font-weight: 900;
+      padding: 12px 18px;
+      min-height: 48px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: var(--shadow);
+      margin-top: auto;
+      transition: transform 0.1s ease;
+    }
+
+    .btn-next-quest:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 5px 5px 0 var(--ink);
+    }
+
+    .btn-next-quest:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Win Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-card {
+      background: var(--white);
+      border: 4px solid var(--ink);
+      border-radius: 18px;
+      box-shadow: 8px 8px 0 var(--ink);
+      padding: 28px;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .modal-badge {
+      font-size: 4rem;
+      margin-bottom: 8px;
+    }
+
+    .modal-title {
+      font-size: 1.6rem;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .modal-desc {
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: #4B5563;
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 820px) {
+      .math-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <nav class="nav-bar">
+      <a class="pyp-map-link" href="../index.html">← PYP Map</a>
+      <span class="unit-tag">✖️ Grade 2 · Unit 2: Multiplication Arrays</span>
+    </nav>
+
+    <header class="hero-card">
+      <div class="hero-title">
+        <h1>Array & Equal Groups Visualizer 🍎</h1>
+        <p>Understand multiplication as equal groups, arrays, and repeated addition.</p>
+      </div>
+      <div class="score-tray">
+        <div class="score-badge" id="badgeRound">🎯 Challenge 1 / 6</div>
+        <div class="score-badge" style="background: var(--yellow);" id="badgeScore">⭐ Score: 0</div>
+      </div>
+    </header>
+
+    <main class="math-grid">
+      <!-- Left Column: Visual Array Board -->
+      <section class="card">
+        <h2 class="card-title"><span>📦</span> Visual Array Matrix</h2>
+        <div class="array-board" id="arrayBoard">
+          <!-- Rendered by JS -->
+        </div>
+
+        <div class="equation-banner" id="equationHint">
+          ? rows × ? in each row = ?
+        </div>
+      </section>
+
+      <!-- Right Column: Group, Each, Total Inquiry -->
+      <section class="card">
+        <h2 class="card-title"><span>🔢</span> Multiplication Reasoning</h2>
+
+        <div class="question-block">
+          <div class="input-row">
+            <label for="inpGroups">1. Number of Groups (Rows):</label>
+            <div class="stepper-control">
+              <button type="button" class="step-btn" data-target="inpGroups" data-delta="-1">−</button>
+              <input type="number" id="inpGroups" class="input-box" min="1" max="10" placeholder="?" />
+              <button type="button" class="step-btn" data-target="inpGroups" data-delta="1">+</button>
+            </div>
+          </div>
+
+          <div class="input-row">
+            <label for="inpEach">2. Number in Each Group (Items):</label>
+            <div class="stepper-control">
+              <button type="button" class="step-btn" data-target="inpEach" data-delta="-1">−</button>
+              <input type="number" id="inpEach" class="input-box" min="1" max="10" placeholder="?" />
+              <button type="button" class="step-btn" data-target="inpEach" data-delta="1">+</button>
+            </div>
+          </div>
+
+          <div class="input-row">
+            <label for="inpTotal">3. Total Items (Group × Each):</label>
+            <div class="stepper-control">
+              <button type="button" class="step-btn" data-target="inpTotal" data-delta="-1">−</button>
+              <input type="number" id="inpTotal" class="input-box" min="1" max="100" placeholder="?" />
+              <button type="button" class="step-btn" data-target="inpTotal" data-delta="1">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="font-size: 0.88rem; font-weight: 700; color: #4B5563; margin-bottom: 12px;" id="repeatedAdditionText">
+          Repeated Addition: ?
+        </div>
+
+        <div class="feedback-box" id="feedbackBox"></div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: auto;">
+          <button class="btn-submit" id="btnCheckArray" type="button">Verify My Multiplication 🚀</button>
+          <button class="btn-next-quest" id="btnNextArray" type="button" style="display: none;">Next Mission ➔</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Win Modal -->
+  <div class="modal-overlay" id="winModal">
+    <div class="modal-card">
+      <div class="modal-badge">🌟</div>
+      <h2 class="modal-title">Multiplication Architect!</h2>
+      <p class="modal-desc">
+        Brilliant! You mastered arrays, equal groups, and repeated addition. You are ready for fast times tables!
+      </p>
+      <button class="btn-submit" id="btnRestart" type="button">Build New Arrays 🔄</button>
+    </div>
+  </div>
+
+  <script>
+    // Web Audio Synthesizer
+    class ArrayAudio {
+      constructor() { this.ctx = null; }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+      }
+      playCorrect() {
+        this.init();
+        const now = this.ctx.currentTime;
+        [523.25, 659.25, 783.99, 1046.5].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.06);
+          gain.gain.setValueAtTime(0.16, now + idx * 0.06);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.22);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.06);
+          osc.stop(now + idx * 0.06 + 0.24);
+        });
+      }
+      playBuzz() {
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(160, now);
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.2);
+      }
+      playClick() {
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.frequency.setValueAtTime(500, now);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.06);
+      }
+    }
+    const audio = new ArrayAudio();
+
+    // 6 Array Configurations (Minecraft items & fruits)
+    const challenges = [
+      { rows: 3, cols: 4, icon: "🍎", name: "Apples" },
+      { rows: 4, cols: 5, icon: "💎", name: "Diamonds" },
+      { rows: 2, cols: 6, icon: "🍪", name: "Cookies" },
+      { rows: 5, cols: 3, icon: "🥕", name: "Carrots" },
+      { rows: 3, cols: 5, icon: "🍞", name: "Minecraft Bread" },
+      { rows: 4, cols: 4, icon: "🧱", name: "Stone Bricks" }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+
+    function renderChallenge() {
+      const ch = challenges[currentIdx];
+      document.getElementById('badgeRound').textContent = `🎯 Challenge ${currentIdx + 1} / ${challenges.length}`;
+      document.getElementById('badgeScore').textContent = `⭐ Score: ${score}`;
+
+      // Build visual array
+      const board = document.getElementById('arrayBoard');
+      board.innerHTML = '';
+      const matrix = document.createElement('div');
+      matrix.className = 'matrix-container';
+
+      for (let r = 0; r < ch.rows; r++) {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'matrix-row';
+        for (let c = 0; c < ch.cols; c++) {
+          const item = document.createElement('div');
+          item.className = 'matrix-item';
+          item.textContent = ch.icon;
+          rowDiv.appendChild(item);
+        }
+        matrix.appendChild(rowDiv);
+      }
+      board.appendChild(matrix);
+
+      document.getElementById('equationHint').textContent = `? groups × ? in each = ?`;
+      document.getElementById('repeatedAdditionText').textContent = `Repeated Addition: ${Array(ch.rows).fill(ch.cols).join(' + ')}`;
+
+      document.getElementById('inpGroups').value = '';
+      document.getElementById('inpEach').value = '';
+      document.getElementById('inpTotal').value = '';
+
+      const feedback = document.getElementById('feedbackBox');
+      feedback.className = 'feedback-box';
+      feedback.textContent = '';
+      document.getElementById('btnCheckArray').style.display = 'block';
+      document.getElementById('btnNextArray').style.display = 'none';
+    }
+
+    document.getElementById('btnCheckArray').addEventListener('click', () => {
+      audio.playClick();
+      const ch = challenges[currentIdx];
+      const feedback = document.getElementById('feedbackBox');
+
+      const userGroups = parseInt(document.getElementById('inpGroups').value, 10);
+      const userEach = parseInt(document.getElementById('inpEach').value, 10);
+      const userTotal = parseInt(document.getElementById('inpTotal').value, 10);
+
+      if (isNaN(userGroups) || isNaN(userEach) || isNaN(userTotal)) {
+        feedback.className = 'feedback-box error';
+        feedback.textContent = 'Please fill in all three numbers: Groups, Each, and Total!';
+        return;
+      }
+
+      const expectedTotal = ch.rows * ch.cols;
+      const isGroupsOk = (userGroups === ch.rows);
+      const isEachOk = (userEach === ch.cols);
+      const isTotalOk = (userTotal === expectedTotal);
+
+      if (isGroupsOk && isEachOk && isTotalOk) {
+        audio.playCorrect();
+        score += 15;
+        document.getElementById('badgeScore').textContent = `⭐ Score: ${score}`;
+        document.getElementById('equationHint').textContent = `${ch.rows} × ${ch.cols} = ${expectedTotal}`;
+        feedback.className = 'feedback-box success';
+        feedback.textContent = `🎉 Spot on! ${ch.rows} groups with ${ch.cols} each gives ${expectedTotal} in total!`;
+
+        document.getElementById('btnCheckArray').style.display = 'none';
+        document.getElementById('btnNextArray').style.display = 'inline-flex';
+      } else {
+        audio.playBuzz();
+        feedback.className = 'feedback-box error';
+        feedback.textContent = `Check your count: there are ${ch.rows} rows, each row has ${ch.cols} items.`;
+      }
+    });
+
+    document.getElementById('btnNextArray').addEventListener('click', () => {
+      audio.playClick();
+      if (currentIdx + 1 < challenges.length) {
+        currentIdx++;
+        renderChallenge();
+      } else {
+        document.getElementById('winModal').style.display = 'flex';
+        audio.playCorrect();
+      }
+    });
+
+    // Stepper buttons for iPad ease-of-use with playClick sound
+    document.querySelectorAll('.step-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        audio.playClick();
+        const targetId = btn.dataset.target;
+        const delta = parseInt(btn.dataset.delta, 10);
+        const input = document.getElementById(targetId);
+        if (!input) return;
+
+        let val = parseInt(input.value, 10);
+        if (isNaN(val)) {
+          val = delta > 0 ? 1 : 0;
+        } else {
+          val += delta;
+        }
+
+        const min = parseInt(input.min, 10) || 0;
+        const max = parseInt(input.max, 10) || 100;
+        if (val < min) val = min;
+        if (val > max) val = max;
+
+        input.value = val;
+      });
+    });
+
+    document.getElementById('btnRestart').addEventListener('click', () => {
+      audio.playClick();
+      currentIdx = 0;
+      score = 0;
+      document.getElementById('winModal').style.display = 'none';
+      renderChallenge();
+    });
+
+    renderChallenge();
+  </script>
+</body>
+
+</html>

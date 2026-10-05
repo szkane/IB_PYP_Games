@@ -1,0 +1,1155 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Light & Shadow Master 3D - Minecraft Optics Lab</title>
+  <style>
+    :root {
+      --bg: #1A1A24;
+      --card-bg: #262636;
+      --ink: #111111;
+      --yellow: #FFE156;
+      --coral: #FF6584;
+      --teal: #4ECDC4;
+      --blue: #38B6FF;
+      --purple: #B388FF;
+      --white: #FFFFFF;
+      --border: 3.5px solid var(--ink);
+      --shadow: 4px 4px 0 var(--ink);
+      --shadow-sm: 2px 2px 0 var(--ink);
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: #F3F4F6;
+      min-height: 100vh;
+      padding: 12px 16px 28px;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* Top Nav */
+    .nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .pyp-map-link {
+      display: inline-flex;
+      align-items: center;
+      background: var(--yellow);
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 900;
+      font-size: 0.95rem;
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 8px 16px;
+      min-height: 44px;
+      cursor: pointer;
+      transition: transform 0.1s ease;
+    }
+
+    .pyp-map-link:active,
+    .pyp-map-link:hover {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .unit-tag {
+      background: var(--teal);
+      color: var(--ink);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 8px 14px;
+      font-weight: 800;
+      font-size: 0.88rem;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    /* Compact Header */
+    .hero-card {
+      background: #2D2D42;
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 12px 18px;
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .hero-title h1 {
+      font-size: clamp(1.2rem, 2.5vw, 1.55rem);
+      font-weight: 900;
+      color: var(--yellow);
+    }
+
+    .hero-title p {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #9CA3AF;
+    }
+
+    .mode-pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .mode-btn {
+      font-family: inherit;
+      background: #1E1E2E;
+      color: #E5E7EB;
+      border: 2px solid #4B5563;
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 0.86rem;
+      font-weight: 800;
+      min-height: 44px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.1s ease;
+    }
+
+    .mode-btn.active {
+      background: var(--teal);
+      color: var(--ink);
+      border: 2px solid var(--ink);
+      box-shadow: var(--shadow-sm);
+      transform: translate(1px, 1px);
+    }
+
+    /* 3D Stage & Control Deck Layout */
+    .stage-layout {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 14px;
+    }
+
+    .stage-wrapper {
+      background: #0D0D14;
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      height: 480px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #webglCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      touch-action: none;
+    }
+
+    .stage-overlay {
+      position: absolute;
+      top: 10px;
+      left: 12px;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .overlay-chip {
+      background: rgba(17, 17, 24, 0.85);
+      border: 2px solid #374151;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 0.76rem;
+      font-weight: 800;
+      color: var(--yellow);
+    }
+
+    /* Right Control Panel */
+    .controls-deck {
+      background: var(--card-bg);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .panel-block {
+      background: #1C1C28;
+      border: 2px solid #3F3F56;
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .panel-block-title {
+      font-size: 0.88rem;
+      font-weight: 900;
+      color: var(--teal);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .slider-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .slider-row label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #D1D5DB;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 8px;
+      accent-color: var(--teal);
+      cursor: pointer;
+    }
+
+    /* Minecraft Items Grid */
+    .item-select-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .mc-item-btn {
+      font-family: inherit;
+      background: #2D2D40;
+      color: #E5E7EB;
+      border: 2px solid #4B5563;
+      border-radius: 8px;
+      padding: 8px 4px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      min-height: 48px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      transition: all 0.1s ease;
+    }
+
+    .mc-item-btn.active {
+      background: var(--yellow);
+      color: var(--ink);
+      border-color: var(--ink);
+      box-shadow: 2px 2px 0 var(--ink);
+      transform: translate(1px, 1px);
+    }
+
+    /* Material Select */
+    .material-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .mat-btn {
+      font-family: inherit;
+      background: #2D2D40;
+      color: #D1D5DB;
+      border: 1.5px solid #4B5563;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      min-height: 44px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mat-btn.active {
+      background: var(--coral);
+      color: var(--white);
+      border-color: var(--ink);
+    }
+
+    /* Science Observation Memo */
+    .observation-memo {
+      background: #11111A;
+      border-left: 4px solid var(--yellow);
+      padding: 8px 12px;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.82rem;
+      line-height: 1.35;
+      color: #E5E7EB;
+    }
+
+    .action-btn {
+      font-family: inherit;
+      background: var(--yellow);
+      color: var(--ink);
+      border: 2.5px solid var(--ink);
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 0.92rem;
+      font-weight: 900;
+      min-height: 46px;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .action-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0 0 0;
+    }
+
+    @media (max-width: 820px) {
+      .stage-layout {
+        grid-template-columns: 1fr;
+      }
+      .stage-wrapper {
+        height: 380px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <nav class="nav-bar">
+      <a class="pyp-map-link" href="../index.html">← PYP Map</a>
+      <span class="unit-tag">💡 Grade 2 · Unit 2: Science 3D</span>
+    </nav>
+
+    <header class="hero-card">
+      <div class="hero-title">
+        <h1>Light & Shadow Master 3D 🔦</h1>
+        <p>Investigate linear light propagation, shadow formation, and mirror reflection.</p>
+      </div>
+
+      <div class="mode-pills" id="modePills">
+        <button class="mode-btn active" data-mode="shadow" type="button">🧱 Shadow Lab</button>
+        <button class="mode-btn" data-mode="reflection" type="button">🪞 Mirror Reflection</button>
+      </div>
+    </header>
+
+    <main class="stage-layout">
+      <!-- 3D Interactive WebGL Stage -->
+      <section class="stage-wrapper">
+        <canvas id="webglCanvas"></canvas>
+        <div class="stage-overlay">
+          <div class="overlay-chip">🖐️ Drag in 3D to rotate view</div>
+          <div class="overlay-chip" id="chipLightStatus">Light: Minecraft Torch (Point Source)</div>
+        </div>
+      </section>
+
+      <!-- Right Control Deck -->
+      <aside class="controls-deck">
+        <!-- Block 1: Shadow Distance Rig (Shadow Mode) -->
+        <div class="panel-block" id="blockShadowControls">
+          <div class="panel-block-title">📏 Distance & Light Rig</div>
+          <div class="slider-row">
+            <label>
+              <span>Object Distance to Light</span>
+              <span id="distVal">5.0 m</span>
+            </label>
+            <input type="range" id="sliderDistance" min="2" max="10" step="0.2" value="5" />
+          </div>
+          <div class="slider-row">
+            <label>
+              <span>Light Elevation Height</span>
+              <span id="heightVal">4.0 m</span>
+            </label>
+            <input type="range" id="sliderHeight" min="2" max="8" step="0.2" value="4" />
+          </div>
+        </div>
+
+        <!-- Block 2: Minecraft Obstacle Selection -->
+        <div class="panel-block" id="blockMinecraftItems">
+          <div class="panel-block-title">🧱 Minecraft Object</div>
+          <div class="item-select-grid" id="itemGrid">
+            <button class="mc-item-btn active" data-item="creeper" type="button">
+              <span>🧟</span> Creeper Block
+            </button>
+            <button class="mc-item-btn" data-item="sword" type="button">
+              <span>🗡️</span> Diamond Sword
+            </button>
+            <button class="mc-item-btn" data-item="lamp" type="button">
+              <span>🏮</span> Redstone Lamp
+            </button>
+          </div>
+        </div>
+
+        <!-- Block 3: Material Transparency -->
+        <div class="panel-block" id="blockMaterialControls">
+          <div class="panel-block-title">🛡️ Material Opacity</div>
+          <div class="material-grid" id="materialGrid">
+            <button class="mat-btn active" data-mat="opaque" type="button">Opaque</button>
+            <button class="mat-btn" data-mat="translucent" type="button">Translucent</button>
+            <button class="mat-btn" data-mat="transparent" type="button">Transparent</button>
+          </div>
+        </div>
+
+        <!-- Block 4: Mirror Angle (Reflection Mode) -->
+        <div class="panel-block" id="blockReflectionControls" style="display: none;">
+          <div class="panel-block-title">🪞 Law of Reflection: Mirror Angle</div>
+          <div class="slider-row">
+            <label>
+              <span>Mirror Angle</span>
+              <span id="mirrorAngleVal" style="color:var(--teal); font-weight:900;">25°</span>
+            </label>
+            <input type="range" id="sliderMirrorAngle" min="15" max="75" step="1" value="25" />
+          </div>
+
+          <!-- Real-time Guidance Box -->
+          <div id="reflectionStatusBox" style="background:#FFFDE8; border:2px solid var(--ink); border-radius:10px; padding:10px; margin-top:10px; box-shadow:2px 2px 0 var(--ink);">
+            <div style="font-size:0.75rem; font-weight:900; text-transform:uppercase; color:#6B7280; margin-bottom:4px;">Reflection Target Guidance</div>
+            <div id="reflectionStatusText" style="font-size:0.88rem; font-weight:800; line-height:1.4;">
+              ➡️ Laser aiming too far right (25°)! Slide to the right toward 45° to hit the Beacon!
+            </div>
+          </div>
+
+          <button class="action-btn" id="btnFireBeam" type="button" style="margin-top:12px;">⚡ Test Redstone Laser Pulse</button>
+        </div>
+
+        <!-- Inquiry Science Observation -->
+        <div class="observation-memo" id="memoText">
+          🔍 <strong>Science Law</strong>: Light travels in straight lines. When an opaque block blocks the rays, a dark shadow forms on the back wall. Moving closer to the light source makes the shadow <strong>BIGGER</strong>!
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <!-- ES Module Import of Three.js & OrbitControls -->
+  <script type="module">
+    import * as THREE from 'https://esm.sh/three@0.160.0';
+    import { OrbitControls } from 'https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js';
+
+    // Synthesized Audio for zero-dependency feedback
+    class ScienceAudio {
+      constructor() { this.ctx = null; }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+      }
+      playTorch() {
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.frequency.setValueAtTime(400, now);
+        osc.frequency.exponentialRampToValueAtTime(800, now + 0.15);
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.2);
+      }
+      playLaser() {
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(950, now);
+        osc.frequency.linearRampToValueAtTime(320, now + 0.25);
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.3);
+      }
+      playHitChime() {
+        this.init();
+        const now = this.ctx.currentTime;
+        [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+          gain.gain.setValueAtTime(0.18, now + idx * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.3);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.08);
+          osc.stop(now + idx * 0.08 + 0.35);
+        });
+      }
+    }
+    const audio = new ScienceAudio();
+
+    // Scene setup
+    const canvas = document.getElementById('webglCanvas');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0E0E18);
+
+    const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
+    camera.position.set(0, 7, 16);
+
+    const controls = new OrbitControls(camera, canvas);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.maxPolarAngle = Math.PI / 2 - 0.02; // Don't go below floor
+
+    // Environment: Floor & Projection Back Wall
+    const floorGeo = new THREE.PlaneGeometry(30, 30);
+    const floorMat = new THREE.MeshStandardMaterial({ color: 0x1E1E2C, roughness: 0.8 });
+    const floor = new THREE.Mesh(floorGeo, floorMat);
+    floor.rotation.x = -Math.PI / 2;
+    floor.receiveShadow = true;
+    scene.add(floor);
+
+    // Grid on floor for measurement
+    const grid = new THREE.GridHelper(30, 30, 0x4ECDC4, 0x2A2A3E);
+    grid.position.y = 0.01;
+    scene.add(grid);
+
+    // Back projection wall where shadow lands
+    const wallGeo = new THREE.BoxGeometry(18, 10, 0.5);
+    const wallMat = new THREE.MeshStandardMaterial({ color: 0xEEEEF5, roughness: 0.5 });
+    const backWall = new THREE.Mesh(wallGeo, wallMat);
+    backWall.position.set(0, 5, -8);
+    backWall.receiveShadow = true;
+    scene.add(backWall);
+
+    // Ambient fill light (dim so shadow pops)
+    const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.25);
+    scene.add(ambientLight);
+
+    // Torch Light (SpotLight that casts crisp shadow)
+    const torchLight = new THREE.SpotLight(0xFFDD66, 150, 40, Math.PI / 4, 0.35, 1.2);
+    torchLight.position.set(0, 4, 8);
+    torchLight.castShadow = true;
+    torchLight.shadow.mapSize.width = 1024;
+    torchLight.shadow.mapSize.height = 1024;
+    torchLight.shadow.camera.near = 0.5;
+    torchLight.shadow.camera.far = 30;
+    scene.add(torchLight);
+
+    // Torch Visual Mesh (Minecraft style torch)
+    const torchGroup = new THREE.Group();
+    const torchStick = new THREE.Mesh(
+      new THREE.BoxGeometry(0.3, 1.2, 0.3),
+      new THREE.MeshStandardMaterial({ color: 0x8B5A2B })
+    );
+    const torchFlame = new THREE.Mesh(
+      new THREE.BoxGeometry(0.4, 0.4, 0.4),
+      new THREE.MeshBasicMaterial({ color: 0xFFB300 })
+    );
+    torchFlame.position.y = 0.65;
+    torchGroup.add(torchStick, torchFlame);
+    torchGroup.position.copy(torchLight.position);
+    scene.add(torchGroup);
+
+    // Interactive Minecraft Target Object
+    let currentItem = 'creeper';
+    let currentMaterialMode = 'opaque';
+    const itemGroup = new THREE.Group();
+    scene.add(itemGroup);
+
+    function clearGroup(group) {
+      while (group.children.length > 0) {
+        const child = group.children[0];
+        group.remove(child);
+        child.traverse(c => {
+          if (c.geometry) c.geometry.dispose();
+          if (c.material) {
+            if (Array.isArray(c.material)) {
+              c.material.forEach(m => {
+                if (m.map) m.map.dispose();
+                m.dispose();
+              });
+            } else {
+              if (c.material.map) c.material.map.dispose();
+              c.material.dispose();
+            }
+          }
+        });
+      }
+    }
+
+    function applyMaterialLighting() {
+      if (currentMaterialMode === 'translucent') {
+        ambientLight.intensity = 0.65;
+        torchLight.intensity = 110;
+      } else if (currentMaterialMode === 'transparent') {
+        ambientLight.intensity = 0.35;
+        torchLight.intensity = 150;
+      } else {
+        ambientLight.intensity = 0.25;
+        torchLight.intensity = 150;
+      }
+    }
+
+    function createMinecraftBlock(type, opacity = 1.0, transparent = false) {
+      clearGroup(itemGroup);
+      applyMaterialLighting();
+
+      const shouldCastShadow = (currentMaterialMode !== 'transparent');
+
+      if (type === 'sword') {
+        // Minecraft Diamond Sword standing upright in 3D
+        const swordGroup = new THREE.Group();
+
+        // Sword Blade (Diamond cyan with dark border)
+        const bladeMat = new THREE.MeshStandardMaterial({
+          color: 0x00F0FF,
+          roughness: transparent ? 0.1 : 0.25,
+          metalness: transparent ? 0.1 : 0.4,
+          transparent,
+          opacity
+        });
+        const blade = new THREE.Mesh(new THREE.BoxGeometry(0.35, 2.0, 0.12), bladeMat);
+        blade.position.y = 1.3;
+        blade.castShadow = shouldCastShadow;
+        blade.receiveShadow = true;
+        swordGroup.add(blade);
+
+        // Sword Tip
+        const tipGeo = new THREE.ConeGeometry(0.25, 0.4, 4);
+        const tip = new THREE.Mesh(tipGeo, bladeMat);
+        tip.position.y = 2.45;
+        tip.rotation.y = Math.PI / 4;
+        tip.castShadow = shouldCastShadow;
+        swordGroup.add(tip);
+
+        // Crossguard (Gold / dark oak cross)
+        const guardMat = new THREE.MeshStandardMaterial({
+          color: 0x5C3818,
+          roughness: 0.6,
+          transparent,
+          opacity
+        });
+        const guard = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.22, 0.2), guardMat);
+        guard.position.y = 0.28;
+        guard.castShadow = shouldCastShadow;
+        swordGroup.add(guard);
+
+        // Hilt Handle (Wood)
+        const hilt = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.55, 0.18), guardMat);
+        hilt.position.y = -0.1;
+        hilt.castShadow = shouldCastShadow;
+        swordGroup.add(hilt);
+
+        // Pommel
+        const pommelMat = new THREE.MeshStandardMaterial({
+          color: 0x00E5FF,
+          transparent,
+          opacity
+        });
+        const pommel = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.2, 0.2), pommelMat);
+        pommel.position.y = -0.45;
+        pommel.castShadow = shouldCastShadow;
+        swordGroup.add(pommel);
+
+        swordGroup.position.y = 0.8;
+        itemGroup.add(swordGroup);
+      } else if (type === 'lamp') {
+        // Minecraft Redstone Lamp Block
+        const cvsLamp = document.createElement('canvas');
+        cvsLamp.width = 64; cvsLamp.height = 64;
+        const ctxL = cvsLamp.getContext('2d');
+        // Brown wood-framed lamp border
+        ctxL.fillStyle = '#4A2A0C';
+        ctxL.fillRect(0, 0, 64, 64);
+        // Amber glowing grid pattern
+        ctxL.fillStyle = '#D97706';
+        ctxL.fillRect(6, 6, 52, 52);
+        // Redstone coil wires
+        ctxL.fillStyle = '#FF4500';
+        ctxL.fillRect(14, 14, 36, 6);
+        ctxL.fillRect(14, 29, 36, 6);
+        ctxL.fillRect(14, 44, 36, 6);
+        ctxL.fillRect(29, 14, 6, 36);
+
+        const lampTex = new THREE.CanvasTexture(cvsLamp);
+        lampTex.magFilter = THREE.NearestFilter;
+
+        const lampMat = new THREE.MeshStandardMaterial({
+          map: lampTex,
+          emissive: currentMaterialMode === 'transparent' ? 0x221105 : 0x78350F,
+          roughness: transparent ? 0.1 : 0.5,
+          transparent,
+          opacity
+        });
+
+        const lampMesh = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.6, 1.6), lampMat);
+        lampMesh.position.y = 0.8;
+        lampMesh.castShadow = shouldCastShadow;
+        lampMesh.receiveShadow = true;
+        itemGroup.add(lampMesh);
+      } else {
+        // Creeper block
+        const cvsCreeper = document.createElement('canvas');
+        cvsCreeper.width = 64; cvsCreeper.height = 64;
+        const ctxC = cvsCreeper.getContext('2d');
+        ctxC.fillStyle = '#388E3C';
+        ctxC.fillRect(0, 0, 64, 64);
+        for (let i = 0; i < 64; i += 8) {
+          for (let j = 0; j < 64; j += 8) {
+            const greenShade = Math.floor(Math.random() * 40);
+            ctxC.fillStyle = `rgb(${30 + greenShade}, ${110 + greenShade}, ${40 + greenShade})`;
+            ctxC.fillRect(i, j, 8, 8);
+          }
+        }
+        const creeperTex = new THREE.CanvasTexture(cvsCreeper);
+        creeperTex.magFilter = THREE.NearestFilter;
+
+        const mat = new THREE.MeshStandardMaterial({
+          map: creeperTex,
+          roughness: transparent ? 0.1 : 0.5,
+          transparent,
+          opacity
+        });
+        const mesh = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.6, 1.6), mat);
+        mesh.position.y = 0.8;
+        mesh.castShadow = shouldCastShadow;
+        mesh.receiveShadow = true;
+        itemGroup.add(mesh);
+
+        // Pixel face
+        const faceMat = new THREE.MeshBasicMaterial({
+          color: 0x111111,
+          transparent,
+          opacity: Math.min(1.0, opacity * 1.5)
+        });
+        const eye1 = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.3), faceMat);
+        eye1.position.set(-0.35, 1.1, 0.81);
+        const eye2 = eye1.clone();
+        eye2.position.x = 0.35;
+        const mouth = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.6), faceMat);
+        mouth.position.set(0, 0.7, 0.81);
+        eye1.castShadow = shouldCastShadow;
+        eye2.castShadow = shouldCastShadow;
+        mouth.castShadow = shouldCastShadow;
+        itemGroup.add(eye1, eye2, mouth);
+      }
+    }
+
+    createMinecraftBlock('creeper');
+    itemGroup.position.set(0, 0, 0); // initial center position
+
+    // Laser & Mirror setup for Reflection mode
+    const reflectionGroup = new THREE.Group();
+    reflectionGroup.visible = false;
+    scene.add(reflectionGroup);
+
+    // 1. Laser Emitter (Minecraft Dispenser at left: -6.5, 1.2, 0)
+    const dispenserGroup = new THREE.Group();
+    const dispenserBody = new THREE.Mesh(
+      new THREE.BoxGeometry(1.4, 1.4, 1.4),
+      new THREE.MeshStandardMaterial({ color: 0x555560, roughness: 0.8 })
+    );
+    const emitterNozzle = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.2, 0.28, 0.5, 16),
+      new THREE.MeshStandardMaterial({ color: 0xFF1744, emissive: 0x990022 })
+    );
+    emitterNozzle.rotation.z = -Math.PI / 2;
+    emitterNozzle.position.set(0.75, 0, 0);
+    dispenserGroup.add(dispenserBody, emitterNozzle);
+    dispenserGroup.position.set(-6.5, 1.2, 0);
+    reflectionGroup.add(dispenserGroup);
+
+    // 2. Mirror Assembly at center (0, 0, 0)
+    const mirrorGroup = new THREE.Group();
+    mirrorGroup.position.set(0, 0, 0);
+    reflectionGroup.add(mirrorGroup);
+
+    // Floor Protractor Arc / Compass Ring around mirror
+    const floorRing = new THREE.Mesh(
+      new THREE.RingGeometry(1.6, 1.75, 32),
+      new THREE.MeshBasicMaterial({ color: 0x4ECDC4, side: THREE.DoubleSide })
+    );
+    floorRing.rotation.x = -Math.PI / 2;
+    floorRing.position.y = 0.02;
+    reflectionGroup.add(floorRing);
+
+    // Stand Pedestal
+    const mirrorStand = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.6, 0.7, 0.3, 16),
+      new THREE.MeshStandardMaterial({ color: 0x333344, roughness: 0.6 })
+    );
+    mirrorStand.position.y = 0.15;
+    mirrorGroup.add(mirrorStand);
+
+    // Rotating Mirror Frame & Silver Glass
+    const mirrorGeo = new THREE.BoxGeometry(2.8, 2.0, 0.2);
+    const mirrorMat = new THREE.MeshStandardMaterial({
+      color: 0xD0E8FF,
+      metalness: 0.95,
+      roughness: 0.05
+    });
+    const mirrorMesh = new THREE.Mesh(mirrorGeo, mirrorMat);
+    mirrorMesh.position.set(0, 1.2, 0);
+    mirrorGroup.add(mirrorMesh);
+
+    // Normal Line Helper (yellow dashed line perpendicular to mirror face)
+    const normalGeo = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(0, 0, 0),
+      new THREE.Vector3(0, 0, 2.0)
+    ]);
+    const normalMat = new THREE.LineDashedMaterial({
+      color: 0xFFD700,
+      dashSize: 0.3,
+      gapSize: 0.2
+    });
+    const normalHelper = new THREE.Line(normalGeo, normalMat);
+    normalHelper.computeLineDistances();
+    mirrorMesh.add(normalHelper);
+
+    // 3. Target Beacon at North (0, 0, 6)
+    const targetBeaconGroup = new THREE.Group();
+    targetBeaconGroup.position.set(0, 0, 6);
+    reflectionGroup.add(targetBeaconGroup);
+
+    // Obsidian base
+    const baseMesh = new THREE.Mesh(
+      new THREE.BoxGeometry(1.8, 0.6, 1.8),
+      new THREE.MeshStandardMaterial({ color: 0x1A1423, roughness: 0.9 })
+    );
+    baseMesh.position.y = 0.3;
+    targetBeaconGroup.add(baseMesh);
+
+    // Glass enclosure
+    const glassMesh = new THREE.Mesh(
+      new THREE.BoxGeometry(1.5, 1.5, 1.5),
+      new THREE.MeshStandardMaterial({
+        color: 0x88EEFF,
+        transparent: true,
+        opacity: 0.35,
+        roughness: 0.1
+      })
+    );
+    glassMesh.position.y = 1.35;
+    targetBeaconGroup.add(glassMesh);
+
+    // Hovering Redstone Crystal (Octahedron)
+    const targetCrystal = new THREE.Mesh(
+      new THREE.OctahedronGeometry(0.55),
+      new THREE.MeshStandardMaterial({
+        color: 0xFF1744,
+        emissive: 0x770011,
+        roughness: 0.2
+      })
+    );
+    targetCrystal.position.y = 1.35;
+    targetBeaconGroup.add(targetCrystal);
+
+    // Vertical Sky Light Beam (energized on hit)
+    const skyBeam = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.35, 0.35, 20, 16),
+      new THREE.MeshBasicMaterial({
+        color: 0x00FF88,
+        transparent: true,
+        opacity: 0.55,
+        side: THREE.DoubleSide
+      })
+    );
+    skyBeam.position.y = 10;
+    skyBeam.visible = false;
+    targetBeaconGroup.add(skyBeam);
+
+    // Beacon Point Light
+    const beaconLight = new THREE.PointLight(0x00FF88, 0, 10);
+    beaconLight.position.y = 1.5;
+    targetBeaconGroup.add(beaconLight);
+
+    // 4. Laser Rays container
+    const laserGroup = new THREE.Group();
+    reflectionGroup.add(laserGroup);
+
+    let isTargetHit = false;
+
+    function updateLaser(mirrorAngleDeg) {
+      // Clear previous laser geometry
+      while (laserGroup.children.length > 0) {
+        const c = laserGroup.children[0];
+        laserGroup.remove(c);
+        if (c.geometry) c.geometry.dispose();
+      }
+
+      // Rotate mirror around Y (physical angle)
+      const rad = -THREE.MathUtils.degToRad(mirrorAngleDeg);
+      mirrorMesh.rotation.y = rad;
+
+      // Incident ray points: Emitter (-6.5, 1.2, 0) to Mirror (0, 1.2, 0)
+      const pEmitter = new THREE.Vector3(-6.5, 1.2, 0);
+      const pMirror = new THREE.Vector3(0, 1.2, 0);
+
+      // Hit range: exactly 45° with friendly tolerance (42° - 48°)
+      const hit = (mirrorAngleDeg >= 42 && mirrorAngleDeg <= 48);
+
+      const laserColor = hit ? 0x00FFAA : 0xFF1744;
+      const laserMat = new THREE.LineBasicMaterial({ color: laserColor, linewidth: 3 });
+
+      // Draw Incident Laser Line (West to Center)
+      const incidentGeo = new THREE.BufferGeometry().setFromPoints([pEmitter, pMirror]);
+      const incidentLine = new THREE.Line(incidentGeo, laserMat);
+      laserGroup.add(incidentLine);
+
+      // Reflected ray direction in X-Z plane: (cos(2*angle), 0, sin(2*angle))
+      const angleRad = THREE.MathUtils.degToRad(mirrorAngleDeg);
+      const reflX = Math.cos(2 * angleRad);
+      const reflZ = Math.sin(2 * angleRad);
+      const reflectedDir = new THREE.Vector3(reflX, 0, reflZ).normalize();
+
+      let pEnd;
+      if (hit) {
+        // Direct strike into Redstone Crystal center!
+        pEnd = new THREE.Vector3(0, 1.35, 6);
+      } else {
+        // Shoots off into the room distance
+        pEnd = pMirror.clone().add(reflectedDir.clone().multiplyScalar(12));
+      }
+
+      // Draw Reflected Laser Line (Center to target or distance)
+      const reflectedGeo = new THREE.BufferGeometry().setFromPoints([pMirror, pEnd]);
+      const reflectedLine = new THREE.Line(reflectedGeo, laserMat);
+      laserGroup.add(reflectedLine);
+
+      // Update UI guidance and Target Beacon state
+      const statusText = document.getElementById('reflectionStatusText');
+      const statusBox = document.getElementById('reflectionStatusBox');
+
+      if (hit) {
+        targetCrystal.material.color.setHex(0x00FF88);
+        targetCrystal.material.emissive.setHex(0x00AA44);
+        skyBeam.visible = true;
+        beaconLight.intensity = 3.5;
+
+        if (!isTargetHit) {
+          audio.playHitChime();
+          isTargetHit = true;
+        }
+
+        if (statusText && statusBox) {
+          statusText.innerHTML = `🎯 <strong>PERFECT HIT (${mirrorAngleDeg}°)!</strong><br>Angle of Incidence (45°) = Angle of Reflection (45°)! The 90° bounce activates the Redstone Beacon! ⚡`;
+          statusBox.style.background = '#DCFCE7';
+          statusBox.style.borderColor = '#16A34A';
+        }
+      } else {
+        isTargetHit = false;
+        targetCrystal.material.color.setHex(0xFF1744);
+        targetCrystal.material.emissive.setHex(0x770011);
+        skyBeam.visible = false;
+        beaconLight.intensity = 0;
+
+        if (statusText && statusBox) {
+          if (mirrorAngleDeg < 42) {
+            statusText.innerHTML = `➡️ <strong>Laser aiming too far right (${mirrorAngleDeg}°)!</strong><br>Slide to the right to increase mirror angle toward 45°.`;
+          } else {
+            statusText.innerHTML = `⬅️ <strong>Laser aiming too far left (${mirrorAngleDeg}°)!</strong><br>Slide to the left to decrease mirror angle toward 45°.`;
+          }
+          statusBox.style.background = '#FFFDE8';
+          statusBox.style.borderColor = '#111111';
+        }
+      }
+    }
+
+    updateLaser(25);
+
+    // Responsive Canvas
+    function resize() {
+      const width = canvas.clientWidth;
+      const height = canvas.clientHeight;
+      if (canvas.width !== width || canvas.height !== height) {
+        renderer.setSize(width, height, false);
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+      }
+    }
+
+    // Animation Loop
+    function animate() {
+      requestAnimationFrame(animate);
+      resize();
+      controls.update();
+
+      // Gentle flame pulse
+      const time = Date.now() * 0.005;
+      torchFlame.scale.set(1 + Math.sin(time) * 0.1, 1 + Math.cos(time * 1.5) * 0.15, 1 + Math.sin(time) * 0.1);
+      targetCrystal.rotation.y += isTargetHit ? 0.06 : 0.02;
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // DOM Controls wiring
+    const sliderDistance = document.getElementById('sliderDistance');
+    const sliderHeight = document.getElementById('sliderHeight');
+    const distVal = document.getElementById('distVal');
+    const heightVal = document.getElementById('heightVal');
+    const memoText = document.getElementById('memoText');
+
+    function updateShadowSetup() {
+      const dist = parseFloat(sliderDistance.value);
+      const h = parseFloat(sliderHeight.value);
+
+      distVal.textContent = `${dist.toFixed(1)} m`;
+      heightVal.textContent = `${h.toFixed(1)} m`;
+
+      // Moving torch closer to the object
+      torchLight.position.set(0, h, dist + 2);
+      torchGroup.position.copy(torchLight.position);
+
+      const ratio = (8 / (dist + 2)).toFixed(1);
+      memoText.innerHTML = `
+        🔍 <strong>Shadow Observation</strong>: Distance = ${dist.toFixed(1)}m. 
+        ${dist < 4 ? '<strong>Huge Shadow!</strong> When the object is very close to the light source, it blocks more light rays, projecting a larger shadow!' : 'Moving the block further away from the light makes the shadow smaller and sharper.'}
+      `;
+    }
+
+    sliderDistance.addEventListener('input', updateShadowSetup);
+    sliderHeight.addEventListener('input', updateShadowSetup);
+
+    // Minecraft Item Switcher
+    document.querySelectorAll('#itemGrid .mc-item-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#itemGrid .mc-item-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentItem = btn.dataset.item;
+        audio.playTorch();
+
+        const opacity = currentMaterialMode === 'opaque' ? 1.0 : (currentMaterialMode === 'translucent' ? 0.45 : 0.15);
+        const transparent = currentMaterialMode !== 'opaque';
+        createMinecraftBlock(currentItem, opacity, transparent);
+      });
+    });
+
+    // Material Switcher
+    document.querySelectorAll('#materialGrid .mat-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#materialGrid .mat-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentMaterialMode = btn.dataset.mat;
+        audio.playTorch();
+
+        let opacity = 1.0;
+        let transparent = false;
+        if (currentMaterialMode === 'translucent') {
+          opacity = 0.45;
+          transparent = true;
+          memoText.innerHTML = `🛡️ <strong>Translucent Material</strong>: Some light passes through, casting a dim, soft shadow.`;
+        } else if (currentMaterialMode === 'transparent') {
+          opacity = 0.15;
+          transparent = true;
+          memoText.innerHTML = `🛡️ <strong>Transparent Material</strong>: Almost all light travels right through! No visible shadow forms.`;
+        } else {
+          memoText.innerHTML = `🛡️ <strong>Opaque Material</strong>: Blocks all light rays completely, creating a crisp, dark shadow.`;
+        }
+
+        createMinecraftBlock(currentItem, opacity, transparent);
+      });
+    });
+
+    // Mode Switcher (Shadow Lab vs. Mirror Reflection)
+    document.querySelectorAll('#modePills .mode-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#modePills .mode-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const mode = btn.dataset.mode;
+        audio.playLaser();
+
+        if (mode === 'shadow') {
+          itemGroup.visible = true;
+          torchLight.visible = true;
+          torchGroup.visible = true;
+          backWall.visible = true;
+          reflectionGroup.visible = false;
+          controls.target.set(0, 1, 0);
+          camera.position.set(0, 7, 16);
+          document.getElementById('blockShadowControls').style.display = 'block';
+          document.getElementById('blockMinecraftItems').style.display = 'block';
+          document.getElementById('blockMaterialControls').style.display = 'block';
+          document.getElementById('blockReflectionControls').style.display = 'none';
+          document.getElementById('chipLightStatus').textContent = 'Light: Minecraft Torch (Point Source)';
+          updateShadowSetup();
+        } else {
+          itemGroup.visible = false;
+          torchLight.visible = false;
+          torchGroup.visible = false;
+          backWall.visible = false;
+          reflectionGroup.visible = true;
+          controls.target.set(0, 1.2, 2.5);
+          camera.position.set(0, 10, 15);
+          document.getElementById('blockShadowControls').style.display = 'none';
+          document.getElementById('blockMinecraftItems').style.display = 'none';
+          document.getElementById('blockMaterialControls').style.display = 'none';
+          document.getElementById('blockReflectionControls').style.display = 'block';
+          document.getElementById('chipLightStatus').textContent = 'Light: Redstone Laser Beam';
+          memoText.innerHTML = `🪞 <strong>Law of Reflection</strong>: Light bounces off a mirror so Angle of Incidence equals Angle of Reflection (θ_i = θ_r). Rotate the mirror to 45° to reflect the laser 90° North into the Beacon!`;
+          const angle = parseInt(sliderMirrorAngle.value, 10);
+          updateLaser(angle);
+        }
+      });
+    });
+
+    // Mirror Angle Slider
+    const sliderMirrorAngle = document.getElementById('sliderMirrorAngle');
+    const mirrorAngleVal = document.getElementById('mirrorAngleVal');
+    sliderMirrorAngle.addEventListener('input', () => {
+      const angle = parseInt(sliderMirrorAngle.value, 10);
+      mirrorAngleVal.textContent = `${angle}°`;
+      updateLaser(angle);
+    });
+
+    document.getElementById('btnFireBeam').addEventListener('click', () => {
+      audio.playLaser();
+      const angle = parseInt(sliderMirrorAngle.value, 10);
+      updateLaser(angle);
+      if (angle >= 42 && angle <= 48) {
+        audio.playHitChime();
+      }
+    });
+  </script>
+</body>
+
+</html>

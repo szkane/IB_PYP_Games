@@ -1,0 +1,812 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Angle Finder 3D - Geometric Angles Inspector</title>
+  <style>
+    :root {
+      --bg: #1E1E2E;
+      --card-bg: #2A2A3D;
+      --ink: #111111;
+      --yellow: #FFE156;
+      --coral: #FF6584;
+      --teal: #4ECDC4;
+      --blue: #38B6FF;
+      --purple: #B388FF;
+      --white: #FFFFFF;
+      --border: 3.5px solid var(--ink);
+      --shadow: 4px 4px 0 var(--ink);
+      --shadow-sm: 2px 2px 0 var(--ink);
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: #F3F4F6;
+      min-height: 100vh;
+      padding: 12px 16px 28px;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1160px;
+      margin: 0 auto;
+    }
+
+    /* Top Nav */
+    .nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .pyp-map-link {
+      display: inline-flex;
+      align-items: center;
+      background: var(--yellow);
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 900;
+      font-size: 0.95rem;
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 8px 16px;
+      min-height: 44px;
+      cursor: pointer;
+      transition: transform 0.1s ease;
+    }
+
+    .pyp-map-link:active,
+    .pyp-map-link:hover {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .unit-tag {
+      background: var(--teal);
+      color: var(--ink);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 8px 14px;
+      font-weight: 800;
+      font-size: 0.88rem;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    /* Hero Header */
+    .hero-card {
+      background: #2E2E44;
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 12px 18px;
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .hero-title h1 {
+      font-size: clamp(1.2rem, 2.5vw, 1.55rem);
+      font-weight: 900;
+      color: var(--yellow);
+    }
+
+    .hero-title p {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #9CA3AF;
+    }
+
+    /* 3-Column Studio Layout: Left Selector, Center 3D Stage, Right Attributes */
+    .studio-grid {
+      display: grid;
+      grid-template-columns: 240px 1fr 310px;
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .panel-card {
+      background: var(--card-bg);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-title {
+      font-size: 0.92rem;
+      font-weight: 900;
+      color: var(--teal);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Left Shape Selection List */
+    .shape-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .shape-btn {
+      font-family: inherit;
+      background: #1C1C2A;
+      color: #E5E7EB;
+      border: 2px solid #4B5563;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 0.88rem;
+      font-weight: 800;
+      min-height: 48px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-align: left;
+      transition: all 0.1s ease;
+    }
+
+    .shape-btn:hover {
+      background: #2D2D44;
+    }
+
+    .shape-btn.active {
+      background: var(--yellow);
+      color: var(--ink);
+      border-color: var(--ink);
+      box-shadow: 2px 2px 0 var(--ink);
+      transform: translate(1px, 1px);
+    }
+
+    /* Center 3D Stage */
+    .stage-wrapper {
+      background: #0E0E18;
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      min-height: 480px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #angleCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      touch-action: none;
+    }
+
+    .stage-hud {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .hud-pill {
+      background: rgba(17, 17, 24, 0.85);
+      border: 2px solid #374151;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--yellow);
+    }
+
+    /* Floating Toolbar */
+    .stage-toolbar {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      background: rgba(17, 17, 26, 0.88);
+      padding: 6px 10px;
+      border-radius: 10px;
+      border: 2px solid #3F3F56;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .tool-btn {
+      font-family: inherit;
+      background: #2D2D42;
+      color: #FFFFFF;
+      border: 2px solid #4B5563;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      min-height: 44px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.1s ease;
+    }
+
+    .tool-btn:hover {
+      background: #3F3F5C;
+    }
+
+    .tool-btn.active {
+      background: var(--teal);
+      color: var(--ink);
+      border-color: var(--ink);
+    }
+
+    /* Angle Self-Quiz Challenge Box */
+    .quiz-card {
+      background: #1C1C2A;
+      border: 2px solid #3F3F56;
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 10px;
+    }
+
+    .quiz-title {
+      font-size: 0.85rem;
+      font-weight: 900;
+      color: var(--yellow);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .quiz-btns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .quiz-btn {
+      font-family: inherit;
+      background: #2D2D40;
+      color: #E5E7EB;
+      border: 1.5px solid #4B5563;
+      border-radius: 6px;
+      padding: 6px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      min-height: 44px;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .quiz-btn:active {
+      transform: translate(1px, 1px);
+    }
+
+    .quiz-feedback {
+      font-size: 0.82rem;
+      font-weight: 800;
+      min-height: 22px;
+      line-height: 1.3;
+    }
+
+    /* Right Attributes Panel */
+    .attribute-box {
+      background: #1C1C2A;
+      border: 2px solid #3F3F56;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .attr-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .attr-row span:last-child {
+      color: var(--teal);
+    }
+
+    /* Angle Types Visual Keys */
+    .angle-types-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .angle-card {
+      border: 2px solid #3F3F56;
+      border-radius: 8px;
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.84rem;
+      font-weight: 800;
+    }
+
+    .angle-card.right { border-color: #38B6FF; background: rgba(56, 182, 255, 0.12); }
+    .angle-card.acute { border-color: #4ECDC4; background: rgba(78, 205, 196, 0.12); }
+    .angle-card.obtuse { border-color: #FFE156; background: rgba(255, 225, 86, 0.12); }
+    .angle-card.straight { border-color: #FF6584; background: rgba(255, 101, 132, 0.12); }
+
+    .angle-badge {
+      font-size: 1.2rem;
+    }
+
+    .inquiry-memo {
+      background: #11111A;
+      border-left: 4px solid var(--yellow);
+      padding: 8px 12px;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.82rem;
+      line-height: 1.35;
+      color: #E5E7EB;
+      margin-top: auto;
+    }
+
+    @media (max-width: 820px) {
+      .studio-grid {
+        grid-template-columns: 1fr;
+      }
+      .stage-wrapper {
+        min-height: 360px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <nav class="nav-bar">
+      <a class="pyp-map-link" href="../index.html">← PYP Map</a>
+      <span class="unit-tag">📐 Grade 2 · Unit 2: 3D Angle Finder</span>
+    </nav>
+
+    <header class="hero-card">
+      <div class="hero-title">
+        <h1>Angle Finder 3D 📐</h1>
+        <p>Inspect Right, Acute, Obtuse, and Straight angles on geometric and real-world 3D objects.</p>
+      </div>
+    </header>
+
+    <main class="studio-grid">
+      <!-- Left Column: Shape & Object Selector -->
+      <aside class="panel-card">
+        <div class="panel-title"><span>📦</span> Choose Shape / Object</div>
+        <div class="shape-list" id="shapeList">
+          <button class="shape-btn active" data-shape="square_prism" type="button">
+            <span>🟦</span> Square Block (Cube)
+          </button>
+          <button class="shape-btn" data-shape="wedge" type="button">
+            <span>📐</span> Triangle Wedge
+          </button>
+          <button class="shape-btn" data-shape="diamond" type="button">
+            <span>💎</span> Minecraft Diamond
+          </button>
+          <button class="shape-btn" data-shape="clock" type="button">
+            <span>🕒</span> Clock at 3:00 (Right)
+          </button>
+          <button class="shape-btn" data-shape="scissors" type="button">
+            <span>✂️</span> Scissors (Acute)
+          </button>
+          <button class="shape-btn" data-shape="book" type="button">
+            <span>📖</span> Open Book (Obtuse)
+          </button>
+        </div>
+      </aside>
+
+      <!-- Center Column: 3D Three.js Interactive Stage -->
+      <section class="stage-wrapper">
+        <canvas id="angleCanvas"></canvas>
+        <div class="stage-hud">
+          <div class="hud-pill">🖐️ Drag to rotate 360° | Scroll / pinch to zoom</div>
+          <div class="hud-pill" id="hudActiveAngle">Angle: Right Angle (90°)</div>
+        </div>
+
+        <!-- 3D Stage Floating Controls -->
+        <div class="stage-toolbar">
+          <button type="button" class="tool-btn" id="btnToggleSpin">⏸️ Pause Spin</button>
+          <button type="button" class="tool-btn" id="btnToggleGauge">📐 Show 90° Square Gauge</button>
+          <button type="button" class="tool-btn" id="btnResetView">🔄 Reset View</button>
+        </div>
+      </section>
+
+      <!-- Right Column: Shape Attributes & Angle Analysis -->
+      <aside class="panel-card">
+        <div class="panel-title"><span>📊</span> Shape & Angle Inspector</div>
+
+        <div class="attribute-box">
+          <div class="attr-row">
+            <span>Object Name:</span>
+            <span id="attrName">Cube / Square Prism</span>
+          </div>
+          <div class="attr-row">
+            <span>Primary Angles:</span>
+            <span id="attrAngleType">Right Angles (90°)</span>
+          </div>
+          <div class="attr-row">
+            <span>Number of Vertices:</span>
+            <span id="attrVertices">8 Corners</span>
+          </div>
+        </div>
+
+        <div class="panel-title"><span>📏</span> Angle Classification</div>
+        <div class="angle-types-list">
+          <div class="angle-card right" id="cardRight">
+            <span class="angle-badge">∟</span>
+            <div>
+              <strong>Right Angle (= 90°)</strong>
+              <div style="font-size:0.75rem; color:#9CA3AF;">Square corner (e.g. wall, table)</div>
+            </div>
+          </div>
+
+          <div class="angle-card acute" id="cardAcute">
+            <span class="angle-badge">∠</span>
+            <div>
+              <strong>Acute Angle (&lt; 90°)</strong>
+              <div style="font-size:0.75rem; color:#9CA3AF;">Sharp corner smaller than 90°</div>
+            </div>
+          </div>
+
+          <div class="angle-card obtuse" id="cardObtuse">
+            <span class="angle-badge">⊿</span>
+            <div>
+              <strong>Obtuse Angle (&gt; 90°)</strong>
+              <div style="font-size:0.75rem; color:#9CA3AF;">Wide open angle larger than 90°</div>
+            </div>
+          </div>
+
+          <div class="angle-card straight" id="cardStraight">
+            <span class="angle-badge">―</span>
+            <div>
+              <strong>Straight Angle (= 180°)</strong>
+              <div style="font-size:0.75rem; color:#9CA3AF;">Opposite rays forming a line</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Self-Directed Learning Quiz Module -->
+        <div class="quiz-card">
+          <div class="quiz-title">🕵️ Angle Detective Quiz</div>
+          <div style="font-size:0.8rem; color:#D1D5DB; margin-bottom:8px;">What primary angle is highlighted on this model?</div>
+          <div class="quiz-btns" id="quizBtns">
+            <button type="button" class="quiz-btn" data-type="right">Right (90°)</button>
+            <button type="button" class="quiz-btn" data-type="acute">Acute (&lt;90°)</button>
+            <button type="button" class="quiz-btn" data-type="obtuse">Obtuse (&gt;90°)</button>
+            <button type="button" class="quiz-btn" data-type="straight">Straight (180°)</button>
+          </div>
+          <div class="quiz-feedback" id="quizFeedback">Tap an angle name to test your understanding!</div>
+        </div>
+
+        <div class="inquiry-memo" id="memoInspector">
+          💡 <strong>Angle Inquiry</strong>: Every corner of a square or rectangle is exactly a <strong>Right Angle</strong> (90 degrees). Use a square sheet of paper to test if a corner matches!
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <!-- ES Module Import for Three.js & OrbitControls -->
+  <script type="module">
+    import * as THREE from 'https://esm.sh/three@0.160.0';
+    import { OrbitControls } from 'https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js';
+
+    // Canvas & 3D Renderer Setup
+    const canvas = document.getElementById('angleCanvas');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0E0E18);
+
+    const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
+    camera.position.set(0, 3, 7);
+
+    const controls = new OrbitControls(camera, canvas);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+
+    // Ambient and Key lighting
+    const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.6);
+    scene.add(ambientLight);
+
+    const dirLight = new THREE.DirectionalLight(0xFFFFFF, 0.8);
+    dirLight.position.set(5, 10, 7);
+    scene.add(dirLight);
+
+    const fillLight = new THREE.DirectionalLight(0x38B6FF, 0.4);
+    fillLight.position.set(-5, -2, -5);
+    scene.add(fillLight);
+
+    // Grid Floor
+    const grid = new THREE.GridHelper(16, 16, 0x4ECDC4, 0x2A2A3E);
+    grid.position.y = -1.5;
+    scene.add(grid);
+
+    // Active Mesh Container
+    const modelGroup = new THREE.Group();
+    scene.add(modelGroup);
+
+    // Angle indicator helpers container
+    const indicatorGroup = new THREE.Group();
+    scene.add(indicatorGroup);
+
+    const shapesInfo = {
+      square_prism: {
+        name: "Square Prism (Cube)",
+        angleType: "Right Angle (90°)",
+        vertices: "8 Corners",
+        memo: "Every face of a cube meets at a sharp 90° square corner. All corners are Right Angles!",
+        activeCategory: "right"
+      },
+      wedge: {
+        name: "Right Triangular Wedge",
+        angleType: "Acute (<90°) & Right (90°)",
+        vertices: "6 Corners",
+        memo: "This ramp has one 90° right angle on the floor and two sharp acute angles (45°) at the ends!",
+        activeCategory: "acute"
+      },
+      diamond: {
+        name: "Minecraft Diamond Gem",
+        angleType: "Acute Angles (<90°)",
+        vertices: "6 Points",
+        memo: "The facets of a crystal diamond meet at sharp, pointed acute angles.",
+        activeCategory: "acute"
+      },
+      clock: {
+        name: "Wall Clock at 3:00",
+        angleType: "Right Angle (90°)",
+        vertices: "Hands at 12 and 3",
+        memo: "At exactly 3 o'clock, the minute hand (12) and hour hand (3) form a perfect 90° Right Angle!",
+        activeCategory: "right"
+      },
+      scissors: {
+        name: "Open Scissors",
+        angleType: "Acute Angle (<90°)",
+        vertices: "Blade Pivot Corner",
+        memo: "When scissors are slightly open, the blades form a sharp Acute Angle smaller than 90°.",
+        activeCategory: "acute"
+      },
+      book: {
+        name: "Open Storybook",
+        angleType: "Obtuse Angle (>90°)",
+        vertices: "Spine Angle",
+        memo: "When you open a book wide flat on a table, the spine forms an Obtuse Angle greater than 90°!",
+        activeCategory: "obtuse"
+      }
+    };
+
+    function loadShape(shapeKey) {
+      modelGroup.clear();
+      indicatorGroup.clear();
+
+      const mat = new THREE.MeshStandardMaterial({
+        color: 0x4ECDC4,
+        roughness: 0.3,
+        metalness: 0.2
+      });
+
+      if (shapeKey === 'square_prism') {
+        const geo = new THREE.BoxGeometry(2, 2, 2);
+        const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: 0x38B6FF, roughness: 0.4 }));
+        modelGroup.add(mesh);
+        addSquareAngleMarker(1, 1, 1);
+      } else if (shapeKey === 'wedge') {
+        // Triangular prism wedge
+        const shape = new THREE.Shape();
+        shape.moveTo(0, 0);
+        shape.lineTo(2.5, 0);
+        shape.lineTo(0, 2);
+        shape.closePath();
+
+        const extrudeSettings = { depth: 1.8, bevelEnabled: false };
+        const geo = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+        geo.center();
+        const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: 0xFFE156, roughness: 0.4 }));
+        modelGroup.add(mesh);
+      } else if (shapeKey === 'diamond') {
+        const geo = new THREE.OctahedronGeometry(1.6);
+        const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: 0x00E5FF, roughness: 0.1, metalness: 0.8 }));
+        modelGroup.add(mesh);
+      } else if (shapeKey === 'clock') {
+        // Clock face cylinder
+        const faceGeo = new THREE.CylinderGeometry(1.6, 1.6, 0.2, 32);
+        const faceMesh = new THREE.Mesh(faceGeo, new THREE.MeshStandardMaterial({ color: 0xFFFFFF }));
+        faceMesh.rotation.x = Math.PI / 2;
+        modelGroup.add(faceMesh);
+
+        // Hands at 12 and 3
+        const handMat = new THREE.MeshBasicMaterial({ color: 0x111111 });
+        const hand12 = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.1, 0.1), handMat);
+        hand12.position.set(0, 0.55, 0.15);
+        const hand3 = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.12, 0.1), handMat);
+        hand3.position.set(0.45, 0, 0.15);
+        modelGroup.add(hand12, hand3);
+      } else if (shapeKey === 'scissors') {
+        const bladeMat = new THREE.MeshStandardMaterial({ color: 0xCBD5E1, metalness: 0.8 });
+        const blade1 = new THREE.Mesh(new THREE.BoxGeometry(0.2, 2.4, 0.08), bladeMat);
+        blade1.rotation.z = Math.PI / 6;
+        const blade2 = new THREE.Mesh(new THREE.BoxGeometry(0.2, 2.4, 0.08), bladeMat);
+        blade2.rotation.z = -Math.PI / 6;
+        modelGroup.add(blade1, blade2);
+      } else if (shapeKey === 'book') {
+        const pageMat = new THREE.MeshStandardMaterial({ color: 0xFFFDF0, roughness: 0.6 });
+        const leftPage = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1.8, 0.1), pageMat);
+        leftPage.position.set(-0.7, 0, 0);
+        leftPage.rotation.y = Math.PI / 8;
+        const rightPage = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1.8, 0.1), pageMat);
+        rightPage.position.set(0.7, 0, 0);
+        rightPage.rotation.y = -Math.PI / 8;
+        modelGroup.add(leftPage, rightPage);
+      }
+
+      // Update right panel info
+      const info = shapesInfo[shapeKey];
+      document.getElementById('attrName').textContent = info.name;
+      document.getElementById('attrAngleType').textContent = info.angleType;
+      document.getElementById('attrVertices').textContent = info.vertices;
+      document.getElementById('memoInspector').innerHTML = `💡 <strong>Angle Inquiry</strong>: ${info.memo}`;
+      document.getElementById('hudActiveAngle').textContent = `Angle: ${info.angleType}`;
+
+      // Highlight corresponding category card
+      ['cardRight', 'cardAcute', 'cardObtuse', 'cardStraight'].forEach(id => {
+        document.getElementById(id).style.transform = 'scale(1)';
+        document.getElementById(id).style.boxShadow = 'none';
+      });
+      const cardMap = {
+        right: 'cardRight',
+        acute: 'cardAcute',
+        obtuse: 'cardObtuse',
+        straight: 'cardStraight'
+      };
+      const activeCard = document.getElementById(cardMap[info.activeCategory]);
+      if (activeCard) {
+        activeCard.style.transform = 'scale(1.03)';
+        activeCard.style.boxShadow = '0 0 10px rgba(78, 205, 196, 0.5)';
+      }
+    }
+
+    // Angle Visual Indicator: 90-degree reference gauge
+    const gaugeGroup = new THREE.Group();
+    gaugeGroup.visible = false;
+    scene.add(gaugeGroup);
+
+    // Create a 90-degree transparent protractor / square corner gauge
+    const gaugeMat = new THREE.MeshBasicMaterial({ color: 0xFF1744, transparent: true, opacity: 0.5, side: THREE.DoubleSide });
+    const gaugePlane = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 1.2), gaugeMat);
+    gaugePlane.position.set(0, 0, 1.05);
+
+    const gaugeLineMat = new THREE.LineBasicMaterial({ color: 0xFFFFFF, linewidth: 2 });
+    const gaugeOutline = new THREE.LineSegments(
+      new THREE.EdgesGeometry(new THREE.PlaneGeometry(1.2, 1.2)),
+      gaugeLineMat
+    );
+    gaugeOutline.position.set(0, 0, 1.05);
+    gaugeGroup.add(gaugePlane, gaugeOutline);
+
+    let isSpinning = false; // Stopped by default so children can inspect comfortably!
+    let currentShapeKey = 'square_prism';
+
+    function addSquareAngleMarker(x, y, z) {
+      // 90-degree square corner indicator
+      const markerMat = new THREE.LineBasicMaterial({ color: 0xFF1744, linewidth: 3 });
+      const points = [
+        new THREE.Vector3(x, y - 0.4, z),
+        new THREE.Vector3(x - 0.4, y - 0.4, z),
+        new THREE.Vector3(x - 0.4, y, z)
+      ];
+      const geo = new THREE.BufferGeometry().setFromPoints(points);
+      const line = new THREE.Line(geo, markerMat);
+      indicatorGroup.add(line);
+    }
+
+    // Initial shape
+    loadShape('square_prism');
+
+    // Button wiring
+    document.querySelectorAll('#shapeList .shape-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#shapeList .shape-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentShapeKey = btn.dataset.shape;
+        loadShape(currentShapeKey);
+        document.getElementById('quizFeedback').textContent = 'What angle type does this object have?';
+        document.getElementById('quizFeedback').style.color = '#D1D5DB';
+      });
+    });
+
+    // Stage Toolbar wiring
+    const btnToggleSpin = document.getElementById('btnToggleSpin');
+    btnToggleSpin.textContent = isSpinning ? '⏸️ Pause Spin' : '▶️ Auto Spin';
+    btnToggleSpin.addEventListener('click', () => {
+      isSpinning = !isSpinning;
+      btnToggleSpin.textContent = isSpinning ? '⏸️ Pause Spin' : '▶️ Auto Spin';
+      btnToggleSpin.classList.toggle('active', isSpinning);
+    });
+
+    const btnToggleGauge = document.getElementById('btnToggleGauge');
+    btnToggleGauge.addEventListener('click', () => {
+      gaugeGroup.visible = !gaugeGroup.visible;
+      btnToggleGauge.classList.toggle('active', gaugeGroup.visible);
+    });
+
+    document.getElementById('btnResetView').addEventListener('click', () => {
+      camera.position.set(0, 3, 7);
+      controls.reset();
+      modelGroup.rotation.set(0, 0, 0);
+    });
+
+    // Self-Directed Learning Quiz wiring
+    document.querySelectorAll('#quizBtns .quiz-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const chosen = btn.dataset.type;
+        const info = shapesInfo[currentShapeKey];
+        const feedback = document.getElementById('quizFeedback');
+
+        if (chosen === info.activeCategory) {
+          feedback.textContent = `🎉 Correct! ${info.name} features ${info.angleType}.`;
+          feedback.style.color = '#34D399';
+        } else {
+          feedback.textContent = `❌ Try again! Compare with the 90° square gauge.`;
+          feedback.style.color = '#F87171';
+        }
+      });
+    });
+
+    // Resize handling
+    function resize() {
+      const width = canvas.clientWidth;
+      const height = canvas.clientHeight;
+      if (canvas.width !== width || canvas.height !== height) {
+        renderer.setSize(width, height, false);
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+      }
+    }
+
+    // Render Loop
+    function animate() {
+      requestAnimationFrame(animate);
+      resize();
+      controls.update();
+      if (isSpinning) {
+        modelGroup.rotation.y += 0.005;
+      }
+      renderer.render(scene, camera);
+    }
+    animate();
+  </script>
+</body>
+
+</html>

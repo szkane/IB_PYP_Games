@@ -470,7 +470,7 @@
       "id": "g2",
       "label": "Grade 2",
       "status": "active",
-      "summary": "Grade 2 UOI learning path, starting with economics and financial systems vocabulary.",
+      "summary": "Grade 2 UOI learning path: Balanced Choices, literacy mechanics & story retell, and 3-number mixed operations.",
       "units": [
         {
           "id": "home_learning",
@@ -510,18 +510,158 @@
         {
           "id": "u1",
           "label": "Unit 1",
-          "title": "Summer Holiday Home Learning",
-          "theme": "How We Organize Ourselves",
-          "centralIdea": "The decisions we make about using and sharing resources affect our community.",
+          "title": "Balanced Choices",
+          "theme": "Who We Are",
+          "centralIdea": "Making balanced choices nurtures one's well-being.",
           "learnerProfile": [
+            "Balanced",
             "Reflective",
+            "Principled"
+          ],
+          "atlSkills": [
+            "Thinking Skills",
+            "Self-Management Skills"
+          ],
+          "subjects": [
+            {
+              "id": "uoi",
+              "label": "UOI",
+              "games": [
+                {
+                  "title": "Balanced Choices Adventure",
+                  "path": "uoi/g2_balanced_choices.html",
+                  "type": "New",
+                  "description": "Interactive decision quest exploring physical health, emotions, and responsibility."
+                }
+              ]
+            },
+            {
+              "id": "literacy",
+              "label": "Literacy",
+              "games": [
+                {
+                  "title": "Sentence Doctor Clinic",
+                  "path": "literacy/g2_sentence_fixer.html",
+                  "type": "New",
+                  "description": "Interactive token clinic to heal capital letters, -ed past tense verbs, and ending punctuation."
+                },
+                {
+                  "title": "Five Finger Story Retell",
+                  "path": "literacy/g2_five_finger_retell.html",
+                  "type": "New",
+                  "description": "Interactive narrative map matching characters, setting, time, problem, and solution."
+                }
+              ]
+            },
+            {
+              "id": "math",
+              "label": "Math",
+              "games": [
+                {
+                  "title": "3-Number Mixed Arithmetic Worksheet",
+                  "path": "math/g2_mixed_arithmetic_worksheet.html",
+                  "type": "New",
+                  "description": "Continuous addition and subtraction generator with A4 ink-friendly print layout."
+                },
+                {
+                  "title": "Time & Mental Math Quest",
+                  "path": "math/g2_time_and_math_quest.html",
+                  "type": "New",
+                  "description": "Digital clocks, calendar duration inquiries, and mental arithmetic arcade."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "u2",
+          "label": "Unit 2",
+          "title": "Sound and Light",
+          "theme": "How We Express Ourselves",
+          "centralIdea": "People use the properties of sound and light to express ideas, feelings and experiences.",
+          "learnerProfile": [
+            "Communicator",
+            "Inquirer",
             "Thinker"
           ],
           "atlSkills": [
             "Thinking Skills",
-            "Social Skills"
+            "Communication Skills"
           ],
-          "subjects": []
+          "subjects": [
+            {
+              "id": "uoi",
+              "label": "UOI",
+              "games": [
+                {
+                  "title": "Sound Explorer Lab",
+                  "path": "uoi/g2_sound_explorer.html",
+                  "type": "New",
+                  "description": "Investigate volume, pitch, and communication signals."
+                }
+              ]
+            },
+            {
+              "id": "science",
+              "label": "Science",
+              "games": [
+                {
+                  "title": "Light & Shadow Master 3D",
+                  "path": "science/g2_light_shadow_master.html",
+                  "type": "New",
+                  "description": "Explore 3D shadow formation, opacity, and mirror reflection with Minecraft items."
+                }
+              ]
+            },
+            {
+              "id": "literacy",
+              "label": "Literacy",
+              "games": [
+                {
+                  "title": "Digraph Pop!",
+                  "path": "literacy/g2_digraph_pop.html",
+                  "type": "New",
+                  "description": "Bubble popping phonics practice for sh, ch, th, wh, ph, ck, ng, and nk."
+                },
+                {
+                  "title": "Script Director & Grammar Lab",
+                  "path": "literacy/g2_script_director.html",
+                  "type": "New",
+                  "description": "Stage directions using prepositions of place and grammar clinic."
+                }
+              ]
+            },
+            {
+              "id": "math",
+              "label": "Math",
+              "games": [
+                {
+                  "title": "Array & Equal Groups Visualizer",
+                  "path": "math/g2_array_equal_groups.html",
+                  "type": "New",
+                  "description": "Visual matrix arrays, equal groups, and repeated addition reasoning."
+                },
+                {
+                  "title": "Times Table Speed Challenge",
+                  "path": "math/g2_times_table_challenge.html",
+                  "type": "New",
+                  "description": "Fast-paced multiplication fact sprint for 2, 3, 4, and 5 times tables."
+                },
+                {
+                  "title": "Angle Explorer",
+                  "path": "math/g2_angle_explorer.html",
+                  "type": "New",
+                  "description": "Open a door to learn angles, build each angle type, then solve Angle Detective cases."
+                },
+                {
+                  "title": "Angle Finder 3D",
+                  "path": "math/g2_angle_finder.html",
+                  "type": "New",
+                  "description": "Interactive 3D geometry inspector for Right, Acute, Obtuse, and Straight angles."
+                }
+              ]
+            }
+          ]
         }
       ]
     },

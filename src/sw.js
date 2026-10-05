@@ -1,5 +1,5 @@
 // Cache version - auto-updated by build script
-const CACHE_VERSION = '20260922214831';
+const CACHE_VERSION = '20261005220104';
 const CACHE_NAME = `ib-pyp-games-${CACHE_VERSION}`;
 
 // Static assets to pre-cache during install
@@ -17,6 +17,10 @@ const PRECACHE_URLS = [
     '/literacy/g1_before_after.html?mode=months',
     '/literacy/g1_pronunciation.html',
     '/literacy/g1_spelling_bee.html',
+    '/literacy/g2_digraph_pop.html',
+    '/literacy/g2_five_finger_retell.html',
+    '/literacy/g2_script_director.html',
+    '/literacy/g2_sentence_fixer.html',
     '/literacy/mc_words/index.html',
     '/literacy/movespelling/index.html',
     '/literacy/wordquest/index.html',
@@ -28,18 +32,27 @@ const PRECACHE_URLS = [
     '/math/g1_pictograph_tally_quiz_arcade.html',
     '/math/g1_pictograph_tally_story_journey.html',
     '/math/g1_position_explorer.html',
+    '/math/g2_angle_explorer.html',
+    '/math/g2_angle_finder.html',
+    '/math/g2_array_equal_groups.html',
+    '/math/g2_mixed_arithmetic_worksheet.html',
+    '/math/g2_time_and_math_quest.html',
+    '/math/g2_times_table_challenge.html',
     '/science/g1_3D_camera_blueball.html',
     '/science/g1_3D_camera_dragonball.html',
     '/science/g1_3D_camera_test.html',
     '/science/g1_bike_gear.html',
     '/science/g1_day_and_night_detectives.html',
     '/science/g1_moon_phases.html',
+    '/science/g2_light_shadow_master.html',
     '/science/gesture-cosmos-hub.html',
     '/uoi/g1_community_helpers_sort.html',
     '/uoi/g1_goal_steps_quest.html',
     '/uoi/g1_life_cycle_builder.html',
     '/uoi/g1_needs_of_living_things.html',
     '/uoi/g1_story_sequencer.html',
+    '/uoi/g2_balanced_choices.html',
+    '/uoi/g2_sound_explorer.html',
     '/uoi/g2_vocabulary.html?scheme=math',
     '/uoi/g2_vocabulary.html?scheme=uoi'
 ];

@@ -1,0 +1,902 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sound Explorer - Volume, Pitch & Signals Lab</title>
+  <style>
+    :root {
+      --bg: #FFFDF0;
+      --ink: #111111;
+      --yellow: #FFE156;
+      --coral: #FF6584;
+      --teal: #4ECDC4;
+      --blue: #38B6FF;
+      --purple: #B388FF;
+      --white: #FFFFFF;
+      --border: 3.5px solid var(--ink);
+      --shadow: 4px 4px 0 var(--ink);
+      --shadow-sm: 2px 2px 0 var(--ink);
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      background-image:
+        radial-gradient(circle at 12% 18%, rgba(255, 101, 132, 0.12) 0%, transparent 28%),
+        radial-gradient(circle at 88% 82%, rgba(56, 182, 255, 0.12) 0%, transparent 28%),
+        radial-gradient(circle at 50% 50%, rgba(255, 225, 86, 0.08) 0%, transparent 50%);
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 14px 16px 36px;
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    /* Top Nav */
+    .nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .pyp-map-link {
+      display: inline-flex;
+      align-items: center;
+      background: var(--yellow);
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 900;
+      font-size: 0.95rem;
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 8px 16px;
+      min-height: 44px;
+      cursor: pointer;
+      transition: transform 0.1s ease;
+    }
+
+    .pyp-map-link:active,
+    .pyp-map-link:hover {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .unit-tag {
+      background: var(--teal);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 8px 14px;
+      font-weight: 800;
+      font-size: 0.88rem;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    /* Compact Header Card */
+    .hero-card {
+      background: var(--white);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px 18px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .hero-left h1 {
+      font-size: clamp(1.25rem, 2.8vw, 1.65rem);
+      font-weight: 900;
+      margin-bottom: 2px;
+    }
+
+    .hero-left p {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #4B5563;
+    }
+
+    .scoreboard {
+      display: flex;
+      gap: 10px;
+    }
+
+    .score-badge {
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
+      padding: 6px 14px;
+      font-weight: 900;
+      font-size: 0.9rem;
+      box-shadow: var(--shadow-sm);
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--yellow);
+    }
+
+    /* Main Grid: Interactive Sound Wave Rig + Mission Card */
+    .lab-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .card {
+      background: var(--white);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px 18px;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 900;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Sound Synthesizer Visualizer Stage */
+    .osc-stage {
+      background: #111827;
+      border: 3px solid var(--ink);
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 14px;
+      position: relative;
+    }
+
+    .wave-svg {
+      width: 100%;
+      height: 110px;
+      display: block;
+    }
+
+    .osc-indicator {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      color: #E5E7EB;
+      font-size: 0.82rem;
+      font-weight: 800;
+      margin-top: 8px;
+      font-family: monospace;
+    }
+
+    .osc-indicator span {
+      background: rgba(255, 255, 255, 0.12);
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    /* Audio Play Button */
+    .btn-sound-play {
+      font-family: inherit;
+      width: 100%;
+      background: var(--coral);
+      color: var(--white);
+      border: var(--border);
+      border-radius: 10px;
+      font-size: 1.05rem;
+      font-weight: 900;
+      padding: 12px 18px;
+      min-height: 52px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: transform 0.1s ease;
+    }
+
+    .btn-sound-play:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Mission Scenario Box */
+    .scenario-box {
+      background: #FFF9D2;
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+    }
+
+    .scenario-badge {
+      display: inline-block;
+      background: var(--purple);
+      color: var(--white);
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-weight: 900;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      border: 1.5px solid var(--ink);
+    }
+
+    .scenario-title {
+      font-size: 1.15rem;
+      font-weight: 900;
+      margin-bottom: 4px;
+    }
+
+    .scenario-desc {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #374151;
+      line-height: 1.35;
+    }
+
+    /* Attribute Selection Controls */
+    .property-section {
+      margin-bottom: 12px;
+    }
+
+    .property-label {
+      font-size: 0.85rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .btn-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .choice-btn {
+      font-family: inherit;
+      background: var(--white);
+      color: var(--ink);
+      border: 2.5px solid var(--ink);
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 0.92rem;
+      font-weight: 900;
+      min-height: 46px;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.1s ease;
+    }
+
+    .choice-btn:hover {
+      background: #F3F4F6;
+    }
+
+    .choice-btn.active {
+      background: var(--yellow);
+      transform: translate(2px, 2px);
+      box-shadow: 0 0 0;
+      border-color: var(--ink);
+    }
+
+    /* Purpose / Emotion Buttons */
+    .purpose-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    /* Feedback Box */
+    .feedback-banner {
+      display: none;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 2.5px solid var(--ink);
+      font-size: 0.9rem;
+      font-weight: 800;
+      margin-top: 12px;
+      line-height: 1.35;
+    }
+
+    .feedback-banner.success {
+      display: block;
+      background: #D1FAE5;
+      color: #065F46;
+    }
+
+    .feedback-banner.error {
+      display: block;
+      background: #FEE2E2;
+      color: #991B1B;
+    }
+
+    /* Primary Submit / Next Button */
+    .btn-submit {
+      font-family: inherit;
+      width: 100%;
+      background: var(--teal);
+      color: var(--ink);
+      border: var(--border);
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 900;
+      padding: 10px 16px;
+      min-height: 48px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      margin-top: 14px;
+      transition: transform 0.1s ease;
+    }
+
+    .btn-submit:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Win Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-card {
+      background: var(--white);
+      border: 4px solid var(--ink);
+      border-radius: 16px;
+      box-shadow: 8px 8px 0 var(--ink);
+      padding: 24px;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .modal-badge {
+      font-size: 3.5rem;
+      margin-bottom: 8px;
+    }
+
+    .modal-title {
+      font-size: 1.6rem;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .modal-desc {
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: #4B5563;
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 820px) {
+      .lab-grid {
+        grid-template-columns: 1fr;
+      }
+      .hero-card {
+        padding: 12px 14px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <nav class="nav-bar">
+      <a class="pyp-map-link" href="../index.html">← PYP Map</a>
+      <span class="unit-tag">🔊 Grade 2 · Unit 2: Sound & Light</span>
+    </nav>
+
+    <header class="hero-card">
+      <div class="hero-left">
+        <h1>Sound Explorer Lab 🔬</h1>
+        <p>Investigate pitch, volume, and message signals to express feelings and safety.</p>
+      </div>
+      <div class="scoreboard">
+        <div class="score-badge" id="missionBadge">🎯 Mission 1 / 6</div>
+        <div class="score-badge" style="background: var(--teal);" id="scoreBadge">⭐ Score: 0</div>
+      </div>
+    </header>
+
+    <main class="lab-grid">
+      <!-- Left Column: Audio Wave Lab & Player -->
+      <section class="card">
+        <h2 class="card-title"><span>🔊</span> Sound Wave Visualizer</h2>
+        <div class="osc-stage">
+          <svg class="wave-svg" viewBox="0 0 400 110" id="waveSvg">
+            <path id="wavePath" d="M 0 55 Q 25 15, 50 55 T 100 55 T 150 55 T 200 55 T 250 55 T 300 55 T 350 55 T 400 55"
+              fill="none" stroke="#00F0FF" stroke-width="4.5" stroke-linecap="round" />
+          </svg>
+          <div class="osc-indicator">
+            <span id="labelVolume">Volume: Quiet</span>
+            <span id="labelPitch">Pitch: High</span>
+          </div>
+        </div>
+
+        <button class="btn-sound-play" id="btnPlaySound" type="button">
+          <span>▶️</span> Listen to the Sound
+        </button>
+
+        <div style="margin-top: 14px; font-size: 0.84rem; font-weight: 700; color: #4B5563; line-height: 1.35;">
+          💡 <strong>Sound Inquiry</strong>: High pitch vibrates faster (more tight waves). High volume has taller wave peaks!
+        </div>
+      </section>
+
+      <!-- Right Column: Interactive Inquiry Mission -->
+      <section class="card">
+        <div class="scenario-box">
+          <span class="scenario-badge" id="scenarioCategory">Safety Alert</span>
+          <h3 class="scenario-title" id="scenarioTitle">Police Siren</h3>
+          <p class="scenario-desc" id="scenarioDesc">
+            A patrol car rushes to an emergency. Notice the strong repeating siren sound.
+          </p>
+        </div>
+
+        <!-- Property 1: Volume -->
+        <div class="property-section">
+          <label class="property-label">1. Volume (Sound Power)</label>
+          <div class="btn-group" id="volumeGroup">
+            <button class="choice-btn" data-val="Loud" type="button">📢 Loud</button>
+            <button class="choice-btn" data-val="Quiet" type="button">🤫 Quiet</button>
+          </div>
+        </div>
+
+        <!-- Property 2: Pitch -->
+        <div class="property-section">
+          <label class="property-label">2. Pitch (Vibration Speed)</label>
+          <div class="btn-group" id="pitchGroup">
+            <button class="choice-btn" data-val="High" type="button">🐦 High Pitch</button>
+            <button class="choice-btn" data-val="Low" type="button">🦁 Low Pitch</button>
+          </div>
+        </div>
+
+        <!-- Property 3: Purpose / Signal -->
+        <div class="property-section">
+          <label class="property-label">3. Message / Function (Why use this sound?)</label>
+          <div class="purpose-group" id="purposeGroup">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <div class="feedback-banner" id="feedbackBanner"></div>
+
+        <button class="btn-submit" id="btnSubmitCheck" type="button">Check My Science Answers 🔎</button>
+      </section>
+    </main>
+  </div>
+
+  <!-- Win Modal -->
+  <div class="modal-overlay" id="winModal">
+    <div class="modal-card">
+      <div class="modal-badge">🏅</div>
+      <h2 class="modal-title">Junior Sound Scientist!</h2>
+      <p class="modal-desc">
+        Congratulations! You mastered the properties of sound: volume, pitch, and communication signals.
+      </p>
+      <button class="btn-submit" id="btnRestart" type="button">Explore Again 🔄</button>
+    </div>
+  </div>
+
+  <script>
+    // Web Audio Synthesizer for zero-dependency sound effects
+    class SoundLabAudio {
+      constructor() {
+        this.ctx = null;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+        if (this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+      playCorrect() {
+        this.init();
+        const now = this.ctx.currentTime;
+        [523.25, 659.25, 783.99, 1046.5].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+          gain.gain.setValueAtTime(0.18, now + idx * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.28);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.08);
+          osc.stop(now + idx * 0.08 + 0.3);
+        });
+      }
+      playWrong() {
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(180, now);
+        osc.frequency.linearRampToValueAtTime(120, now + 0.2);
+        gain.gain.setValueAtTime(0.18, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.25);
+      }
+      playClick() {
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.frequency.setValueAtTime(500, now);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.06);
+      }
+      playScenarioSound(id) {
+        this.init();
+        const now = this.ctx.currentTime;
+        if (id === 'siren') {
+          // Police siren sweep
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.setValueAtTime(0.2, now + 1.2);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 1.3);
+          osc.frequency.setValueAtTime(600, now);
+          osc.frequency.linearRampToValueAtTime(950, now + 0.3);
+          osc.frequency.linearRampToValueAtTime(600, now + 0.6);
+          osc.frequency.linearRampToValueAtTime(950, now + 0.9);
+          osc.frequency.linearRampToValueAtTime(600, now + 1.2);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 1.3);
+        } else if (id === 'bird') {
+          // High pitch bird chirp
+          [1800, 2200, 2400].forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.12);
+            gain.gain.setValueAtTime(0.15, now + idx * 0.12);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.12 + 0.1);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now + idx * 0.12);
+            osc.stop(now + idx * 0.12 + 0.12);
+          });
+        } else if (id === 'thunder') {
+          // Low pitch loud rumble
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(90, now);
+          osc.frequency.exponentialRampToValueAtTime(45, now + 1.0);
+          gain.gain.setValueAtTime(0.3, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 1.1);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 1.1);
+        } else if (id === 'whisper') {
+          // Quiet gentle breath
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(320, now);
+          gain.gain.setValueAtTime(0.05, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.6);
+        } else if (id === 'fire_alarm') {
+          // Rapid high beeps
+          [0, 0.25, 0.5, 0.75].forEach(t => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(1400, now + t);
+            gain.gain.setValueAtTime(0.18, now + t);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + t + 0.15);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now + t);
+            osc.stop(now + t + 0.16);
+          });
+        } else {
+          // Lullaby bell
+          [440, 523.25, 587.33, 659.25].forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.25);
+            gain.gain.setValueAtTime(0.15, now + idx * 0.25);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.25 + 0.4);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now + idx * 0.25);
+            osc.stop(now + idx * 0.25 + 0.42);
+          });
+        }
+      }
+    }
+
+    const soundAudio = new SoundLabAudio();
+
+    const missions = [
+      {
+        id: 'siren',
+        category: 'Emergency Signal',
+        title: 'Police Siren',
+        desc: 'A patrol car rushes down the street to reach an urgent accident. Notice the piercing sound.',
+        volume: 'Loud',
+        pitch: 'High',
+        purposeOptions: [
+          { text: 'Warn everyone to clear the way.', correct: true },
+          { text: 'Sing a calm bedtime song.', correct: false },
+          { text: 'Whisper a secret in class.', correct: false },
+          { text: 'Play joyful circus music.', correct: false }
+        ]
+      },
+      {
+        id: 'bird',
+        category: 'Nature & Feelings',
+        title: 'Morning Birdsong',
+        desc: 'A robin perches on a branch in early spring, chirping short notes in the sunshine.',
+        volume: 'Quiet',
+        pitch: 'High',
+        purposeOptions: [
+          { text: 'Send a fire evacuation message.', correct: false },
+          { text: 'Greet the morning and express calm.', correct: true },
+          { text: 'Warn of an approaching storm.', correct: false },
+          { text: 'Shout across a noisy stadium.', correct: false }
+        ]
+      },
+      {
+        id: 'thunder',
+        category: 'Weather Power',
+        title: 'Deep Thunder Rumble',
+        desc: 'A heavy storm cloud gathers over the city. A low, rolling rumble shakes the windows.',
+        volume: 'Loud',
+        pitch: 'Low',
+        purposeOptions: [
+          { text: 'Signal strong power and rain.', correct: true },
+          { text: 'Invite children to whisper.', correct: false },
+          { text: 'Ask for silence in a library.', correct: false },
+          { text: 'Play a flute melody.', correct: false }
+        ]
+      },
+      {
+        id: 'whisper',
+        category: 'Communication',
+        title: 'Library Whisper',
+        desc: 'Two students exchange reading notes at a library study desk.',
+        volume: 'Quiet',
+        pitch: 'Low',
+        purposeOptions: [
+          { text: 'Respect quiet study and avoid disturbance.', correct: true },
+          { text: 'Call an ambulance for help.', correct: false },
+          { text: 'Cheer for a soccer goal.', correct: false },
+          { text: 'Trigger a security alarm.', correct: false }
+        ]
+      },
+      {
+        id: 'fire_alarm',
+        category: 'Emergency Signal',
+        title: 'School Fire Alarm Bell',
+        desc: 'A continuous, sharp ringing sound fills the hallway to notify everyone.',
+        volume: 'Loud',
+        pitch: 'High',
+        purposeOptions: [
+          { text: 'Tell everyone to evacuate safely.', correct: true },
+          { text: 'Play dance music for recess.', correct: false },
+          { text: 'Show that everything is peaceful.', correct: false },
+          { text: 'Welcome guests into a quiet room.', correct: false }
+        ]
+      },
+      {
+        id: 'lullaby',
+        category: 'Creative Expression',
+        title: 'Gentle Music Box',
+        desc: 'A bedside toy turns softly, playing a quiet, steady melody for baby sleep.',
+        volume: 'Quiet',
+        pitch: 'High',
+        purposeOptions: [
+          { text: 'Help a baby relax and fall asleep.', correct: true },
+          { text: 'Alert the fire department.', correct: false },
+          { text: 'Stop fast traffic on a highway.', correct: false },
+          { text: 'Sound an emergency warning.', correct: false }
+        ]
+      }
+    ];
+
+    let currentMissionIdx = 0;
+    let score = 0;
+    let selectedVolume = null;
+    let selectedPitch = null;
+    let selectedPurposeIdx = null;
+
+    function updateWaveform(volume, pitch) {
+      const isLoud = volume === 'Loud';
+      const isHigh = pitch === 'High';
+      const amp = isLoud ? 38 : 16;
+      const freqMultiplier = isHigh ? 2 : 1;
+
+      let d = 'M 0 55 ';
+      const segments = freqMultiplier * 6;
+      const step = 400 / segments;
+      for (let i = 0; i < segments; i++) {
+        const x1 = i * step + step * 0.25;
+        const y1 = (i % 2 === 0) ? 55 - amp : 55 + amp;
+        const x2 = (i + 1) * step;
+        const y2 = 55;
+        d += `Q ${x1} ${y1}, ${x2} ${y2} `;
+      }
+      document.getElementById('wavePath').setAttribute('d', d);
+      document.getElementById('labelVolume').textContent = `Volume: ${volume || '---'}`;
+      document.getElementById('labelPitch').textContent = `Pitch: ${pitch || '---'}`;
+    }
+
+    function renderMission() {
+      const m = missions[currentMissionIdx];
+      document.getElementById('missionBadge').textContent = `🎯 Mission ${currentMissionIdx + 1} / ${missions.length}`;
+      document.getElementById('scoreBadge').textContent = `⭐ Score: ${score}`;
+      document.getElementById('scenarioCategory').textContent = m.category;
+      document.getElementById('scenarioTitle').textContent = m.title;
+      document.getElementById('scenarioDesc').textContent = m.desc;
+
+      selectedVolume = null;
+      selectedPitch = null;
+      selectedPurposeIdx = null;
+
+      document.querySelectorAll('#volumeGroup .choice-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('#pitchGroup .choice-btn').forEach(btn => btn.classList.remove('active'));
+
+      const purposeGroup = document.getElementById('purposeGroup');
+      purposeGroup.innerHTML = '';
+
+      // Randomize purpose options so correct answer is not always first
+      m.currentPurposeOptions = [...m.purposeOptions].sort(() => Math.random() - 0.5);
+
+      m.currentPurposeOptions.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.type = 'button';
+        btn.textContent = opt.text;
+        btn.addEventListener('click', () => {
+          purposeGroup.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          selectedPurposeIdx = idx;
+        });
+        purposeGroup.appendChild(btn);
+      });
+
+      const feedback = document.getElementById('feedbackBanner');
+      feedback.className = 'feedback-banner';
+      feedback.textContent = '';
+      document.getElementById('btnSubmitCheck').textContent = 'Check My Science Answers 🔎';
+
+      updateWaveform(m.volume, m.pitch);
+    }
+
+    // Button event listeners
+    document.querySelectorAll('#volumeGroup .choice-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#volumeGroup .choice-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedVolume = btn.dataset.val;
+      });
+    });
+
+    document.querySelectorAll('#pitchGroup .choice-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#pitchGroup .choice-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedPitch = btn.dataset.val;
+      });
+    });
+
+    document.getElementById('btnPlaySound').addEventListener('click', () => {
+      const m = missions[currentMissionIdx];
+      soundAudio.playScenarioSound(m.id);
+    });
+
+    document.getElementById('btnSubmitCheck').addEventListener('click', () => {
+      const m = missions[currentMissionIdx];
+      const feedback = document.getElementById('feedbackBanner');
+
+      if (!selectedVolume || !selectedPitch || selectedPurposeIdx === null) {
+        feedback.className = 'feedback-banner error';
+        feedback.textContent = 'Please choose all 3 properties: Volume, Pitch, and Purpose!';
+        return;
+      }
+
+      const isVolCorrect = selectedVolume === m.volume;
+      const isPitchCorrect = selectedPitch === m.pitch;
+      const isPurposeCorrect = m.currentPurposeOptions[selectedPurposeIdx].correct;
+
+      if (isVolCorrect && isPitchCorrect && isPurposeCorrect) {
+        soundAudio.playCorrect();
+        score += 10;
+        feedback.className = 'feedback-banner success';
+        feedback.textContent = `Excellent inquiry! ${m.title} is indeed ${m.volume} and ${m.pitch} pitch to ${m.currentPurposeOptions[selectedPurposeIdx].text}`;
+        document.getElementById('scoreBadge').textContent = `⭐ Score: ${score}`;
+
+        const submitBtn = document.getElementById('btnSubmitCheck');
+        submitBtn.textContent = 'Next Sound Mission ➔';
+        submitBtn.onclick = () => {
+          soundAudio.playClick();
+          submitBtn.onclick = null;
+          if (currentMissionIdx + 1 < missions.length) {
+            currentMissionIdx++;
+            renderMission();
+          } else {
+            document.getElementById('winModal').style.display = 'flex';
+          }
+        };
+      } else {
+        soundAudio.playWrong();
+        feedback.className = 'feedback-banner error';
+        let hint = 'Hint: ';
+        if (!isVolCorrect) hint += `Check volume (is it soft like a whisper or strong and loud?). `;
+        if (!isPitchCorrect) hint += `Check pitch (is the sound high and sharp, or deep and low?). `;
+        if (!isPurposeCorrect) hint += `Think about the message this sound conveys.`;
+        feedback.textContent = hint;
+      }
+    });
+
+    document.getElementById('btnRestart').addEventListener('click', () => {
+      currentMissionIdx = 0;
+      score = 0;
+      document.getElementById('winModal').style.display = 'none';
+      renderMission();
+    });
+
+    // Initial render
+    renderMission();
+  </script>
+</body>
+
+</html>

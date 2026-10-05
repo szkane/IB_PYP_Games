@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Times Table Speed Challenge</title>
+  <style>
+    :root {
+      --bg: #FFFDF0;
+      --ink: #111111;
+      --yellow: #FFE156;
+      --coral: #FF6584;
+      --teal: #4ECDC4;
+      --blue: #38B6FF;
+      --purple: #B388FF;
+      --white: #FFFFFF;
+      --border: 3.5px solid var(--ink);
+      --shadow: 4px 4px 0 var(--ink);
+      --shadow-sm: 2px 2px 0 var(--ink);
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      background-image:
+        radial-gradient(circle at 10% 20%, rgba(255, 101, 132, 0.12) 0%, transparent 25%),
+        radial-gradient(circle at 90% 80%, rgba(56, 182, 255, 0.12) 0%, transparent 25%);
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 14px 16px 36px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    /* Top Nav */
+    .nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .pyp-map-link {
+      display: inline-flex;
+      align-items: center;
+      background: var(--yellow);
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 900;
+      font-size: 0.95rem;
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 8px 16px;
+      min-height: 44px;
+      cursor: pointer;
+      transition: transform 0.1s ease;
+    }
+
+    .pyp-map-link:active,
+    .pyp-map-link:hover {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .unit-tag {
+      background: var(--coral);
+      color: var(--white);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 8px 14px;
+      font-weight: 800;
+      font-size: 0.88rem;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    /* Hero Header */
+    .hero-card {
+      background: var(--white);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px 18px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .hero-title h1 {
+      font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+      font-weight: 900;
+      margin-bottom: 2px;
+    }
+
+    .hero-title p {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #4B5563;
+    }
+
+    .stat-tray {
+      display: flex;
+      gap: 10px;
+    }
+
+    .stat-badge {
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
+      padding: 6px 14px;
+      font-weight: 900;
+      font-size: 0.9rem;
+      box-shadow: var(--shadow-sm);
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--yellow);
+    }
+
+    /* Multiplier Table Selection Tabs */
+    .table-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      font-family: inherit;
+      background: var(--white);
+      color: var(--ink);
+      border: 2.5px solid var(--ink);
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 0.92rem;
+      font-weight: 900;
+      min-height: 44px;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.1s ease;
+    }
+
+    .tab-btn.active {
+      background: var(--teal);
+      transform: translate(2px, 2px);
+      box-shadow: 0 0 0;
+    }
+
+    /* Speed Challenge Arena */
+    .arena-card {
+      background: var(--white);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    /* Progress & Combo Bar */
+    .combo-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.95rem;
+      font-weight: 900;
+      color: #D97706;
+      margin-bottom: 16px;
+    }
+
+    .equation-display {
+      font-family: monospace;
+      font-size: clamp(2.4rem, 6vw, 3.8rem);
+      font-weight: 900;
+      background: #F8FAFC;
+      border: 3.5px solid var(--ink);
+      border-radius: 18px;
+      padding: 16px 36px;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+      letter-spacing: 2px;
+    }
+
+    /* 4 Speed Options */
+    .choices-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      width: 100%;
+      max-width: 500px;
+      margin-bottom: 20px;
+    }
+
+    .choice-btn {
+      font-family: monospace;
+      background: var(--white);
+      color: var(--ink);
+      border: 3.5px solid var(--ink);
+      border-radius: 14px;
+      font-size: 2rem;
+      font-weight: 900;
+      padding: 14px 10px;
+      min-height: 68px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: all 0.1s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .choice-btn:hover {
+      background: #FFF9D2;
+      transform: translateY(-2px);
+    }
+
+    .choice-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0 0 0;
+    }
+
+    .feedback-banner {
+      font-size: 1rem;
+      font-weight: 800;
+      min-height: 28px;
+    }
+
+    /* Win Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-card {
+      background: var(--white);
+      border: 4px solid var(--ink);
+      border-radius: 18px;
+      box-shadow: 8px 8px 0 var(--ink);
+      padding: 28px;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .modal-badge {
+      font-size: 4rem;
+      margin-bottom: 8px;
+    }
+
+    .modal-title {
+      font-size: 1.6rem;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .modal-desc {
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: #4B5563;
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+
+    .btn-action-primary {
+      font-family: inherit;
+      background: var(--teal);
+      color: var(--ink);
+      border: var(--border);
+      border-radius: 12px;
+      font-size: 1.05rem;
+      font-weight: 900;
+      padding: 12px 24px;
+      min-height: 50px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      width: 100%;
+    }
+
+    .btn-action-primary:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    @media (max-width: 820px) {
+      .equation-display {
+        padding: 12px 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <nav class="nav-bar">
+      <a class="pyp-map-link" href="../index.html">← PYP Map</a>
+      <span class="unit-tag">⚡ Grade 2 · Times Tables Goal</span>
+    </nav>
+
+    <header class="hero-card">
+      <div class="hero-title">
+        <h1>Times Table Speed Challenge ⚡</h1>
+        <p>Master multiplication tables for 2, 3, 4, and 5 by heart!</p>
+      </div>
+      <div class="stat-tray">
+        <div class="stat-badge" id="badgeStreak">🔥 Streak: 0</div>
+        <div class="stat-badge" style="background: var(--teal);" id="badgeScore">⭐ Score: 0</div>
+      </div>
+    </header>
+
+    <!-- Table Selection Mode -->
+    <div class="table-tabs" id="tableTabs">
+      <button class="tab-btn active" data-tab="all" type="button">All (2, 3, 4, 5 Mixed)</button>
+      <button class="tab-btn" data-tab="2" type="button">×2 Table</button>
+      <button class="tab-btn" data-tab="3" type="button">×3 Table</button>
+      <button class="tab-btn" data-tab="4" type="button">×4 Table</button>
+      <button class="tab-btn" data-tab="5" type="button">×5 Table</button>
+    </div>
+
+    <main class="arena-card">
+      <div class="combo-bar">
+        <span>⚡ SPEED DRILL</span>
+        <span id="progressText">Question 1 / 10</span>
+      </div>
+
+      <div class="equation-display" id="equationBox">
+        3 × 4 = ?
+      </div>
+
+      <div class="choices-grid" id="choicesGrid">
+        <!-- 4 Fast options -->
+      </div>
+
+      <div class="feedback-banner" id="feedbackText">Choose the correct product as quickly as you can!</div>
+    </main>
+  </div>
+
+  <!-- Win Modal -->
+  <div class="modal-overlay" id="winModal">
+    <div class="modal-card">
+      <div class="modal-badge">⚡</div>
+      <h2 class="modal-title">Times Table Champion!</h2>
+      <p class="modal-desc" id="winDesc">
+        Incredible speed! You recalled the multiplication facts with swift accuracy. Hilson's times tables goal is unlocked!
+      </p>
+      <button class="btn-action-primary" id="btnRestart" type="button">Play Again 🔄</button>
+    </div>
+  </div>
+
+  <script>
+    // Audio Synthesizer
+    class TimesAudio {
+      constructor() { this.ctx = null; }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+      }
+      playCorrect() {
+        this.init();
+        const now = this.ctx.currentTime;
+        [523.25, 659.25, 783.99, 1046.5].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.05);
+          gain.gain.setValueAtTime(0.18, now + idx * 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.05 + 0.18);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.05);
+          osc.stop(now + idx * 0.05 + 0.2);
+        });
+      }
+      playBuzz() {
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, now);
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.2);
+      }
+    }
+    const audio = new TimesAudio();
+
+    let selectedTable = 'all';
+    let questionCount = 0;
+    const maxQuestions = 10;
+    let score = 0;
+    let streak = 0;
+    let currentProblem = null;
+
+    function randomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function generateProblem() {
+      let a;
+      if (selectedTable === 'all') {
+        const allowed = [2, 3, 4, 5];
+        a = allowed[Math.floor(Math.random() * allowed.length)];
+      } else {
+        a = parseInt(selectedTable, 10);
+      }
+      const b = randomInt(1, 10);
+      const answer = a * b;
+
+      // Generate 3 plausible distractor choices
+      const optionsSet = new Set([answer]);
+      while (optionsSet.size < 4) {
+        const delta = (Math.random() < 0.5 ? 1 : -1) * a * (Math.random() < 0.5 ? 1 : 2);
+        const cand = answer + delta;
+        if (cand > 0 && cand !== answer) {
+          optionsSet.add(cand);
+        } else {
+          optionsSet.add(answer + randomInt(2, 6));
+        }
+      }
+
+      const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
+      return { a, b, answer, options };
+    }
+
+    function renderQuestion() {
+      if (questionCount >= maxQuestions) {
+        document.getElementById('winModal').style.display = 'flex';
+        document.getElementById('winDesc').textContent = `Final Score: ${score} points with a peak streak of ${streak}! Keep practicing daily to memorize all facts!`;
+        return;
+      }
+
+      questionCount++;
+      document.getElementById('progressText').textContent = `Question ${questionCount} / ${maxQuestions}`;
+      document.getElementById('badgeScore').textContent = `⭐ Score: ${score}`;
+      document.getElementById('badgeStreak').textContent = `🔥 Streak: ${streak}`;
+
+      currentProblem = generateProblem();
+      document.getElementById('equationBox').textContent = `${currentProblem.a} × ${currentProblem.b} = ?`;
+
+      const grid = document.getElementById('choicesGrid');
+      grid.innerHTML = '';
+      currentProblem.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.type = 'button';
+        btn.textContent = opt;
+        btn.addEventListener('click', () => handleAnswer(opt, btn));
+        grid.appendChild(btn);
+      });
+
+      const feedback = document.getElementById('feedbackText');
+      feedback.textContent = 'Speed counts! Tap the right answer.';
+      feedback.style.color = '#4B5563';
+    }
+
+    function handleAnswer(chosen, btnEl) {
+      const feedback = document.getElementById('feedbackText');
+
+      if (chosen === currentProblem.answer) {
+        audio.playCorrect();
+        streak++;
+        score += (10 + streak * 2);
+        feedback.textContent = `🎯 Correct! ${currentProblem.a} × ${currentProblem.b} = ${currentProblem.answer}`;
+        feedback.style.color = '#059669';
+
+        btnEl.style.background = '#86EFAC';
+
+        setTimeout(() => {
+          renderQuestion();
+        }, 600);
+      } else {
+        audio.playBuzz();
+        streak = 0;
+        document.getElementById('badgeStreak').textContent = `🔥 Streak: ${streak}`;
+        feedback.textContent = `❌ Think: ${currentProblem.a} groups of ${currentProblem.b} is ${currentProblem.answer}.`;
+        feedback.style.color = '#DC2626';
+        btnEl.style.opacity = '0.35';
+      }
+    }
+
+    // Tabs
+    document.querySelectorAll('#tableTabs .tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#tableTabs .tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedTable = btn.dataset.tab;
+        questionCount = 0;
+        score = 0;
+        streak = 0;
+        renderQuestion();
+      });
+    });
+
+    document.getElementById('btnRestart').addEventListener('click', () => {
+      document.getElementById('winModal').style.display = 'none';
+      questionCount = 0;
+      score = 0;
+      streak = 0;
+      renderQuestion();
+    });
+
+    renderQuestion();
+  </script>
+</body>
+
+</html>

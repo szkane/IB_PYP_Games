@@ -21,6 +21,8 @@ const newUoiGamePaths = [
   'uoi/g1_needs_of_living_things.html',
   'uoi/g1_life_cycle_builder.html',
   'uoi/g2_vocabulary.html',
+  'uoi/g2_balanced_choices.html',
+  'uoi/g2_sound_explorer.html',
 ];
 const plannedThemes = [
   'Who We Are',

@@ -189,9 +189,9 @@ function renderUnit(unit, numberText) {
         </article>`;
 }
 
-function renderGrade(grade, index) {
+function renderGrade(grade) {
   const units = grade.units || [];
-  const isActive = index === 0 ? ' active' : '';
+  const isActive = grade.id === 'g2' ? ' active' : '';
   const planned = grade.status === 'planned';
   
   let content = '';
@@ -258,15 +258,15 @@ function serializeForScript(value) {
 }
 
 function generateIndexHtml(curriculum) {
-  const gradeTabs = curriculum.grades.map((grade, index) => `
-          <button class="grade-tab${index === 0 ? ' active' : ''}" type="button" data-grade="${escapeHtml(grade.id)}">
+  const gradeTabs = curriculum.grades.map(grade => `
+          <button class="grade-tab${grade.id === 'g2' ? ' active' : ''}" type="button" data-grade="${escapeHtml(grade.id)}">
             <span>${escapeHtml(grade.label)}</span>
             <small>${grade.status === 'active' ? 'Open' : 'Planned'}</small>
           </button>`).join('');
 
   const panels = curriculum.grades.map(renderGrade).join('');
   const heroData = buildHeroData(curriculum);
-  const initialHero = heroData[0];
+  const initialHero = heroData.find(item => item.id === 'g2') || heroData[0];
   const initialHeroUnits = initialHero.units
     .map(unit => `<span>${escapeHtml(unit)}</span>`)
     .join('');

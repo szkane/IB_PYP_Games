@@ -318,9 +318,15 @@ const CACHE_VERSION = '20260108123456'; // Auto-updated by generate-index.js
 1. **No build step for games** - HTML files are standalone, served directly by Vite
 2. **CDN for large libraries** - Three.js, MediaPipe loaded from CDN via importmap
 3. **PWA-ready** - Every game should work offline after first load
-4. **Mobile-first** - Touch events, responsive design, iOS Safari tested
+4. **Mobile & iPad-first** - Touch events, responsive design, mandatory **iPad landscape mode** support with compact sticky-free headers so content is always fully visible without excessive vertical scrolling
 5. **Camera/Mic permissions** - Always request on user interaction, never auto-start
 6. **Error UX** - Show user-friendly messages, never leave user with broken UI
+7. **English-only for International Curriculum games** - Unless explicitly labeled as Chinese subject games, all questions, answer options, clues, and feedback explanations MUST be in pure, age-appropriate English. Do NOT mix Chinese characters into English/UOI/Math options or explanations.
+8. **Grammatical & Punctuation Precision** - Never expose incorrect grammar, punctuation, or missing periods in model answer choices that might confuse students (e.g. all full-sentence options must end with correct periods, questions with question marks).
+9. **Neobrutalism Web Style** - Bold black borders (`3px-4px #111`), hard offset drop shadows (`4px 4px 0 #000`), vibrant pop/macaron color blocks, tactile button click depression (`translate(2px, 2px)`), high contrast, and clean layout.
+10. **Rich Audio Feedback (Web Audio API)** - Games should provide pleasant, synthetic Web Audio sound effects (success chime, error buzz, button click, level fanfare) without external audio file dependencies. Audio context is unlocked on the first user interaction.
+11. **Visual & SVG Interactivity over Plain Text** - Rather than dry multiple-choice text lists, games should incorporate responsive inline SVGs, interactive drag/click targets, visual progress gauges, badges, and tangible manipulatives (e.g., interactive clocks, story element cards, balance scales, token meters).
+12. **File Naming Standards** - Standalone curriculum games must be prefixed by grade, e.g., `g2_` for Grade 2 activities. Separate distinct learning objectives into dedicated standalone HTML files instead of overpacking disparate tasks into one.
 
 ---
 

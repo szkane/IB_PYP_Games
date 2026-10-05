@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>G2 Sentence Doctor - Interactive Fixer</title>
+  <style>
+    :root {
+      --bg: #FFFDF0;
+      --ink: #111111;
+      --yellow: #FFE156;
+      --coral: #FF6584;
+      --green: #4ECDC4;
+      --blue: #38B6FF;
+      --purple: #B388FF;
+      --white: #FFFFFF;
+      --border: 3px solid var(--ink);
+      --shadow: 4px 4px 0 var(--ink);
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(56, 182, 255, 0.12) 0%, transparent 35%),
+        radial-gradient(circle at 90% 80%, rgba(255, 101, 132, 0.12) 0%, transparent 35%),
+        repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(17, 17, 17, 0.03) 36px);
+      color: var(--ink);
+      font-family: ui-rounded, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      padding: 16px 16px 36px;
+    }
+
+    .container { max-width: 980px; margin: 0 auto; }
+
+    /* Compact Top Bar */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .pyp-map-link {
+      display: inline-flex;
+      align-items: center;
+      background: var(--yellow);
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 900;
+      font-size: 0.95rem;
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 8px 16px;
+      min-height: 44px;
+      cursor: pointer;
+    }
+
+    .pyp-map-link:active, .pyp-map-link:hover {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0 var(--ink);
+    }
+
+    .unit-tag {
+      background: var(--purple);
+      color: var(--white);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 8px 14px;
+      font-weight: 800;
+      font-size: 0.9rem;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .hero-strip {
+      background: var(--white);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 12px 18px;
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .hero-strip h1 {
+      font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+      font-weight: 900;
+    }
+
+    /* Scoreboard */
+    .status-strip {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--white);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 10px 18px;
+      margin-bottom: 16px;
+      font-weight: 800;
+      font-size: 0.95rem;
+    }
+
+    /* Interactive Operating Table (Sentence Clinic) */
+    .clinic-card {
+      background: var(--white);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .clinic-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--coral);
+      color: var(--white);
+      border: 2px solid var(--ink);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 0.82rem;
+      font-weight: 900;
+      margin-bottom: 12px;
+      box-shadow: 2px 2px 0 var(--ink);
+    }
+
+    .patient-label {
+      font-size: 0.9rem;
+      font-weight: 900;
+      color: #6B7280;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    /* Clickable Word Tokens */
+    .sentence-container {
+      background: #FFFDE8;
+      border: var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      margin-bottom: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .word-token {
+      background: var(--white);
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      box-shadow: 2px 2px 0 var(--ink);
+      font-family: inherit;
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--ink);
+      padding: 8px 14px;
+      min-height: 44px;
+      cursor: pointer;
+      transition: all 0.12s ease;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .word-token:hover {
+      background: #E0F2FE;
+      transform: translateY(-2px);
+      box-shadow: 3px 3px 0 var(--ink);
+    }
+
+    .word-token.selected {
+      background: var(--yellow);
+      border-color: var(--ink);
+    }
+
+    .word-token.repaired {
+      background: var(--green);
+      color: var(--ink);
+    }
+
+    /* Diagnosis / Prescription Drawer */
+    .doctor-drawer {
+      background: #F3F4F6;
+      border: 2px solid var(--ink);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 18px;
+    }
+
+    .drawer-header {
+      font-size: 1rem;
+      font-weight: 900;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .prescription-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .rx-btn {
+      background: var(--white);
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      box-shadow: 2px 2px 0 var(--ink);
+      padding: 10px 16px;
+      font-family: inherit;
+      font-size: 1.05rem;
+      font-weight: 800;
+      cursor: pointer;
+      min-height: 44px;
+      transition: all 0.1s ease;
+    }
+
+    .rx-btn:hover {
+      background: #FEF3C7;
+      transform: translate(-1px, -1px);
+    }
+
+    .rx-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0 0 0;
+    }
+
+    /* Action Next */
+    .action-panel {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .btn-next {
+      background: var(--blue);
+      color: var(--white);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      font-family: inherit;
+      font-size: 1.05rem;
+      font-weight: 900;
+      padding: 12px 24px;
+      min-height: 48px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-next:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0 var(--ink);
+    }
+
+    .btn-next:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0 var(--ink);
+    }
+
+    /* Finished Card */
+    .finish-box {
+      display: none;
+      background: var(--white);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 32px 20px;
+      text-align: center;
+    }
+
+    .finish-box.active { display: block; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav class="top-bar">
+      <a class="pyp-map-link" href="../index.html">← PYP Map</a>
+      <span class="unit-tag">🩺 Grade 2 · Sentence Doctor</span>
+    </nav>
+
+    <header class="hero-strip">
+      <div>
+        <h1>Sentence Doctor Clinic 🩹</h1>
+        <p style="font-weight:700; color:#4B5563; font-size:0.9rem;">
+          Tap the sick words to prescribe correct capital letters, past-tense (-ed), adjectives, or ending periods!
+        </p>
+      </div>
+      <div style="font-weight:900; font-size:0.9rem;">
+        Focus: Capitalization · Punctuation · Past Tense
+      </div>
+    </header>
+
+    <div class="status-strip">
+      <span>Patient Case: <strong id="caseNum">1</strong> of 5</span>
+      <span>Doctor Badges: <strong id="scoreVal">0</strong> ⭐</span>
+    </div>
+
+    <!-- Active Clinic Board -->
+    <main class="clinic-card" id="clinicBoard">
+      <div class="clinic-badge" id="caseBadge">Symptom: Missing Capitalization & Past Tense</div>
+      <div class="patient-label">Click a word token with a mistake:</div>
+
+      <div class="sentence-container" id="tokensBox">
+        <!-- Tokens injected by JS -->
+      </div>
+
+      <!-- Prescription Drawer -->
+      <div class="doctor-drawer" id="doctorDrawer">
+        <div class="drawer-header" id="drawerTitle">💡 Select a word above to examine it</div>
+        <div class="prescription-options" id="prescriptionsBox">
+          <p style="font-size:0.95rem; font-weight:700; color:#6B7280;">No word selected yet. Tap any word above!</p>
+        </div>
+      </div>
+
+      <div class="action-panel">
+        <span style="font-weight:800; font-size:0.9rem; color:#4B5563;" id="cureStatus">0 mistakes cured in this sentence</span>
+        <button class="btn-next" id="btnNext" type="button" style="display:none;">Next Patient ➔</button>
+      </div>
+    </main>
+
+    <!-- Completion Screen -->
+    <section class="finish-box" id="finishBox">
+      <div style="font-size:4rem; margin-bottom:12px;">🏆🩺</div>
+      <h2 style="font-size:2rem; font-weight:900; margin-bottom:8px;">Chief Grammar Surgeon!</h2>
+      <p id="finishDesc" style="font-size:1.15rem; font-weight:700; max-width:600px; margin:0 auto 24px; line-height:1.6;"></p>
+      <div style="display:flex; justify-content:center; gap:14px; flex-wrap:wrap;">
+        <button class="btn-next" id="btnRestart" type="button" style="background:var(--green); color:var(--ink);">Play Again 🔄</button>
+        <a class="pyp-map-link" href="../index.html">Back to Learning Map 🗺️</a>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // Web Audio FX
+    class SoundFX {
+      constructor() { this.ctx = null; }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+      }
+      playCorrect() {
+        this.init();
+        const now = this.ctx.currentTime;
+        [523.25, 659.25, 783.99].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+          gain.gain.setValueAtTime(0.18, now + idx * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.3);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.08);
+          osc.stop(now + idx * 0.08 + 0.35);
+        });
+      }
+      playClick() {
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.frequency.setValueAtTime(450, now);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.06);
+      }
+      playBuzz() {
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(180, now);
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.22);
+      }
+    }
+    const audio = new SoundFX();
+
+    const cases = [
+      {
+        id: 1,
+        symptom: "Missing starting capital letter, verb ending, and ending period.",
+        tokens: [
+          { current: "yesterday", fixed: "Yesterday", mistake: true, fixes: ["Yesterday", "yesterdayed", "yesturday"] },
+          { current: "sam", fixed: "Sam", mistake: true, fixes: ["Sam", "sammy", "SAm"] },
+          { current: "play", fixed: "played", mistake: true, fixes: ["played", "playyed", "plays"] },
+          { current: "soccer", fixed: "soccer", mistake: false },
+          { current: "outside", fixed: "outside.", mistake: true, fixes: ["outside.", "outside?", "outside,"] }
+        ]
+      },
+      {
+        id: 2,
+        symptom: "Missing capital letter, regular past tense (-ed), and ending period.",
+        tokens: [
+          { current: "the", fixed: "The", mistake: true, fixes: ["The", "Teh", "THE"] },
+          { current: "cheerful", fixed: "cheerful", mistake: false },
+          { current: "pupil", fixed: "pupil", mistake: false },
+          { current: "laugh", fixed: "laughed", mistake: true, fixes: ["laughed", "laughd", "laughing"] },
+          { current: "loudly", fixed: "loudly.", mistake: true, fixes: ["loudly.", "loudly!", "loudly"] }
+        ]
+      },
+      {
+        id: 3,
+        symptom: "Missing proper noun capitalization, past tense, and ending period.",
+        tokens: [
+          { current: "last", fixed: "Last", mistake: true, fixes: ["Last", "lastly", "LAST"] },
+          { current: "night", fixed: "night", mistake: false },
+          { current: "hilson", fixed: "Hilson", mistake: true, fixes: ["Hilson", "hilsoned", "HILSON"] },
+          { current: "cook", fixed: "cooked", mistake: true, fixes: ["cooked", "cookt", "cooking"] },
+          { current: "soup", fixed: "soup.", mistake: true, fixes: ["soup.", "soup!", "soup"] }
+        ]
+      },
+      {
+        id: 4,
+        symptom: "Needs capital letter on 'we', past tense (-ed on 'look'), and question mark.",
+        tokens: [
+          { current: "we", fixed: "We", mistake: true, fixes: ["We", "us", "WE"] },
+          { current: "look", fixed: "looked", mistake: true, fixes: ["looked", "lookt", "looking"] },
+          { current: "at", fixed: "at", mistake: false },
+          { current: "the", fixed: "the", mistake: false },
+          { current: "digital", fixed: "digital", mistake: false },
+          { current: "clock", fixed: "clock.", mistake: true, fixes: ["clock.", "clock?", "clock,"] }
+        ]
+      },
+      {
+        id: 5,
+        symptom: "Question sentence! Needs capital 'did' and an ending question mark.",
+        tokens: [
+          { current: "did", fixed: "Did", mistake: true, fixes: ["Did", "Do", "DID"] },
+          { current: "you", fixed: "you", mistake: false },
+          { current: "finish", fixed: "finish", mistake: false },
+          { current: "your", fixed: "your", mistake: false },
+          { current: "reading", fixed: "reading", mistake: false },
+          { current: "log", fixed: "log?", mistake: true, fixes: ["log?", "log.", "log!"] }
+        ]
+      }
+    ];
+
+    let currentCaseIdx = 0;
+    let score = 0;
+    let activeTokenObj = null;
+    let activeTokenBtn = null;
+
+    const caseNum = document.getElementById('caseNum');
+    const scoreVal = document.getElementById('scoreVal');
+    const caseBadge = document.getElementById('caseBadge');
+    const tokensBox = document.getElementById('tokensBox');
+    const drawerTitle = document.getElementById('drawerTitle');
+    const prescriptionsBox = document.getElementById('prescriptionsBox');
+    const cureStatus = document.getElementById('cureStatus');
+    const btnNext = document.getElementById('btnNext');
+    const clinicBoard = document.getElementById('clinicBoard');
+    const finishBox = document.getElementById('finishBox');
+    const finishDesc = document.getElementById('finishDesc');
+    const btnRestart = document.getElementById('btnRestart');
+
+    function loadCase(idx) {
+      const c = cases[idx];
+      caseNum.textContent = idx + 1;
+      caseBadge.textContent = "Symptom: " + c.symptom;
+      tokensBox.innerHTML = '';
+      btnNext.style.display = 'none';
+      drawerTitle.textContent = "💡 Tap a sick word token above to examine it";
+      prescriptionsBox.innerHTML = `<p style="font-size:0.95rem; font-weight:700; color:#6B7280;">No word selected yet.</p>`;
+
+      const mistakeTotal = c.tokens.filter(t => t.mistake).length;
+      let curedCount = 0;
+      cureStatus.textContent = `${curedCount} of ${mistakeTotal} mistakes cured`;
+
+      c.tokens.forEach(tok => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'word-token';
+        btn.textContent = tok.current;
+        btn.addEventListener('click', () => {
+          audio.playClick();
+          selectToken(tok, btn);
+        });
+        tokensBox.appendChild(btn);
+      });
+    }
+
+    function selectToken(tok, btn) {
+      tokensBox.querySelectorAll('.word-token').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      activeTokenObj = tok;
+      activeTokenBtn = btn;
+
+      if (!tok.mistake || tok.current === tok.fixed) {
+        drawerTitle.textContent = `🩺 Word "${tok.current}" is completely healthy!`;
+        prescriptionsBox.innerHTML = `<p style="font-size:0.95rem; font-weight:800; color:#059669;">No treatment needed for this word! Look for other mistakes.</p>`;
+        return;
+      }
+
+      drawerTitle.textContent = `🩺 Prescribe a cure for "${tok.current}":`;
+      prescriptionsBox.innerHTML = '';
+
+      // Randomize fixes so the correct answer is not always first
+      const shuffledFixes = [...tok.fixes].sort(() => Math.random() - 0.5);
+
+      shuffledFixes.forEach(fixOpt => {
+        const rx = document.createElement('button');
+        rx.type = 'button';
+        rx.className = 'rx-btn';
+        rx.textContent = fixOpt;
+        rx.addEventListener('click', () => {
+          if (fixOpt === tok.fixed) {
+            audio.playCorrect();
+            tok.current = tok.fixed;
+            activeTokenBtn.textContent = tok.fixed;
+            activeTokenBtn.classList.add('repaired');
+            score += 10;
+            scoreVal.textContent = score;
+
+            drawerTitle.textContent = `✨ Successfully cured into "${tok.fixed}"!`;
+            prescriptionsBox.innerHTML = `<p style="font-size:0.95rem; font-weight:800; color:#059669;">Great diagnosis! Word is healed.</p>`;
+
+            // Check if whole sentence is cured
+            checkSentenceStatus();
+          } else {
+            audio.playBuzz();
+            rx.style.background = '#FEE2E2';
+            setTimeout(() => rx.style.background = '#FFFFFF', 600);
+          }
+        });
+        prescriptionsBox.appendChild(rx);
+      });
+    }
+
+    function checkSentenceStatus() {
+      const c = cases[currentCaseIdx];
+      const mistakeTotal = c.tokens.filter(t => t.mistake).length;
+      const curedTotal = c.tokens.filter(t => t.mistake && t.current === t.fixed).length;
+      cureStatus.textContent = `${curedTotal} of ${mistakeTotal} mistakes cured`;
+
+      if (curedTotal === mistakeTotal) {
+        btnNext.style.display = 'inline-flex';
+        cureStatus.textContent = `🎉 All mistakes in this sentence are fully cured!`;
+      }
+    }
+
+    btnNext.addEventListener('click', () => {
+      audio.playClick();
+      currentCaseIdx++;
+      if (currentCaseIdx < cases.length) {
+        loadCase(currentCaseIdx);
+      } else {
+        clinicBoard.style.display = 'none';
+        finishBox.classList.add('active');
+        audio.playCorrect();
+        finishDesc.textContent = `Incredible work! You cured all patient sentences with a top score of ${score} badges! You have mastered capital letters, past tense regular verbs, and proper ending periods!`;
+      }
+    });
+
+    btnRestart.addEventListener('click', () => {
+      audio.playClick();
+      // Reset words
+      cases.forEach(c => {
+        c.tokens.forEach(t => {
+          if (t.mistake) t.current = t.fixes[0] === t.fixed ? t.fixes[1] || t.fixes[0] : t.current;
+        });
+      });
+      location.reload();
+    });
+
+    // Start
+    loadCase(0);
+  </script>
+</body>
+</html>

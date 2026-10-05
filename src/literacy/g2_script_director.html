@@ -1,0 +1,777 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Script Director & Grammar Lab 3D</title>
+  <style>
+    :root {
+      --bg: #1A1A24;
+      --card-bg: #272738;
+      --ink: #111111;
+      --yellow: #FFE156;
+      --coral: #FF6584;
+      --teal: #4ECDC4;
+      --blue: #38B6FF;
+      --purple: #B388FF;
+      --white: #FFFFFF;
+      --border: 3.5px solid var(--ink);
+      --shadow: 4px 4px 0 var(--ink);
+      --shadow-sm: 2px 2px 0 var(--ink);
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: #F3F4F6;
+      min-height: 100vh;
+      padding: 12px 16px 28px;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* Top Nav */
+    .nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .pyp-map-link {
+      display: inline-flex;
+      align-items: center;
+      background: var(--yellow);
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 900;
+      font-size: 0.95rem;
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 8px 16px;
+      min-height: 44px;
+      cursor: pointer;
+      transition: transform 0.1s ease;
+    }
+
+    .pyp-map-link:active,
+    .pyp-map-link:hover {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .unit-tag {
+      background: var(--blue);
+      color: var(--white);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 8px 14px;
+      font-weight: 800;
+      font-size: 0.88rem;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    /* Hero Header */
+    .hero-card {
+      background: #2D2D42;
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 12px 18px;
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .hero-title h1 {
+      font-size: clamp(1.2rem, 2.5vw, 1.55rem);
+      font-weight: 900;
+      color: var(--yellow);
+    }
+
+    .hero-title p {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #9CA3AF;
+    }
+
+    .score-badge {
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
+      padding: 6px 14px;
+      font-weight: 900;
+      font-size: 0.9rem;
+      box-shadow: var(--shadow-sm);
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--yellow);
+      color: var(--ink);
+    }
+
+    /* 3D Studio Layout */
+    .director-grid {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 900;
+      color: var(--teal);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* 3D Stage Container */
+    .stage-wrapper {
+      background: #0E0E18;
+      border: 3px solid var(--ink);
+      border-radius: 12px;
+      height: 380px;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    #stageCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      touch-action: none;
+    }
+
+    .stage-hud {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .hud-chip {
+      background: rgba(17, 17, 24, 0.85);
+      border: 2px solid #374151;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--yellow);
+    }
+
+    /* Script Direction Box */
+    .script-bubble {
+      background: #1F1F2E;
+      border: 2px solid #4B5563;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    .actor-name {
+      color: var(--purple);
+      font-weight: 900;
+    }
+
+    .stage-direction {
+      color: var(--yellow);
+      font-style: italic;
+    }
+
+    /* Right Options Column */
+    .question-prompt {
+      font-size: 0.95rem;
+      font-weight: 900;
+      color: var(--white);
+      margin-bottom: 12px;
+      line-height: 1.35;
+    }
+
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .option-btn {
+      font-family: inherit;
+      background: #1E1E2C;
+      color: #E5E7EB;
+      border: 2.5px solid #4B5563;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 0.88rem;
+      font-weight: 800;
+      min-height: 48px;
+      cursor: pointer;
+      text-align: left;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.1s ease;
+    }
+
+    .option-btn:hover {
+      background: #2D2D42;
+    }
+
+    .option-btn.active {
+      background: var(--yellow);
+      color: var(--ink);
+      border-color: var(--ink);
+      transform: translate(1px, 1px);
+    }
+
+    /* Feedback Banner */
+    .feedback-box {
+      display: none;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 2.5px solid var(--ink);
+      font-size: 0.88rem;
+      font-weight: 800;
+      margin-bottom: 14px;
+      line-height: 1.35;
+    }
+
+    .feedback-box.success {
+      display: block;
+      background: #D1FAE5;
+      color: #065F46;
+    }
+
+    .feedback-box.error {
+      display: block;
+      background: #FEE2E2;
+      color: #991B1B;
+    }
+
+    .btn-submit {
+      font-family: inherit;
+      width: 100%;
+      background: var(--teal);
+      color: var(--ink);
+      border: var(--border);
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 900;
+      padding: 12px 18px;
+      min-height: 48px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      margin-top: auto;
+      transition: transform 0.1s ease;
+    }
+
+    .btn-submit:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-card {
+      background: var(--white);
+      color: var(--ink);
+      border: 4px solid var(--ink);
+      border-radius: 18px;
+      box-shadow: 8px 8px 0 var(--ink);
+      padding: 28px;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .modal-badge {
+      font-size: 4rem;
+      margin-bottom: 8px;
+    }
+
+    .modal-title {
+      font-size: 1.6rem;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .modal-desc {
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: #4B5563;
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 820px) {
+      .director-grid {
+        grid-template-columns: 1fr;
+      }
+      .stage-wrapper {
+        height: 320px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <nav class="nav-bar">
+      <a class="pyp-map-link" href="../index.html">← PYP Map</a>
+      <span class="unit-tag">🎭 Grade 2 · Unit 2: Script 3D Stage</span>
+    </nav>
+
+    <header class="hero-card">
+      <div class="hero-title">
+        <h1>Script Director 3D Stage 🎬</h1>
+        <p>Direct actors in 3D space using prepositions of place and verify grammar.</p>
+      </div>
+      <div class="score-tray">
+        <div class="score-badge" id="badgeScene">🎬 Scene 1 / 6</div>
+        <div class="score-badge" style="background: var(--teal);" id="badgeScore">⭐ Score: 0</div>
+      </div>
+    </header>
+
+    <main class="director-grid">
+      <!-- Left Column: 3D Theater Stage -->
+      <section class="card">
+        <h2 class="card-title"><span>🎪</span> 3D Theater Stage View</h2>
+        <div class="stage-wrapper">
+          <canvas id="stageCanvas"></canvas>
+          <div class="stage-hud">
+            <div class="hud-chip">🖐️ Drag in 3D to rotate stage view</div>
+            <div class="hud-chip" id="chipPosition">Actor: Leo</div>
+          </div>
+        </div>
+
+        <div class="script-bubble">
+          <span class="actor-name" id="scriptActor">Leo (The Inquirer)</span>:
+          <span class="stage-direction" id="scriptDirection">(stands next to the wooden table)</span>
+          <br />
+          <span id="scriptLine" style="color: #E5E7EB;">"I found the secret clue right here!"</span>
+        </div>
+      </section>
+
+      <!-- Right Column: Preposition & Grammar Reasoning -->
+      <section class="card">
+        <h2 class="card-title"><span>📝</span> Director's Script Decision</h2>
+
+        <div class="question-prompt" id="questionPrompt">
+          1. Which preposition describes where Leo is standing on stage?
+        </div>
+
+        <div class="options-list" id="optionsList">
+          <!-- Rendered by JS -->
+        </div>
+
+        <div class="feedback-box" id="feedbackBox"></div>
+
+        <button class="btn-submit" id="btnCheckAnswer" type="button">Confirm Stage Direction 🎬</button>
+      </section>
+    </main>
+  </div>
+
+  <!-- Win Modal -->
+  <div class="modal-overlay" id="winModal">
+    <div class="modal-card">
+      <div class="modal-badge">🎬</div>
+      <h2 class="modal-title">Star Script Director!</h2>
+      <p class="modal-desc">
+        Standing ovation! You mastered 3D stage directions with prepositions of place and perfected every sentence.
+      </p>
+      <button class="btn-submit" id="btnRestart" type="button">Direct Another Play 🔄</button>
+    </div>
+  </div>
+
+  <!-- Three.js ES Module CDN -->
+  <script type="module">
+    import * as THREE from 'https://esm.sh/three@0.160.0';
+    import { OrbitControls } from 'https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js';
+
+    // Audio Synthesizer
+    class DirectorAudio {
+      constructor() { this.ctx = null; }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+      }
+      playCorrect() {
+        this.init();
+        const now = this.ctx.currentTime;
+        [523.25, 659.25, 783.99, 1046.5].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.06);
+          gain.gain.setValueAtTime(0.16, now + idx * 0.06);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.22);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.06);
+          osc.stop(now + idx * 0.06 + 0.24);
+        });
+      }
+      playBuzz() {
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(160, now);
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.2);
+      }
+      playClick() {
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.frequency.setValueAtTime(500, now);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.06);
+      }
+    }
+    const audio = new DirectorAudio();
+
+    // Three.js Stage Setup
+    const canvas = document.getElementById('stageCanvas');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x12121C);
+
+    const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
+    camera.position.set(0, 4, 9);
+
+    const controls = new OrbitControls(camera, canvas);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.maxPolarAngle = Math.PI / 2 - 0.05;
+
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.5);
+    scene.add(ambientLight);
+
+    const spotLight = new THREE.SpotLight(0xFFE156, 100, 30, Math.PI / 3, 0.4);
+    spotLight.position.set(0, 8, 4);
+    spotLight.castShadow = true;
+    scene.add(spotLight);
+
+    // Stage Floor
+    const floorGeo = new THREE.BoxGeometry(10, 0.4, 8);
+    const floorMat = new THREE.MeshStandardMaterial({ color: 0x8B5A2B, roughness: 0.6 });
+    const stageFloor = new THREE.Mesh(floorGeo, floorMat);
+    stageFloor.position.y = -0.2;
+    stageFloor.receiveShadow = true;
+    scene.add(stageFloor);
+
+    // Red Curtains Backdrop & Wings
+    const curtainMat = new THREE.MeshStandardMaterial({ color: 0xB91C1C, roughness: 0.5 });
+    const backWall = new THREE.Mesh(new THREE.BoxGeometry(10, 5, 0.3), curtainMat);
+    backWall.position.set(0, 2.5, -4);
+    scene.add(backWall);
+
+    const leftCurtain = new THREE.Mesh(new THREE.BoxGeometry(1.5, 5, 1), curtainMat);
+    leftCurtain.position.set(-4.2, 2.5, -2);
+    scene.add(leftCurtain);
+
+    const rightCurtain = new THREE.Mesh(new THREE.BoxGeometry(1.5, 5, 1), curtainMat);
+    rightCurtain.position.set(4.2, 2.5, -2);
+    scene.add(rightCurtain);
+
+    // Stage Prop: Wooden Table
+    const tableGroup = new THREE.Group();
+    const tableTop = new THREE.Mesh(
+      new THREE.BoxGeometry(3, 0.2, 1.8),
+      new THREE.MeshStandardMaterial({ color: 0x5C3818 })
+    );
+    tableTop.position.y = 1.3;
+    tableTop.castShadow = true;
+    tableTop.receiveShadow = true;
+    tableGroup.add(tableTop);
+
+    [[-1.3, -0.7], [1.3, -0.7], [-1.3, 0.7], [1.3, 0.7]].forEach(([x, z]) => {
+      const leg = new THREE.Mesh(
+        new THREE.BoxGeometry(0.18, 1.3, 0.18),
+        new THREE.MeshStandardMaterial({ color: 0x3D240E })
+      );
+      leg.position.set(x, 0.65, z);
+      leg.castShadow = true;
+      tableGroup.add(leg);
+    });
+    scene.add(tableGroup);
+
+    // 3D Actor Figure (Minecraft / Blocky Character)
+    const actorGroup = new THREE.Group();
+    const head = new THREE.Mesh(
+      new THREE.BoxGeometry(0.7, 0.7, 0.7),
+      new THREE.MeshStandardMaterial({ color: 0xFCD34D })
+    );
+    head.position.y = 1.5;
+    head.castShadow = true;
+
+    const body = new THREE.Mesh(
+      new THREE.BoxGeometry(0.7, 0.9, 0.4),
+      new THREE.MeshStandardMaterial({ color: 0x38B6FF })
+    );
+    body.position.y = 0.7;
+    body.castShadow = true;
+
+    actorGroup.add(head, body);
+    scene.add(actorGroup);
+
+    // 6 Script Scenes
+    const scenes = [
+      {
+        actor: "Leo (The Inquirer)",
+        direction: "(stands next to the wooden table)",
+        line: `"I found the secret clue right here!"`,
+        actor3DPos: [2.3, 0, 0], // next to table
+        prompt: "1. Which preposition of place describes Leo's position in 3D?",
+        options: [
+          { text: "Leo stands next to the table.", correct: true },
+          { text: "Leo hides under the table.", correct: false },
+          { text: "Leo dances behind the curtain.", correct: false },
+          { text: "Leo flies above the roof.", correct: false }
+        ]
+      },
+      {
+        actor: "Maya (The Communicator)",
+        direction: "(hides under the wooden table)",
+        line: `"Quiet! The guards are marching past!"`,
+        actor3DPos: [0, -0.4, 0], // under table (crouched)
+        prompt: "2. Where is Maya positioned on the 3D stage?",
+        options: [
+          { text: "Maya is on the table.", correct: false },
+          { text: "Maya is under the table.", correct: true },
+          { text: "Maya is far outside.", correct: false },
+          { text: "Maya is in front of the audience.", correct: false }
+        ]
+      },
+      {
+        actor: "Leo (The Inquirer)",
+        direction: "(climbs on top of the wooden table)",
+        line: `"Look at the view from up here!"`,
+        actor3DPos: [0, 1.4, 0], // on table
+        prompt: "3. Which sentence has correct subject-verb agreement and preposition?",
+        options: [
+          { text: "Leo stands on top of the sturdy table.", correct: true },
+          { text: "Leo stand on top of the sturdy table.", correct: false },
+          { text: "Leo is stands under the sturdy table.", correct: false },
+          { text: "Leo standed inside the sturdy table.", correct: false }
+        ]
+      },
+      {
+        actor: "Sam (The Guard)",
+        direction: "(peeks behind the red curtain)",
+        line: `"I thought I heard whispers in the room."`,
+        actor3DPos: [-4.2, 0, -2.8], // behind left curtain
+        prompt: "4. Which direction correctly specifies Sam's stage entrance?",
+        options: [
+          { text: "Sam emerges from behind the red curtain.", correct: true },
+          { text: "Sam jumps under the red curtain.", correct: false },
+          { text: "Sam sits on the red curtain.", correct: false },
+          { text: "Sam walks through the ceiling.", correct: false }
+        ]
+      },
+      {
+        actor: "Script Doctor Grammar",
+        direction: "(proofreads the script at center stage)",
+        line: `"Check the actor's lines for plural nouns and punctuation."`,
+        actor3DPos: [-2.0, 0, 1.2],
+        prompt: "5. Which script line has correct capital letter, plural noun, and ending period?",
+        options: [
+          { text: "Two brave actors hold the wooden props.", correct: true },
+          { text: "two brave actor hold the wooden props.", correct: false },
+          { text: "Two brave actors holds the wooden props", correct: false },
+          { text: "two brave actors hold the wooden props?", correct: false }
+        ]
+      },
+      {
+        actor: "Grand Finale",
+        direction: "(both performers take a bow in front of the table)",
+        line: `"Thank you all for listening to our story!"`,
+        actor3DPos: [0, 0, 2.0], // in front of table
+        prompt: "6. Where do the performers stand for their final bow?",
+        options: [
+          { text: "They bow in front of the table.", correct: true },
+          { text: "They bow under the floor.", correct: false },
+          { text: "They bows behind the stage.", correct: false },
+          { text: "They is standing above the curtain.", correct: false }
+        ]
+      }
+    ];
+
+    let currentSceneIdx = 0;
+    let score = 0;
+    let selectedOptionIdx = null;
+
+    function renderScene() {
+      const s = scenes[currentSceneIdx];
+      document.getElementById('badgeScene').textContent = `🎬 Scene ${currentSceneIdx + 1} / ${scenes.length}`;
+      document.getElementById('badgeScore').textContent = `⭐ Score: ${score}`;
+      document.getElementById('scriptActor').textContent = s.actor;
+      document.getElementById('scriptDirection').textContent = s.direction;
+      document.getElementById('scriptLine').textContent = s.line;
+      document.getElementById('questionPrompt').textContent = s.prompt;
+      document.getElementById('chipPosition').textContent = `Actor: ${s.actor}`;
+
+      // Move 3D Actor smoothly
+      actorGroup.position.set(s.actor3DPos[0], s.actor3DPos[1], s.actor3DPos[2]);
+
+      selectedOptionIdx = null;
+      const optionsList = document.getElementById('optionsList');
+      optionsList.innerHTML = '';
+
+      // Randomize options so the correct answer is not always first
+      s.currentOptions = [...s.options].sort(() => Math.random() - 0.5);
+
+      s.currentOptions.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.type = 'button';
+        btn.textContent = opt.text;
+        btn.addEventListener('click', () => {
+          optionsList.querySelectorAll('.option-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          selectedOptionIdx = idx;
+        });
+        optionsList.appendChild(btn);
+      });
+
+      const feedback = document.getElementById('feedbackBox');
+      feedback.className = 'feedback-box';
+      feedback.textContent = '';
+      document.getElementById('btnCheckAnswer').textContent = 'Confirm Stage Direction 🎬';
+    }
+
+    document.getElementById('btnCheckAnswer').addEventListener('click', () => {
+      const s = scenes[currentSceneIdx];
+      const feedback = document.getElementById('feedbackBox');
+
+      if (selectedOptionIdx === null) {
+        feedback.className = 'feedback-box error';
+        feedback.textContent = 'Please select a stage direction option!';
+        return;
+      }
+
+      if (s.currentOptions[selectedOptionIdx].correct) {
+        audio.playCorrect();
+        score += 15;
+        document.getElementById('badgeScore').textContent = `⭐ Score: ${score}`;
+        feedback.className = 'feedback-box success';
+        feedback.textContent = '🎯 Superb direction! That matches the 3D stage position and grammar.';
+
+        const btn = document.getElementById('btnCheckAnswer');
+        btn.textContent = 'Next Scene ➔';
+        btn.onclick = () => {
+          audio.playClick();
+          btn.onclick = null;
+          if (currentSceneIdx + 1 < scenes.length) {
+            currentSceneIdx++;
+            renderScene();
+          } else {
+            document.getElementById('winModal').style.display = 'flex';
+          }
+        };
+      } else {
+        audio.playBuzz();
+        feedback.className = 'feedback-box error';
+        feedback.textContent = 'Look at where the actor is positioned relative to the table and curtains!';
+      }
+    });
+
+    document.getElementById('btnRestart').addEventListener('click', () => {
+      currentSceneIdx = 0;
+      score = 0;
+      document.getElementById('winModal').style.display = 'none';
+      renderScene();
+    });
+
+    // Resize handling
+    function resize() {
+      const width = canvas.clientWidth;
+      const height = canvas.clientHeight;
+      if (canvas.width !== width || canvas.height !== height) {
+        renderer.setSize(width, height, false);
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+      }
+    }
+
+    // Animation Loop
+    function animate() {
+      requestAnimationFrame(animate);
+      resize();
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    renderScene();
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>G2 Five Finger Retell Challenge</title>
+  <style>
+    :root {
+      --bg: #FFFDF0;
+      --ink: #111111;
+      --yellow: #FFE156;
+      --coral: #FF6584;
+      --green: #4ECDC4;
+      --blue: #38B6FF;
+      --purple: #B388FF;
+      --white: #FFFFFF;
+      --border: 3px solid var(--ink);
+      --shadow: 4px 4px 0 var(--ink);
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(circle at 12% 15%, rgba(255, 225, 86, 0.15) 0%, transparent 35%),
+        radial-gradient(circle at 88% 85%, rgba(78, 205, 196, 0.15) 0%, transparent 35%),
+        repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(17, 17, 17, 0.03) 28px);
+      color: var(--ink);
+      font-family: ui-rounded, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      padding: 16px 16px 36px;
+    }
+
+    .container { max-width: 1060px; margin: 0 auto; }
+
+    /* Compact Top Bar */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .pyp-map-link {
+      display: inline-flex;
+      align-items: center;
+      background: var(--yellow);
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 900;
+      font-size: 0.95rem;
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 8px 16px;
+      min-height: 44px;
+      cursor: pointer;
+    }
+
+    .pyp-map-link:active, .pyp-map-link:hover {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0 var(--ink);
+    }
+
+    .unit-tag {
+      background: var(--blue);
+      color: var(--white);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 8px 14px;
+      font-weight: 800;
+      font-size: 0.9rem;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    /* Compact Strip Header */
+    .hero-strip {
+      background: var(--white);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 12px 18px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .hero-strip h1 { font-size: clamp(1.2rem, 2.5vw, 1.6rem); font-weight: 900; }
+
+    /* iPad Landscape 2-Column Board */
+    .retell-layout {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    /* Left Column: Interactive Story Card */
+    .story-card {
+      background: var(--white);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+    }
+
+    .story-title {
+      font-size: 1.25rem;
+      font-weight: 900;
+      margin-bottom: 8px;
+      color: #1E3A8A;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .story-text {
+      background: #EFF6FF;
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      line-height: 1.6;
+      color: #1F2937;
+      margin-bottom: 16px;
+    }
+
+    .retell-tracker {
+      background: #F3F4F6;
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      padding: 10px;
+      font-weight: 800;
+      font-size: 0.95rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Right Column: Hand Canvas with Interactive Slots */
+    .hand-board {
+      background: var(--white);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      min-height: 520px;
+    }
+
+    .hand-header {
+      font-size: 1.15rem;
+      font-weight: 900;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .fingers-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .finger-card {
+      background: #FFFDF0;
+      border: 2px solid var(--ink);
+      border-radius: 10px;
+      padding: 12px 14px;
+      box-shadow: 3px 3px 0 var(--ink);
+    }
+
+    .finger-card.complete {
+      background: #ECFDF5;
+      border-color: #059669;
+    }
+
+    .finger-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .finger-name {
+      font-weight: 900;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .finger-element-tag {
+      background: var(--yellow);
+      border: 2px solid var(--ink);
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-size: 0.8rem;
+      font-weight: 900;
+    }
+
+    .finger-options-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 8px;
+    }
+
+    .token-btn {
+      background: var(--white);
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      box-shadow: 2px 2px 0 var(--ink);
+      padding: 8px 12px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 800;
+      text-align: left;
+      cursor: pointer;
+      min-height: 44px;
+      transition: all 0.12s ease;
+    }
+
+    .token-btn:hover {
+      background: #E0E7FF;
+      transform: translate(-1px, -1px);
+    }
+
+    .token-btn.correct-slot {
+      background: var(--green);
+      color: var(--ink);
+      box-shadow: 1px 1px 0 var(--ink);
+      cursor: default;
+    }
+
+    .token-btn.wrong-slot {
+      background: #FEE2E2;
+    }
+
+    /* Victory Card */
+    .victory-card {
+      display: none;
+      background: #ECFDF5;
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .victory-card.active { display: block; }
+
+    @media (max-width: 820px) {
+      .retell-layout { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav class="top-bar">
+      <a class="pyp-map-link" href="../index.html">← PYP Map</a>
+      <span class="unit-tag">🖐️ Grade 2 · Five Finger Retell</span>
+    </nav>
+
+    <header class="hero-strip">
+      <div>
+        <h1>Five Finger Story Retell Map 📖</h1>
+        <p style="font-weight:700; color:#4B5563; font-size:0.9rem;">
+          Read the short narrative, then match each finger to the correct story element!
+        </p>
+      </div>
+      <div style="font-weight:900; font-size:0.85rem; color:#4B5563;">
+        Framework: Characters · Setting · Time · Problem · Solution
+      </div>
+    </header>
+
+    <div class="retell-layout">
+      <!-- Left: Story Reader -->
+      <aside class="story-card">
+        <h2 class="story-title">
+          <span>📘 The Playground Mystery</span>
+        </h2>
+        <div class="story-text">
+          On a chilly Monday morning, Hilson arrived at the sunny SGA playground. Suddenly, he noticed his red lunchbox was missing! He searched the room, asked his teacher Ms. Green, and together they checked the lost-and-found shelf. Hilson found his lunchbox safe and smiled happily with relief.
+        </div>
+        <div class="retell-tracker">
+          <span>Hand Retell Progress:</span>
+          <strong id="progressText">0 / 5 Fingers Matched</strong>
+        </div>
+      </aside>
+
+      <!-- Right: Five Finger Board -->
+      <main class="hand-board">
+        <div class="hand-header">
+          <span>🖐️ Five Finger Narrative Matching Map:</span>
+        </div>
+
+        <div class="fingers-list" id="fingersList">
+          <!-- Injected by JS -->
+        </div>
+
+        <div class="victory-card" id="victoryCard">
+          <div style="font-size:3rem; margin-bottom:8px;">🌟🖐️</div>
+          <h2 style="font-size:1.6rem; font-weight:900; margin-bottom:6px;">Story Retell Master!</h2>
+          <p style="font-size:1rem; font-weight:700; color:#1F2937; margin-bottom:16px;">
+            You mastered the narrative structure: Who (Characters), Where (Setting), When (Time), What Happened (Problem), and How Resolved (Solution)!
+          </p>
+          <div style="display:flex; justify-content:center; gap:12px;">
+            <button class="pyp-map-link" id="btnPlayAgain" type="button" style="background:var(--green); border:2px solid #111;">Play Again 🔄</button>
+            <a class="pyp-map-link" href="../index.html">Back to Learning Map 🗺️</a>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // Web Audio FX
+    class SoundFX {
+      constructor() { this.ctx = null; }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+      }
+      playChime() {
+        this.init();
+        const now = this.ctx.currentTime;
+        [587.33, 739.99, 880.00].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.09);
+          gain.gain.setValueAtTime(0.2, now + idx * 0.09);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.09 + 0.35);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.09);
+          osc.stop(now + idx * 0.09 + 0.4);
+        });
+      }
+      playBuzz() {
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(190, now);
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.22);
+      }
+      playClick() {
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.frequency.setValueAtTime(500, now);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.06);
+      }
+    }
+    const audio = new SoundFX();
+
+    const fingerData = [
+      {
+        finger: "Thumb 👍",
+        element: "Who (Characters)",
+        correct: "Hilson & Ms. Green (Teacher)",
+        options: [
+          "Hilson & Ms. Green (Teacher)",
+          "A barking street puppy",
+          "The yellow school bus driver"
+        ]
+      },
+      {
+        finger: "Index Finger ☝️",
+        element: "Where (Setting)",
+        correct: "Sunny SGA playground & classroom",
+        options: [
+          "Inside a deep jungle",
+          "Sunny SGA playground & classroom",
+          "At an airport terminal"
+        ]
+      },
+      {
+        finger: "Middle Finger 🖕",
+        element: "When (Time)",
+        correct: "On a chilly Monday morning",
+        options: [
+          "On a chilly Monday morning",
+          "Saturday at midnight",
+          "Three years ago"
+        ]
+      },
+      {
+        finger: "Ring Finger 💍",
+        element: "What Happened (Problem)",
+        correct: "Hilson's red lunchbox was missing.",
+        options: [
+          "Hilson forgot his shoes.",
+          "Hilson's red lunchbox was missing.",
+          "It rained inside the hallway."
+        ]
+      },
+      {
+        finger: "Pinky Finger 🤙",
+        element: "How Resolved (Solution)",
+        correct: "Found it safe on the lost-and-found shelf.",
+        options: [
+          "Ordered pizza for everyone.",
+          "Found it safe on the lost-and-found shelf.",
+          "Waited until school ended."
+        ]
+      }
+    ];
+
+    let solved = 0;
+    const fingersList = document.getElementById('fingersList');
+    const progressText = document.getElementById('progressText');
+    const victoryCard = document.getElementById('victoryCard');
+    const btnPlayAgain = document.getElementById('btnPlayAgain');
+
+    function renderFingers() {
+      fingersList.innerHTML = '';
+      solved = 0;
+      progressText.textContent = `0 / 5 Fingers Matched`;
+      victoryCard.classList.remove('active');
+
+      fingerData.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'finger-card';
+        card.innerHTML = `
+          <div class="finger-top">
+            <span class="finger-name">${item.finger}</span>
+            <span class="finger-element-tag">${item.element}</span>
+          </div>
+          <div class="finger-options-grid"></div>
+        `;
+
+        const grid = card.querySelector('.finger-options-grid');
+        // Randomize options so the correct answer is never fixed
+        const shuffledOptions = [...item.options].sort(() => Math.random() - 0.5);
+
+        shuffledOptions.forEach(optText => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'token-btn';
+          btn.textContent = optText;
+          btn.addEventListener('click', () => {
+            if (card.classList.contains('complete')) return;
+            audio.playClick();
+
+            if (optText === item.correct) {
+              audio.playChime();
+              btn.classList.add('correct-slot');
+              card.classList.add('complete');
+              grid.querySelectorAll('.token-btn').forEach(b => {
+                if (b !== btn) b.style.display = 'none';
+              });
+              solved++;
+              progressText.textContent = `${solved} / 5 Fingers Matched`;
+              if (solved === fingerData.length) {
+                victoryCard.classList.add('active');
+              }
+            } else {
+              audio.playBuzz();
+              btn.classList.add('wrong-slot');
+              setTimeout(() => btn.classList.remove('wrong-slot'), 600);
+            }
+          });
+          grid.appendChild(btn);
+        });
+
+        fingersList.appendChild(card);
+      });
+    }
+
+    btnPlayAgain.addEventListener('click', () => {
+      audio.playClick();
+      renderFingers();
+    });
+
+    renderFingers();
+  </script>
+</body>
+</html>

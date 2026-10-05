@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Angle Explorer - Open the Door Angle Lab</title>
+  <style>
+    :root {
+      --bg: #FFF7E0;
+      --ink: #111111;
+      --yellow: #FFE156;
+      --coral: #FF6584;
+      --teal: #4ECDC4;
+      --blue: #38B6FF;
+      --orange: #FF9F43;
+      --purple: #B388FF;
+      --white: #FFFFFF;
+      --border: 3.5px solid var(--ink);
+      --shadow: 4px 4px 0 var(--ink);
+      --shadow-sm: 2px 2px 0 var(--ink);
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 10px 14px 20px;
+    }
+
+    .container { max-width: 1160px; margin: 0 auto; }
+
+    .top-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 10px; flex-wrap: wrap; margin-bottom: 8px;
+    }
+
+    .pyp-map-link {
+      display: inline-flex; align-items: center; background: var(--yellow); color: var(--ink);
+      text-decoration: none; font-weight: 900; padding: 8px 14px; border: var(--border);
+      border-radius: 10px; box-shadow: var(--shadow-sm); min-height: 44px;
+    }
+
+    .title-strip { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .title-strip h1 { font-size: 1.45rem; font-weight: 900; }
+    .score-badge {
+      background: var(--yellow); border: var(--border); border-radius: 10px;
+      padding: 6px 12px; font-weight: 900; box-shadow: var(--shadow-sm);
+    }
+
+    /* Mode tabs */
+    .tabs { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+    .tab {
+      flex: 1; min-width: 150px; min-height: 46px; background: var(--white); border: var(--border);
+      border-radius: 10px; font-size: 1rem; font-weight: 900; cursor: pointer; box-shadow: var(--shadow-sm);
+      transition: transform .1s ease;
+    }
+    .tab.active { background: var(--teal); }
+    .tab:active { transform: translate(2px, 2px); box-shadow: none; }
+
+    .grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 14px; align-items: start; }
+
+    .card {
+      background: var(--white); border: var(--border); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 12px;
+    }
+
+    .stage-svg {
+      width: 100%; height: auto; max-height: 56vh; display: block; background: #E8F7FF;
+      border: 3px solid var(--ink); border-radius: 10px; touch-action: none; user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .stage-tools { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; align-items: center; }
+
+    .btn {
+      min-height: 46px; padding: 8px 14px; background: var(--white); border: var(--border);
+      border-radius: 10px; font-size: 1rem; font-weight: 900; cursor: pointer;
+      box-shadow: var(--shadow-sm); transition: transform .1s ease; color: var(--ink);
+    }
+    .btn:active { transform: translate(2px, 2px); box-shadow: none; }
+    .btn.round { width: 52px; font-size: 1.5rem; padding: 0; }
+    .btn.acute { background: var(--blue); }
+    .btn.right { background: var(--teal); }
+    .btn.obtuse { background: var(--orange); }
+    .btn.straight { background: var(--purple); }
+    .btn.primary { background: var(--coral); color: var(--white); box-shadow: var(--shadow); }
+    .btn.toggle.on { background: var(--yellow); }
+
+    h2.panel-title { font-size: 1.1rem; font-weight: 900; margin-bottom: 8px; }
+
+    .readout {
+      border: var(--border); border-radius: 12px; padding: 10px 12px; margin-bottom: 10px;
+      background: var(--blue); box-shadow: var(--shadow-sm);
+    }
+    .readout .deg { font-size: 2rem; font-weight: 900; line-height: 1; }
+    .readout .name { font-size: 1.25rem; font-weight: 900; }
+    .readout .rule { font-size: 0.95rem; font-weight: 700; margin-top: 4px; line-height: 1.35; }
+
+    .legend { display: grid; gap: 6px; }
+    .legend-item {
+      display: flex; gap: 8px; align-items: center; border: 2.5px solid var(--ink); border-radius: 10px;
+      padding: 6px 8px; font-weight: 800; font-size: 0.88rem; background: #fff; opacity: .6;
+    }
+    .legend-item.active { opacity: 1; box-shadow: var(--shadow-sm); }
+    .legend-dot { width: 18px; height: 18px; border: 2.5px solid var(--ink); border-radius: 50%; flex: none; }
+
+    .prompt { font-size: 1.2rem; font-weight: 900; margin-bottom: 8px; line-height: 1.3; }
+    .sub { font-weight: 700; color: #374151; font-size: 0.95rem; margin-bottom: 10px; line-height: 1.35; }
+
+    .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+    .choice { min-height: 56px; font-size: 1rem; }
+    .choice.correct { background: #86EFAC; }
+    .choice.wrong { background: #FCA5A5; }
+
+    .feedback {
+      min-height: 52px; border: var(--border); border-radius: 10px; padding: 8px 10px; font-weight: 800;
+      background: #FFFDE8; margin-bottom: 10px; line-height: 1.35; display: none;
+    }
+    .feedback.show { display: block; }
+    .feedback.good { background: #DCFCE7; }
+    .feedback.bad { background: #FEE2E2; }
+
+    .hidden { display: none !important; }
+
+    .modal {
+      position: fixed; inset: 0; background: rgba(0,0,0,.65); display: none; align-items: center;
+      justify-content: center; padding: 16px; z-index: 50;
+    }
+    .modal.show { display: flex; }
+    .modal-card {
+      background: #fff; border: 4px solid var(--ink); border-radius: 18px; box-shadow: 8px 8px 0 var(--ink);
+      padding: 24px; max-width: 460px; text-align: center;
+    }
+    .modal-card h2 { font-size: 1.6rem; margin-bottom: 8px; }
+    .modal-card p { font-weight: 700; margin-bottom: 16px; line-height: 1.4; }
+
+    @media (max-width: 820px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="top-bar">
+      <a class="pyp-map-link" href="../index.html">← PYP Map</a>
+      <div class="title-strip">
+        <h1>📐 Angle Explorer</h1>
+        <div class="score-badge" id="scoreBadge">⭐ 0</div>
+      </div>
+    </div>
+
+    <div class="tabs" role="tablist">
+      <button class="tab active" data-mode="learn" type="button">1. Open the Door</button>
+      <button class="tab" data-mode="build" type="button">2. Build an Angle</button>
+      <button class="tab" data-mode="detective" type="button">3. Angle Detective</button>
+    </div>
+
+    <main class="grid">
+      <section class="card">
+        <svg id="stage" class="stage-svg" viewBox="0 0 440 270" aria-label="Angle stage"></svg>
+        <div class="stage-tools" id="toolsLearn">
+          <button class="btn round" id="btnMinus" type="button" aria-label="Smaller angle">−</button>
+          <button class="btn round" id="btnPlus" type="button" aria-label="Bigger angle">+</button>
+          <button class="btn toggle" id="btnGhost" type="button">📏 Square Corner</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <!-- LEARN -->
+        <div id="panelLearn">
+          <h2 class="panel-title">An angle is how wide a door opens.</h2>
+          <p class="sub">Drag the orange door, or tap − and +. The corner where the two sides meet is the hinge. Tap a button to jump to a special angle.</p>
+          <div class="readout" id="readout">
+            <div class="deg" id="readDeg">45°</div>
+            <div class="name" id="readName">Acute angle</div>
+            <div class="rule" id="readRule"></div>
+          </div>
+          <div class="stage-tools" style="margin:0 0 10px;">
+            <button class="btn acute" data-snap="45" type="button">Acute</button>
+            <button class="btn right" data-snap="90" type="button">Right</button>
+            <button class="btn obtuse" data-snap="135" type="button">Obtuse</button>
+            <button class="btn straight" data-snap="180" type="button">Straight</button>
+          </div>
+          <div class="legend" id="legend"></div>
+        </div>
+
+        <!-- BUILD -->
+        <div id="panelBuild" class="hidden">
+          <h2 class="panel-title">Build Challenge <span id="buildNum">1</span> of 6</h2>
+          <p class="prompt" id="buildPrompt"></p>
+          <p class="sub">Drag the door to make the angle. Then press Check.</p>
+          <div class="readout" id="buildReadout"><div class="deg" id="buildDeg">45°</div></div>
+          <div class="feedback" id="buildFeedback"></div>
+          <div class="stage-tools" style="margin:0;">
+            <button class="btn primary" id="btnBuildCheck" type="button">Check My Angle ✅</button>
+            <button class="btn" id="btnBuildNext" type="button" style="display:none;background:var(--yellow);">Next Challenge ➔</button>
+          </div>
+        </div>
+
+        <!-- DETECTIVE -->
+        <div id="panelDetective" class="hidden">
+          <h2 class="panel-title">Detective Case <span id="detNum">1</span> of 8</h2>
+          <p class="prompt" id="detPrompt"></p>
+          <p class="sub">Tip: tap the Square Corner button to compare with a perfect 90° corner.</p>
+          <div class="choices" id="detChoices"></div>
+          <div class="feedback" id="detFeedback"></div>
+          <button class="btn" id="btnDetNext" type="button" style="display:none;background:var(--yellow);">Next Case ➔</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal" id="winModal">
+    <div class="modal-card">
+      <div style="font-size:3.5rem;">🏆</div>
+      <h2 id="winTitle">Angle Expert!</h2>
+      <p id="winText"></p>
+      <button class="btn primary" id="btnWinClose" type="button">Keep Exploring ➔</button>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * Angle Explorer - 2D SVG angle classification game (Grade 2).
+     * Modes: learn (drag a door), build (make a named angle), detective (identify angles).
+     */
+
+    // Web Audio (zero-dependency); unlocked on first user gesture
+    class AngleAudio {
+      constructor() { this.ctx = null; }
+      init() {
+        if (!this.ctx) {
+          const AC = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AC();
+        }
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+      }
+      tone(freq, start, dur, type, vol) {
+        const now = this.ctx.currentTime + start;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, now);
+        gain.gain.setValueAtTime(vol, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + dur + 0.02);
+      }
+      playClick() { this.init(); this.tone(500, 0, 0.05, 'sine', 0.08); }
+      playSnap() { this.init(); this.tone(760, 0, 0.08, 'triangle', 0.1); }
+      playCorrect() {
+        this.init();
+        [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => this.tone(f, i * 0.08, 0.3, 'triangle', 0.16));
+      }
+      playWrong() { this.init(); this.tone(190, 0, 0.22, 'sawtooth', 0.12); }
+    }
+    const audio = new AngleAudio();
+
+    const TYPES = {
+      acute: { name: 'Acute angle', color: '#38B6FF', rule: 'It is smaller than a square corner (less than 90°). It looks sharp and narrow.' },
+      right: { name: 'Right angle', color: '#4ECDC4', rule: 'It is exactly a square corner (90°). Look for the little square!' },
+      obtuse: { name: 'Obtuse angle', color: '#FF9F43', rule: 'It is bigger than a square corner but smaller than a straight line (between 90° and 180°).' },
+      straight: { name: 'Straight angle', color: '#B388FF', rule: 'It is a perfectly flat, straight line (180°).' }
+    };
+
+    function classify(deg) {
+      if (deg === 90) return 'right';
+      if (deg === 180) return 'straight';
+      return deg < 90 ? 'acute' : 'obtuse';
+    }
+
+    // --- Stage geometry ---
+    const svg = document.getElementById('stage');
+    const VX = 110, VY = 220, ARM = 270, R = 62;
+    let theta = 45;
+    let showGhost = false;
+    let mode = 'learn';
+    let sceneEmoji = '🚪';
+    let dragging = false;
+
+    function pt(deg, len) {
+      const r = deg * Math.PI / 180;
+      return [VX + len * Math.cos(r), VY - len * Math.sin(r)];
+    }
+
+    function render() {
+      const type = classify(theta);
+      const color = TYPES[type].color;
+      const [ax, ay] = pt(theta, ARM);
+      const [sx, sy] = pt(0, R);
+      const [ex, ey] = pt(theta, R);
+      const [lx, ly] = pt(theta / 2, R + 34);
+      const [tx, ty] = pt(theta, ARM + 4);
+      let s = '';
+      // floor / wall decoration
+      s += `<rect x="0" y="${VY + 6}" width="440" height="${270 - VY - 6}" fill="#C8A878"/>`;
+      s += `<line x1="0" y1="${VY + 6}" x2="440" y2="${VY + 6}" stroke="#111" stroke-width="3"/>`;
+      // ghost square corner
+      if (showGhost) {
+        const [gx, gy] = pt(90, ARM * 0.8);
+        s += `<line x1="${VX}" y1="${VY}" x2="${gx}" y2="${gy}" stroke="#111" stroke-width="3" stroke-dasharray="8 6"/>`;
+        s += `<rect x="${VX}" y="${VY - 30}" width="30" height="30" fill="none" stroke="#111" stroke-width="3" stroke-dasharray="4 3"/>`;
+        s += `<text x="${VX + 8}" y="${VY - 100}" font-size="14" font-weight="900" fill="#111">Square corner = 90°</text>`;
+      }
+      // wedge
+      if (theta === 180) {
+        s += `<path d="M ${VX} ${VY} L ${sx} ${sy} A ${R} ${R} 0 0 0 ${VX - R} ${VY} Z" fill="${color}" fill-opacity="0.75" stroke="#111" stroke-width="3"/>`;
+      } else {
+        s += `<path d="M ${VX} ${VY} L ${sx} ${sy} A ${R} ${R} 0 0 0 ${ex} ${ey} Z" fill="${color}" fill-opacity="0.75" stroke="#111" stroke-width="3"/>`;
+      }
+      // fixed arm (door frame)
+      const [fx, fy] = pt(0, ARM);
+      s += `<line x1="${VX}" y1="${VY}" x2="${fx}" y2="${fy}" stroke="#111" stroke-width="12" stroke-linecap="round"/>`;
+      s += `<line x1="${VX}" y1="${VY}" x2="${fx}" y2="${fy}" stroke="#7DD3FC" stroke-width="5" stroke-linecap="round"/>`;
+      // moving arm (door)
+      s += `<line x1="${VX}" y1="${VY}" x2="${ax}" y2="${ay}" stroke="#111" stroke-width="14" stroke-linecap="round"/>`;
+      s += `<line x1="${VX}" y1="${VY}" x2="${ax}" y2="${ay}" stroke="#FF9F43" stroke-width="7" stroke-linecap="round"/>`;
+      // right-angle square mark
+      if (theta === 90) {
+        s += `<rect x="${VX}" y="${VY - 26}" width="26" height="26" fill="none" stroke="#111" stroke-width="3.5"/>`;
+      }
+      // hinge
+      s += `<circle cx="${VX}" cy="${VY}" r="9" fill="#FFE156" stroke="#111" stroke-width="3.5"/>`;
+      // degree label
+      s += `<text x="${lx}" y="${ly + 6}" font-size="22" font-weight="900" text-anchor="middle" fill="#111" stroke="#fff" stroke-width="5" paint-order="stroke">${theta}°</text>`;
+      // draggable handle
+      s += `<circle id="handle" cx="${ax}" cy="${ay}" r="20" fill="#FFE156" stroke="#111" stroke-width="3.5" style="cursor:grab"/>`;
+      s += `<text x="${ax}" y="${ay + 7}" font-size="20" text-anchor="middle" pointer-events="none">${sceneEmoji}</text>`;
+      svg.innerHTML = s;
+      updateLearnPanel(type);
+    }
+
+    function updateLearnPanel(type) {
+      const t = TYPES[type];
+      document.getElementById('readDeg').textContent = theta + '°';
+      document.getElementById('readName').textContent = t.name;
+      document.getElementById('readRule').textContent = t.rule;
+      document.getElementById('readout').style.background = t.color;
+      document.getElementById('buildDeg').textContent = theta + '°';
+      document.getElementById('buildReadout').style.background = '#FFFDE8';
+      document.querySelectorAll('.legend-item').forEach(el => {
+        el.classList.toggle('active', el.dataset.type === type);
+      });
+    }
+
+    function setTheta(v, snapSound) {
+      const clamped = Math.max(5, Math.min(180, v));
+      if (clamped !== theta) {
+        const prev = classify(theta);
+        theta = clamped;
+        if (snapSound && (theta === 90 || theta === 180)) audio.playSnap();
+        else if (snapSound && prev !== classify(theta)) audio.playClick();
+      }
+      render();
+    }
+
+    // Pointer dragging with 5-degree steps and snapping to 90 and 180
+    function angleFromEvent(e) {
+      const pt0 = svg.createSVGPoint();
+      pt0.x = e.clientX; pt0.y = e.clientY;
+      const p = pt0.matrixTransform(svg.getScreenCTM().inverse());
+      const dx = p.x - VX, dy = VY - p.y;
+      let deg;
+      if (dy < 0) deg = dx > 0 ? 5 : 180;
+      else deg = Math.atan2(dy, dx) * 180 / Math.PI;
+      deg = Math.round(deg / 5) * 5;
+      if (Math.abs(deg - 90) <= 4) deg = 90;
+      if (deg >= 176) deg = 180;
+      return deg;
+    }
+
+    svg.addEventListener('pointerdown', (e) => {
+      audio.init();
+      dragging = true;
+      svg.setPointerCapture(e.pointerId);
+      if (mode !== 'detective') setTheta(angleFromEvent(e), true);
+    });
+    svg.addEventListener('pointermove', (e) => {
+      if (dragging && mode !== 'detective') setTheta(angleFromEvent(e), true);
+    });
+    const endDrag = () => { dragging = false; };
+    svg.addEventListener('pointerup', endDrag);
+    svg.addEventListener('pointercancel', endDrag);
+
+    // --- Learn mode controls ---
+    const legend = document.getElementById('legend');
+    Object.keys(TYPES).forEach(k => {
+      const d = document.createElement('div');
+      d.className = 'legend-item';
+      d.dataset.type = k;
+      d.innerHTML = `<span class="legend-dot" style="background:${TYPES[k].color}"></span>${TYPES[k].name}: ${
+        { acute: 'less than 90°.', right: 'exactly 90°.', obtuse: 'more than 90° and less than 180°.', straight: 'exactly 180°.' }[k]
+      }`;
+      legend.appendChild(d);
+    });
+
+    document.querySelectorAll('[data-snap]').forEach(b => b.addEventListener('click', () => {
+      audio.playClick();
+      setTheta(parseInt(b.dataset.snap, 10), true);
+    }));
+    document.getElementById('btnMinus').addEventListener('click', () => {
+      audio.playClick();
+      const next = theta === 90 || theta === 180 ? theta - 5 : theta - 5;
+      setTheta(next, true);
+    });
+    document.getElementById('btnPlus').addEventListener('click', () => {
+      audio.playClick();
+      setTheta(theta + 5, true);
+    });
+    document.getElementById('btnGhost').addEventListener('click', (e) => {
+      audio.playClick();
+      showGhost = !showGhost;
+      e.currentTarget.classList.toggle('on', showGhost);
+      render();
+    });
+
+    // --- Mode switching ---
+    function setMode(m) {
+      mode = m;
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.mode === m));
+      document.getElementById('panelLearn').classList.toggle('hidden', m !== 'learn');
+      document.getElementById('panelBuild').classList.toggle('hidden', m !== 'build');
+      document.getElementById('panelDetective').classList.toggle('hidden', m !== 'detective');
+      document.getElementById('btnMinus').classList.toggle('hidden', m === 'detective');
+      document.getElementById('btnPlus').classList.toggle('hidden', m === 'detective');
+      if (m === 'learn') { sceneEmoji = '🚪'; theta = 45; render(); }
+      if (m === 'build') { buildIdx = 0; loadBuild(); }
+      if (m === 'detective') { detIdx = 0; detCorrect = 0; loadDetective(); }
+    }
+    document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
+      audio.playClick();
+      setMode(t.dataset.mode);
+    }));
+
+    let stars = 0;
+    function addStars(n) {
+      stars += n;
+      document.getElementById('scoreBadge').textContent = '⭐ ' + stars;
+    }
+
+    function showFeedback(el, text, good) {
+      el.textContent = text;
+      el.className = 'feedback show ' + (good ? 'good' : 'bad');
+    }
+
+    // --- Build mode ---
+    const buildChallenges = [
+      { want: 'acute', text: 'Make an ACUTE angle. It must be smaller than a square corner.' },
+      { want: 'right', text: 'Make a RIGHT angle. Open the door to a perfect square corner.' },
+      { want: 'obtuse', text: 'Make an OBTUSE angle. Open the door wider than a square corner.' },
+      { want: 'straight', text: 'Make a STRAIGHT angle. Open the door until it is flat.' },
+      { want: 'obtuse', text: 'Make another OBTUSE angle, but not a straight line.' },
+      { want: 'acute', text: 'Make a very narrow ACUTE angle. Almost closed!' }
+    ];
+    let buildIdx = 0;
+    let buildDone = false;
+
+    function loadBuild() {
+      const c = buildChallenges[buildIdx];
+      const emojis = ['⛏️', '🗡️', '🚪', '🪓', '📖', '✂️'];
+      sceneEmoji = emojis[buildIdx % emojis.length];
+      theta = 60;
+      buildDone = false;
+      document.getElementById('buildNum').textContent = buildIdx + 1;
+      document.getElementById('buildPrompt').textContent = c.text;
+      document.getElementById('buildFeedback').className = 'feedback';
+      document.getElementById('btnBuildCheck').style.display = '';
+      document.getElementById('btnBuildNext').style.display = 'none';
+      render();
+    }
+
+    document.getElementById('btnBuildCheck').addEventListener('click', () => {
+      audio.playClick();
+      const c = buildChallenges[buildIdx];
+      const got = classify(theta);
+      const fb = document.getElementById('buildFeedback');
+      if (got === c.want) {
+        audio.playCorrect();
+        addStars(10);
+        showFeedback(fb, `Great job! ${theta}° is a ${TYPES[got].name.toLowerCase()}.`, true);
+        document.getElementById('btnBuildCheck').style.display = 'none';
+        document.getElementById('btnBuildNext').style.display = '';
+      } else {
+        audio.playWrong();
+        showFeedback(fb, `Not yet. Your angle is ${theta}°, which is a ${TYPES[got].name.toLowerCase()}. Try again!`, false);
+      }
+    });
+    document.getElementById('btnBuildNext').addEventListener('click', () => {
+      audio.playClick();
+      if (buildIdx + 1 < buildChallenges.length) {
+        buildIdx++;
+        loadBuild();
+      } else {
+        showWin('Master Builder!', 'You built every kind of angle. Now try the Angle Detective!');
+      }
+    });
+
+    // --- Detective mode ---
+    const scenes = [
+      { deg: 90, emoji: '📖', say: 'A book is open on a table.' },
+      { deg: 30, emoji: '✂️', say: 'A pair of scissors is opened a little.' },
+      { deg: 180, emoji: '🚪', say: 'A door is swung open flat against the wall.' },
+      { deg: 135, emoji: '💻', say: 'A laptop screen is tilted far back.' },
+      { deg: 60, emoji: '⛏️', say: 'A Minecraft pickaxe leans on a wall.' },
+      { deg: 90, emoji: '🧱', say: 'The corner of a Minecraft stone brick.' },
+      { deg: 120, emoji: '🗡️', say: 'A diamond sword is tilted back.' },
+      { deg: 150, emoji: '🚪', say: 'A door is opened almost all the way.' }
+    ];
+    let detIdx = 0;
+    let detCorrect = 0;
+    let detOrder = [];
+
+    function shuffle(a) { return [...a].sort(() => Math.random() - 0.5); }
+
+    function loadDetective() {
+      if (detIdx === 0) detOrder = shuffle(scenes);
+      const sc = detOrder[detIdx];
+      theta = sc.deg;
+      sceneEmoji = sc.emoji;
+      document.getElementById('detNum').textContent = detIdx + 1;
+      document.getElementById('detPrompt').textContent = sc.say + ' What kind of angle is it?';
+      document.getElementById('detFeedback').className = 'feedback';
+      document.getElementById('btnDetNext').style.display = 'none';
+      const wrap = document.getElementById('detChoices');
+      wrap.innerHTML = '';
+      shuffle(Object.keys(TYPES)).forEach(k => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'btn choice ' + k;
+        b.textContent = TYPES[k].name;
+        b.addEventListener('click', () => answerDet(k, b));
+        wrap.appendChild(b);
+      });
+      render();
+    }
+
+    function answerDet(k, btn) {
+      const right = classify(theta);
+      const fb = document.getElementById('detFeedback');
+      const all = document.querySelectorAll('#detChoices .choice');
+      all.forEach(b => { b.disabled = true; });
+      audio.playClick();
+      if (k === right) {
+        audio.playCorrect();
+        detCorrect++;
+        addStars(10);
+        btn.classList.add('correct');
+        showFeedback(fb, `Yes! This is a ${TYPES[right].name.toLowerCase()} of ${theta}°. ${TYPES[right].rule}`, true);
+      } else {
+        audio.playWrong();
+        btn.classList.add('wrong');
+        all.forEach(b => { if (b.textContent === TYPES[right].name) b.classList.add('correct'); });
+        showFeedback(fb, `Look again. It is ${theta}°, so it is a ${TYPES[right].name.toLowerCase()}. ${TYPES[right].rule}`, false);
+      }
+      document.getElementById('btnDetNext').style.display = '';
+    }
+    document.getElementById('btnDetNext').addEventListener('click', () => {
+      audio.playClick();
+      if (detIdx + 1 < scenes.length) {
+        detIdx++;
+        loadDetective();
+      } else {
+        showWin('Angle Detective!', `You solved ${detCorrect} of ${scenes.length} cases. You can name right, acute, obtuse, and straight angles!`);
+      }
+    });
+
+    // --- Win modal ---
+    function showWin(title, text) {
+      audio.playCorrect();
+      document.getElementById('winTitle').textContent = title;
+      document.getElementById('winText').textContent = text;
+      document.getElementById('winModal').classList.add('show');
+    }
+    document.getElementById('btnWinClose').addEventListener('click', () => {
+      audio.playClick();
+      document.getElementById('winModal').classList.remove('show');
+    });
+
+    render();
+  </script>
+</body>
+
+</html>
