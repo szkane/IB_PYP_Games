@@ -1,0 +1,37 @@
+[
+  {
+    "id": "g3_water_cycle_uoi",
+    "prompt": "Create a Grade 3 Sharing the Planet standalone game about the water cycle and human impact. Include inquiry-based mechanics, TTS voice switching, and Neobrutalism styling.",
+    "expected_outputs": [
+      "Traces to Grade 3 Sharing the Planet theme and lines of inquiry/key concepts (Change, Causation, Responsibility)",
+      "Standalone HTML file in src/uoi/ with viewport tag, PYP Map link, and Neobrutalism CSS tokens",
+      "Interactive inquiry manipulative rather than a plain text quiz",
+      "Includes TTS dropdown with UK/US accent selection and TTS_MANAGER implementation sharing localStorage",
+      "Sound effects using Web Audio API",
+      "Includes entry for src/data/curriculum-map.json"
+    ]
+  },
+  {
+    "id": "g2_express_ourselves_tts",
+    "prompt": "Build a Grade 2 How We Express Ourselves storytelling activity called g2_script_director.html with speech synthesis read-aloud and radio-style accent switcher.",
+    "expected_outputs": [
+      "File located in src/uoi/g2_script_director.html or src/literacy/",
+      "Features Neobrutalism radio dropdown for TTS accent selection matching the house style",
+      "Compact iPad-friendly header without large subtitles or sticky banners eating vertical space",
+      "Read aloud button (.btn-speaker) with pulsing active state",
+      "Audio unlock on first user gesture and synthesized Web Audio sound effects",
+      "Pure English content with correct punctuation and shuffled choices"
+    ]
+  },
+  {
+    "id": "g4_market_pbl_simulation",
+    "prompt": "Design a project-based learning activity for Grade 4 How We Organize Ourselves simulating a school marketplace where students balance supply, demand, and fair pricing.",
+    "expected_outputs": [
+      "Addresses transdisciplinary theme How We Organize Ourselves with clear driving question and learner agency",
+      "Multi-stage inquiry cycle (Tuning in, Testing variables, Reflecting/Taking action)",
+      "Uses touch-friendly stepper controls (+/- buttons) suitable for iPad landscape",
+      "Formative feedback explaining market outcomes kindly",
+      "Includes curriculum map JSON registration snippet"
+    ]
+  }
+]

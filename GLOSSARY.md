@@ -78,3 +78,38 @@ Self-contained HTML file within `src/` (or `src/uoi/`, `src/math/`, `src/literac
 
 ### PYP Map Return Link
 Standardized back link `<a class="pyp-map-link" href="../index.html">← PYP Map</a>` required by QA validation so learners can seamlessly return to the grade inquiry hub.
+
+### Text-to-Speech (TTS) & Accent Control Architecture (语音朗读与口音交互架构)
+Standardized Web Speech API integration across curriculum games to support early elementary English reading and auditory reinforcement.
+
+#### 1. Presentation Methods (展示方式与 UI 控件)
+- **Top-Right Neobrutalism Radio Group Dropdown (`.tts-dropdown-wrap`)**:
+  - Located on the top-right corner of the navigation bar across standalone game pages.
+  - Trigger element (`.tts-trigger`): Compact button showing current flag icon (`🇬🇧` UK / `🇺🇸` US), short voice label, and a dropdown chevron `▾`.
+  - Radio Group Menu (`.tts-menu` / `[role="menu"]`): Neobrutalism popover styled after `https://www.neobrutalism.dev/docs/dropdown-menu` with hard black borders (`3px #111`), tactile hover/active states, and single-selection radio circles (`.tts-radio-circle`) indicating the active voice.
+  - Keyboard & Focus Accessibility: Handles `Escape` dismissal, outside-click auto-close, and ARIA roles (`role="radiogroup"`, `role="menuitemradio"`, `aria-checked`).
+
+- **Tactile Voice Speaker Buttons (`.btn-speaker` / `🔊`)**:
+  - Compact tactile buttons (`34px - 40px`, minimum 44px touch-box) placed directly alongside learning prompts, story headings, equation boxes, or inspector panels.
+  - Highlighting / Speaking State: Changes background to green (`#86EFAC`) with a subtle pulse animation (`@keyframes ttsPulse`) during active audio utterance playback, automatically resetting when speaking ends.
+
+#### 2. Playback Interactions & Triggers (播放交互机制)
+- **Voice Selection & Persistence Cascade**:
+  - Automatically filters browser synthesis voices for English (`lang.startsWith('en')`).
+  - Prioritizes `Google UK English Female (UK)` or `Google US English (US)` by default, cascading to regional British / American English voices.
+  - Saves the learner's voice preference globally via `localStorage.getItem('ib_pyp_voice_name')`, ensuring seamless voice continuity across all game pages.
+
+- **On-Demand Click Playback (按需点击播放)**:
+  - **Scenarios & Prompts** (e.g., `g2_balanced_choices`, `g2_sound_explorer`, `g2_script_director`, `g2_time_and_math_quest`): Clicking the speaker icon reads aloud the title and question prompt.
+  - **Full Narrative Reading** (e.g., `g2_five_finger_retell`): Clicking the speaker icon next to the story title reads the complete narrative passage.
+  - **Interactive Token Utterances** (e.g., `g2_sentence_fixer`): Clicking individual word chips immediately pronounces each word; upon assembling a grammatically correct sentence, the entire sentence is automatically read aloud.
+  - **Inspector & Attribute Feedback** (e.g., `g2_angle_finder`, `g2_light_shadow_master`): Clicking material opacity buttons or the 3D shape inspector card speaks the element's mathematical and physical properties aloud.
+
+- **Event-Driven Automatic Playback (事件驱动自动播放)**:
+  - **Equation Reveal** (e.g., `g2_times_table_challenge`): Automatically speaks the problem equation (e.g., *"3 times 4 equals what?"*) when a new speed question appears.
+  - **Debounced Continuous Dragging** (e.g., `g2_angle_explorer`): To avoid stuttering during high-frequency pointer drag events, degree and classification readouts are debounced (400ms idle delay) before reading aloud (e.g., *"90 degrees. Right angle."*).
+
+- **Utterance Hygiene**:
+  - Always executes `speechSynthesis.cancel()` before firing a new utterance to prevent queue pile-up or audio overlapping.
+  - Speech rate is locked to `0.85` for crisp, age-appropriate comprehension by 6–8 year-old learners.
+
