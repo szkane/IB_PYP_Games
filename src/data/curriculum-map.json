@@ -594,6 +594,12 @@
               "label": "UOI",
               "games": [
                 {
+                  "title": "Sound & Light Creative Studio",
+                  "path": "uoi/g2_sound_and_light_studio.html",
+                  "type": "New",
+                  "description": "Inquire into sound waves, light shadows, emergency signals, and direct multimedia theater stories."
+                },
+                {
                   "title": "Sound Explorer Lab",
                   "path": "uoi/g2_sound_explorer.html",
                   "type": "New",

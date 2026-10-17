@@ -1,0 +1,3472 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sound & Light Creative Studio - IB PYP Grade 2</title>
+  <style>
+    :root {
+      --bg: #FFFDF0;
+      --ink: #111111;
+      --yellow: #FFE156;
+      --coral: #FF6584;
+      --teal: #4ECDC4;
+      --blue: #38B6FF;
+      --purple: #B388FF;
+      --green: #86EFAC;
+      --orange: #FF9F43;
+      --white: #FFFFFF;
+      --card-bg: #FFFFFF;
+      --border: 3.5px solid var(--ink);
+      --border-sm: 2.5px solid var(--ink);
+      --shadow: 4px 4px 0 var(--ink);
+      --shadow-sm: 2px 2px 0 var(--ink);
+      --shadow-lg: 6px 6px 0 var(--ink);
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      background-image:
+        radial-gradient(circle at 10% 15%, rgba(255, 101, 132, 0.08) 0%, transparent 25%),
+        radial-gradient(circle at 90% 85%, rgba(56, 182, 255, 0.08) 0%, transparent 25%),
+        radial-gradient(circle at 50% 50%, rgba(255, 225, 86, 0.06) 0%, transparent 50%);
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 12px 16px 36px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .container {
+      max-width: 1020px;
+      margin: 0 auto;
+    }
+
+    /* Top Navigation Bar */
+    .nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .pyp-map-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 8px 16px;
+      background: var(--yellow);
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 900;
+      font-size: 0.92rem;
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    .pyp-map-link:active,
+    .pyp-map-link:hover {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .unit-tag {
+      background: var(--teal);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 8px 14px;
+      font-weight: 900;
+      font-size: 0.88rem;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-audio-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--white);
+      border: var(--border);
+      border-radius: 10px;
+      box-shadow: var(--shadow-sm);
+      padding: 6px 12px;
+      font-weight: 900;
+      font-size: 0.85rem;
+      min-height: 38px;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .btn-audio-toggle:active {
+      transform: translate(2px, 2px);
+      box-shadow: none;
+    }
+
+    /* TTS Dropdown */
+    .tts-dropdown-wrap {
+      position: relative;
+      display: inline-block;
+      user-select: none;
+      font-family: inherit;
+    }
+
+    .tts-trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #FFF;
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
+      box-shadow: 3px 3px 0 var(--ink);
+      padding: 6px 12px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--ink);
+      cursor: pointer;
+      min-height: 38px;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    .tts-trigger:hover {
+      background: #FEF08A;
+      transform: translate(-1px, -1px);
+      box-shadow: 4px 4px 0 var(--ink);
+    }
+
+    .tts-trigger:active {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0 var(--ink);
+    }
+
+    .tts-arrow {
+      font-size: 0.75rem;
+      transition: transform 0.15s ease;
+    }
+
+    .tts-dropdown-wrap.open .tts-arrow {
+      transform: rotate(180deg);
+    }
+
+    .tts-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      min-width: 250px;
+      max-width: 320px;
+      max-height: 290px;
+      overflow-y: auto;
+      background: #FFF;
+      border: 3px solid var(--ink);
+      border-radius: 12px;
+      box-shadow: 4px 4px 0 var(--ink);
+      padding: 6px;
+      z-index: 1000;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .tts-dropdown-wrap.open .tts-menu {
+      display: flex;
+    }
+
+    .tts-menu-header {
+      font-size: 0.72rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: #6B7280;
+      padding: 4px 8px 6px;
+      border-bottom: 2px solid #E5E7EB;
+      margin-bottom: 3px;
+    }
+
+    .tts-radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .tts-radio-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border: 2px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--ink);
+      text-align: left;
+      width: 100%;
+      transition: background 0.1s, border-color 0.1s;
+    }
+
+    .tts-radio-item:hover {
+      background: #FEF9C3;
+      border-color: var(--ink);
+    }
+
+    .tts-radio-item.active {
+      background: #E0F2FE;
+      border-color: var(--ink);
+      font-weight: 800;
+    }
+
+    .tts-radio-circle {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      border: 2px solid var(--ink);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background: #FFF;
+    }
+
+    .tts-radio-item.active .tts-radio-circle::after {
+      content: '';
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--ink);
+    }
+
+    .tts-item-flag {
+      font-size: 1rem;
+    }
+
+    .tts-item-name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+    }
+
+    /* Speaker Button */
+    .btn-speaker {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #FEF08A;
+      border: 2px solid var(--ink);
+      box-shadow: 2px 2px 0 var(--ink);
+      border-radius: 8px;
+      width: 36px;
+      height: 36px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      line-height: 1;
+      flex-shrink: 0;
+      touch-action: manipulation;
+      transition: transform 0.1s, box-shadow 0.1s, background-color 0.1s;
+    }
+
+    .btn-speaker:hover {
+      background: #FDE047;
+      transform: translate(-1px, -1px);
+      box-shadow: 3px 3px 0 var(--ink);
+    }
+
+    .btn-speaker:active {
+      transform: translate(2px, 2px);
+      box-shadow: none;
+    }
+
+    .btn-speaker.speaking {
+      background: #86EFAC;
+      animation: ttsPulse 0.7s infinite alternate;
+    }
+
+    @keyframes ttsPulse {
+      from { transform: scale(1); }
+      to { transform: scale(1.1); }
+    }
+
+    /* Hero Card */
+    .hero-card {
+      background: var(--white);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 12px 18px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .hero-left h1 {
+      font-size: clamp(1.2rem, 2.5vw, 1.55rem);
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      line-height: 1.2;
+    }
+
+    .hero-left p {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #4B5563;
+      margin-top: 2px;
+    }
+
+    .stat-tray {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .stat-badge {
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
+      padding: 6px 12px;
+      font-weight: 900;
+      font-size: 0.88rem;
+      box-shadow: var(--shadow-sm);
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--yellow);
+    }
+
+    .badge-secondary {
+      background: var(--purple);
+      color: #FFF;
+    }
+
+    /* Main Unit Tabs (Form / Function / Connection) */
+    .mode-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .tab-btn {
+      background: var(--white);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 10px 12px;
+      font-family: inherit;
+      font-weight: 900;
+      font-size: 0.95rem;
+      color: var(--ink);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 48px;
+      touch-action: manipulation;
+      transition: all 0.12s ease;
+    }
+
+    .tab-btn:hover {
+      transform: translate(-1px, -1px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .tab-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .tab-btn.active {
+      background: var(--yellow);
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .tab-btn[data-mode="function"].active {
+      background: var(--teal);
+    }
+
+    .tab-btn[data-mode="connection"].active {
+      background: var(--coral);
+      color: #FFF;
+    }
+
+    /* Sub-Phase Selector: Step 1 (Explore) vs Step 2 (Mission) */
+    .phase-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+      background: #FFF;
+      border: var(--border);
+      border-radius: var(--radius);
+      padding: 6px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .phase-btn {
+      flex: 1;
+      min-height: 44px;
+      border: 2px solid transparent;
+      border-radius: var(--radius-sm);
+      font-weight: 900;
+      font-size: 0.92rem;
+      cursor: pointer;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: transparent;
+      color: var(--ink);
+      touch-action: manipulation;
+      transition: all 0.1s ease;
+    }
+
+    .phase-btn.active {
+      background: var(--yellow);
+      border: 2.5px solid var(--ink);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Challenge Case Tabs */
+    .case-tabs-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .case-tab-btn {
+      background: #FFF;
+      border: 2px solid var(--ink);
+      border-radius: 10px;
+      padding: 6px 12px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 2px 2px 0 var(--ink);
+      white-space: nowrap;
+      transition: all 0.1s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--ink);
+    }
+
+    .case-tab-btn:hover {
+      background: #FEF9C3;
+    }
+
+    .case-tab-btn.active {
+      background: var(--yellow);
+      transform: translate(1px, 1px);
+      box-shadow: 1px 1px 0 var(--ink);
+    }
+
+    .case-tab-btn.solved {
+      border-color: #059669;
+      background: #D1FAE5;
+    }
+
+    .tab-pane {
+      display: none;
+    }
+
+    .tab-pane.active {
+      display: block;
+    }
+
+    /* 2-Column Responsive Board Layout */
+    .lab-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    @media (max-width: 820px) {
+      .lab-grid {
+        grid-template-columns: 1fr;
+      }
+      .mode-tabs {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--white);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    /* Visualizer Stages */
+    .stage-box {
+      background: #111827;
+      border: 3px solid var(--ink);
+      border-radius: 12px;
+      padding: 12px;
+      position: relative;
+      overflow: hidden;
+      min-height: 200px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .stage-svg {
+      width: 100%;
+      height: 175px;
+      display: block;
+    }
+
+    /* Real-world Discovery Cards Grid */
+    .discover-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .discover-card {
+      background: #FFF;
+      border: 2.5px solid var(--ink);
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+      padding: 10px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 4px;
+      touch-action: manipulation;
+      transition: all 0.1s;
+    }
+
+    .discover-card:hover {
+      transform: translate(-1px, -1px);
+      box-shadow: 3px 3px 0 var(--ink);
+    }
+
+    .discover-card.active {
+      background: var(--yellow);
+      transform: translate(2px, 2px);
+      box-shadow: none;
+      border-width: 3px;
+    }
+
+    .discover-emoji {
+      font-size: 2.4rem;
+      line-height: 1;
+    }
+
+    .discover-title {
+      font-weight: 900;
+      font-size: 0.92rem;
+    }
+
+    .discover-tag {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: #4B5563;
+    }
+
+    /* Child-friendly "Wonder Bubble" Explanation */
+    .wonder-bubble {
+      background: #FEF9C3;
+      border: 2.5px solid var(--ink);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      line-height: 1.4;
+    }
+
+    .wonder-bubble-icon {
+      font-size: 1.6rem;
+      flex-shrink: 0;
+    }
+
+    .wonder-bubble-content h4 {
+      font-size: 0.94rem;
+      font-weight: 900;
+      margin-bottom: 3px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .wonder-bubble-content p {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #374151;
+    }
+
+    .wonder-bubble-when {
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1.5px dashed rgba(17, 17, 17, 0.2);
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: #1E3A8A;
+    }
+
+    /* Child-friendly Controls */
+    .control-row {
+      background: #FFFDF0;
+      border: 2.5px solid var(--ink);
+      border-radius: 12px;
+      padding: 10px 14px;
+      margin-bottom: 10px;
+    }
+
+    .control-row-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 900;
+      font-size: 0.88rem;
+      margin-bottom: 8px;
+    }
+
+    .btn-stepper-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .btn-stepper {
+      min-height: 48px;
+      background: #FFF;
+      border: 2px solid var(--ink);
+      border-radius: 10px;
+      font-weight: 900;
+      font-size: 0.9rem;
+      cursor: pointer;
+      touch-action: manipulation;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 2px 2px 0 var(--ink);
+      transition: all 0.1s;
+    }
+
+    .btn-stepper:active,
+    .btn-stepper.active {
+      transform: translate(2px, 2px);
+      box-shadow: none;
+      background: var(--yellow);
+    }
+
+    /* Buttons */
+    .btn {
+      min-height: 48px;
+      padding: 10px 16px;
+      background: var(--yellow);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      font: inherit;
+      font-weight: 900;
+      font-size: 0.98rem;
+      cursor: pointer;
+      touch-action: manipulation;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 0.1s, box-shadow 0.1s;
+      width: 100%;
+    }
+
+    .btn:hover {
+      transform: translate(-1px, -1px);
+      box-shadow: 5px 5px 0 var(--ink);
+    }
+
+    .btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-action {
+      background: var(--coral);
+      color: #FFF;
+    }
+
+    .btn-teal {
+      background: var(--teal);
+    }
+
+    .btn-purple {
+      background: var(--purple);
+      color: #FFF;
+    }
+
+    /* Mission Box */
+    .mission-box {
+      background: #FFF9D2;
+      border: 3px solid var(--ink);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .mission-badge-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .mission-pill {
+      background: var(--purple);
+      color: #FFF;
+      font-size: 0.78rem;
+      font-weight: 900;
+      padding: 3px 10px;
+      border-radius: 8px;
+      border: 1.5px solid var(--ink);
+      text-transform: uppercase;
+    }
+
+    .mission-prompt {
+      font-size: 1rem;
+      font-weight: 900;
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+
+    .btn-clue {
+      background: #FFF;
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: #374151;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 2px 2px 0 var(--ink);
+      margin-bottom: 8px;
+      transition: all 0.1s;
+    }
+
+    .btn-clue:hover {
+      background: #FEF9C3;
+    }
+
+    .btn-clue:active {
+      transform: translate(1px, 1px);
+      box-shadow: none;
+    }
+
+    .mission-clue-box {
+      display: none;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #1F2937;
+      padding: 8px 12px;
+      background: #FFFBEB;
+      border: 2px dashed #F59E0B;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      line-height: 1.4;
+      animation: popIn 0.2s ease-out;
+    }
+
+    .mission-clue-box.open {
+      display: block;
+    }
+
+    .mission-feedback {
+      min-height: 44px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-weight: 900;
+      font-size: 0.92rem;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+      border: 2.5px solid var(--ink);
+    }
+
+    .mission-feedback.success {
+      display: flex;
+      background: var(--green);
+    }
+
+    .mission-feedback.try-again {
+      display: flex;
+      background: #FED7AA;
+    }
+
+    /* Theatre Stage (Lab 3) */
+    .theatre-stage {
+      background: #0B0F19;
+      border: 3.5px solid var(--ink);
+      border-radius: 14px;
+      position: relative;
+      overflow: hidden;
+      height: 240px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+
+    .theatre-curtains {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 38px;
+      background: #991B1B;
+      border-bottom: 3px solid var(--ink);
+      display: flex;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 5;
+    }
+
+    .theatre-screen {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+
+    .theatre-actor {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 4rem;
+      transition: all 0.4s ease;
+      z-index: 3;
+      filter: drop-shadow(0 0 10px rgba(0,0,0,0.8));
+    }
+
+    /* Modal Overlay */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.65);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-box {
+      background: var(--bg);
+      border: 4px solid var(--ink);
+      border-radius: 18px;
+      box-shadow: 8px 8px 0 var(--ink);
+      max-width: 520px;
+      width: 100%;
+      padding: 24px;
+      text-align: center;
+      animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.85); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-badge {
+      font-size: 3.5rem;
+      margin-bottom: 8px;
+    }
+
+    .modal-title {
+      font-size: 1.6rem;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .modal-text {
+      font-size: 0.95rem;
+      font-weight: 700;
+      line-height: 1.45;
+      color: #374151;
+      margin-bottom: 18px;
+    }
+
+    .learner-profile-pills {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .lp-pill {
+      background: var(--yellow);
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-weight: 900;
+      font-size: 0.82rem;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <!-- Top Nav Bar -->
+    <nav class="nav-bar">
+      <div class="nav-left">
+        <a class="pyp-map-link" href="../index.html">← PYP Map</a>
+        <span class="unit-tag">🎭 Grade 2 · Unit 2: Sound & Light</span>
+      </div>
+      <div class="nav-right">
+        <button type="button" class="btn-audio-toggle" id="btnAudioToggle" title="Toggle Sound Synth">
+          <span id="audioIcon">🔊</span> Sound ON
+        </button>
+
+        <!-- TTS Accent Dropdown -->
+        <div class="tts-dropdown-wrap" id="ttsDropdownWrap">
+          <button type="button" class="tts-trigger" id="ttsTrigger" aria-haspopup="menu" aria-expanded="false" title="Select Voice Accent">
+            <span class="tts-trigger-flag" id="ttsFlag">🇬🇧</span>
+            <span class="tts-trigger-label" id="ttsLabel">Voice</span>
+            <span class="tts-arrow">▾</span>
+          </button>
+          <div class="tts-menu" id="ttsMenu" role="menu">
+            <div class="tts-menu-header">Select Voice Accent</div>
+            <div class="tts-radio-group" id="ttsRadioList" role="radiogroup"></div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Card -->
+    <header class="hero-card">
+      <div class="hero-left">
+        <h1>
+          Sound & Light Studio 🎬
+          <button type="button" class="btn-speaker" id="btnSpeakTitle" aria-label="Read title aloud">🔊</button>
+        </h1>
+        <p>Explore real-life sounds and lights first, then become the Master Director!</p>
+      </div>
+      <div class="stat-tray">
+        <div class="stat-badge" id="badgeStars">⭐ 0 Points</div>
+        <div class="stat-badge badge-secondary" id="badgeMissions">🏆 0/9 Badges</div>
+      </div>
+    </header>
+
+    <!-- 3 Core Unit Tabs -->
+    <nav class="mode-tabs" role="tablist">
+      <button type="button" class="tab-btn active" data-mode="form" id="tabForm">
+        <span>1️⃣ Sound & Light (Form)</span>
+      </button>
+      <button type="button" class="tab-btn" data-mode="function" id="tabFunction">
+        <span>2️⃣ Signals & Feelings (Function)</span>
+      </button>
+      <button type="button" class="tab-btn" data-mode="connection" id="tabConnection">
+        <span>3️⃣ Movie Director (Connection)</span>
+      </button>
+    </nav>
+
+    <!-- ========================================================
+         TAB 1: FORM (PROPERTIES OF SOUND & LIGHT)
+         ======================================================== -->
+    <section class="tab-pane active" id="paneForm">
+      <!-- 2-Step Phase Selector for Kids -->
+      <div class="phase-bar">
+        <button type="button" class="phase-btn active" id="p1BtnExplore">
+          <span>🔍 Step 1: Discover & Wonder (Touch & Hear)</span>
+        </button>
+        <button type="button" class="phase-btn" id="p1BtnMission">
+          <span>🎯 Step 2: Director Challenge (Play & Solve)</span>
+        </button>
+      </div>
+
+      <!-- STEP 1: DISCOVER & WONDER (FREE EXPLORATION) -->
+      <div id="p1ExploreSection">
+        <div class="lab-grid">
+          <!-- LEFT: Real-World Touch Cards -->
+          <div class="card" style="margin-bottom:0; background:#FFFDE8;">
+            <div style="font-weight:900; font-size:1rem; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+              <span>Tap a Real-World Thing to Test:</span>
+              <span style="font-size:0.75rem; background:var(--yellow); padding:3px 8px; border-radius:6px; border:1.5px solid var(--ink); font-weight:900;">TOUCH TO HEAR</span>
+            </div>
+
+            <!-- Sound Explorations -->
+            <div class="discover-grid">
+              <div class="discover-card active" data-disc="mouse">
+                <span class="discover-emoji">🐭</span>
+                <span class="discover-title">Tiny Mouse</span>
+                <span class="discover-tag">High Squeak (Fast Wave)</span>
+              </div>
+              <div class="discover-card" data-disc="elephant">
+                <span class="discover-emoji">🐘</span>
+                <span class="discover-title">Giant Elephant</span>
+                <span class="discover-tag">Low Rumble (Slow Wave)</span>
+              </div>
+              <div class="discover-card" data-disc="whisper">
+                <span class="discover-emoji">🤫</span>
+                <span class="discover-title">Secret Whisper</span>
+                <span class="discover-tag">Soft (Small Energy)</span>
+              </div>
+              <div class="discover-card" data-disc="lion">
+                <span class="discover-emoji">🦁</span>
+                <span class="discover-title">Lion Roar</span>
+                <span class="discover-tag">Loud (Big Energy)</span>
+              </div>
+            </div>
+
+            <!-- Light & Shadow Explorations -->
+            <div style="font-weight:900; font-size:0.92rem; margin:10px 0 6px;">How Light Hits Different Things:</div>
+            <div class="discover-grid">
+              <div class="discover-card" data-disc="glass">
+                <span class="discover-emoji">🪟</span>
+                <span class="discover-title">Clear Glass</span>
+                <span class="discover-tag">Transparent (No Shadow)</span>
+              </div>
+              <div class="discover-card" data-disc="sunglasses">
+                <span class="discover-emoji">🕶️</span>
+                <span class="discover-title">Tinted Sunglasses</span>
+                <span class="discover-tag">Translucent (Dims the Light)</span>
+              </div>
+              <div class="discover-card" data-disc="puppet_far">
+                <span class="discover-emoji">🦖</span>
+                <span class="discover-title">Dino Far Away</span>
+                <span class="discover-tag">Small Dark Shadow</span>
+              </div>
+              <div class="discover-card" data-disc="puppet_close">
+                <span class="discover-emoji">🦕</span>
+                <span class="discover-title">Dino Close to Light</span>
+                <span class="discover-tag">GIANT Monster Shadow!</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: Interactive Stage & Child Wonder Explanation -->
+          <div class="card" style="margin-bottom:0;">
+            <!-- Live Visual Stage -->
+            <div class="stage-box" id="p1Stage">
+              <svg class="stage-svg" id="p1WaveSvg" viewBox="0 0 400 160">
+                <line x1="0" y1="80" x2="400" y2="80" stroke="#374151" stroke-dasharray="4" stroke-width="1.5" />
+                <path id="p1WavePath" d="M 0 80 Q 50 80, 100 80 T 200 80 T 300 80 T 400 80" fill="none" stroke="#38B6FF" stroke-width="4" stroke-linecap="round" />
+                <!-- Center Puppet Obstacle for Light Modes -->
+                <g id="p1ObstacleGroup" class="hidden">
+                  <polygon points="40,80 360,10 360,150" fill="rgba(255, 225, 86, 0.4)" id="p1BeamCone" />
+                  <rect x="20" y="65" width="30" height="30" rx="4" fill="#6B7280" />
+                  <rect id="p1ActorBox" x="180" y="45" width="30" height="70" rx="6" fill="#8B5CF6" />
+                  <text id="p1ActorEmoji" x="195" y="90" font-size="28" text-anchor="middle">🦖</text>
+                  <rect id="p1WallShadow" x="355" y="45" width="16" height="70" rx="2" fill="rgba(0,0,0,0.85)" />
+                </g>
+              </svg>
+              <div style="position:absolute; bottom:8px; font-weight:900; font-size:0.8rem; color:#E5E7EB; font-family:monospace;" id="p1StageLabel">
+                Mode: Mouse Squeak (High Pitch Wave)
+              </div>
+            </div>
+
+            <!-- Wonder Bubble Explanation -->
+            <div class="wonder-bubble" id="p1WonderBox" style="margin-top:12px;">
+              <div class="wonder-bubble-icon" id="p1WonderIcon">🐭</div>
+              <div class="wonder-bubble-content">
+                <h4>
+                  <span id="p1WonderTitle">Why does a mouse sound like that?</span>
+                  <button type="button" class="btn-speaker" id="btnSpeakWonder1" aria-label="Read wonder explanation aloud">🔊</button>
+                </h4>
+                <p id="p1WonderBody">
+                  Tiny vocal cords vibrate super-duper FAST! Fast vibrations make a <strong>High Pitch</strong> sound wave with tight ripples.
+                </p>
+                <div class="wonder-bubble-when" id="p1WonderWhen">
+                  🌍 When do we hear this? Referee whistles, chirping baby birds, squeaky sneakers on gym floors!
+                </div>
+              </div>
+            </div>
+
+            <!-- Ready for Challenge CTA -->
+            <button type="button" class="btn btn-action" id="btnGoToMission1">
+              <span>🎯 I Understand! Let's Try the Director Challenge! ➔</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: DIRECTOR CHALLENGE (HANDS-ON SOLVING) -->
+      <div id="p1MissionSection" class="hidden">
+        <!-- Interactive Case Navigation Bar: Lets kids see & jump to any case! -->
+        <div class="case-tabs-bar" id="m1CaseTabs">
+          <button type="button" class="case-tab-btn active" data-m1-case="0">
+            <span>🦖 Case 1: Dino Stomp</span>
+          </button>
+          <button type="button" class="case-tab-btn" data-m1-case="1">
+            <span>🐣 Case 2: Baby Bird</span>
+          </button>
+          <button type="button" class="case-tab-btn" data-m1-case="2">
+            <span>🦕 Case 3: Monster Shadow</span>
+          </button>
+        </div>
+
+        <div class="lab-grid">
+          <!-- LEFT: Director's Controls (Only shows relevant controls for the active case!) -->
+          <div class="card" style="margin-bottom:0; background:#FFFDE8;">
+            <!-- Sound Controls: Shown for Case 1 and Case 2 -->
+            <div id="m1SoundControls">
+              <div style="font-weight:900; font-size:1rem; margin-bottom:12px;">🔊 Director's Sound Controls:</div>
+
+              <!-- Pitch Stepper: Squeak vs Rumble -->
+              <div class="control-row">
+                <div class="control-row-header">
+                  <span>1. Pitch (How High or Low?):</span>
+                  <span style="background:#FFF; padding:2px 8px; border-radius:6px; border:1.5px dashed var(--ink); font-size:0.82rem;" id="m1PitchLabel">❓ Tap to choose</span>
+                </div>
+                <div class="btn-stepper-group">
+                  <button type="button" class="btn-stepper" id="m1BtnPitchLow">
+                    <span>🐘 Low Rumble</span>
+                  </button>
+                  <button type="button" class="btn-stepper" id="m1BtnPitchHigh">
+                    <span>🐭 High Squeak</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Volume Stepper: Whisper vs Roar -->
+              <div class="control-row">
+                <div class="control-row-header">
+                  <span>2. Volume (How Loud or Soft?):</span>
+                  <span style="background:#FFF; padding:2px 8px; border-radius:6px; border:1.5px dashed var(--ink); font-size:0.82rem;" id="m1VolLabel">❓ Tap to choose</span>
+                </div>
+                <div class="btn-stepper-group">
+                  <button type="button" class="btn-stepper" id="m1BtnVolSoft">
+                    <span>🤫 Soft Whisper</span>
+                  </button>
+                  <button type="button" class="btn-stepper" id="m1BtnVolLoud">
+                    <span>📢 Loud Roar</span>
+                  </button>
+                </div>
+              </div>
+
+              <button type="button" class="btn btn-teal" id="btnTestSoundWave">
+                <span>🔊 Test Chosen Sound</span>
+              </button>
+            </div>
+
+            <!-- Shadow Controls: Shown ONLY for Case 3 -->
+            <div id="m1ShadowControls" class="hidden">
+              <div style="font-weight:900; font-size:1rem; margin-bottom:8px;">🔦 Shadow Puppet Controls:</div>
+
+              <!-- Live Shadow Screen Preview for Case 3 -->
+              <div class="stage-box" style="height:120px; margin-bottom:10px; background:#0F172A;" id="m1ShadowPreviewBox">
+                <svg class="stage-svg" viewBox="0 0 400 120" style="height:100%;">
+                  <polygon points="30,60 370,10 370,110" fill="rgba(255, 225, 86, 0.35)" />
+                  <rect x="15" y="45" width="22" height="30" rx="3" fill="#6B7280" />
+                  <rect id="m1PreviewActorBox" x="180" y="45" width="26" height="40" rx="6" fill="#8B5CF6" />
+                  <text id="m1PreviewActorEmoji" x="193" y="73" font-size="22" text-anchor="middle">🦖</text>
+                  <rect id="m1PreviewWallShadow" x="365" y="42" width="14" height="36" rx="2" fill="rgba(0,0,0,0.85)" opacity="0" />
+                </svg>
+              </div>
+
+              <!-- Light Material Selector -->
+              <div class="control-row">
+                <div class="control-row-header">
+                  <span>1. Puppet Material:</span>
+                  <span style="background:#FFF; padding:2px 8px; border-radius:6px; border:1.5px dashed var(--ink); font-size:0.82rem;" id="m1MatLabel">❓ Tap to choose</span>
+                </div>
+                <div class="btn-stepper-group">
+                  <button type="button" class="btn-stepper" id="m1BtnMatGlass">
+                    <span>🪟 Clear Glass</span>
+                  </button>
+                  <button type="button" class="btn-stepper" id="m1BtnMatDino">
+                    <span>🦖 Solid Toy Dino</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Shadow Distance: Far vs Close -->
+              <div class="control-row">
+                <div class="control-row-header">
+                  <span>2. Distance to Light:</span>
+                  <span style="background:#FFF; padding:2px 8px; border-radius:6px; border:1.5px dashed var(--ink); font-size:0.82rem;" id="m1DistLabel">❓ Tap to choose</span>
+                </div>
+                <div class="btn-stepper-group">
+                  <button type="button" class="btn-stepper" id="m1BtnDistNear">
+                    <span>🦕 Close (Giant Shadow)</span>
+                  </button>
+                  <button type="button" class="btn-stepper" id="m1BtnDistFar">
+                    <span>🦖 Far (Small Shadow)</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: The Mission Brief -->
+          <div class="card" style="margin-bottom:0;">
+            <div class="mission-box">
+              <div class="mission-badge-row">
+                <span class="mission-pill" id="m1CasePill">Case 1 of 3</span>
+                <button type="button" class="btn-speaker" id="btnSpeakM1Case" aria-label="Read mission aloud">🔊</button>
+              </div>
+              <div class="mission-prompt" id="m1CasePrompt">
+                <!-- Dynamically populated -->
+              </div>
+              <div style="margin-bottom:8px;">
+                <button type="button" class="btn-clue" id="btnToggleClue1">💡 Need a Clue?</button>
+                <div class="mission-clue-box" id="m1CaseClue"></div>
+              </div>
+
+              <button type="button" class="btn btn-action" id="btnCheckM1Case">
+                <span>🎬 Action! Check My Director Setup</span>
+              </button>
+
+              <div class="mission-feedback" id="m1CaseFeedback"></div>
+            </div>
+
+            <!-- Back to exploration -->
+            <button type="button" class="btn" id="btnBackToExplore1" style="background:#FFF;">
+              <span>⬅️ Go Back to Explore & Listen</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================
+         TAB 2: FUNCTION (SIGNALS & FEELINGS)
+         ======================================================== -->
+    <section class="tab-pane" id="paneFunction">
+      <div class="phase-bar">
+        <button type="button" class="phase-btn active" id="p2BtnExplore">
+          <span>🔍 Step 1: Real-Life Signals & Moods (Touch & See)</span>
+        </button>
+        <button type="button" class="phase-btn" id="p2BtnMission">
+          <span>🎯 Step 2: Emergency Dispatch Challenge</span>
+        </button>
+      </div>
+
+      <!-- STEP 1: DISCOVER SIGNALS -->
+      <div id="p2ExploreSection">
+        <div class="lab-grid">
+          <!-- LEFT: Real-world Signal Scenarios -->
+          <div class="card" style="margin-bottom:0; background:#FFFDE8;">
+            <div style="font-weight:900; font-size:1rem; margin-bottom:10px;">Tap a Real-World Signal:</div>
+            <div class="discover-grid">
+              <div class="discover-card active" data-sig="ambulance">
+                <span class="discover-emoji">🚑</span>
+                <span class="discover-title">Ambulance Alert</span>
+                <span class="discover-tag">High-Low Wailing Siren</span>
+              </div>
+              <div class="discover-card" data-sig="lighthouse">
+                <span class="discover-emoji">🗼</span>
+                <span class="discover-title">Ocean Lighthouse</span>
+                <span class="discover-tag">Deep Foghorn & Beam</span>
+              </div>
+              <div class="discover-card" data-sig="party">
+                <span class="discover-emoji">🎉</span>
+                <span class="discover-title">Birthday Party</span>
+                <span class="discover-tag">Warm Gold Light + Chimes</span>
+              </div>
+              <div class="discover-card" data-sig="haunted">
+                <span class="discover-emoji">👻</span>
+                <span class="discover-title">Haunted Forest</span>
+                <span class="discover-tag">Dim Purple + Eerie Hum</span>
+              </div>
+            </div>
+
+            <!-- Interactive Morse Tap Box -->
+            <div style="background:#FFF; border:2.5px solid var(--ink); border-radius:12px; padding:10px; margin-top:10px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <span style="font-weight:900; font-size:0.86rem;">📻 Morse Code Flash & Beep:</span>
+                <span style="font-size:0.75rem; color:#4B5563;">Tap Dots & Dashes</span>
+              </div>
+              <div style="display:flex; gap:8px;">
+                <button type="button" class="btn" id="btnMorseDot" style="flex:1; min-height:42px; font-size:0.9rem;">
+                  <span>• Short Beep</span>
+                </button>
+                <button type="button" class="btn" id="btnMorseDash" style="flex:1; min-height:42px; font-size:0.9rem;">
+                  <span>— Long Beep</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: Live Signal Stage & Explanation -->
+          <div class="card" style="margin-bottom:0;">
+            <div class="stage-box" id="p2Stage" style="background:#0F172A; transition:background 0.5s ease;">
+              <div id="p2VisualEmoji" style="font-size:4.5rem; transition:transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);">
+                🚑
+              </div>
+              <div style="color:#FFF; font-weight:900; font-size:1.15rem; margin-top:6px;" id="p2StageTitle">
+                Emergency Ambulance
+              </div>
+              <div style="font-size:0.82rem; color:#93C5FD; font-family:monospace; margin-top:2px;" id="p2StageSub">
+                Flashing Red/Blue Light + Alternating Siren
+              </div>
+            </div>
+
+            <!-- Wonder Explanation -->
+            <div class="wonder-bubble" id="p2WonderBox" style="margin-top:12px;">
+              <div class="wonder-bubble-icon" id="p2WonderIcon">🚑</div>
+              <div class="wonder-bubble-content">
+                <h4>
+                  <span id="p2WonderTitle">Why do ambulances flash and wail?</span>
+                  <button type="button" class="btn-speaker" id="btnSpeakWonder2" aria-label="Read wonder explanation aloud">🔊</button>
+                </h4>
+                <p id="p2WonderBody">
+                  High-low wails jump between pitches so human brains instantly pay attention! Flashing lights show cars where the ambulance is even from far away!
+                </p>
+                <div class="wonder-bubble-when" id="p2WonderWhen">
+                  🌍 Purpose: Communicating an urgent emergency message without using any spoken words!
+                </div>
+              </div>
+            </div>
+
+            <button type="button" class="btn btn-action" id="btnGoToMission2">
+              <span>🎯 I Understand Signals! Let's Try Dispatch Missions! ➔</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: DISPATCH CHALLENGE -->
+      <div id="p2MissionSection" class="hidden">
+        <!-- Interactive Mission Navigation Bar -->
+        <div class="case-tabs-bar" id="m2CaseTabs">
+          <button type="button" class="case-tab-btn active" data-m2-case="0">
+            <span>⛵ Mission 1: Sea Mist</span>
+          </button>
+          <button type="button" class="case-tab-btn" data-m2-case="1">
+            <span>🚑 Mission 2: City Run</span>
+          </button>
+          <button type="button" class="case-tab-btn" data-m2-case="2">
+            <span>🌊 Mission 3: Reef Storm</span>
+          </button>
+        </div>
+
+        <div class="lab-grid">
+          <!-- LEFT: Dispatcher Panel -->
+          <div class="card" style="margin-bottom:0; background:#FFFDE8;">
+            <div style="font-weight:900; font-size:1rem; margin-bottom:12px;">Choose Your Communication Tool:</div>
+
+            <div class="control-row">
+              <div class="control-row-header">
+                <span>1. Select Warning Sound:</span>
+                <span style="background:#FFF; padding:2px 8px; border-radius:6px; border:1.5px dashed var(--ink); font-size:0.82rem;" id="m2SoundLabel">❓ Tap to choose</span>
+              </div>
+              <div class="btn-stepper-group">
+                <button type="button" class="btn-stepper" id="m2BtnFoghorn">
+                  <span>📯 Low Foghorn</span>
+                </button>
+                <button type="button" class="btn-stepper" id="m2BtnSiren">
+                  <span>🚨 Urgent Siren</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="control-row">
+              <div class="control-row-header">
+                <span>2. Select Light Signal:</span>
+                <span style="background:#FFF; padding:2px 8px; border-radius:6px; border:1.5px dashed var(--ink); font-size:0.82rem;" id="m2LightLabel">❓ Tap to choose</span>
+              </div>
+              <div class="btn-stepper-group">
+                <button type="button" class="btn-stepper" id="m2BtnBeacon">
+                  <span>🗼 Rotating Beam</span>
+                </button>
+                <button type="button" class="btn-stepper" id="m2BtnStrobe">
+                  <span>⚡ Red/Blue Flasher</span>
+                </button>
+              </div>
+            </div>
+
+            <button type="button" class="btn btn-teal" id="btnTestSignal">
+              <span>🔊 Test Signal Transmission</span>
+            </button>
+          </div>
+
+          <!-- RIGHT: Dispatch Case Brief -->
+          <div class="card" style="margin-bottom:0;">
+            <div class="mission-box">
+              <div class="mission-badge-row">
+                <span class="mission-pill" id="m2CasePill">Mission 1 of 3</span>
+                <button type="button" class="btn-speaker" id="btnSpeakM2Case" aria-label="Read mission aloud">🔊</button>
+              </div>
+              <div class="mission-prompt" id="m2CasePrompt">
+                <!-- Dynamically populated -->
+              </div>
+              <div style="margin-bottom:8px;">
+                <button type="button" class="btn-clue" id="btnToggleClue2">💡 Need a Clue?</button>
+                <div class="mission-clue-box" id="m2CaseClue"></div>
+              </div>
+
+              <button type="button" class="btn btn-action" id="btnCheckM2Case">
+                <span>📡 Transmit Rescue Signal!</span>
+              </button>
+
+              <div class="mission-feedback" id="m2CaseFeedback"></div>
+            </div>
+
+            <button type="button" class="btn" id="btnBackToExplore2" style="background:#FFF;">
+              <span>⬅️ Go Back to Signal Explorer</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================
+         TAB 3: CONNECTION (MOVIE STAGE DIRECTOR)
+         ======================================================== -->
+    <section class="tab-pane" id="paneConnection">
+      <!-- Interactive Script Navigation Bar -->
+      <div class="case-tabs-bar" id="m3ScriptTabs">
+        <button type="button" class="case-tab-btn active" data-m3-script="0">
+          <span>🏰 Script 1: Castle Storm</span>
+        </button>
+        <button type="button" class="case-tab-btn" data-m3-script="1">
+          <span>🦁 Script 2: Savanna Sunrise</span>
+        </button>
+        <button type="button" class="case-tab-btn" data-m3-script="2">
+          <span>🌊 Script 3: Deep Sea Abyss</span>
+        </button>
+      </div>
+
+      <div class="lab-grid">
+        <!-- LEFT: Theatre Stage with Animated Proscenium -->
+        <div class="card" style="margin-bottom:0; background:#FFFDE8;">
+          <div class="theatre-stage" id="theatreStage">
+            <div class="theatre-curtains">
+              <span style="font-size:1.2rem;">🎪</span>
+              <span style="color:#FEF08A; font-weight:900; font-size:0.85rem; letter-spacing:1px; line-height:38px;">BROADWAY & MOVIE STAGE</span>
+              <span style="font-size:1.2rem;">🎪</span>
+            </div>
+
+            <div class="theatre-actor" id="theatreActor">🏰</div>
+            <div class="theatre-screen" id="theatreScreen" style="background:rgba(255, 255, 255, 0.05);"></div>
+            <div style="position:absolute; top:46px; left:16px; font-size:1.8rem;" id="stageFxBubble"></div>
+          </div>
+
+          <!-- Director Stage Controls -->
+          <div style="margin-top:12px;">
+            <div class="control-row">
+              <div class="control-row-header">
+                <span>1. Choose Stage Lighting Mood:</span>
+                <span style="background:#FFF; padding:2px 8px; border-radius:6px; border:1.5px dashed var(--ink); font-size:0.82rem;" id="lblStageGel">❓ Tap to choose</span>
+              </div>
+              <div class="btn-stepper-group">
+                <button type="button" class="btn-stepper" data-st-color="#B388FF" title="Eerie Violet">
+                  <span>🟣 Spooky Violet</span>
+                </button>
+                <button type="button" class="btn-stepper" data-st-color="#FFE156" title="Golden Sunny">
+                  <span>🟡 Golden Sunny</span>
+                </button>
+                <button type="button" class="btn-stepper" data-st-color="#38B6FF" title="Ocean Blue">
+                  <span>🔵 Ocean Blue</span>
+                </button>
+                <button type="button" class="btn-stepper" data-st-color="#FF6584" title="Hero Red">
+                  <span>🔴 Action Red</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="control-row">
+              <div class="control-row-header">
+                <span>2. Choose Live Foley Sound Effect:</span>
+                <span style="background:#FFF; padding:2px 8px; border-radius:6px; border:1.5px dashed var(--ink); font-size:0.82rem;" id="lblFoleyFx">❓ Tap to choose</span>
+              </div>
+              <div class="btn-stepper-group">
+                <button type="button" class="btn-stepper" data-fx="thunder">
+                  <span>⚡ Thunder Crash</span>
+                </button>
+                <button type="button" class="btn-stepper" data-fx="birds">
+                  <span>🐦 Sweet Birds</span>
+                </button>
+                <button type="button" class="btn-stepper" data-fx="sonar">
+                  <span>📡 Submarine Ping</span>
+                </button>
+                <button type="button" class="btn-stepper" data-fx="cheer">
+                  <span>🎉 Victory Fanfare</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Director's Script Requirements -->
+        <div class="card" style="margin-bottom:0;">
+          <div class="mission-box">
+            <div class="mission-badge-row">
+              <span class="mission-pill" id="m3StepBadge">Script 1 of 3</span>
+              <button type="button" class="btn-speaker" id="btnSpeakM3" aria-label="Read script aloud">🔊</button>
+            </div>
+            <div class="mission-prompt" id="m3Prompt">
+              <!-- Dynamically populated -->
+            </div>
+            <div style="margin-bottom:8px;">
+              <button type="button" class="btn-clue" id="btnToggleClue3">💡 Need a Clue?</button>
+              <div class="mission-clue-box" id="m3CaseClue"></div>
+            </div>
+
+            <button type="button" class="btn btn-action" id="btnDirectAction">
+              <span>🎬 ACTION! Direct the Scene</span>
+            </button>
+
+            <div class="mission-feedback" id="m3Feedback"></div>
+          </div>
+
+          <!-- IB PYP Classroom Connection Note -->
+          <div style="background:#FAF5FF; border:2.5px solid var(--ink); border-radius:12px; padding:12px; font-size:0.86rem; line-height:1.45;">
+            <strong>🎭 Real-World Connection:</strong>
+            <p style="margin-top:4px;">
+              You are doing the exact work of Broadway lighting artists and Hollywood movie sound designers! By connecting <strong>sound vibrations</strong> and <strong>light colors</strong>, you can make an audience feel joy, surprise, or suspense!
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Celebration Modal Overlay -->
+    <div class="modal-overlay" id="celebrationModal">
+      <div class="modal-box">
+        <div class="modal-badge">🏆🎬⭐</div>
+        <h2 class="modal-title" id="modalTitle">Master Creative Director!</h2>
+        <p class="modal-text" id="modalText">
+          Incredible inquiry! You learned how sound vibrations make pitch and volume, how light makes shadows, how signals help people in emergencies, and how to direct awesome stories!
+        </p>
+        <div class="learner-profile-pills">
+          <span class="lp-pill">🗣️ Communicator</span>
+          <span class="lp-pill">🔍 Inquirer</span>
+          <span class="lp-pill">💡 Thinker</span>
+        </div>
+        <button type="button" class="btn btn-action" id="btnModalPlayAgain">
+          <span>🔄 Direct Another Show!</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* =========================================================
+       1. HIGH-FIDELITY WEB AUDIO ENGINE (ORGANIC ACOUSTICS)
+       ========================================================= */
+    class StudioAudioSynth {
+      constructor() {
+        this.ctx = null;
+        this.enabled = true;
+        this.noiseBuffer = null;
+      }
+
+      initCtx() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) {
+            this.ctx = new AudioContext();
+            this.buildNoiseBuffer();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      // Generate 2.5 seconds of organic brown noise (deep acoustic rumbles/breath/wind)
+      buildNoiseBuffer() {
+        if (!this.ctx) return;
+        const bufferSize = this.ctx.sampleRate * 2.5;
+        this.noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = this.noiseBuffer.getChannelData(0);
+        let lastOut = 0.0;
+        for (let i = 0; i < bufferSize; i++) {
+          const white = Math.random() * 2 - 1;
+          data[i] = (lastOut + (0.02 * white)) / 1.02;
+          lastOut = data[i];
+          data[i] *= 3.5;
+        }
+      }
+
+      playClick() {
+        if (!this.enabled) return;
+        this.initCtx();
+        if (!this.ctx) return;
+        // Warm wooden marimba tap
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(420, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(140, this.ctx.currentTime + 0.04);
+        gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.04);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.04);
+      }
+
+      playSuccessChime() {
+        if (!this.enabled) return;
+        this.initCtx();
+        if (!this.ctx) return;
+        // Sweet celesta arpeggio
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+        notes.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          const t = this.ctx.currentTime + idx * 0.08;
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, t);
+          gain.gain.setValueAtTime(0.2, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(t);
+          osc.stop(t + 0.38);
+        });
+      }
+
+      playErrorBuzz() {
+        if (!this.enabled) return;
+        this.initCtx();
+        if (!this.ctx) return;
+        // Soft wooden "bonk" instead of harsh ear-piercing buzz
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(180, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(110, this.ctx.currentTime + 0.2);
+        gain.gain.setValueAtTime(0.22, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.22);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.25);
+      }
+
+      // 🐭 Real cute double-chirp mouse squeak
+      playMouseSqueak() {
+        if (!this.enabled) return;
+        this.initCtx();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const chirps = [
+          { t: now, f1: 2600, f2: 3200, dur: 0.07 },
+          { t: now + 0.11, f1: 2900, f2: 3600, dur: 0.09 }
+        ];
+        chirps.forEach(c => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(c.f1, c.t);
+          osc.frequency.exponentialRampToValueAtTime(c.f2, c.t + c.dur);
+          gain.gain.setValueAtTime(0.01, c.t);
+          gain.gain.linearRampToValueAtTime(0.18, c.t + c.dur * 0.3);
+          gain.gain.exponentialRampToValueAtTime(0.001, c.t + c.dur);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(c.t);
+          osc.stop(c.t + c.dur + 0.01);
+        });
+      }
+
+      // 🐘 Deep elephant rumble: sub-bass ground wave + filtered body cavity rumble
+      playElephantRumble() {
+        if (!this.enabled) return;
+        this.initCtx();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        // Layer 1: Infrasonic sub-bass sine
+        const osc = this.ctx.createOscillator();
+        const oscGain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(65, now);
+        osc.frequency.linearRampToValueAtTime(45, now + 1.2);
+        oscGain.gain.setValueAtTime(0.01, now);
+        oscGain.gain.linearRampToValueAtTime(0.35, now + 0.15);
+        oscGain.gain.exponentialRampToValueAtTime(0.001, now + 1.3);
+        osc.connect(oscGain);
+        oscGain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 1.35);
+
+        // Layer 2: Filtered brown noise earth tremor
+        if (this.noiseBuffer) {
+          const src = this.ctx.createBufferSource();
+          src.buffer = this.noiseBuffer;
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(95, now);
+          const noiseGain = this.ctx.createGain();
+          noiseGain.gain.setValueAtTime(0.01, now);
+          noiseGain.gain.linearRampToValueAtTime(0.4, now + 0.2);
+          noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 1.4);
+          src.connect(filter);
+          filter.connect(noiseGain);
+          noiseGain.connect(this.ctx.destination);
+          src.start(now);
+          src.stop(now + 1.45);
+        }
+      }
+
+      // 🦁 Lion roar: guttural vocal flutter + open-jaw resonant breath swell
+      playLionRoar() {
+        if (!this.enabled) return;
+        this.initCtx();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        // Vocal chord low growl
+        const osc = this.ctx.createOscillator();
+        const oscGain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(75, now);
+        osc.frequency.linearRampToValueAtTime(95, now + 0.35);
+        osc.frequency.linearRampToValueAtTime(60, now + 1.1);
+        oscGain.gain.setValueAtTime(0.01, now);
+        oscGain.gain.linearRampToValueAtTime(0.3, now + 0.2);
+        oscGain.gain.exponentialRampToValueAtTime(0.001, now + 1.15);
+        osc.connect(oscGain);
+        oscGain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 1.2);
+
+        // Throat turbulence shaped noise
+        if (this.noiseBuffer) {
+          const src = this.ctx.createBufferSource();
+          src.buffer = this.noiseBuffer;
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.Q.value = 2.0;
+          filter.frequency.setValueAtTime(260, now);
+          filter.frequency.linearRampToValueAtTime(420, now + 0.35);
+          filter.frequency.linearRampToValueAtTime(220, now + 1.1);
+          const noiseGain = this.ctx.createGain();
+          noiseGain.gain.setValueAtTime(0.01, now);
+          noiseGain.gain.linearRampToValueAtTime(0.45, now + 0.25);
+          noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 1.15);
+          src.connect(filter);
+          filter.connect(noiseGain);
+          noiseGain.connect(this.ctx.destination);
+          src.start(now);
+          src.stop(now + 1.2);
+        }
+      }
+
+      // 🤫 Gentle whisper: soft pink breath + tiny crystal chime
+      playWhisper() {
+        if (!this.enabled) return;
+        this.initCtx();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        if (this.noiseBuffer) {
+          const src = this.ctx.createBufferSource();
+          src.buffer = this.noiseBuffer;
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.setValueAtTime(1400, now);
+          filter.Q.value = 1.0;
+          const gain = this.ctx.createGain();
+          gain.gain.setValueAtTime(0.01, now);
+          gain.gain.linearRampToValueAtTime(0.08, now + 0.15);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+          src.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.ctx.destination);
+          src.start(now);
+          src.stop(now + 0.65);
+        }
+        // Tiny gentle bell
+        const bell = this.ctx.createOscillator();
+        const bellGain = this.ctx.createGain();
+        bell.type = 'sine';
+        bell.frequency.setValueAtTime(880, now + 0.05);
+        bellGain.gain.setValueAtTime(0.04, now + 0.05);
+        bellGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
+        bell.connect(bellGain);
+        bellGain.connect(this.ctx.destination);
+        bell.start(now + 0.05);
+        bell.stop(now + 0.52);
+      }
+
+      // ⚡ Thunder: sharp lightning crack + reverberant rolling brown noise
+      playThunder() {
+        if (!this.enabled) return;
+        this.initCtx();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        // Snap transient
+        const snap = this.ctx.createOscillator();
+        const snapGain = this.ctx.createGain();
+        snap.type = 'triangle';
+        snap.frequency.setValueAtTime(320, now);
+        snap.frequency.exponentialRampToValueAtTime(60, now + 0.08);
+        snapGain.gain.setValueAtTime(0.3, now);
+        snapGain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+        snap.connect(snapGain);
+        snapGain.connect(this.ctx.destination);
+        snap.start(now);
+        snap.stop(now + 0.1);
+
+        // Rolling deep rumble
+        if (this.noiseBuffer) {
+          const src = this.ctx.createBufferSource();
+          src.buffer = this.noiseBuffer;
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(140, now);
+          filter.frequency.exponentialRampToValueAtTime(65, now + 1.8);
+          const noiseGain = this.ctx.createGain();
+          noiseGain.gain.setValueAtTime(0.01, now);
+          noiseGain.gain.linearRampToValueAtTime(0.5, now + 0.1);
+          noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 1.9);
+          src.connect(filter);
+          filter.connect(noiseGain);
+          noiseGain.connect(this.ctx.destination);
+          src.start(now);
+          src.stop(now + 2.0);
+        }
+      }
+
+      // 📯 Lighthouse Foghorn: dual-harmonic acoustic brass fifth (110Hz + 165Hz)
+      playFoghorn() {
+        if (!this.enabled) return;
+        this.initCtx();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        [110, 165].forEach(freq => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now);
+          gain.gain.setValueAtTime(0.01, now);
+          gain.gain.linearRampToValueAtTime(0.25, now + 0.25);
+          gain.gain.setValueAtTime(0.25, now + 0.9);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 1.4);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 1.45);
+        });
+      }
+
+      // 🚨 Ambulance Siren: authentic two-tone emergency wail
+      playSiren() {
+        if (!this.enabled) return;
+        this.initCtx();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(700, now);
+        osc.frequency.linearRampToValueAtTime(950, now + 0.25);
+        osc.frequency.linearRampToValueAtTime(700, now + 0.5);
+        osc.frequency.linearRampToValueAtTime(950, now + 0.75);
+        osc.frequency.linearRampToValueAtTime(700, now + 1.0);
+        gain.gain.setValueAtTime(0.01, now);
+        gain.gain.linearRampToValueAtTime(0.25, now + 0.05);
+        gain.gain.setValueAtTime(0.25, now + 0.95);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 1.15);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 1.2);
+      }
+
+      // 🐦 Sweet morning birdsong (three warbling canary chirps)
+      playBirds() {
+        if (!this.enabled) return;
+        this.initCtx();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const notes = [
+          { f1: 2200, f2: 2700, t: now, dur: 0.09 },
+          { f1: 2700, f2: 3200, t: now + 0.12, dur: 0.1 },
+          { f1: 2400, f2: 2900, t: now + 0.26, dur: 0.14 }
+        ];
+        notes.forEach(n => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(n.f1, n.t);
+          osc.frequency.exponentialRampToValueAtTime(n.f2, n.t + n.dur);
+          gain.gain.setValueAtTime(0.01, n.t);
+          gain.gain.linearRampToValueAtTime(0.18, n.t + n.dur * 0.3);
+          gain.gain.exponentialRampToValueAtTime(0.001, n.t + n.dur);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(n.t);
+          osc.stop(n.t + n.dur + 0.01);
+        });
+      }
+
+      // 📡 Submarine Sonar Ping
+      playSonar() {
+        if (!this.enabled) return;
+        this.initCtx();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, now);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 1.25);
+      }
+
+      playMorseBeep(durationMs) {
+        if (!this.enabled) return;
+        this.initCtx();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const durSec = durationMs / 1000;
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(750, this.ctx.currentTime);
+        gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + durSec);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + durSec);
+      }
+
+      playFoley(fxName) {
+        if (fxName === 'thunder') this.playThunder();
+        else if (fxName === 'birds') this.playBirds();
+        else if (fxName === 'sonar') this.playSonar();
+        else if (fxName === 'cheer') this.playSuccessChime();
+      }
+    }
+
+    const soundAudio = new StudioAudioSynth();
+
+    /* =========================================================
+       2. TEXT-TO-SPEECH (TTS) - FILTERED FOR NATURAL HUMAN VOICES
+       ========================================================= */
+    const JOKE_VOICES = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|hysterical|pipe organ|trinoids|whisper|zarvox|fred|junior|kathy|ralph|wobble/i;
+
+    const TTS_MANAGER = {
+      currentVoiceName: '',
+      wrap: null,
+      trigger: null,
+      menu: null,
+      flag: null,
+      label: null,
+      list: null,
+
+      init() {
+        this.wrap = document.getElementById('ttsDropdownWrap');
+        this.trigger = document.getElementById('ttsTrigger');
+        this.menu = document.getElementById('ttsMenu');
+        this.flag = document.getElementById('ttsFlag');
+        this.label = document.getElementById('ttsLabel');
+        this.list = document.getElementById('ttsRadioList');
+
+        if (!this.trigger) return;
+
+        this.trigger.addEventListener('click', (e) => {
+          e.stopPropagation();
+          soundAudio.playClick();
+          this.wrap.classList.toggle('open');
+          this.trigger.setAttribute('aria-expanded', this.wrap.classList.contains('open'));
+        });
+
+        document.addEventListener('click', (e) => {
+          if (this.wrap && !this.wrap.contains(e.target)) {
+            this.wrap.classList.remove('open');
+            this.trigger.setAttribute('aria-expanded', 'false');
+          }
+        });
+
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && this.wrap) {
+            this.wrap.classList.remove('open');
+            this.trigger.setAttribute('aria-expanded', 'false');
+          }
+        });
+
+        if (window.speechSynthesis) {
+          this.populateVoices();
+          if (window.speechSynthesis.onvoiceschanged !== undefined) {
+            window.speechSynthesis.onvoiceschanged = () => this.populateVoices();
+          }
+        }
+      },
+
+      populateVoices() {
+        if (!window.speechSynthesis || !this.list) return;
+        const voices = window.speechSynthesis.getVoices();
+        let englishVoices = voices.filter(v => {
+          const lang = v.lang.toLowerCase().replace('_', '-');
+          return lang.startsWith('en') && !JOKE_VOICES.test(v.name);
+        });
+
+        if (englishVoices.length === 0) {
+          englishVoices = voices.filter(v => !JOKE_VOICES.test(v.name));
+        }
+        if (englishVoices.length === 0) englishVoices = voices;
+
+        // Rank by natural, warm voices for kids:
+        // Samantha, Daniel, Google UK Female, Google US, Karen, Serena, Ava, etc.
+        const PREFERRED_ORDER = ['samantha', 'daniel', 'google uk english female', 'google us english', 'karen', 'serena', 'oliver', 'ava', 'allison', 'kate'];
+        
+        englishVoices.sort((a, b) => {
+          const aLower = a.name.toLowerCase();
+          const bLower = b.name.toLowerCase();
+          
+          let aRank = PREFERRED_ORDER.findIndex(p => aLower.includes(p));
+          let bRank = PREFERRED_ORDER.findIndex(p => bLower.includes(p));
+          if (aRank === -1) aRank = 999;
+          if (bRank === -1) bRank = 999;
+          
+          if (aRank !== bRank) return aRank - bRank;
+          return a.name.localeCompare(b.name);
+        });
+
+        const saved = localStorage.getItem('ib_pyp_voice_name');
+        let selected = null;
+        if (saved) selected = englishVoices.find(v => v.name === saved);
+        if (!selected) {
+          for (const pref of PREFERRED_ORDER) {
+            selected = englishVoices.find(v => v.name.toLowerCase().includes(pref));
+            if (selected) break;
+          }
+        }
+        if (!selected) selected = englishVoices[0];
+
+        this.currentVoiceName = selected ? selected.name : '';
+        this.renderMenu(englishVoices);
+        this.updateTriggerUI(selected);
+      },
+
+      renderMenu(voices) {
+        this.list.innerHTML = '';
+        voices.slice(0, 15).forEach(v => {
+          const isUK = v.lang.toLowerCase().replace('_', '-').includes('gb');
+          const isAU = v.lang.toLowerCase().replace('_', '-').includes('au');
+          const flag = isAU ? '🇦🇺' : isUK ? '🇬🇧' : '🇺🇸';
+          const region = isAU ? 'AU' : isUK ? 'UK' : 'US';
+          const isActive = v.name === this.currentVoiceName;
+
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = `tts-radio-item ${isActive ? 'active' : ''}`;
+          btn.setAttribute('role', 'menuitemradio');
+          btn.setAttribute('aria-checked', isActive ? 'true' : 'false');
+          btn.innerHTML = `
+            <span class="tts-radio-circle"></span>
+            <span class="tts-item-flag">${flag}</span>
+            <span class="tts-item-name">${v.name} (${region})</span>
+          `;
+
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            soundAudio.playClick();
+            this.selectVoice(v);
+            this.wrap.classList.remove('open');
+            this.trigger.setAttribute('aria-expanded', 'false');
+          });
+
+          this.list.appendChild(btn);
+        });
+      },
+
+      selectVoice(v) {
+        this.currentVoiceName = v.name;
+        localStorage.setItem('ib_pyp_voice_name', v.name);
+        this.updateTriggerUI(v);
+        this.list.querySelectorAll('.tts-radio-item').forEach(btn => {
+          const isMatch = btn.querySelector('.tts-item-name').textContent.includes(v.name);
+          btn.classList.toggle('active', isMatch);
+          btn.setAttribute('aria-checked', isMatch ? 'true' : 'false');
+        });
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
+      },
+
+      updateTriggerUI(v) {
+        if (!v) return;
+        const isUK = v.lang.toLowerCase().replace('_', '-').includes('gb');
+        const isAU = v.lang.toLowerCase().replace('_', '-').includes('au');
+        this.flag.textContent = isAU ? '🇦🇺' : isUK ? '🇬🇧' : '🇺🇸';
+        let shortName = v.name.replace(/^(Google|Microsoft|Apple)\s+/i, '');
+        if (shortName.length > 14) shortName = shortName.substring(0, 12) + '...';
+        this.label.textContent = shortName;
+      },
+
+      speak(text, onEnd) {
+        if (!window.speechSynthesis) return;
+        window.speechSynthesis.cancel();
+        if (!text || !text.trim()) return;
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        const voices = window.speechSynthesis.getVoices();
+        const voiceName = this.currentVoiceName || localStorage.getItem('ib_pyp_voice_name');
+        if (voiceName) {
+          const match = voices.find(v => v.name === voiceName);
+          if (match) utterance.voice = match;
+        }
+        utterance.rate = 0.90; // Natural, relaxed pace for elementary kids
+        utterance.pitch = 1.0; // Clean, natural human pitch
+        if (onEnd) {
+          utterance.onend = onEnd;
+          utterance.onerror = onEnd;
+        }
+        window.speechSynthesis.speak(utterance);
+      }
+    };
+
+    /* =========================================================
+       3. GAME STATE & REAL-WORLD DISCOVERY DATA
+       ========================================================= */
+    const GAME_STATE = {
+      stars: 0,
+      badges: 0,
+      activeMode: 'form',
+
+      // Lab 1 Data (Form: Properties of Sound and Light)
+      lab1: {
+        phase: 'explore', // 'explore' | 'mission'
+        currentDisc: 'mouse',
+        // Mission State (starts completely unselected so child makes their own choice!)
+        pitchChoice: null, 
+        volChoice: null,  
+        matChoice: null,  
+        distChoice: null, 
+        caseIndex: 0,
+        solvedCases: [false, false, false],
+        cases: [
+          {
+            title: "Giant T-Rex Stomp",
+            prompt: "Movie Scene: A colossal 5-ton dinosaur is stomping toward the camera! What sound vibrations will make its giant footsteps feel super heavy and shake the cinema floor?",
+            clue: "Think about size and energy! Huge, heavy animals have large vocal cords that vibrate slowly. Stomps that shake the ground carry big energy! Should pitch be high or low? Should volume be soft or loud?",
+            check: (s) => s.pitchChoice === 'low' && s.volChoice === 'loud',
+            feedbackSuccess: "🌟 PERFECT DIRECTOR CHOICE! Heavy dinosaurs vibrate slowly for a deep Low Rumble, and massive footstep energy creates a Loud Roar that shakes the cinema floor!",
+            getHint: (s) => {
+              if (s.pitchChoice !== 'low') return "🤔 Listen closely: High squeaks come from tiny things vibrating fast (like mice). A giant 5-ton T-Rex needs slow, deep vibrations. Try Low Rumble!";
+              if (s.volChoice !== 'loud') return "🤔 The low pitch is great, but the stomp is too quiet! A huge dinosaur footstep hits the ground with massive energy. Make it Louder!";
+              return "🤔 Check your pitch and volume choices on the left!";
+            }
+          },
+          {
+            title: "Baby Bird in the Nest",
+            prompt: "Nature Documentary: A tiny newborn chick is calling for its mother from a high tree nest. What sound settings should a gentle baby bird make?",
+            clue: "Small, light creatures have tiny vocal cords that vibrate super fast. Calling safely from a nest needs gentle, low energy so forest predators don't hear!",
+            check: (s) => s.pitchChoice === 'high' && s.volChoice === 'soft',
+            feedbackSuccess: "🌟 WONDERFUL! Tiny vocal cords vibrate super fast for a High Squeak, and low sound energy makes a safe, gentle Soft Whisper!",
+            getHint: (s) => {
+              if (s.pitchChoice !== 'high') return "🤔 Low rumbles come from big, heavy animals. A tiny baby bird vibrates super fast to make a High Squeak!";
+              if (s.volChoice !== 'soft') return "🤔 A loud roar would alert forest predators! Baby birds chirp with gentle, low energy. Try Soft Whisper!";
+              return "🤔 Check your pitch and volume choices on the left!";
+            }
+          },
+          {
+            title: "Monster Shadow Theater",
+            prompt: "Shadow Theater: The storyteller wants to shock the audience with a giant, terrifying monster shadow on the screen! What object should you pick, and how close to the spotlight should you hold it?",
+            clue: "Does clear glass block light, or does a solid object block it? What happens to the shadow size when an object moves closer to the flashlight beam?",
+            check: (s) => s.matChoice === 'dino' && s.distChoice === 'near',
+            feedbackSuccess: "🌟 SPOOKY MASTERPIECE! The solid dino is OPAQUE (blocks all light), and placing it close to the flashlight blocks almost the entire beam, projecting a GIANT monster shadow!",
+            getHint: (s) => {
+              if (s.matChoice !== 'dino') return "🤔 Clear glass is transparent — light passes right through it without making a shadow! You need a solid opaque object!";
+              if (s.distChoice !== 'near') return "🤔 Holding the toy far away only blocks a small angle of light rays, making a small shadow. Move it closer to the flashlight to grow a giant shadow!";
+              return "🤔 Check your material and distance choices on the left!";
+            }
+          }
+        ]
+      },
+
+      // Lab 2 Data (Function: Signals & Feelings)
+      lab2: {
+        phase: 'explore',
+        currentSig: 'ambulance',
+        soundChoice: null,
+        lightChoice: null,
+        caseIndex: 0,
+        solvedCases: [false, false, false],
+        cases: [
+          {
+            title: "Lost Fishing Boat in Sea Mist",
+            prompt: "Harbor Rescue: A fishing boat is lost in thick, blinding sea fog near sharp rocky cliffs! Which sound frequency can travel miles through heavy mist, and what light will guide them around the coast?",
+            clue: "High wailing sounds get scattered quickly by moisture in the air, but deep, low sounds travel for miles. Lighthouses use a sweeping beam to show the coastline!",
+            check: (s) => s.soundChoice === 'foghorn' && s.lightChoice === 'beacon',
+            feedbackSuccess: "🌟 SAFE HARBOR! Deep low-pitch foghorns cut through heavy sea mist across miles, and rotating lighthouse beams mark the safe passage around jagged rocks!",
+            getHint: (s) => {
+              if (s.soundChoice !== 'foghorn') return "🤔 An ambulance siren works on city streets, but high pitches get scattered by miles of thick fog! Deep low frequencies (Foghorn) travel much farther over water.";
+              if (s.lightChoice !== 'beacon') return "🤔 Flashing red/blue strobes are for road vehicles. Ships out at sea need a wide sweeping light (Rotating Beam) from high on a lighthouse tower!";
+              return "🤔 Check your sound and light choices on the left!";
+            }
+          },
+          {
+            title: "City Hospital Emergency Run",
+            prompt: "City Emergency: An ambulance is rushing an injured patient through crowded rush-hour traffic! What sound and flashing lights will make drivers instantly check their mirrors and pull over?",
+            clue: "Human ears pay urgent attention to fast, alternating wails. Fast flashing colored lights stand out in car mirrors amidst headlights!",
+            check: (s) => s.soundChoice === 'siren' && s.lightChoice === 'strobe',
+            feedbackSuccess: "🌟 CLEAR THE LANE! The alternating urgent siren cuts through car engine noise, and flashing red/blue strobes alert drivers immediately to yield the road!",
+            getHint: (s) => {
+              if (s.soundChoice !== 'siren') return "🤔 A foghorn is too deep and slow for fast city traffic. Ambulances use rapid alternating wails (Urgent Siren) that signal emergency!";
+              if (s.lightChoice !== 'strobe') return "🤔 A rotating beacon is for tall towers miles away. Quick flashing red/blue strobes alert nearby drivers right now!";
+              return "🤔 Check your sound and light choices on the left!";
+            }
+          },
+          {
+            title: "Rocky Reef Night Storm Alert",
+            prompt: "Storm Warning: A fierce midnight gale has knocked out radars near dangerous reef rocks! What warning signals will stop an approaching cargo ship from crashing in the dark?",
+            clue: "Howling storm winds drown out high-pitched sirens, but low rumbles carry through the tempest. The ship needs a powerful sweeping lighthouse beam to spot the reef!",
+            check: (s) => s.soundChoice === 'foghorn' && s.lightChoice === 'beacon',
+            feedbackSuccess: "🌟 DISASTER AVOIDED! The deep foghorn penetrated the howling winds, and the powerful sweeping beacon lit up the rocky cliffs just in time!",
+            getHint: (s) => {
+              if (s.soundChoice !== 'foghorn') return "🤔 Storm winds easily drown out sirens. Deep, low frequencies (Foghorn) punch through wild stormy weather!";
+              if (s.lightChoice !== 'beacon') return "🤔 Ships miles offshore need a wide sweeping lighthouse beacon to illuminate the reef line!";
+              return "🤔 Check your sound and light choices on the left!";
+            }
+          }
+        ]
+      },
+
+      // Lab 3 Data (Connection: Creative Works in Theater & Film)
+      lab3: {
+        stageGel: null,
+        foleyFx: null,
+        scriptIndex: 0,
+        solvedScripts: [false, false, false],
+        scripts: [
+          {
+            actorEmoji: '🏰',
+            title: "Midnight Castle Thunderstorm",
+            prompt: "Scene 1: Midnight Castle! The mysterious vampire sneaks through the dark castle halls at midnight. What stage lighting creates a spooky mood, and what sound effect will startle the audience?",
+            clue: "Bright colors feel warm and safe. What dim, mysterious color creates suspense and shadow? What sudden, explosive sound makes people jump in their seats?",
+            reqGel: '#B388FF',
+            reqFx: 'thunder',
+            feedbackSuccess: "🌟 SPINE-CHILLING DRAMA! Dim spooky violet lighting builds mystery, and the sudden explosive thunder crash shocks the entire theater!",
+            getHint: (gel, fx) => {
+              if (gel.toLowerCase() !== '#b388ff') return "🤔 Lighting check: Bright yellow or blue feels like daylight or underwater. Dim Spooky Violet lighting creates suspense and danger!";
+              if (fx !== 'thunder') return "🤔 Sound check: Cheerful birds or submarine pings don't feel like a scary midnight storm! Trigger a sudden Thunder Crash!";
+              return "🤔 Check your stage lighting and sound effect on the left!";
+            }
+          },
+          {
+            actorEmoji: '🦁',
+            title: "Savanna Sunrise",
+            prompt: "Scene 2: African Savanna! The golden morning sun rises over the peaceful waking lion plains. What lighting color feels warm and cheerful, and what sound effect brings the peaceful dawn to life?",
+            clue: "Think of the morning sun shining down on the grass. What color matches dawn? What creatures start singing when the sun comes up?",
+            reqGel: '#FFE156',
+            reqFx: 'birds',
+            feedbackSuccess: "🌟 PURE HARMONY! Warm golden light feels cozy and hopeful, and sweet bird songs transport the audience straight into a peaceful African morning!",
+            getHint: (gel, fx) => {
+              if (gel.toLowerCase() !== '#ffe156') return "🤔 Lighting check: Cool blue or spooky purple lighting feels like night or deep water. A sunrise needs warm Golden Sunny light!";
+              if (fx !== 'birds') return "🤔 Sound check: A peaceful sunrise doesn't have explosive crashes or sonar beeps! Sweet Birds match the waking savanna.";
+              return "🤔 Check your stage lighting and sound effect on the left!";
+            }
+          },
+          {
+            actorEmoji: '🌊',
+            title: "Deep Sea Submarine",
+            prompt: "Scene 3: Deep Sea Abyss! Research scientists dive deep below the surface into mysterious ocean trenches. What stage lighting captures the deep sea, and what rhythmic sound shows they are scanning underwater?",
+            clue: "Sunlight cannot reach the deep ocean floor. Underwater research vessels use rhythmic electronic pings to navigate dark underwater trenches!",
+            reqGel: '#38B6FF',
+            reqFx: 'sonar',
+            feedbackSuccess: "🌟 DEEP SEA EXPLORATION! Ocean blue gel immerses the audience underwater, and rhythmic sonar pings build curious high-tech exploration!",
+            getHint: (gel, fx) => {
+              if (gel.toLowerCase() !== '#38b6ff') return "🤔 Lighting check: Warm sunny light belongs on land! Deep underwater scenes need cool Ocean Blue lighting.";
+              if (fx !== 'sonar') return "🤔 Sound check: Thunder and birds don't exist under the ocean! Submarines send rhythmic Sonar Pings to navigate.";
+              return "🤔 Check your stage lighting and sound effect on the left!";
+            }
+          }
+        ]
+      }
+    };
+
+    /* =========================================================
+       4. LAB 1 LOGIC (FORM: DISCOVER & CHALLENGE)
+       ========================================================= */
+    const DISCOVER_DATA = {
+      mouse: {
+        title: "Why does a mouse sound like that?",
+        body: "Tiny vocal cords vibrate super-duper FAST! Fast vibrations make a High Pitch sound wave with tight, rapid ripples.",
+        when: "🌍 When do we hear this? Referee whistles, chirping baby birds, squeaky sneakers on gym floors!",
+        emoji: "🐭",
+        sound: () => soundAudio.playMouseSqueak(),
+        draw: () => drawWave(10, 20, "Mouse Squeak (High Pitch Wave)")
+      },
+      elephant: {
+        title: "Why does an elephant rumble so low?",
+        body: "Huge vocal cords and heavy bodies vibrate SLOWLY! Slow vibrations make a Low Pitch sound wave with long, wide ripples that travel for miles.",
+        when: "🌍 When do we hear this? Distant thunderstorms, earthquake rumbles, big bass drums!",
+        emoji: "🐘",
+        sound: () => soundAudio.playElephantRumble(),
+        draw: () => drawWave(2.5, 45, "Elephant Rumble (Low Pitch Wave)")
+      },
+      whisper: {
+        title: "What makes a whisper quiet?",
+        body: "Gentle breathing uses very LITTLE ENERGY! Small energy pushes the air softly, creating a small wave height (Volume).",
+        when: "🌍 When do we hear this? Bedtime bedtime stories, falling snow, gentle autumn leaves rustling.",
+        emoji: "🤫",
+        sound: () => soundAudio.playWhisper(),
+        draw: () => drawWave(5, 10, "Secret Whisper (Soft Volume Wave)")
+      },
+      lion: {
+        title: "What makes a lion roar so loud?",
+        body: "Strong chest muscles push a HUGE BURST OF ENERGY! Big energy makes tall, powerful wave heights that carry across the plains.",
+        when: "🌍 When do we hear this? Airplane jet engines, thunderclaps, cheering stadiums!",
+        emoji: "🦁",
+        sound: () => soundAudio.playLionRoar(),
+        draw: () => drawWave(4, 55, "Lion Roar (Loud Volume Wave)")
+      },
+      glass: {
+        title: "Why doesn't clear glass make a shadow?",
+        body: "Clear glass is TRANSPARENT. Light rays travel straight through without bouncing back or getting trapped!",
+        when: "🌍 When do we see this? Eyeglasses, clean car windows, glass aquariums!",
+        emoji: "🪟",
+        sound: () => soundAudio.playClick(),
+        draw: () => drawShadowStage('transparent', 180)
+      },
+      sunglasses: {
+        title: "Why do sunglasses dim the light?",
+        body: "Sunglasses are TRANSLUCENT! They let some light rays pass through so you can see, but block harsh glare to protect your eyes. They cast a soft, faded shadow!",
+        when: "🌍 When do we see this? Sunny beach days, tinted car windows, colorful plastic juice bottles!",
+        emoji: "🕶️",
+        sound: () => soundAudio.playClick(),
+        draw: () => drawShadowStage('translucent', 180)
+      },
+      puppet_far: {
+        title: "Why is the dinosaur shadow small when far away?",
+        body: "The solid toy dinosaur is OPAQUE — it blocks light completely! When you hold the dinosaur far from the flashlight, it only blocks a small piece of the spreading light cone, casting a small crisp shadow.",
+        when: "🌍 When do we see this? Holding a toy far from a desk lamp, or your shadow under the high midday sun!",
+        emoji: "🦖",
+        sound: () => soundAudio.playClick(),
+        draw: () => drawShadowStage('opaque', 260)
+      },
+      puppet_close: {
+        title: "Why does the dinosaur shadow get GIANT near the light?",
+        body: "When you move the toy dinosaur close to the flashlight, its body blocks ALMOST THE ENTIRE light beam! The blocked rays spread out to cast a GIANT roaring monster shadow on the wall!",
+        when: "🌍 When do we see this? Making giant monster shadows on your bedroom wall with a flashlight!",
+        emoji: "🦕",
+        sound: () => soundAudio.playClick(),
+        draw: () => drawShadowStage('opaque', 100)
+      }
+    };
+
+    const p1WavePath = document.getElementById('p1WavePath');
+    const p1StageLabel = document.getElementById('p1StageLabel');
+    const p1ObstacleGroup = document.getElementById('p1ObstacleGroup');
+    const p1WonderIcon = document.getElementById('p1WonderIcon');
+    const p1WonderTitle = document.getElementById('p1WonderTitle');
+    const p1WonderBody = document.getElementById('p1WonderBody');
+    const p1WonderWhen = document.getElementById('p1WonderWhen');
+    const btnSpeakWonder1 = document.getElementById('btnSpeakWonder1');
+
+    function drawWave(cycles, amp, label) {
+      p1ObstacleGroup.classList.add('hidden');
+      p1WavePath.classList.remove('hidden');
+      p1StageLabel.textContent = `Mode: ${label}`;
+
+      let d = `M 0 80`;
+      for (let x = 0; x <= 400; x += 4) {
+        const y = 80 + Math.sin((x / 400) * cycles * 2 * Math.PI) * amp;
+        d += ` L ${x} ${y.toFixed(1)}`;
+      }
+      p1WavePath.setAttribute('d', d);
+    }
+
+    function drawShadowStage(mat, dist) {
+      p1WavePath.classList.add('hidden');
+      p1ObstacleGroup.classList.remove('hidden');
+
+      const actorEmoji = document.getElementById('p1ActorEmoji');
+      const actorBox = document.getElementById('p1ActorBox');
+      const wallShadow = document.getElementById('p1WallShadow');
+
+      actorBox.setAttribute('x', dist);
+      actorEmoji.setAttribute('x', dist + 15);
+
+      const shadowHeight = Math.max(20, Math.min(140, 160 - (dist * 0.45)));
+      const shadowY = 80 - (shadowHeight / 2);
+
+      if (mat === 'transparent') {
+        actorBox.setAttribute('fill', 'rgba(255, 255, 255, 0.4)');
+        actorEmoji.textContent = '🪟';
+        wallShadow.setAttribute('opacity', '0.05');
+        p1StageLabel.textContent = "Transparent Glass (Light passes right through! No shadow)";
+      } else if (mat === 'translucent') {
+        actorBox.setAttribute('fill', 'rgba(56, 189, 248, 0.45)');
+        actorEmoji.textContent = '🕶️';
+        wallShadow.setAttribute('opacity', '0.45');
+        wallShadow.setAttribute('y', shadowY);
+        wallShadow.setAttribute('height', shadowHeight);
+        p1StageLabel.textContent = "Translucent Sunglasses (Lets some light through! Soft faded shadow)";
+      } else {
+        actorBox.setAttribute('fill', '#8B5CF6');
+        actorEmoji.textContent = dist < 150 ? '🦕' : '🦖';
+        wallShadow.setAttribute('opacity', '0.9');
+        wallShadow.setAttribute('y', shadowY);
+        wallShadow.setAttribute('height', shadowHeight);
+        p1StageLabel.textContent = dist < 150 ? "Dino Close to Light: Blocks most rays! GIANT Monster Shadow!" : "Dino Far from Light: Blocks fewer rays! Small crisp shadow";
+      }
+    }
+
+    function selectDiscoverItem(discKey, playSound = false) {
+      document.querySelectorAll('.discover-card').forEach(c => c.classList.remove('active'));
+      const activeCard = document.querySelector(`[data-disc="${discKey}"]`);
+      if (activeCard) activeCard.classList.add('active');
+
+      const info = DISCOVER_DATA[discKey];
+      p1WonderIcon.textContent = info.emoji;
+      p1WonderTitle.textContent = info.title;
+      p1WonderBody.textContent = info.body;
+      p1WonderWhen.textContent = info.when;
+
+      info.draw();
+      if (playSound) {
+        info.sound();
+      }
+    }
+
+    document.querySelectorAll('.discover-card').forEach(card => {
+      card.addEventListener('click', () => {
+        soundAudio.playClick();
+        const discKey = card.dataset.disc;
+        GAME_STATE.lab1.currentDisc = discKey;
+        selectDiscoverItem(discKey, true);
+      });
+    });
+
+    btnSpeakWonder1.addEventListener('click', () => {
+      soundAudio.playClick();
+      btnSpeakWonder1.classList.add('speaking');
+      const text = `${p1WonderTitle.textContent} ${p1WonderBody.textContent} ${p1WonderWhen.textContent}`;
+      TTS_MANAGER.speak(text, () => {
+        btnSpeakWonder1.classList.remove('speaking');
+      });
+    });
+
+    // Phase Switch (Explore vs Mission)
+    const p1BtnExplore = document.getElementById('p1BtnExplore');
+    const p1BtnMission = document.getElementById('p1BtnMission');
+    const p1ExploreSection = document.getElementById('p1ExploreSection');
+    const p1MissionSection = document.getElementById('p1MissionSection');
+    const btnGoToMission1 = document.getElementById('btnGoToMission1');
+    const btnBackToExplore1 = document.getElementById('btnBackToExplore1');
+
+    function setLab1Phase(phase) {
+      GAME_STATE.lab1.phase = phase;
+      if (phase === 'explore') {
+        p1BtnExplore.classList.add('active');
+        p1BtnMission.classList.remove('active');
+        p1ExploreSection.classList.remove('hidden');
+        p1MissionSection.classList.add('hidden');
+      } else {
+        p1BtnMission.classList.add('active');
+        p1BtnExplore.classList.remove('active');
+        p1MissionSection.classList.remove('hidden');
+        p1ExploreSection.classList.add('hidden');
+        renderM1Case();
+      }
+    }
+
+    p1BtnExplore.addEventListener('click', () => { soundAudio.playClick(); setLab1Phase('explore'); });
+    p1BtnMission.addEventListener('click', () => { soundAudio.playClick(); setLab1Phase('mission'); });
+    btnGoToMission1.addEventListener('click', () => { soundAudio.playClick(); setLab1Phase('mission'); });
+    btnBackToExplore1.addEventListener('click', () => { soundAudio.playClick(); setLab1Phase('explore'); });
+
+    // Lab 1 Mission Controls
+    const m1SoundControls = document.getElementById('m1SoundControls');
+    const m1ShadowControls = document.getElementById('m1ShadowControls');
+
+    const m1BtnPitchLow = document.getElementById('m1BtnPitchLow');
+    const m1BtnPitchHigh = document.getElementById('m1BtnPitchHigh');
+    const m1BtnVolSoft = document.getElementById('m1BtnVolSoft');
+    const m1BtnVolLoud = document.getElementById('m1BtnVolLoud');
+    const m1BtnMatGlass = document.getElementById('m1BtnMatGlass');
+    const m1BtnMatDino = document.getElementById('m1BtnMatDino');
+    const m1BtnDistNear = document.getElementById('m1BtnDistNear');
+    const m1BtnDistFar = document.getElementById('m1BtnDistFar');
+
+    const m1PitchLabel = document.getElementById('m1PitchLabel');
+    const m1VolLabel = document.getElementById('m1VolLabel');
+    const m1MatLabel = document.getElementById('m1MatLabel');
+    const m1DistLabel = document.getElementById('m1DistLabel');
+
+    function updateM1ShadowPreview() {
+      const mat = GAME_STATE.lab1.matChoice;
+      const dist = GAME_STATE.lab1.distChoice;
+      const actorBox = document.getElementById('m1PreviewActorBox');
+      const actorEmoji = document.getElementById('m1PreviewActorEmoji');
+      const wallShadow = document.getElementById('m1PreviewWallShadow');
+      if (!actorBox || !actorEmoji || !wallShadow) return;
+
+      if (!mat && !dist) {
+        actorBox.setAttribute('x', 180);
+        actorEmoji.setAttribute('x', 193);
+        actorBox.setAttribute('fill', '#9CA3AF');
+        actorEmoji.textContent = '❓';
+        wallShadow.setAttribute('opacity', '0');
+        return;
+      }
+
+      const xPos = (dist === 'near') ? 80 : 230;
+      actorBox.setAttribute('x', xPos);
+      actorEmoji.setAttribute('x', xPos + 13);
+
+      if (mat === 'glass') {
+        actorBox.setAttribute('fill', 'rgba(255, 255, 255, 0.45)');
+        actorEmoji.textContent = '🪟';
+        wallShadow.setAttribute('opacity', '0.05');
+      } else {
+        actorBox.setAttribute('fill', '#8B5CF6');
+        actorEmoji.textContent = (dist === 'near') ? '🦕' : '🦖';
+        wallShadow.setAttribute('opacity', '0.9');
+        const shadowH = (dist === 'near') ? 100 : 36;
+        const shadowY = 60 - (shadowH / 2);
+        wallShadow.setAttribute('y', shadowY);
+        wallShadow.setAttribute('height', shadowH);
+      }
+    }
+
+    m1BtnPitchLow.addEventListener('click', () => {
+      soundAudio.playClick();
+      GAME_STATE.lab1.pitchChoice = 'low';
+      m1BtnPitchLow.classList.add('active');
+      m1BtnPitchHigh.classList.remove('active');
+      m1PitchLabel.textContent = 'Low Rumble';
+      m1PitchLabel.style.background = 'var(--yellow)';
+      m1PitchLabel.style.border = '1.5px solid var(--ink)';
+      soundAudio.playElephantRumble();
+    });
+
+    m1BtnPitchHigh.addEventListener('click', () => {
+      soundAudio.playClick();
+      GAME_STATE.lab1.pitchChoice = 'high';
+      m1BtnPitchHigh.classList.add('active');
+      m1BtnPitchLow.classList.remove('active');
+      m1PitchLabel.textContent = 'High Squeak';
+      m1PitchLabel.style.background = 'var(--yellow)';
+      m1PitchLabel.style.border = '1.5px solid var(--ink)';
+      soundAudio.playMouseSqueak();
+    });
+
+    m1BtnVolSoft.addEventListener('click', () => {
+      soundAudio.playClick();
+      GAME_STATE.lab1.volChoice = 'soft';
+      m1BtnVolSoft.classList.add('active');
+      m1BtnVolLoud.classList.remove('active');
+      m1VolLabel.textContent = 'Soft Whisper';
+      m1VolLabel.style.background = 'var(--yellow)';
+      m1VolLabel.style.border = '1.5px solid var(--ink)';
+      soundAudio.playWhisper();
+    });
+
+    m1BtnVolLoud.addEventListener('click', () => {
+      soundAudio.playClick();
+      GAME_STATE.lab1.volChoice = 'loud';
+      m1BtnVolLoud.classList.add('active');
+      m1BtnVolSoft.classList.remove('active');
+      m1VolLabel.textContent = 'Loud Roar';
+      m1VolLabel.style.background = 'var(--yellow)';
+      m1VolLabel.style.border = '1.5px solid var(--ink)';
+      soundAudio.playLionRoar();
+    });
+
+    m1BtnMatGlass.addEventListener('click', () => {
+      soundAudio.playClick();
+      GAME_STATE.lab1.matChoice = 'glass';
+      m1BtnMatGlass.classList.add('active');
+      m1BtnMatDino.classList.remove('active');
+      m1MatLabel.textContent = 'Clear Glass';
+      m1MatLabel.style.background = 'var(--yellow)';
+      m1MatLabel.style.border = '1.5px solid var(--ink)';
+      updateM1ShadowPreview();
+    });
+
+    m1BtnMatDino.addEventListener('click', () => {
+      soundAudio.playClick();
+      GAME_STATE.lab1.matChoice = 'dino';
+      m1BtnMatDino.classList.add('active');
+      m1BtnMatGlass.classList.remove('active');
+      m1MatLabel.textContent = 'Solid Toy Dino';
+      m1MatLabel.style.background = 'var(--yellow)';
+      m1MatLabel.style.border = '1.5px solid var(--ink)';
+      updateM1ShadowPreview();
+    });
+
+    m1BtnDistNear.addEventListener('click', () => {
+      soundAudio.playClick();
+      GAME_STATE.lab1.distChoice = 'near';
+      m1BtnDistNear.classList.add('active');
+      m1BtnDistFar.classList.remove('active');
+      m1DistLabel.textContent = 'Close (Giant Shadow)';
+      m1DistLabel.style.background = 'var(--yellow)';
+      m1DistLabel.style.border = '1.5px solid var(--ink)';
+      updateM1ShadowPreview();
+    });
+
+    m1BtnDistFar.addEventListener('click', () => {
+      soundAudio.playClick();
+      GAME_STATE.lab1.distChoice = 'far';
+      m1BtnDistFar.classList.add('active');
+      m1BtnDistNear.classList.remove('active');
+      m1DistLabel.textContent = 'Far (Small Shadow)';
+      m1DistLabel.style.background = 'var(--yellow)';
+      m1DistLabel.style.border = '1.5px solid var(--ink)';
+      updateM1ShadowPreview();
+    });
+
+    document.getElementById('btnTestSoundWave').addEventListener('click', () => {
+      if (!GAME_STATE.lab1.pitchChoice) {
+        soundAudio.playClick();
+        m1CaseFeedback.className = 'mission-feedback try-again';
+        m1CaseFeedback.style.display = 'block';
+        m1CaseFeedback.textContent = "👆 Tap a Pitch (Low Rumble or High Squeak) first to test its wave!";
+        return;
+      }
+      if (GAME_STATE.lab1.pitchChoice === 'low') {
+        soundAudio.playElephantRumble();
+      } else {
+        soundAudio.playMouseSqueak();
+      }
+    });
+
+    const m1CasePill = document.getElementById('m1CasePill');
+    const m1CasePrompt = document.getElementById('m1CasePrompt');
+    const m1CaseClue = document.getElementById('m1CaseClue');
+    const btnToggleClue1 = document.getElementById('btnToggleClue1');
+    const m1CaseFeedback = document.getElementById('m1CaseFeedback');
+    const btnCheckM1Case = document.getElementById('btnCheckM1Case');
+    const btnSpeakM1Case = document.getElementById('btnSpeakM1Case');
+
+    function renderM1Case() {
+      const idx = GAME_STATE.lab1.caseIndex;
+      const cur = GAME_STATE.lab1.cases[idx];
+
+      // Update case tab highlights & solved states
+      document.querySelectorAll('[data-m1-case]').forEach(btn => {
+        const bIdx = parseInt(btn.dataset.m1Case, 10);
+        btn.classList.toggle('active', bIdx === idx);
+        if (GAME_STATE.lab1.solvedCases[bIdx]) {
+          btn.classList.add('solved');
+          if (!btn.textContent.includes('✅')) {
+            btn.innerHTML = `<span>✅ ${btn.textContent.trim()}</span>`;
+          }
+        }
+      });
+
+      // Reset choices and button states if this case has NOT been solved yet!
+      if (!GAME_STATE.lab1.solvedCases[idx]) {
+        GAME_STATE.lab1.pitchChoice = null;
+        GAME_STATE.lab1.volChoice = null;
+        GAME_STATE.lab1.matChoice = null;
+        GAME_STATE.lab1.distChoice = null;
+        [m1BtnPitchLow, m1BtnPitchHigh, m1BtnVolSoft, m1BtnVolLoud, m1BtnMatGlass, m1BtnMatDino, m1BtnDistNear, m1BtnDistFar].forEach(b => {
+          if (b) b.classList.remove('active');
+        });
+        m1PitchLabel.textContent = '❓ Tap to choose';
+        m1PitchLabel.style.background = '#FFF';
+        m1PitchLabel.style.border = '1.5px dashed var(--ink)';
+        m1VolLabel.textContent = '❓ Tap to choose';
+        m1VolLabel.style.background = '#FFF';
+        m1VolLabel.style.border = '1.5px dashed var(--ink)';
+        m1MatLabel.textContent = '❓ Tap to choose';
+        m1MatLabel.style.background = '#FFF';
+        m1MatLabel.style.border = '1.5px dashed var(--ink)';
+        m1DistLabel.textContent = '❓ Tap to choose';
+        m1DistLabel.style.background = '#FFF';
+        m1DistLabel.style.border = '1.5px dashed var(--ink)';
+      }
+
+      // Show ONLY the relevant controls for this specific case!
+      if (idx === 2) {
+        // Case 3 is Shadow Puppets (Material & Distance)
+        m1SoundControls.classList.add('hidden');
+        m1ShadowControls.classList.remove('hidden');
+        updateM1ShadowPreview();
+      } else {
+        // Case 1 & 2 are Sound Design (Pitch & Volume)
+        m1SoundControls.classList.remove('hidden');
+        m1ShadowControls.classList.add('hidden');
+      }
+
+      m1CasePill.textContent = `Case ${idx + 1} of ${GAME_STATE.lab1.cases.length}`;
+      m1CasePrompt.innerHTML = `<strong>${cur.title}:</strong><br>${cur.prompt}`;
+      m1CaseClue.textContent = `💡 Clue: ${cur.clue}`;
+      m1CaseClue.classList.remove('open');
+      btnToggleClue1.textContent = '💡 Need a Clue?';
+      m1CaseFeedback.className = 'mission-feedback';
+      m1CaseFeedback.style.display = 'none';
+      m1CaseFeedback.innerHTML = '';
+      btnCheckM1Case.style.display = 'inline-flex';
+    }
+
+    document.querySelectorAll('[data-m1-case]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        soundAudio.playClick();
+        GAME_STATE.lab1.caseIndex = parseInt(btn.dataset.m1Case, 10);
+        renderM1Case();
+      });
+    });
+
+    btnToggleClue1.addEventListener('click', () => {
+      soundAudio.playClick();
+      const isOpen = m1CaseClue.classList.toggle('open');
+      btnToggleClue1.textContent = isOpen ? '🙈 Hide Clue' : '💡 Need a Clue?';
+    });
+
+    btnCheckM1Case.addEventListener('click', () => {
+      const idx = GAME_STATE.lab1.caseIndex;
+      const cur = GAME_STATE.lab1.cases[idx];
+
+      // Guard check: ensure child has selected the required properties before verifying
+      if (idx === 2) {
+        if (!GAME_STATE.lab1.matChoice || !GAME_STATE.lab1.distChoice) {
+          soundAudio.playErrorBuzz();
+          m1CaseFeedback.className = 'mission-feedback try-again';
+          m1CaseFeedback.style.display = 'block';
+          m1CaseFeedback.textContent = "👆 Please tap both a Puppet Material and a Distance first!";
+          return;
+        }
+      } else {
+        if (!GAME_STATE.lab1.pitchChoice || !GAME_STATE.lab1.volChoice) {
+          soundAudio.playErrorBuzz();
+          m1CaseFeedback.className = 'mission-feedback try-again';
+          m1CaseFeedback.style.display = 'block';
+          m1CaseFeedback.textContent = "👆 Please tap both a Pitch (High or Low) and a Volume (Soft or Loud) first!";
+          return;
+        }
+      }
+
+      if (cur.check(GAME_STATE.lab1)) {
+        soundAudio.playSuccessChime();
+        awardPoints(25);
+        GAME_STATE.lab1.solvedCases[GAME_STATE.lab1.caseIndex] = true;
+
+        const tabBtn = document.querySelector(`[data-m1-case="${GAME_STATE.lab1.caseIndex}"]`);
+        if (tabBtn) {
+          tabBtn.classList.add('solved');
+          if (!tabBtn.textContent.includes('✅')) {
+            tabBtn.innerHTML = `<span>✅ ${tabBtn.textContent.trim()}</span>`;
+          }
+        }
+
+        m1CaseFeedback.className = 'mission-feedback success';
+        btnCheckM1Case.style.display = 'none';
+
+        const allSolved = GAME_STATE.lab1.solvedCases.every(Boolean);
+
+        m1CaseFeedback.innerHTML = `
+          <div style="display:flex; flex-direction:column; gap:8px; width:100%;">
+            <div>${cur.feedbackSuccess}</div>
+            <button type="button" class="btn" id="btnNextM1Case" style="background:#FFF; min-height:40px; padding:6px 12px; font-size:0.88rem; margin-top:4px;">
+              <span>${allSolved ? '🏆 All Cases Solved! Advance to Lab 2 (Signals) ➔' : 'Next Scene Challenge ➔'}</span>
+            </button>
+          </div>
+        `;
+        document.getElementById('btnNextM1Case').addEventListener('click', () => {
+          soundAudio.playClick();
+          if (allSolved) {
+            switchTab('function');
+          } else {
+            let nextCase = (GAME_STATE.lab1.caseIndex + 1) % GAME_STATE.lab1.cases.length;
+            for (let i = 0; i < GAME_STATE.lab1.cases.length; i++) {
+              let candidate = (GAME_STATE.lab1.caseIndex + 1 + i) % GAME_STATE.lab1.cases.length;
+              if (!GAME_STATE.lab1.solvedCases[candidate]) {
+                nextCase = candidate;
+                break;
+              }
+            }
+            GAME_STATE.lab1.caseIndex = nextCase;
+            renderM1Case();
+          }
+        });
+      } else {
+        soundAudio.playErrorBuzz();
+        m1CaseFeedback.className = 'mission-feedback try-again';
+        m1CaseFeedback.textContent = cur.getHint(GAME_STATE.lab1);
+      }
+    });
+
+    btnSpeakM1Case.addEventListener('click', () => {
+      soundAudio.playClick();
+      btnSpeakM1Case.classList.add('speaking');
+      const cur = GAME_STATE.lab1.cases[GAME_STATE.lab1.caseIndex];
+      TTS_MANAGER.speak(`${cur.title}. ${cur.prompt}`, () => {
+        btnSpeakM1Case.classList.remove('speaking');
+      });
+    });
+
+    /* =========================================================
+       5. LAB 2 LOGIC (FUNCTION: SIGNALS & FEELINGS)
+       ========================================================= */
+    const SIGNAL_DATA = {
+      ambulance: {
+        title: "Why do ambulances flash red/blue and wail?",
+        body: "High-low sirens jump between pitches so human ears notice instantly! Flashing colored lights show drivers from far away to pull over safely.",
+        when: "🌍 Purpose: Urgent emergency warnings to clear the road!",
+        emoji: "🚑",
+        sound: () => soundAudio.playSiren(),
+        bg: "#1E293B"
+      },
+      lighthouse: {
+        title: "Why do lighthouses use both light and sound?",
+        body: "Light beams warn ships in dark nights. But when heavy sea fog blinds the light, deep foghorns vibrate right through the mist to guide sailors home!",
+        when: "🌍 Purpose: Navigation safety in dark nights and blinding foggy oceans.",
+        emoji: "🗼",
+        sound: () => soundAudio.playFoghorn(),
+        bg: "#0F172A"
+      },
+      party: {
+        title: "Why do bright lights and bells feel happy?",
+        body: "Humans naturally associate warm golden sunlight with warmth and safety, and upbeat ringing chimes with celebration and smiles!",
+        when: "🌍 Purpose: Expressing joy, friendship, and fun at birthday celebrations!",
+        emoji: "🎉",
+        sound: () => soundAudio.playSuccessChime(),
+        bg: "#D97706"
+      },
+      haunted: {
+        title: "Why do dim shadows and low hums feel spooky?",
+        body: "Dim purple shadows hide the room, and low unstable sounds signal our brains to stay on alert for mystery and suspense!",
+        when: "🌍 Purpose: Ghost stories, Halloween haunted houses, and mystery movies!",
+        emoji: "👻",
+        sound: () => soundAudio.playFoley('thunder'),
+        bg: "#581C87"
+      }
+    };
+
+    const p2Stage = document.getElementById('p2Stage');
+    const p2VisualEmoji = document.getElementById('p2VisualEmoji');
+    const p2StageTitle = document.getElementById('p2StageTitle');
+    const p2StageSub = document.getElementById('p2StageSub');
+    const p2WonderIcon = document.getElementById('p2WonderIcon');
+    const p2WonderTitle = document.getElementById('p2WonderTitle');
+    const p2WonderBody = document.getElementById('p2WonderBody');
+    const p2WonderWhen = document.getElementById('p2WonderWhen');
+    const btnSpeakWonder2 = document.getElementById('btnSpeakWonder2');
+
+    function selectSignalItem(sigKey, playSound = false) {
+      document.querySelectorAll('[data-sig]').forEach(c => c.classList.remove('active'));
+      const activeCard = document.querySelector(`[data-sig="${sigKey}"]`);
+      if (activeCard) activeCard.classList.add('active');
+
+      const info = SIGNAL_DATA[sigKey];
+      p2VisualEmoji.textContent = info.emoji;
+      p2StageTitle.textContent = activeCard.querySelector('.discover-title').textContent;
+      p2StageSub.textContent = activeCard.querySelector('.discover-tag').textContent;
+      p2Stage.style.background = info.bg;
+
+      p2WonderIcon.textContent = info.emoji;
+      p2WonderTitle.textContent = info.title;
+      p2WonderBody.textContent = info.body;
+      p2WonderWhen.textContent = info.when;
+
+      if (playSound) {
+        info.sound();
+      }
+    }
+
+    document.querySelectorAll('[data-sig]').forEach(card => {
+      card.addEventListener('click', () => {
+        soundAudio.playClick();
+        const sigKey = card.dataset.sig;
+        GAME_STATE.lab2.currentSig = sigKey;
+        selectSignalItem(sigKey, true);
+      });
+    });
+
+    btnSpeakWonder2.addEventListener('click', () => {
+      soundAudio.playClick();
+      btnSpeakWonder2.classList.add('speaking');
+      const text = `${p2WonderTitle.textContent} ${p2WonderBody.textContent} ${p2WonderWhen.textContent}`;
+      TTS_MANAGER.speak(text, () => {
+        btnSpeakWonder2.classList.remove('speaking');
+      });
+    });
+
+    // Morse Code buttons
+    document.getElementById('btnMorseDot').addEventListener('click', () => soundAudio.playMorseBeep(100));
+    document.getElementById('btnMorseDash').addEventListener('click', () => soundAudio.playMorseBeep(300));
+
+    // Phase 2 Switch
+    const p2BtnExplore = document.getElementById('p2BtnExplore');
+    const p2BtnMission = document.getElementById('p2BtnMission');
+    const p2ExploreSection = document.getElementById('p2ExploreSection');
+    const p2MissionSection = document.getElementById('p2MissionSection');
+    const btnGoToMission2 = document.getElementById('btnGoToMission2');
+    const btnBackToExplore2 = document.getElementById('btnBackToExplore2');
+
+    function setLab2Phase(phase) {
+      GAME_STATE.lab2.phase = phase;
+      if (phase === 'explore') {
+        p2BtnExplore.classList.add('active');
+        p2BtnMission.classList.remove('active');
+        p2ExploreSection.classList.remove('hidden');
+        p2MissionSection.classList.add('hidden');
+      } else {
+        p2BtnMission.classList.add('active');
+        p2BtnExplore.classList.remove('active');
+        p2MissionSection.classList.remove('hidden');
+        p2ExploreSection.classList.add('hidden');
+        renderM2Case();
+      }
+    }
+
+    p2BtnExplore.addEventListener('click', () => { soundAudio.playClick(); setLab2Phase('explore'); });
+    p2BtnMission.addEventListener('click', () => { soundAudio.playClick(); setLab2Phase('mission'); });
+    btnGoToMission2.addEventListener('click', () => { soundAudio.playClick(); setLab2Phase('mission'); });
+    btnBackToExplore2.addEventListener('click', () => { soundAudio.playClick(); setLab2Phase('explore'); });
+
+    // Lab 2 Mission Controls
+    const m2BtnFoghorn = document.getElementById('m2BtnFoghorn');
+    const m2BtnSiren = document.getElementById('m2BtnSiren');
+    const m2BtnBeacon = document.getElementById('m2BtnBeacon');
+    const m2BtnStrobe = document.getElementById('m2BtnStrobe');
+
+    const m2SoundLabel = document.getElementById('m2SoundLabel');
+    const m2LightLabel = document.getElementById('m2LightLabel');
+
+    m2BtnFoghorn.addEventListener('click', () => {
+      soundAudio.playClick();
+      GAME_STATE.lab2.soundChoice = 'foghorn';
+      m2BtnFoghorn.classList.add('active');
+      m2BtnSiren.classList.remove('active');
+      m2SoundLabel.textContent = 'Low Foghorn';
+      m2SoundLabel.style.background = 'var(--yellow)';
+      m2SoundLabel.style.border = '1.5px solid var(--ink)';
+      soundAudio.playFoghorn();
+    });
+
+    m2BtnSiren.addEventListener('click', () => {
+      soundAudio.playClick();
+      GAME_STATE.lab2.soundChoice = 'siren';
+      m2BtnSiren.classList.add('active');
+      m2BtnFoghorn.classList.remove('active');
+      m2SoundLabel.textContent = 'Urgent Siren';
+      m2SoundLabel.style.background = 'var(--yellow)';
+      m2SoundLabel.style.border = '1.5px solid var(--ink)';
+      soundAudio.playSiren();
+    });
+
+    m2BtnBeacon.addEventListener('click', () => {
+      soundAudio.playClick();
+      GAME_STATE.lab2.lightChoice = 'beacon';
+      m2BtnBeacon.classList.add('active');
+      m2BtnStrobe.classList.remove('active');
+      m2LightLabel.textContent = 'Rotating Beam';
+      m2LightLabel.style.background = 'var(--yellow)';
+      m2LightLabel.style.border = '1.5px solid var(--ink)';
+    });
+
+    m2BtnStrobe.addEventListener('click', () => {
+      soundAudio.playClick();
+      GAME_STATE.lab2.lightChoice = 'strobe';
+      m2BtnStrobe.classList.add('active');
+      m2BtnBeacon.classList.remove('active');
+      m2LightLabel.textContent = 'Red/Blue Flasher';
+      m2LightLabel.style.background = 'var(--yellow)';
+      m2LightLabel.style.border = '1.5px solid var(--ink)';
+    });
+
+    document.getElementById('btnTestSignal').addEventListener('click', () => {
+      if (!GAME_STATE.lab2.soundChoice) {
+        soundAudio.playClick();
+        m2CaseFeedback.className = 'mission-feedback try-again';
+        m2CaseFeedback.style.display = 'block';
+        m2CaseFeedback.textContent = "👆 Tap a Warning Sound (Foghorn or Siren) first to test signal transmission!";
+        return;
+      }
+      if (GAME_STATE.lab2.soundChoice === 'foghorn') {
+        soundAudio.playFoghorn();
+      } else {
+        soundAudio.playSiren();
+      }
+    });
+
+    const m2CasePill = document.getElementById('m2CasePill');
+    const m2CasePrompt = document.getElementById('m2CasePrompt');
+    const m2CaseClue = document.getElementById('m2CaseClue');
+    const btnToggleClue2 = document.getElementById('btnToggleClue2');
+    const m2CaseFeedback = document.getElementById('m2CaseFeedback');
+    const btnCheckM2Case = document.getElementById('btnCheckM2Case');
+    const btnSpeakM2Case = document.getElementById('btnSpeakM2Case');
+
+    function renderM2Case() {
+      const idx = GAME_STATE.lab2.caseIndex;
+      const cur = GAME_STATE.lab2.cases[idx];
+
+      // Update mission tab highlights & solved states
+      document.querySelectorAll('[data-m2-case]').forEach(btn => {
+        const bIdx = parseInt(btn.dataset.m2Case, 10);
+        btn.classList.toggle('active', bIdx === idx);
+        if (GAME_STATE.lab2.solvedCases[bIdx]) {
+          btn.classList.add('solved');
+          if (!btn.textContent.includes('✅')) {
+            btn.innerHTML = `<span>✅ ${btn.textContent.trim()}</span>`;
+          }
+        }
+      });
+
+      // Reset choices and button states if this mission has NOT been solved yet!
+      if (!GAME_STATE.lab2.solvedCases[idx]) {
+        GAME_STATE.lab2.soundChoice = null;
+        GAME_STATE.lab2.lightChoice = null;
+        [m2BtnFoghorn, m2BtnSiren, m2BtnBeacon, m2BtnStrobe].forEach(b => {
+          if (b) b.classList.remove('active');
+        });
+        m2SoundLabel.textContent = '❓ Tap to choose';
+        m2SoundLabel.style.background = '#FFF';
+        m2SoundLabel.style.border = '1.5px dashed var(--ink)';
+        m2LightLabel.textContent = '❓ Tap to choose';
+        m2LightLabel.style.background = '#FFF';
+        m2LightLabel.style.border = '1.5px dashed var(--ink)';
+      }
+
+      m2CasePill.textContent = `Mission ${idx + 1} of ${GAME_STATE.lab2.cases.length}`;
+      m2CasePrompt.innerHTML = `<strong>${cur.title}:</strong><br>${cur.prompt}`;
+      m2CaseClue.textContent = `💡 Clue: ${cur.clue}`;
+      m2CaseClue.classList.remove('open');
+      btnToggleClue2.textContent = '💡 Need a Clue?';
+      m2CaseFeedback.className = 'mission-feedback';
+      m2CaseFeedback.style.display = 'none';
+      m2CaseFeedback.innerHTML = '';
+      btnCheckM2Case.style.display = 'inline-flex';
+    }
+
+    document.querySelectorAll('[data-m2-case]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        soundAudio.playClick();
+        GAME_STATE.lab2.caseIndex = parseInt(btn.dataset.m2Case, 10);
+        renderM2Case();
+      });
+    });
+
+    btnToggleClue2.addEventListener('click', () => {
+      soundAudio.playClick();
+      const isOpen = m2CaseClue.classList.toggle('open');
+      btnToggleClue2.textContent = isOpen ? '🙈 Hide Clue' : '💡 Need a Clue?';
+    });
+
+    btnCheckM2Case.addEventListener('click', () => {
+      const idx = GAME_STATE.lab2.caseIndex;
+      const cur = GAME_STATE.lab2.cases[idx];
+
+      // Guard check: ensure child has selected both sound and light signals
+      if (!GAME_STATE.lab2.soundChoice || !GAME_STATE.lab2.lightChoice) {
+        soundAudio.playErrorBuzz();
+        m2CaseFeedback.className = 'mission-feedback try-again';
+        m2CaseFeedback.style.display = 'block';
+        m2CaseFeedback.textContent = "👆 Please select both a Warning Sound and a Light Signal first!";
+        return;
+      }
+
+      if (cur.check(GAME_STATE.lab2)) {
+        soundAudio.playSuccessChime();
+        awardPoints(25);
+        GAME_STATE.lab2.solvedCases[GAME_STATE.lab2.caseIndex] = true;
+
+        const tabBtn = document.querySelector(`[data-m2-case="${GAME_STATE.lab2.caseIndex}"]`);
+        if (tabBtn) {
+          tabBtn.classList.add('solved');
+          if (!tabBtn.textContent.includes('✅')) {
+            tabBtn.innerHTML = `<span>✅ ${tabBtn.textContent.trim()}</span>`;
+          }
+        }
+
+        m2CaseFeedback.className = 'mission-feedback success';
+        btnCheckM2Case.style.display = 'none';
+
+        const allSolved = GAME_STATE.lab2.solvedCases.every(Boolean);
+
+        m2CaseFeedback.innerHTML = `
+          <div style="display:flex; flex-direction:column; gap:8px; width:100%;">
+            <div>${cur.feedbackSuccess}</div>
+            <button type="button" class="btn" id="btnNextM2Case" style="background:#FFF; min-height:40px; padding:6px 12px; font-size:0.88rem; margin-top:4px;">
+              <span>${allSolved ? '🏆 All Missions Solved! Advance to Lab 3 (Movie Director) ➔' : 'Next Rescue Mission ➔'}</span>
+            </button>
+          </div>
+        `;
+        document.getElementById('btnNextM2Case').addEventListener('click', () => {
+          soundAudio.playClick();
+          if (allSolved) {
+            switchTab('connection');
+          } else {
+            let nextCase = (GAME_STATE.lab2.caseIndex + 1) % GAME_STATE.lab2.cases.length;
+            for (let i = 0; i < GAME_STATE.lab2.cases.length; i++) {
+              let candidate = (GAME_STATE.lab2.caseIndex + 1 + i) % GAME_STATE.lab2.cases.length;
+              if (!GAME_STATE.lab2.solvedCases[candidate]) {
+                nextCase = candidate;
+                break;
+              }
+            }
+            GAME_STATE.lab2.caseIndex = nextCase;
+            renderM2Case();
+          }
+        });
+      } else {
+        soundAudio.playErrorBuzz();
+        m2CaseFeedback.className = 'mission-feedback try-again';
+        m2CaseFeedback.textContent = cur.getHint(GAME_STATE.lab2);
+      }
+    });
+
+    btnSpeakM2Case.addEventListener('click', () => {
+      soundAudio.playClick();
+      btnSpeakM2Case.classList.add('speaking');
+      const cur = GAME_STATE.lab2.cases[GAME_STATE.lab2.caseIndex];
+      TTS_MANAGER.speak(`${cur.title}. ${cur.prompt}`, () => {
+        btnSpeakM2Case.classList.remove('speaking');
+      });
+    });
+
+    /* =========================================================
+       6. LAB 3 LOGIC (CONNECTION: STAGE DIRECTOR)
+       ========================================================= */
+    const theatreActor = document.getElementById('theatreActor');
+    const theatreScreen = document.getElementById('theatreScreen');
+    const stageFxBubble = document.getElementById('stageFxBubble');
+    const lblStageGel = document.getElementById('lblStageGel');
+    const lblFoleyFx = document.getElementById('lblFoleyFx');
+    const m3StepBadge = document.getElementById('m3StepBadge');
+    const m3Prompt = document.getElementById('m3Prompt');
+    const m3CaseClue = document.getElementById('m3CaseClue');
+    const btnToggleClue3 = document.getElementById('btnToggleClue3');
+    const m3Feedback = document.getElementById('m3Feedback');
+    const btnDirectAction = document.getElementById('btnDirectAction');
+    const btnSpeakM3 = document.getElementById('btnSpeakM3');
+
+    document.querySelectorAll('[data-st-color]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        soundAudio.playClick();
+        document.querySelectorAll('[data-st-color]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        GAME_STATE.lab3.stageGel = btn.dataset.stColor;
+        lblStageGel.textContent = btn.title;
+        lblStageGel.style.background = 'var(--yellow)';
+        lblStageGel.style.border = '1.5px solid var(--ink)';
+        theatreScreen.style.background = btn.dataset.stColor + '40';
+      });
+    });
+
+    document.querySelectorAll('[data-fx]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        soundAudio.playClick();
+        document.querySelectorAll('[data-fx]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        GAME_STATE.lab3.foleyFx = btn.dataset.fx;
+        lblFoleyFx.textContent = btn.textContent.trim();
+        lblFoleyFx.style.background = 'var(--yellow)';
+        lblFoleyFx.style.border = '1.5px solid var(--ink)';
+        soundAudio.playFoley(btn.dataset.fx);
+      });
+    });
+
+    function renderM3Script() {
+      const idx = GAME_STATE.lab3.scriptIndex;
+      const cur = GAME_STATE.lab3.scripts[idx];
+
+      // Update script tab highlights & solved states
+      document.querySelectorAll('[data-m3-script]').forEach(btn => {
+        const bIdx = parseInt(btn.dataset.m3Script, 10);
+        btn.classList.toggle('active', bIdx === idx);
+        if (GAME_STATE.lab3.solvedScripts[bIdx]) {
+          btn.classList.add('solved');
+          if (!btn.textContent.includes('✅')) {
+            btn.innerHTML = `<span>✅ ${btn.textContent.trim()}</span>`;
+          }
+        }
+      });
+
+      // Reset choices and button states if this script has NOT been solved yet!
+      if (!GAME_STATE.lab3.solvedScripts[idx]) {
+        GAME_STATE.lab3.stageGel = null;
+        GAME_STATE.lab3.foleyFx = null;
+        document.querySelectorAll('[data-st-color]').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('[data-fx]').forEach(b => b.classList.remove('active'));
+        lblStageGel.textContent = '❓ Tap to choose';
+        lblStageGel.style.background = '#FFF';
+        lblStageGel.style.border = '1.5px dashed var(--ink)';
+        lblFoleyFx.textContent = '❓ Tap to choose';
+        lblFoleyFx.style.background = '#FFF';
+        lblFoleyFx.style.border = '1.5px dashed var(--ink)';
+        theatreScreen.style.background = 'rgba(255, 255, 255, 0.05)';
+      }
+
+      m3StepBadge.textContent = `Script ${idx + 1} of ${GAME_STATE.lab3.scripts.length}`;
+      theatreActor.textContent = cur.actorEmoji;
+      m3Prompt.innerHTML = `<strong>${cur.title}:</strong><br>${cur.prompt}`;
+      m3CaseClue.textContent = `💡 Clue: ${cur.clue}`;
+      m3CaseClue.classList.remove('open');
+      btnToggleClue3.textContent = '💡 Need a Clue?';
+      m3Feedback.className = 'mission-feedback';
+      m3Feedback.style.display = 'none';
+      m3Feedback.innerHTML = '';
+      btnDirectAction.style.display = 'inline-flex';
+    }
+
+    document.querySelectorAll('[data-m3-script]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        soundAudio.playClick();
+        GAME_STATE.lab3.scriptIndex = parseInt(btn.dataset.m3Script, 10);
+        renderM3Script();
+      });
+    });
+
+    btnToggleClue3.addEventListener('click', () => {
+      soundAudio.playClick();
+      const isOpen = m3CaseClue.classList.toggle('open');
+      btnToggleClue3.textContent = isOpen ? '🙈 Hide Clue' : '💡 Need a Clue?';
+    });
+
+    btnDirectAction.addEventListener('click', () => {
+      // Guard check: ensure child has selected both stage lighting and foley effect
+      if (!GAME_STATE.lab3.stageGel || !GAME_STATE.lab3.foleyFx) {
+        soundAudio.playErrorBuzz();
+        m3Feedback.className = 'mission-feedback try-again';
+        m3Feedback.style.display = 'block';
+        m3Feedback.textContent = "👆 Please choose both a Stage Lighting Mood and a Foley Sound Effect first!";
+        return;
+      }
+
+      const cur = GAME_STATE.lab3.scripts[GAME_STATE.lab3.scriptIndex];
+      const gelMatch = (GAME_STATE.lab3.stageGel.toLowerCase() === cur.reqGel.toLowerCase());
+      const fxMatch = (GAME_STATE.lab3.foleyFx === cur.reqFx);
+
+      soundAudio.playFoley(GAME_STATE.lab3.foleyFx);
+
+      theatreActor.style.transform = 'translateX(-50%) scale(1.35)';
+      stageFxBubble.textContent = GAME_STATE.lab3.foleyFx === 'thunder' ? '⚡ CRASH!' : GAME_STATE.lab3.foleyFx === 'birds' ? '🎶 CHIRP!' : '📡 PING!';
+
+      setTimeout(() => {
+        theatreActor.style.transform = 'translateX(-50%) scale(1)';
+        stageFxBubble.textContent = '';
+      }, 900);
+
+      if (gelMatch && fxMatch) {
+        soundAudio.playSuccessChime();
+        awardPoints(50);
+        GAME_STATE.lab3.solvedScripts[GAME_STATE.lab3.scriptIndex] = true;
+
+        const tabBtn = document.querySelector(`[data-m3-script="${GAME_STATE.lab3.scriptIndex}"]`);
+        if (tabBtn) {
+          tabBtn.classList.add('solved');
+          if (!tabBtn.textContent.includes('✅')) {
+            tabBtn.innerHTML = `<span>✅ ${tabBtn.textContent.trim()}</span>`;
+          }
+        }
+
+        m3Feedback.className = 'mission-feedback success';
+        btnDirectAction.style.display = 'none';
+
+        const allSolved = GAME_STATE.lab3.solvedScripts.every(Boolean);
+
+        m3Feedback.innerHTML = `
+          <div style="display:flex; flex-direction:column; gap:8px; width:100%;">
+            <div>${cur.feedbackSuccess}</div>
+            <button type="button" class="btn" id="btnNextM3Script" style="background:#FFF; min-height:40px; padding:6px 12px; font-size:0.88rem; margin-top:4px;">
+              <span>${allSolved ? '🎉 Complete & Collect Director Trophy! 🏆' : 'Next Movie Script ➔'}</span>
+            </button>
+          </div>
+        `;
+        document.getElementById('btnNextM3Script').addEventListener('click', () => {
+          soundAudio.playClick();
+          if (allSolved) {
+            openCelebrationModal();
+          } else {
+            let nextScript = (GAME_STATE.lab3.scriptIndex + 1) % GAME_STATE.lab3.scripts.length;
+            for (let i = 0; i < GAME_STATE.lab3.scripts.length; i++) {
+              let candidate = (GAME_STATE.lab3.scriptIndex + 1 + i) % GAME_STATE.lab3.scripts.length;
+              if (!GAME_STATE.lab3.solvedScripts[candidate]) {
+                nextScript = candidate;
+                break;
+              }
+            }
+            GAME_STATE.lab3.scriptIndex = nextScript;
+            renderM3Script();
+          }
+        });
+      } else {
+        soundAudio.playErrorBuzz();
+        m3Feedback.className = 'mission-feedback try-again';
+        m3Feedback.textContent = cur.getHint(GAME_STATE.lab3.stageGel, GAME_STATE.lab3.foleyFx);
+      }
+    });
+
+    btnSpeakM3.addEventListener('click', () => {
+      soundAudio.playClick();
+      btnSpeakM3.classList.add('speaking');
+      const cur = GAME_STATE.lab3.scripts[GAME_STATE.lab3.scriptIndex];
+      TTS_MANAGER.speak(`${cur.title}. ${cur.prompt}`, () => {
+        btnSpeakM3.classList.remove('speaking');
+      });
+    });
+
+    /* =========================================================
+       7. GLOBAL NAVIGATION, TABS & CELEBRATION
+       ========================================================= */
+    function awardPoints(pts) {
+      GAME_STATE.stars += pts;
+      GAME_STATE.badges = Math.min(9, GAME_STATE.badges + 1);
+      document.getElementById('badgeStars').textContent = `⭐ ${GAME_STATE.stars} Points`;
+      document.getElementById('badgeMissions').textContent = `🏆 ${GAME_STATE.badges}/9 Badges`;
+    }
+
+    function switchTab(mode) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+
+      const targetBtn = document.querySelector(`.tab-btn[data-mode="${mode}"]`);
+      if (targetBtn) targetBtn.classList.add('active');
+      GAME_STATE.activeMode = mode;
+
+      if (mode === 'form') {
+        document.getElementById('paneForm').classList.add('active');
+      } else if (mode === 'function') {
+        document.getElementById('paneFunction').classList.add('active');
+      } else if (mode === 'connection') {
+        document.getElementById('paneConnection').classList.add('active');
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        soundAudio.playClick();
+        switchTab(btn.dataset.mode);
+      });
+    });
+
+    // Sound Toggle
+    const btnAudioToggle = document.getElementById('btnAudioToggle');
+    btnAudioToggle.addEventListener('click', () => {
+      soundAudio.enabled = !soundAudio.enabled;
+      if (soundAudio.enabled) {
+        soundAudio.playClick();
+        btnAudioToggle.innerHTML = '<span id="audioIcon">🔊</span> Sound ON';
+      } else {
+        btnAudioToggle.innerHTML = '<span id="audioIcon">🔇</span> Sound OFF';
+      }
+    });
+
+    // Read Title
+    document.getElementById('btnSpeakTitle').addEventListener('click', () => {
+      soundAudio.playClick();
+      const btn = document.getElementById('btnSpeakTitle');
+      btn.classList.add('speaking');
+      TTS_MANAGER.speak("Sound and Light Studio. Explore real-life sounds and lights first, then become the Master Director!", () => {
+        btn.classList.remove('speaking');
+      });
+    });
+
+    // Celebration Modal
+    const celebrationModal = document.getElementById('celebrationModal');
+    const btnModalPlayAgain = document.getElementById('btnModalPlayAgain');
+
+    function openCelebrationModal() {
+      soundAudio.playSuccessChime();
+      celebrationModal.classList.add('open');
+      TTS_MANAGER.speak("Outstanding work, Master Director! You explored real-life sounds, mastered emergency signals, and directed wonderful stories!");
+    }
+
+    btnModalPlayAgain.addEventListener('click', () => {
+      soundAudio.playClick();
+      celebrationModal.classList.remove('open');
+      GAME_STATE.lab1.caseIndex = 0;
+      GAME_STATE.lab1.solvedCases = [false, false, false];
+      GAME_STATE.lab2.caseIndex = 0;
+      GAME_STATE.lab2.solvedCases = [false, false, false];
+      GAME_STATE.lab3.scriptIndex = 0;
+      GAME_STATE.lab3.solvedScripts = [false, false, false];
+      
+      // Clean checkmarks from all tabs
+      document.querySelectorAll('.case-tab-btn').forEach(btn => {
+        btn.classList.remove('solved');
+        btn.innerHTML = `<span>${btn.textContent.replace('✅', '').trim()}</span>`;
+      });
+
+      switchTab('form');
+      setLab1Phase('explore');
+      setLab2Phase('explore');
+      renderM1Case();
+      renderM2Case();
+      renderM3Script();
+    });
+
+    // Startup
+    window.addEventListener('DOMContentLoaded', () => {
+      TTS_MANAGER.init();
+      selectDiscoverItem('mouse', false);
+      selectSignalItem('ambulance', false);
+      renderM1Case();
+      renderM2Case();
+      renderM3Script();
+
+      const unlockAudio = () => {
+        soundAudio.initCtx();
+        document.removeEventListener('click', unlockAudio);
+        document.removeEventListener('touchstart', unlockAudio);
+      };
+      document.addEventListener('click', unlockAudio);
+      document.addEventListener('touchstart', unlockAudio);
+    });
+  </script>
+</body>
+
+</html>

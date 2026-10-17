@@ -1,5 +1,5 @@
 // Cache version - auto-updated by build script
-const CACHE_VERSION = '20261006131357';
+const CACHE_VERSION = '20261017170317';
 const CACHE_NAME = `ib-pyp-games-${CACHE_VERSION}`;
 
 // Static assets to pre-cache during install
@@ -52,6 +52,7 @@ const PRECACHE_URLS = [
     '/uoi/g1_needs_of_living_things.html',
     '/uoi/g1_story_sequencer.html',
     '/uoi/g2_balanced_choices.html',
+    '/uoi/g2_sound_and_light_studio.html',
     '/uoi/g2_sound_explorer.html',
     '/uoi/g2_vocabulary.html?scheme=math',
     '/uoi/g2_vocabulary.html?scheme=uoi'
