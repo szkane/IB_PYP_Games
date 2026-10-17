@@ -26,7 +26,7 @@ Use this to unpack a unit and choose mechanics. PYP is concept-driven and transd
 | ATL skills | Skills practiced | What the child actually does (sort, explain, plan) |
 | Action | What learners do with their understanding | Final "what will you do?" choice or real-world challenge |
 
-Units in `src/data/curriculum-map.json` store `theme`, `centralIdea`, `learnerProfile`, `atlSkills`. Keep these filled when adding a unit.
+In structured repos or hubs, units can be registered in a curriculum map or manifest (such as `src/data/curriculum-map.json` or `curriculum-map.json`), storing `theme`, `centralIdea`, `learnerProfile`, and `atlSkills`. In standalone setups, keep these in the game's header comments or companion planning markdown.
 
 ## 2. Transdisciplinary themes → mechanic ideas
 

@@ -103,12 +103,13 @@ body {
 ```css
 .nav-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
 .nav-left { display: flex; align-items: center; gap: 10px; }
-.pyp-map-link {
+/* Return navigation link (points to index.html or parent hub) */
+.pyp-map-link, .hub-link {
   display: inline-flex; align-items: center; min-height: 44px; padding: 8px 16px;
   background: var(--yellow); color: var(--ink); text-decoration: none; font-weight: 900;
   border: var(--border); border-radius: var(--radius); box-shadow: var(--shadow);
 }
-.pyp-map-link:active { transform: translate(2px, 2px); box-shadow: var(--shadow-sm); }
+.pyp-map-link:active, .hub-link:active { transform: translate(2px, 2px); box-shadow: var(--shadow-sm); }
 .unit-tag { background: var(--coral); color: var(--white); border: var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 8px 14px; font-weight: 800; min-height: 44px; display: inline-flex; align-items: center; }
 .hero-card { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
 .hero-title h1 { font-size: clamp(1.2rem, 2.5vw, 1.6rem); font-weight: 900; display: flex; align-items: center; gap: 10px; }
