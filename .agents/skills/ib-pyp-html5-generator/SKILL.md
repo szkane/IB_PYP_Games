@@ -40,14 +40,27 @@ If the unit is ambiguous (grade unknown, theme unclear, Chinese vs English conte
 
 For every game decide:
 
+- **Explore-First Sequence**: Always sequence in two clear steps:
+  - **Step 1 (Free Discovery & Sandbox)**: Let children freely tap, hear, test, and observe real-world concepts first without pressure.
+  - **Step 2 (Challenge / Mission)**: Give hands-on creative or rescue challenges where they apply what they discovered in Step 1. Always provide an easy `[⬅️ Back to Explore]` button.
+- **Strict Target Grade-Level Language Calibration**:
+  - **Grade 1 (Age 6–7)**: 5–10 words per sentence, basic sight words, concrete nouns, emoji on every noun, TTS auto-speak enabled.
+  - **Grade 2 (Age 7–8)**: 8–14 words per sentence, high-frequency vocabulary, direct cause-and-effect, relatable real-world metaphors (e.g. T-Rex stomp, baby bird calling mom, ambulance clearing traffic). Avoid obscure adult terms (use "sunglasses 🕶️" not "frosted wax", "deep ocean 🌊" not "abyss").
+  - **Grade 3–5 (Age 8–11)**: 12–18 words per sentence, structured scientific/social terms introduced in context, multi-step inquiry.
+  - *Read `references/pyp-framework.md#10-grade-level-language--storytelling-standards-age-611` before writing any prompt, clue, or feedback.*
 - **Driving question** a child would actually ask ("Why does my shadow get longer?"). Show it in the UI or read it aloud.
 - **Authentic context** — real places, routines, and characters. Hilson, the student this hub was built for, loves Minecraft; Minecraft-flavoured items and goals are welcome where they fit naturally.
 - **Mechanic that models thinking**, not recall alone: sort evidence, sequence a cycle, build a model, test a variable, choose and see consequences, fix an error. Prefer manipulatives (SVG clocks, balance scales, draggable cards, sliders, 3D models) over text lists.
+- **Zero Pre-Selection in Challenges**:
+  - Never pre-select answers or button options in HTML or initial state.
+  - All choice variables start as `null`, buttons unselected, and badges display `❓ Tap to choose` with dashed borders.
+  - Switching between cases resets unsolved choices to `null` and clears `.active` classes.
+  - If a child taps submit before selecting choices, show a warm, non-penalizing nudge (e.g. *"👆 Please choose both a Pitch and a Volume first!"*).
+- **Clear Case Navigation**: Provide an interactive tab bar (`[Case 1] [Case 2] [Case 3]`). Show `✅` checkmarks on solved cases. Show only relevant controls for the active case.
+- **Audio Etiquette on Page Load**: Never auto-play sound effects (sirens, roars, buzzers) on page load. All audio must be triggered by explicit user gestures or test buttons.
 - **Agency**: learner chooses mode, range, story, or path (e.g. table groups ×2–4 / ×5–7 / ×8–9 plus single tables). Self-directed exploration before testing.
 - **Formative feedback**: immediate, specific, kind — say what worked and the next step. Low-stakes retries; no harsh game-over. Avoid timers for ages 6–8 unless requested.
 - **Reflect / act**: end with a one-line takeaway or a "what will you do now?" choice tied to the learner profile.
-
-Age calibration: Grade 1–2 = one short task at a time, read-aloud for all prompts, tap/drag; Grade 3–4 = sort/compare/sequence with hints; Grade 5 = plan, infer, optimise, short written reasoning.
 
 ### 3. Build the standalone file
 
@@ -72,7 +85,7 @@ Copy the accent dropdown and `TTS_MANAGER` from `references/tts-pattern.md` verb
 
 ### 5. Sound and polish
 
-Add a small Web Audio synth class (click, correct chime, error buzz, fanfare) per `references/audio-and-interaction.md`; unlock on first gesture; keep the same "Next" sound across games. Celebrate completion with a modal plus "Play Again".
+Add a small Web Audio synth class (click, correct chime, error buzz, fanfare) per `references/audio-and-interaction.md`; unlock on first gesture; keep the same "Next" sound across games. Celebrate completion with a modal plus "Play Again". Remember: zero audio on page load.
 
 ### 6. Register and verify
 
@@ -84,7 +97,12 @@ Add a small Web Audio synth class (click, correct chime, error buzz, fanfare) pe
 ## Quality checklist
 
 - [ ] Game traces to a line of inquiry and at least one key concept.
+- [ ] Explore-First sequence: Free exploration/discovery (Step 1) comes before challenge/mission (Step 2).
+- [ ] Grade-level language calibration: Short sentences (8–14 words for G2), sight words, concrete everyday examples, zero adult academic jargon.
 - [ ] Driving question visible or spoken; context is authentic.
+- [ ] Zero pre-selection: No default-selected answers in challenges; choices start `null` with `❓ Tap to choose`.
+- [ ] Clean case navigation: Visible case tabs (`[Case 1] [Case 2] [Case 3]`), state resets on case switch, guard checks on empty submit.
+- [ ] Audio etiquette: Strictly zero auto-playing sound effects on page load; sounds only play on user gesture/tap.
 - [ ] Learner has a choice (mode, range, path) and can explore before being tested.
 - [ ] Feedback is immediate, specific, kind; retry is always possible.
 - [ ] Options shuffled; grammar and punctuation correct; English-only unless Chinese subject.

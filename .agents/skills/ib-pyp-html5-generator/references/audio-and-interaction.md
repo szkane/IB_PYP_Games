@@ -174,3 +174,139 @@ When building 3D spatial models (e.g., Solar System, Angle Explorer, Shadow Simu
 When a learner picks one item from a selection tray (e.g., selecting an object in a shadow lab, picking a character for a script):
 - Ensure state cleanly clears previous selections.
 - If showing one target item at a time, hide or deselect all other candidate items to avoid confusing visual overlaps.
+
+---
+
+## 6. Zero Pre-Selection & Clean State Initialization
+
+**CRITICAL RULE FOR ALL CHALLENGES & MISSIONS**:
+Never pre-select answers or options in HTML markup or initial JS state. Pre-selected buttons give away the answer or confuse children who haven't made a choice yet.
+
+### HTML Pattern
+Buttons start in a neutral, unselected state without the `.active` class. Labels show `❓ Tap to choose` with a dashed border:
+```html
+<div class="control-row">
+  <div class="control-row-header">
+    <span>1. Pitch (How High or Low?):</span>
+    <span class="choice-badge-neutral" id="lblPitch">❓ Tap to choose</span>
+  </div>
+  <div class="btn-group">
+    <button type="button" class="btn-stepper" id="btnLow">🐘 Low Rumble</button>
+    <button type="button" class="btn-stepper" id="btnHigh">🐭 High Squeak</button>
+  </div>
+</div>
+```
+
+```css
+.choice-badge-neutral {
+  background: #FFF;
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1.5px dashed var(--ink);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+.choice-badge-selected {
+  background: var(--yellow);
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1.5px solid var(--ink);
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+```
+
+### JS State Initialization
+Initialize choices to `null`:
+```javascript
+const GAME_STATE = {
+  pitchChoice: null,
+  volChoice: null
+};
+```
+
+### Case Switching State Reset
+When switching between cases or missions, uncompleted cases must reset their button selections and choices to `null` so each challenge starts fresh:
+```javascript
+function renderCase(idx) {
+  if (!solvedCases[idx]) {
+    GAME_STATE.pitchChoice = null;
+    GAME_STATE.volChoice = null;
+    
+    // Clear active classes from buttons
+    document.querySelectorAll('.btn-stepper').forEach(b => b.classList.remove('active'));
+    
+    // Reset badges to neutral dashed prompt
+    lblPitch.textContent = '❓ Tap to choose';
+    lblPitch.className = 'choice-badge-neutral';
+    lblVol.textContent = '❓ Tap to choose';
+    lblVol.className = 'choice-badge-neutral';
+  }
+}
+```
+
+---
+
+## 7. Explore-First Sequence & Case Navigation Tabs
+
+### Explore-First Architecture
+Never drop a 6–8 year old child directly into a quiz or test case without prior discovery. Always scaffold in two clear steps:
+- **Step 1: Free Exploration & Discovery**: Interactive sandbox, real-world discovery cards, audio listening buttons, visual live preview.
+- **Step 2: Director Challenge / Mission**: Hands-on problem solving applying what was discovered in Step 1. Include an easy `[⬅️ Back to Explore]` button so the child can return anytime.
+
+### Case Navigation Bar
+When multiple challenges exist, do NOT pack multiple cases into one confusing screen. Present one case at a time with a clear case tab bar:
+```html
+<div class="case-tabs-bar" id="caseTabs">
+  <button type="button" class="case-tab-btn active" data-case="0">🦖 Case 1: Dino Stomp</button>
+  <button type="button" class="case-tab-btn" data-case="1">🐣 Case 2: Baby Bird</button>
+  <button type="button" class="case-tab-btn" data-case="2">🦕 Case 3: Monster Shadow</button>
+</div>
+```
+- Solved cases receive a green background and a `✅` checkmark badge (`case-tab-btn solved`).
+- Only show the controls and visual preview relevant to the active case (e.g., hide shadow controls during sound cases).
+
+---
+
+## 8. Audio Etiquette on Page Load
+
+**NEVER auto-play sound effects on page load**:
+- Auto-playing sirens, alarms, animal roars, or buzzers on page load startles young children, triggers browser audio policy blocks, and creates chaos in classroom environments.
+- When initializing default discovery cards on `DOMContentLoaded`, pass a `playSound = false` parameter:
+
+```javascript
+function selectDiscoverItem(itemKey, playSound = false) {
+  // Update visual UI...
+  if (playSound) {
+    soundAudio.playItemSound(itemKey);
+  }
+}
+
+// On page load: strictly silent initialization
+window.addEventListener('DOMContentLoaded', () => {
+  selectDiscoverItem('mouse', false);
+  selectSignalItem('ambulance', false);
+});
+```
+- Sound effects must ONLY trigger on deliberate user actions (tapping a sound card, clicking a test button, or submitting a solution).
+
+---
+
+## 9. Gentle Guard Checks Before Submission
+
+If a child presses the action/submit button before selecting all required choices:
+- **Do NOT fail them or check against null**.
+- Show a warm, non-penalizing, helpful reminder pointing upward:
+```javascript
+btnCheckCase.addEventListener('click', () => {
+  if (!GAME_STATE.pitchChoice || !GAME_STATE.volChoice) {
+    soundAudio.playBuzz();
+    feedbackEl.className = 'mission-feedback try-again';
+    feedbackEl.style.display = 'block';
+    feedbackEl.textContent = "👆 Please tap both a Pitch (Low or High) and a Volume (Soft or Loud) first!";
+    return;
+  }
+  // Proceed with validation...
+});
+```
+

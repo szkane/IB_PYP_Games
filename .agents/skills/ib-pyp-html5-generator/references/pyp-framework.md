@@ -107,3 +107,51 @@ Grade 2, Unit "How the World Works" — central idea: *Light and sound help us u
 | How shadows form | Causation | `g2_light_shadow_master.html` | Move a torch, pick material opacity, watch the shadow change |
 | How sounds are made and travel | Function | `g2_sound_explorer.html` | Scenario cards; test pitch/volume; read-aloud scenarios |
 | How we use light and sound safely | Responsibility | (new) | Choose safe actions, see consequences, commit to one at home |
+
+---
+
+## 10. Grade-Level Language & Storytelling Standards (Age 6–11)
+
+Inquiry games fail when 7-year-olds cannot understand the prompt or drown in adult academic jargon. All text, narratives, scenarios, clues, and feedback must strictly match the developmental reading level of the target grade.
+
+### Developmental Language Matrix
+
+| Grade | Age | Max Sentence Length | Vocabulary & Syntax | Story Structure | Visual/TTS Scaffolding |
+| --- | --- | --- | --- | --- | --- |
+| **Grade 1** | 6–7 | 5–10 words | Basic sight words, CVC words, short vowels, present tense. | 1 short sentence setup + 1 direct question. | Large emojis on every noun; TTS auto-speak enabled. |
+| **Grade 2** | 7–8 | 8–14 words | High-frequency words, simple compounds, clear cause-and-effect. | Short 2-sentence story: Context + action + direct question. | Action emojis (🦖, 🐣, ⛵); speaker buttons on all prompts. |
+| **Grade 3–4** | 8–10 | 12–18 words | Descriptive adjectives, scientific terms introduced in context. | Multi-sentence scenario with characters, goals, and trade-offs. | Diagram annotations, glossary tooltips. |
+| **Grade 5** | 10–11 | 15–22 words | Technical vocabulary, conditional clauses, nuanced perspectives. | Case briefs, real-world simulations, data interpretation. | Interactive charts, multi-tab briefs. |
+
+### Concrete Examples: What to Avoid vs What to Use
+
+Children think in terms of objects they can touch, see, and hear in everyday life. Never use obscure or adult academic examples when an intuitive everyday alternative exists:
+
+| Concept | ❌ DO NOT USE (Too abstract / obscure) | ✅ ALWAYS USE (Relatable everyday items) |
+| --- | --- | --- |
+| **Translucent** | "Frosted wax", "Paraffin paper", "Greaseproof film" | "Beach sunglasses 🕶️", "Colored juice bottles", "Tinted car windows" |
+| **Transparent** | "Optical acrylic", "Silica pane" | "Clean window glass 🪟", "Eyeglasses", "Fish tank" |
+| **Opaque** | "Dense timber block", "Lead sheet" | "Solid toy dinosaur 🦖", "Wooden door", "Book" |
+| **Low Pitch** | "Low frequency acoustic wave" | "Big elephant rumble 🐘", "Distant thunder", "Bass drum" |
+| **High Pitch** | "Rapid hertz vibration" | "Tiny mouse squeak 🐭", "Referee whistle", "Baby bird chirp" |
+| **Loud Volume** | "High decibel energy amplitude" | "Lion roar 🦁", "Airplane jet engine", "Cheering crowd" |
+| **Soft Volume** | "Low kinetic sound pressure" | "Quiet whisper 🤫", "Falling snow", "Rustling dry leaves" |
+| **Deep Water** | "Deep sea trench abyss" | "Deep ocean submarine 🌊", "Underwater coral reef" |
+
+### Prompt Narrative Construction (Grade 2 Formula)
+
+Always format challenge prompts using this simple 3-part formula:
+1. **The Hook** (Context + Emoji): *"Movie Scene: A giant T-Rex is walking! 🦖"*
+2. **The Cause-and-Effect Detail**: *"Each heavy footstep shakes the cinema floor."*
+3. **The Clear Action Call**: *"What sound makes the footsteps feel heavy and strong?"*
+
+### Clues & Formative Feedback Rules
+- **Clues must give guidance, not abstract theory**:
+  - *Bad*: *"Consider how sound frequency correlates inversely with vibrating mass."*
+  - *Good (Grade 2)*: *"Big, heavy things make deep, low sounds with lots of power! Pick Low Rumble and Loud Roar."*
+- **Hints on mistakes must point to the specific choice**:
+  - *"🤔 A tiny mouse squeaks high. A giant T-Rex makes a deep Low Rumble!"*
+  - *"🤔 Clear glass lets light pass right through! Pick the Solid Toy Dino to block light."*
+- **Celebration feedback must reinforce the learning takeaway**:
+  - *"🌟 ROAR! Big heavy dinosaurs make a deep low rumble and a loud roar!"*
+
