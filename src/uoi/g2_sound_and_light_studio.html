@@ -1396,13 +1396,13 @@
         <!-- Interactive Mission Navigation Bar -->
         <div class="case-tabs-bar" id="m2CaseTabs">
           <button type="button" class="case-tab-btn active" data-m2-case="0">
-            <span>⛵ Mission 1: Sea Mist</span>
+            <span>⛵ Mission 1: Lost Boat</span>
           </button>
           <button type="button" class="case-tab-btn" data-m2-case="1">
-            <span>🚑 Mission 2: City Run</span>
+            <span>🚑 Mission 2: Ambulance</span>
           </button>
           <button type="button" class="case-tab-btn" data-m2-case="2">
-            <span>🌊 Mission 3: Reef Storm</span>
+            <span>🌊 Mission 3: Storm Alert</span>
           </button>
         </div>
 
@@ -1483,13 +1483,13 @@
       <!-- Interactive Script Navigation Bar -->
       <div class="case-tabs-bar" id="m3ScriptTabs">
         <button type="button" class="case-tab-btn active" data-m3-script="0">
-          <span>🏰 Script 1: Castle Storm</span>
+          <span>🏰 Script 1: Spooky Castle</span>
         </button>
         <button type="button" class="case-tab-btn" data-m3-script="1">
-          <span>🦁 Script 2: Savanna Sunrise</span>
+          <span>🦁 Script 2: Sunny Savanna</span>
         </button>
         <button type="button" class="case-tab-btn" data-m3-script="2">
-          <span>🌊 Script 3: Deep Sea Abyss</span>
+          <span>🌊 Script 3: Deep Ocean</span>
         </button>
       </div>
 
@@ -1591,9 +1591,9 @@
     <div class="modal-overlay" id="celebrationModal">
       <div class="modal-box">
         <div class="modal-badge">🏆🎬⭐</div>
-        <h2 class="modal-title" id="modalTitle">Master Creative Director!</h2>
+        <h2 class="modal-title" id="modalTitle">Master Movie Director!</h2>
         <p class="modal-text" id="modalText">
-          Incredible inquiry! You learned how sound vibrations make pitch and volume, how light makes shadows, how signals help people in emergencies, and how to direct awesome stories!
+          Awesome job! You learned how sounds and lights work, how emergency signals help people, and how to direct your own movie stories!
         </p>
         <div class="learner-profile-pills">
           <span class="lp-pill">🗣️ Communicator</span>
@@ -2200,38 +2200,38 @@
         solvedCases: [false, false, false],
         cases: [
           {
-            title: "Giant T-Rex Stomp",
-            prompt: "Movie Scene: A colossal 5-ton dinosaur is stomping toward the camera! What sound vibrations will make its giant footsteps feel super heavy and shake the cinema floor?",
-            clue: "Think about size and energy! Huge, heavy animals have large vocal cords that vibrate slowly. Stomps that shake the ground carry big energy! Should pitch be high or low? Should volume be soft or loud?",
+            title: "Big T-Rex Stomp",
+            prompt: "Movie Scene: A giant T-Rex is walking! 🦖 Each footstep shakes the ground. What sound makes the footsteps sound heavy and strong?",
+            clue: "Big, heavy things make deep, low sounds with lots of power! Pick Low Rumble and Loud Roar.",
             check: (s) => s.pitchChoice === 'low' && s.volChoice === 'loud',
-            feedbackSuccess: "🌟 PERFECT DIRECTOR CHOICE! Heavy dinosaurs vibrate slowly for a deep Low Rumble, and massive footstep energy creates a Loud Roar that shakes the cinema floor!",
+            feedbackSuccess: "🌟 ROAR! Big heavy dinosaurs make a deep low rumble and a loud roar!",
             getHint: (s) => {
-              if (s.pitchChoice !== 'low') return "🤔 Listen closely: High squeaks come from tiny things vibrating fast (like mice). A giant 5-ton T-Rex needs slow, deep vibrations. Try Low Rumble!";
-              if (s.volChoice !== 'loud') return "🤔 The low pitch is great, but the stomp is too quiet! A huge dinosaur footstep hits the ground with massive energy. Make it Louder!";
+              if (s.pitchChoice !== 'low') return "🤔 A tiny mouse squeaks high. A giant T-Rex makes a deep Low Rumble!";
+              if (s.volChoice !== 'loud') return "🤔 Good low sound! But the stomp is too quiet. Make it a Loud Roar!";
               return "🤔 Check your pitch and volume choices on the left!";
             }
           },
           {
-            title: "Baby Bird in the Nest",
-            prompt: "Nature Documentary: A tiny newborn chick is calling for its mother from a high tree nest. What sound settings should a gentle baby bird make?",
-            clue: "Small, light creatures have tiny vocal cords that vibrate super fast. Calling safely from a nest needs gentle, low energy so forest predators don't hear!",
+            title: "Baby Bird Calling Mom",
+            prompt: "Nature Show: A tiny baby bird is in its nest! 🐣 It chirps gently for its mom so hungry cats don't hear. What sound should the baby bird make?",
+            clue: "Small baby animals make high squeaks, and quiet calls are soft! Pick High Squeak and Soft Whisper.",
             check: (s) => s.pitchChoice === 'high' && s.volChoice === 'soft',
-            feedbackSuccess: "🌟 WONDERFUL! Tiny vocal cords vibrate super fast for a High Squeak, and low sound energy makes a safe, gentle Soft Whisper!",
+            feedbackSuccess: "🌟 CHIRP! Tiny birds make high squeaks, and soft whisper sounds keep them safe!",
             getHint: (s) => {
-              if (s.pitchChoice !== 'high') return "🤔 Low rumbles come from big, heavy animals. A tiny baby bird vibrates super fast to make a High Squeak!";
-              if (s.volChoice !== 'soft') return "🤔 A loud roar would alert forest predators! Baby birds chirp with gentle, low energy. Try Soft Whisper!";
+              if (s.pitchChoice !== 'high') return "🤔 Deep rumbles are for big beasts. A tiny baby bird makes a High Squeak!";
+              if (s.volChoice !== 'soft') return "🤔 Too loud! A loud roar would bring hungry cats. Make it a Soft Whisper!";
               return "🤔 Check your pitch and volume choices on the left!";
             }
           },
           {
-            title: "Monster Shadow Theater",
-            prompt: "Shadow Theater: The storyteller wants to shock the audience with a giant, terrifying monster shadow on the screen! What object should you pick, and how close to the spotlight should you hold it?",
-            clue: "Does clear glass block light, or does a solid object block it? What happens to the shadow size when an object moves closer to the flashlight beam?",
+            title: "Giant Monster Shadow",
+            prompt: "Puppet Show: Make a GIANT monster shadow on the wall! 🦕 What toy blocks the light, and where do you hold it?",
+            clue: "Solid toys block light to make dark shadows. Hold the toy close to the flashlight to grow a giant shadow!",
             check: (s) => s.matChoice === 'dino' && s.distChoice === 'near',
-            feedbackSuccess: "🌟 SPOOKY MASTERPIECE! The solid dino is OPAQUE (blocks all light), and placing it close to the flashlight blocks almost the entire beam, projecting a GIANT monster shadow!",
+            feedbackSuccess: "🌟 SPOOKY! Solid toys block light, and holding them close makes a giant shadow on the wall!",
             getHint: (s) => {
-              if (s.matChoice !== 'dino') return "🤔 Clear glass is transparent — light passes right through it without making a shadow! You need a solid opaque object!";
-              if (s.distChoice !== 'near') return "🤔 Holding the toy far away only blocks a small angle of light rays, making a small shadow. Move it closer to the flashlight to grow a giant shadow!";
+              if (s.matChoice !== 'dino') return "🤔 Light passes right through clear glass! Use the Solid Toy Dino to block light.";
+              if (s.distChoice !== 'near') return "🤔 Holding it far away makes a small shadow. Move the toy Close to the flashlight to make it giant!";
               return "🤔 Check your material and distance choices on the left!";
             }
           }
@@ -2248,38 +2248,38 @@
         solvedCases: [false, false, false],
         cases: [
           {
-            title: "Lost Fishing Boat in Sea Mist",
-            prompt: "Harbor Rescue: A fishing boat is lost in thick, blinding sea fog near sharp rocky cliffs! Which sound frequency can travel miles through heavy mist, and what light will guide them around the coast?",
-            clue: "High wailing sounds get scattered quickly by moisture in the air, but deep, low sounds travel for miles. Lighthouses use a sweeping beam to show the coastline!",
+            title: "Lost Boat in Sea Fog",
+            prompt: "Rescue Mission: A little boat is lost in thick sea fog! ⛵ What deep sound travels far through fog, and what light helps sailors find the shore?",
+            clue: "Deep foghorns can travel miles through wet fog! Lighthouses use a sweeping beam to show the way.",
             check: (s) => s.soundChoice === 'foghorn' && s.lightChoice === 'beacon',
-            feedbackSuccess: "🌟 SAFE HARBOR! Deep low-pitch foghorns cut through heavy sea mist across miles, and rotating lighthouse beams mark the safe passage around jagged rocks!",
+            feedbackSuccess: "🌟 RESCUED! The deep foghorn cuts through thick fog, and the sweeping lighthouse beam guides the boat safely home!",
             getHint: (s) => {
-              if (s.soundChoice !== 'foghorn') return "🤔 An ambulance siren works on city streets, but high pitches get scattered by miles of thick fog! Deep low frequencies (Foghorn) travel much farther over water.";
-              if (s.lightChoice !== 'beacon') return "🤔 Flashing red/blue strobes are for road vehicles. Ships out at sea need a wide sweeping light (Rotating Beam) from high on a lighthouse tower!";
+              if (s.soundChoice !== 'foghorn') return "🤔 High sirens get lost in thick fog. A deep Low Foghorn travels far across the water!";
+              if (s.lightChoice !== 'beacon') return "🤔 Flashing red/blue lights are for road cars. Ships at sea look for a tall Rotating Beam!";
               return "🤔 Check your sound and light choices on the left!";
             }
           },
           {
-            title: "City Hospital Emergency Run",
-            prompt: "City Emergency: An ambulance is rushing an injured patient through crowded rush-hour traffic! What sound and flashing lights will make drivers instantly check their mirrors and pull over?",
-            clue: "Human ears pay urgent attention to fast, alternating wails. Fast flashing colored lights stand out in car mirrors amidst headlights!",
+            title: "City Ambulance Rush",
+            prompt: "City Street: An ambulance is rushing to help someone! 🚑 Street traffic is crowded. What loud sound and bright lights tell cars to move aside?",
+            clue: "Wailing sirens tell drivers to look right away! Red and blue flashing lights stand out in car mirrors.",
             check: (s) => s.soundChoice === 'siren' && s.lightChoice === 'strobe',
-            feedbackSuccess: "🌟 CLEAR THE LANE! The alternating urgent siren cuts through car engine noise, and flashing red/blue strobes alert drivers immediately to yield the road!",
+            feedbackSuccess: "🌟 CLEAR THE ROAD! The urgent siren and flashing lights tell all cars to let the ambulance pass!",
             getHint: (s) => {
-              if (s.soundChoice !== 'siren') return "🤔 A foghorn is too deep and slow for fast city traffic. Ambulances use rapid alternating wails (Urgent Siren) that signal emergency!";
-              if (s.lightChoice !== 'strobe') return "🤔 A rotating beacon is for tall towers miles away. Quick flashing red/blue strobes alert nearby drivers right now!";
+              if (s.soundChoice !== 'siren') return "🤔 A foghorn is for sea ships. Ambulances on roads use an Urgent Siren!";
+              if (s.lightChoice !== 'strobe') return "🤔 Rotating beams are for tall lighthouses. Ambulances use fast Red/Blue Flashers!";
               return "🤔 Check your sound and light choices on the left!";
             }
           },
           {
-            title: "Rocky Reef Night Storm Alert",
-            prompt: "Storm Warning: A fierce midnight gale has knocked out radars near dangerous reef rocks! What warning signals will stop an approaching cargo ship from crashing in the dark?",
-            clue: "Howling storm winds drown out high-pitched sirens, but low rumbles carry through the tempest. The ship needs a powerful sweeping lighthouse beam to spot the reef!",
+            title: "Storm Warning by the Rocks",
+            prompt: "Dark Storm: A dark night storm is blowing near sharp ocean rocks! 🌊 What warning sound cuts through howling wind, and what light warns ships?",
+            clue: "Deep foghorns can be heard over howling storm wind! A lighthouse beam sweeps across the dark waves.",
             check: (s) => s.soundChoice === 'foghorn' && s.lightChoice === 'beacon',
-            feedbackSuccess: "🌟 DISASTER AVOIDED! The deep foghorn penetrated the howling winds, and the powerful sweeping beacon lit up the rocky cliffs just in time!",
+            feedbackSuccess: "🌟 SAFE AT SEA! The deep foghorn pushes through the storm wind, and the sweeping beam warns the ship!",
             getHint: (s) => {
-              if (s.soundChoice !== 'foghorn') return "🤔 Storm winds easily drown out sirens. Deep, low frequencies (Foghorn) punch through wild stormy weather!";
-              if (s.lightChoice !== 'beacon') return "🤔 Ships miles offshore need a wide sweeping lighthouse beacon to illuminate the reef line!";
+              if (s.soundChoice !== 'foghorn') return "🤔 Wild storm winds blow sirens away! A deep Low Foghorn punches through the wind.";
+              if (s.lightChoice !== 'beacon') return "🤔 Ships far in the ocean need a sweeping Rotating Beam to spot the dangerous rocks!";
               return "🤔 Check your sound and light choices on the left!";
             }
           }
@@ -2295,43 +2295,43 @@
         scripts: [
           {
             actorEmoji: '🏰',
-            title: "Midnight Castle Thunderstorm",
-            prompt: "Scene 1: Midnight Castle! The mysterious vampire sneaks through the dark castle halls at midnight. What stage lighting creates a spooky mood, and what sound effect will startle the audience?",
-            clue: "Bright colors feel warm and safe. What dim, mysterious color creates suspense and shadow? What sudden, explosive sound makes people jump in their seats?",
+            title: "Spooky Castle Storm",
+            prompt: "Movie Scene 1: A spooky old castle at midnight! 🏰 Make the stage feel scary and add a loud storm sound!",
+            clue: "Spooky violet light makes the stage feel dark and creepy! A sudden thunder crash makes everyone jump.",
             reqGel: '#B388FF',
             reqFx: 'thunder',
-            feedbackSuccess: "🌟 SPINE-CHILLING DRAMA! Dim spooky violet lighting builds mystery, and the sudden explosive thunder crash shocks the entire theater!",
+            feedbackSuccess: "🌟 SPOOKY SCENE! Dim violet light creates suspense, and the loud thunder crash shocks the crowd!",
             getHint: (gel, fx) => {
-              if (gel.toLowerCase() !== '#b388ff') return "🤔 Lighting check: Bright yellow or blue feels like daylight or underwater. Dim Spooky Violet lighting creates suspense and danger!";
-              if (fx !== 'thunder') return "🤔 Sound check: Cheerful birds or submarine pings don't feel like a scary midnight storm! Trigger a sudden Thunder Crash!";
+              if (gel.toLowerCase() !== '#b388ff') return "🤔 Yellow or blue lights look like sunshine or water. Pick Spooky Violet light for a scary castle!";
+              if (fx !== 'thunder') return "🤔 Cheerful birds don't fit a midnight storm! Pick Thunder Crash to startle the audience!";
               return "🤔 Check your stage lighting and sound effect on the left!";
             }
           },
           {
             actorEmoji: '🦁',
-            title: "Savanna Sunrise",
-            prompt: "Scene 2: African Savanna! The golden morning sun rises over the peaceful waking lion plains. What lighting color feels warm and cheerful, and what sound effect brings the peaceful dawn to life?",
-            clue: "Think of the morning sun shining down on the grass. What color matches dawn? What creatures start singing when the sun comes up?",
+            title: "Sunny Morning Plains",
+            prompt: "Movie Scene 2: The warm sun rises over the grassy plains! 🦁 Sleepy animals are waking up. Make the stage look sunny and peaceful!",
+            clue: "Bright yellow light looks just like warm morning sun! Sweet bird songs show a peaceful new day.",
             reqGel: '#FFE156',
             reqFx: 'birds',
-            feedbackSuccess: "🌟 PURE HARMONY! Warm golden light feels cozy and hopeful, and sweet bird songs transport the audience straight into a peaceful African morning!",
+            feedbackSuccess: "🌟 HAPPY SUNRISE! Golden sunny light feels warm, and sweet bird songs wake up the animals!",
             getHint: (gel, fx) => {
-              if (gel.toLowerCase() !== '#ffe156') return "🤔 Lighting check: Cool blue or spooky purple lighting feels like night or deep water. A sunrise needs warm Golden Sunny light!";
-              if (fx !== 'birds') return "🤔 Sound check: A peaceful sunrise doesn't have explosive crashes or sonar beeps! Sweet Birds match the waking savanna.";
+              if (gel.toLowerCase() !== '#ffe156') return "🤔 Dark purple or blue light looks like night or water. Pick Golden Sunny light for morning sun!";
+              if (fx !== 'birds') return "🤔 Thunder is too scary for a peaceful morning! Sweet Birds sound like a happy dawn.";
               return "🤔 Check your stage lighting and sound effect on the left!";
             }
           },
           {
             actorEmoji: '🌊',
-            title: "Deep Sea Submarine",
-            prompt: "Scene 3: Deep Sea Abyss! Research scientists dive deep below the surface into mysterious ocean trenches. What stage lighting captures the deep sea, and what rhythmic sound shows they are scanning underwater?",
-            clue: "Sunlight cannot reach the deep ocean floor. Underwater research vessels use rhythmic electronic pings to navigate dark underwater trenches!",
+            title: "Deep Ocean Submarine",
+            prompt: "Movie Scene 3: A yellow submarine dives deep underwater! 🌊 Make the stage look like the deep sea and add a submarine sound!",
+            clue: "Ocean blue light looks just like deep water! Submarines make pinging sonar beeps to see in the dark.",
             reqGel: '#38B6FF',
             reqFx: 'sonar',
-            feedbackSuccess: "🌟 DEEP SEA EXPLORATION! Ocean blue gel immerses the audience underwater, and rhythmic sonar pings build curious high-tech exploration!",
+            feedbackSuccess: "🌟 UNDERWATER ADVENTURE! Blue light makes the stage feel like the deep sea, and sonar pings guide the submarine!",
             getHint: (gel, fx) => {
-              if (gel.toLowerCase() !== '#38b6ff') return "🤔 Lighting check: Warm sunny light belongs on land! Deep underwater scenes need cool Ocean Blue lighting.";
-              if (fx !== 'sonar') return "🤔 Sound check: Thunder and birds don't exist under the ocean! Submarines send rhythmic Sonar Pings to navigate.";
+              if (gel.toLowerCase() !== '#38b6ff') return "🤔 Sunny yellow light belongs on land! Use Ocean Blue light for the deep sea.";
+              if (fx !== 'sonar') return "🤔 Thunder and birds don't exist under the ocean! Submarines use Submarine Pings to navigate.";
               return "🤔 Check your stage lighting and sound effect on the left!";
             }
           }
@@ -2344,65 +2344,65 @@
        ========================================================= */
     const DISCOVER_DATA = {
       mouse: {
-        title: "Why does a mouse sound like that?",
-        body: "Tiny vocal cords vibrate super-duper FAST! Fast vibrations make a High Pitch sound wave with tight, rapid ripples.",
-        when: "🌍 When do we hear this? Referee whistles, chirping baby birds, squeaky sneakers on gym floors!",
+        title: "Why does a mouse squeak so high?",
+        body: "A tiny mouse vibrates super FAST! Fast vibrations make a High Pitch sound wave with tight ripples.",
+        when: "🌍 We hear this in: Whistles, baby birds, and squeaky sneakers!",
         emoji: "🐭",
         sound: () => soundAudio.playMouseSqueak(),
         draw: () => drawWave(10, 20, "Mouse Squeak (High Pitch Wave)")
       },
       elephant: {
         title: "Why does an elephant rumble so low?",
-        body: "Huge vocal cords and heavy bodies vibrate SLOWLY! Slow vibrations make a Low Pitch sound wave with long, wide ripples that travel for miles.",
-        when: "🌍 When do we hear this? Distant thunderstorms, earthquake rumbles, big bass drums!",
+        body: "A big elephant vibrates SLOWLY! Slow vibrations make a deep Low Pitch sound wave that rolls far away.",
+        when: "🌍 We hear this in: Distant thunder, earthquake rumbles, and big bass drums!",
         emoji: "🐘",
         sound: () => soundAudio.playElephantRumble(),
         draw: () => drawWave(2.5, 45, "Elephant Rumble (Low Pitch Wave)")
       },
       whisper: {
         title: "What makes a whisper quiet?",
-        body: "Gentle breathing uses very LITTLE ENERGY! Small energy pushes the air softly, creating a small wave height (Volume).",
-        when: "🌍 When do we hear this? Bedtime bedtime stories, falling snow, gentle autumn leaves rustling.",
+        body: "A whisper uses very LITTLE energy. Soft breath pushes the air gently, making a Soft Volume wave.",
+        when: "🌍 We hear this in: Bedtime stories, falling snow, and dry leaves!",
         emoji: "🤫",
         sound: () => soundAudio.playWhisper(),
         draw: () => drawWave(5, 10, "Secret Whisper (Soft Volume Wave)")
       },
       lion: {
         title: "What makes a lion roar so loud?",
-        body: "Strong chest muscles push a HUGE BURST OF ENERGY! Big energy makes tall, powerful wave heights that carry across the plains.",
-        when: "🌍 When do we hear this? Airplane jet engines, thunderclaps, cheering stadiums!",
+        body: "A lion pushes a BIG blast of energy! Big energy makes tall, powerful sound waves that everyone hears.",
+        when: "🌍 We hear this in: Jet planes, thunderclaps, and cheering stadiums!",
         emoji: "🦁",
         sound: () => soundAudio.playLionRoar(),
         draw: () => drawWave(4, 55, "Lion Roar (Loud Volume Wave)")
       },
       glass: {
         title: "Why doesn't clear glass make a shadow?",
-        body: "Clear glass is TRANSPARENT. Light rays travel straight through without bouncing back or getting trapped!",
-        when: "🌍 When do we see this? Eyeglasses, clean car windows, glass aquariums!",
+        body: "Clear glass is TRANSPARENT. Light shines straight through it without bouncing back!",
+        when: "🌍 We see this in: Eyeglasses, clean windows, and fish tanks!",
         emoji: "🪟",
         sound: () => soundAudio.playClick(),
         draw: () => drawShadowStage('transparent', 180)
       },
       sunglasses: {
-        title: "Why do sunglasses dim the light?",
-        body: "Sunglasses are TRANSLUCENT! They let some light rays pass through so you can see, but block harsh glare to protect your eyes. They cast a soft, faded shadow!",
-        when: "🌍 When do we see this? Sunny beach days, tinted car windows, colorful plastic juice bottles!",
+        title: "Why do sunglasses dim bright light?",
+        body: "Sunglasses are TRANSLUCENT. They let some light through so you can see, but block harsh sun glare!",
+        when: "🌍 We see this in: Beach sunglasses, tinted car windows, and colored plastic bottles!",
         emoji: "🕶️",
         sound: () => soundAudio.playClick(),
         draw: () => drawShadowStage('translucent', 180)
       },
       puppet_far: {
-        title: "Why is the dinosaur shadow small when far away?",
-        body: "The solid toy dinosaur is OPAQUE — it blocks light completely! When you hold the dinosaur far from the flashlight, it only blocks a small piece of the spreading light cone, casting a small crisp shadow.",
-        when: "🌍 When do we see this? Holding a toy far from a desk lamp, or your shadow under the high midday sun!",
+        title: "Why is the shadow small far away?",
+        body: "A toy dino is OPAQUE — it blocks light completely! Far from the flashlight, it only blocks a small part of the light beam.",
+        when: "🌍 We see this: Holding a toy far from your desk lamp!",
         emoji: "🦖",
         sound: () => soundAudio.playClick(),
         draw: () => drawShadowStage('opaque', 260)
       },
       puppet_close: {
-        title: "Why does the dinosaur shadow get GIANT near the light?",
-        body: "When you move the toy dinosaur close to the flashlight, its body blocks ALMOST THE ENTIRE light beam! The blocked rays spread out to cast a GIANT roaring monster shadow on the wall!",
-        when: "🌍 When do we see this? Making giant monster shadows on your bedroom wall with a flashlight!",
+        title: "Why does the shadow get GIANT near the light?",
+        body: "Close to the flashlight, the toy blocks ALMOST ALL the light! The shadow stretches out to make a giant monster!",
+        when: "🌍 We see this: Making giant monster shadows on your wall with a flashlight!",
         emoji: "🦕",
         sound: () => soundAudio.playClick(),
         draw: () => drawShadowStage('opaque', 100)
@@ -2859,33 +2859,33 @@
        ========================================================= */
     const SIGNAL_DATA = {
       ambulance: {
-        title: "Why do ambulances flash red/blue and wail?",
-        body: "High-low sirens jump between pitches so human ears notice instantly! Flashing colored lights show drivers from far away to pull over safely.",
-        when: "🌍 Purpose: Urgent emergency warnings to clear the road!",
+        title: "Why do ambulances flash lights and wail?",
+        body: "Sirens jump high and low fast so our ears notice right away! Flashing red and blue lights tell all cars to pull over safely.",
+        when: "🌍 Why we use it: Emergency warnings to clear the road fast!",
         emoji: "🚑",
         sound: () => soundAudio.playSiren(),
         bg: "#1E293B"
       },
       lighthouse: {
-        title: "Why do lighthouses use both light and sound?",
-        body: "Light beams warn ships in dark nights. But when heavy sea fog blinds the light, deep foghorns vibrate right through the mist to guide sailors home!",
-        when: "🌍 Purpose: Navigation safety in dark nights and blinding foggy oceans.",
+        title: "Why do lighthouses use lights and foghorns?",
+        body: "Tall lights guide ships in the dark. In thick sea fog, deep low foghorns cut through the mist to guide sailors home!",
+        when: "🌍 Why we use it: Guiding ships safely past sharp, foggy ocean rocks!",
         emoji: "🗼",
         sound: () => soundAudio.playFoghorn(),
         bg: "#0F172A"
       },
       party: {
         title: "Why do bright lights and bells feel happy?",
-        body: "Humans naturally associate warm golden sunlight with warmth and safety, and upbeat ringing chimes with celebration and smiles!",
-        when: "🌍 Purpose: Expressing joy, friendship, and fun at birthday celebrations!",
+        body: "Warm golden light feels cozy and safe. Cheerful ringing bells make us smile and celebrate with friends!",
+        when: "🌍 Why we use it: Birthday parties, celebrations, and festive holidays!",
         emoji: "🎉",
         sound: () => soundAudio.playSuccessChime(),
         bg: "#D97706"
       },
       haunted: {
-        title: "Why do dim shadows and low hums feel spooky?",
-        body: "Dim purple shadows hide the room, and low unstable sounds signal our brains to stay on alert for mystery and suspense!",
-        when: "🌍 Purpose: Ghost stories, Halloween haunted houses, and mystery movies!",
+        title: "Why do dim purple lights and thunder feel spooky?",
+        body: "Dim purple light hides shadows in the dark, and sudden thunder crashes make us jump with excitement!",
+        when: "🌍 Why we use it: Ghost stories, Halloween haunted houses, and fun mystery movies!",
         emoji: "👻",
         sound: () => soundAudio.playFoley('thunder'),
         bg: "#581C87"
