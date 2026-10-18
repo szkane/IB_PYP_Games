@@ -74,9 +74,15 @@ flowchart TD
    - `npm run qa:curriculum` ensures coverage, valid links, standalone rules, and return anchors.
    - `npm run build` auto-regenerates `src/index.html` and bumps the Service Worker cache version.
 
-5. **Test in Browser & iPad Landscape**:
+5. **Test in Browser & iPad Landscape (Web Debugging Protocol)**:
    - Start the Vite dev server (`npm run dev`) or test via `http://localhost:5173/uoi/g{grade}_{topic}.html`.
+   - **Web Debugging Tool Selection**: Select exactly **one** browser tool in accordance with this strict priority order:
+     - **If the current AI harness is WorkBuddy**: Use `workbuddy-browser-use`.
+     - **Standard Priority Order**:
+       1. `agent-browser` (Priority 1)
+       2. `playwright` (or `playwright-cli`, Priority 2)
    - Verify viewports: Desktop and iPad landscape (1180×820 / 1024×768). Check that controls are visible without excessive vertical scrolling and touch targets are $\ge 44$px.
+   - Verify console logs: Ensure 0 unhandled JS errors, no audio policy violations, and clean TTS voice loading.
 
 ---
 
@@ -91,8 +97,9 @@ flowchart TD
    - Place the new standalone game in the project's designated games directory.
    - Adapt the return link relative path to point to the user's hub (e.g. `../index.html` or `index.html`).
    - Assist the user in registering the game inside their custom manifest/registry format.
-3. **Execute Custom Validation**:
+3. **Execute Custom Validation & Web Debugging**:
    - Run the fork's specific build, test, or lint scripts if configured, ensuring compatibility without forcing default repo assumptions.
+   - For web visual inspection and debugging, adhere to the tool priority: `workbuddy-browser-use` (in WorkBuddy) > `agent-browser` > `playwright`.
 
 ---
 
@@ -106,10 +113,11 @@ flowchart TD
      - **Option A (Recommended - Standard Hub Structure)**: Create an `index.html` navigation map hub linking to standalone inquiry games in a `uoi/` directory (adopting the proven IB PYP Games layout).
      - **Option B (Single Standalone Game)**: Create a standalone single `.html` game file with no repository scaffolding.
 2. **Generate the Files**:
-   - Author the standalone `.html` game with zero external dependencies (embedded CSS/JS, pure Web Audio API, browser native SpeechSynthesis TTS).
+   - Author the standalone `.html` game with zero external dependencies (embedded CSS/JS, pure Web Audio API, browser native SpeechSynthesis TTS with default fallback).
    - If Option A was selected, generate or update the central `index.html` hub with responsive activity cards, grade filters, and unit metadata badges.
 3. **Deliver & Verify**:
    - Deliver the files. The user can run them directly by double-clicking the `.html` file, serving via any static server, or hosting on GitHub Pages with zero npm installation required.
+   - When verifying page rendering or touch controls, use the debugging tool priority: `workbuddy-browser-use` (in WorkBuddy) > `agent-browser` > `playwright`.
 
 ---
 
@@ -149,8 +157,11 @@ Regardless of the scenario, every generated game must follow these non-negotiabl
 - Responsive two-column play grid (`1.2fr 1fr` in landscape, stacked on narrow mobile).
 - Large touch targets ($\ge 44$px height/width, `touch-action: manipulation`). Use `100dvh` for full-height views.
 
-### 8. Voice Read-Aloud (TTS) & Web Audio SFX
+### 8. Voice Read-Aloud (TTS) with Robust Fallback & Web Audio SFX
 - **Switchable Accent TTS**: Copy the accent dropdown and `TTS_MANAGER` from `references/tts-pattern.md` verbatim. Persists voice choice across activities via `localStorage['ib_pyp_voice_name']`. Provide 🔊 `.btn-speaker` buttons next to titles, prompts, stories, and clues.
+- **Mandatory TTS Fallback Logic**:
+  - Filter for US, UK, AU, and EN-related voices (`lang.startsWith('en')`).
+  - **Browser Default Fallback**: If the browser or operating system does NOT have US or EN-related TTS voice resources installed (e.g. non-English OS, minimal Linux environments, or restricted browser WebViews), the system must automatically fallback to the browser's default TTS (`voices.find(v => v.default) || voices[0]`). Speech synthesis must never fail silently.
 - **Pure Web Audio Synthesizer**: Include the zero-dependency `SoundFX` synthesizer class from `references/audio-and-interaction.md` (click, correct chime, gentle buzz, fanfare). Unlocked automatically on first user touch/click. Operates offline without external audio files.
 
 ---
@@ -161,6 +172,7 @@ Regardless of the scenario, every generated game must follow these non-negotiabl
   - *Scenario 1 (Standard Repo)*: Placed in `src/uoi/`, registered in `src/data/curriculum-map.json`, `npm run qa:curriculum` and `npm run build` pass, return link points to `../index.html`.
   - *Scenario 2 (Custom Fork)*: Adapted to custom folder/manifest structure, custom QA/build scripts respected.
   - *Scenario 3 (New Project)*: User was asked about creating an index hub; standalone file delivered with zero build requirements.
+- [ ] **Web Debugging Tool Hierarchy Used**: Visual and browser testing executed following: `workbuddy-browser-use` (if in WorkBuddy harness) > `agent-browser` (Priority 1) > `playwright` (Priority 2).
 - [ ] **IB PYP Alignment**: Traces clearly to transdisciplinary theme, central idea, lines of inquiry, key concepts, learner profile, and ATL skills.
 - [ ] **Explore-First Sequence**: Free exploration/discovery (Step 1) precedes challenge/mission (Step 2), with an easy return path.
 - [ ] **Grade-Level Language**: Short sentences (8–14 words for G2), sight words, concrete everyday examples, zero adult academic jargon.
@@ -168,5 +180,5 @@ Regardless of the scenario, every generated game must follow these non-negotiabl
 - [ ] **Case Navigation & State Reset**: Visible case tabs (`[Case 1] [Case 2] [Case 3]`), unsolved choices reset on case switch, guard checks on empty submit.
 - [ ] **Audio Etiquette**: Strictly zero sound effects auto-playing on page load; audio only triggers on explicit user gestures.
 - [ ] **Neobrutalism UI & iPad Landscape**: Bold borders (`3.5px #111`), hard drop shadows (`4px 4px 0 #111`), compact header, fits without excessive vertical scrolling.
-- [ ] **TTS Read-Aloud**: Top-right accent dropdown present; 🔊 buttons on prompts; voice choice saved in `localStorage`.
+- [ ] **TTS Read-Aloud & Fallback**: Top-right accent dropdown present; 🔊 buttons on prompts; voice choice saved in `localStorage`; **browser default TTS fallback implemented if US/EN voices are missing**.
 - [ ] **Synthetic Audio**: Pure Web Audio API SFX; unlocks on first gesture; silent graceful degradation if audio is unavailable.

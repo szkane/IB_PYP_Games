@@ -2060,43 +2060,54 @@
       populateVoices() {
         if (!window.speechSynthesis || !this.list) return;
         const voices = window.speechSynthesis.getVoices();
+        if (!voices || voices.length === 0) return;
+
         let englishVoices = voices.filter(v => {
-          const lang = v.lang.toLowerCase().replace('_', '-');
+          const lang = (v.lang || '').toLowerCase().replace('_', '-');
           return lang.startsWith('en') && !JOKE_VOICES.test(v.name);
         });
 
+        let isFallback = false;
+        // Fallback logic: If no US or EN-related voices exist in the browser, fallback to browser default TTS
         if (englishVoices.length === 0) {
+          isFallback = true;
           englishVoices = voices.filter(v => !JOKE_VOICES.test(v.name));
+          if (englishVoices.length === 0) englishVoices = voices;
         }
-        if (englishVoices.length === 0) englishVoices = voices;
 
-        // Rank by natural, warm voices for kids:
-        // Samantha, Daniel, Google UK Female, Google US, Karen, Serena, Ava, etc.
-        const PREFERRED_ORDER = ['samantha', 'daniel', 'google uk english female', 'google us english', 'karen', 'serena', 'oliver', 'ava', 'allison', 'kate'];
-        
-        englishVoices.sort((a, b) => {
-          const aLower = a.name.toLowerCase();
-          const bLower = b.name.toLowerCase();
+        if (!isFallback) {
+          // Rank by natural, warm voices for kids:
+          // Samantha, Daniel, Google UK Female, Google US, Karen, Serena, Ava, etc.
+          const PREFERRED_ORDER = ['samantha', 'daniel', 'google uk english female', 'google us english', 'karen', 'serena', 'oliver', 'ava', 'allison', 'kate'];
           
-          let aRank = PREFERRED_ORDER.findIndex(p => aLower.includes(p));
-          let bRank = PREFERRED_ORDER.findIndex(p => bLower.includes(p));
-          if (aRank === -1) aRank = 999;
-          if (bRank === -1) bRank = 999;
-          
-          if (aRank !== bRank) return aRank - bRank;
-          return a.name.localeCompare(b.name);
-        });
+          englishVoices.sort((a, b) => {
+            const aLower = a.name.toLowerCase();
+            const bLower = b.name.toLowerCase();
+            
+            let aRank = PREFERRED_ORDER.findIndex(p => aLower.includes(p));
+            let bRank = PREFERRED_ORDER.findIndex(p => bLower.includes(p));
+            if (aRank === -1) aRank = 999;
+            if (bRank === -1) bRank = 999;
+            
+            if (aRank !== bRank) return aRank - bRank;
+            return a.name.localeCompare(b.name);
+          });
+        }
 
         const saved = localStorage.getItem('ib_pyp_voice_name');
         let selected = null;
         if (saved) selected = englishVoices.find(v => v.name === saved);
-        if (!selected) {
+        if (!selected && !isFallback) {
+          const PREFERRED_ORDER = ['samantha', 'daniel', 'google uk english female', 'google us english', 'karen', 'serena', 'oliver', 'ava', 'allison', 'kate'];
           for (const pref of PREFERRED_ORDER) {
             selected = englishVoices.find(v => v.name.toLowerCase().includes(pref));
             if (selected) break;
           }
         }
-        if (!selected) selected = englishVoices[0];
+        // Browser default fallback if no selected voice yet
+        if (!selected) {
+          selected = englishVoices.find(v => v.default) || englishVoices[0] || voices.find(v => v.default) || voices[0] || null;
+        }
 
         this.currentVoiceName = selected ? selected.name : '';
         this.renderMenu(englishVoices);
@@ -2106,10 +2117,12 @@
       renderMenu(voices) {
         this.list.innerHTML = '';
         voices.slice(0, 15).forEach(v => {
-          const isUK = v.lang.toLowerCase().replace('_', '-').includes('gb');
-          const isAU = v.lang.toLowerCase().replace('_', '-').includes('au');
-          const flag = isAU ? '🇦🇺' : isUK ? '🇬🇧' : '🇺🇸';
-          const region = isAU ? 'AU' : isUK ? 'UK' : 'US';
+          const lang = (v.lang || '').toLowerCase().replace('_', '-');
+          const isUK = lang.includes('gb');
+          const isAU = lang.includes('au');
+          const isUS = lang.includes('us') || lang.startsWith('en');
+          const flag = isAU ? '🇦🇺' : isUK ? '🇬🇧' : isUS ? '🇺🇸' : '🌐';
+          const region = isAU ? 'AU' : isUK ? 'UK' : isUS ? 'US' : (v.lang || (v.default ? 'Default' : 'System'));
           const isActive = v.name === this.currentVoiceName;
 
           const btn = document.createElement('button');
@@ -2148,11 +2161,17 @@
       },
 
       updateTriggerUI(v) {
-        if (!v) return;
-        const isUK = v.lang.toLowerCase().replace('_', '-').includes('gb');
-        const isAU = v.lang.toLowerCase().replace('_', '-').includes('au');
-        this.flag.textContent = isAU ? '🇦🇺' : isUK ? '🇬🇧' : '🇺🇸';
-        let shortName = v.name.replace(/^(Google|Microsoft|Apple)\s+/i, '');
+        if (!v) {
+          if (this.flag) this.flag.textContent = '🌐';
+          if (this.label) this.label.textContent = 'Voice';
+          return;
+        }
+        const lang = (v.lang || '').toLowerCase().replace('_', '-');
+        const isUK = lang.includes('gb');
+        const isAU = lang.includes('au');
+        const isUS = lang.includes('us') || lang.startsWith('en');
+        this.flag.textContent = isAU ? '🇦🇺' : isUK ? '🇬🇧' : isUS ? '🇺🇸' : '🌐';
+        let shortName = (v.name || 'Default').replace(/^(Google|Microsoft|Apple)\s+/i, '');
         if (shortName.length > 14) shortName = shortName.substring(0, 12) + '...';
         this.label.textContent = shortName;
       },
@@ -2164,10 +2183,17 @@
 
         const utterance = new SpeechSynthesisUtterance(text);
         const voices = window.speechSynthesis.getVoices();
+        let chosenVoice = null;
         const voiceName = this.currentVoiceName || localStorage.getItem('ib_pyp_voice_name');
-        if (voiceName) {
-          const match = voices.find(v => v.name === voiceName);
-          if (match) utterance.voice = match;
+        if (voiceName && voices && voices.length > 0) {
+          chosenVoice = voices.find(v => v.name === voiceName);
+        }
+        // Fallback: If chosen voice not found or browser lacks US/EN-related TTS, use browser default TTS
+        if (!chosenVoice && voices && voices.length > 0) {
+          chosenVoice = voices.find(v => v.default) || voices[0] || null;
+        }
+        if (chosenVoice) {
+          utterance.voice = chosenVoice;
         }
         utterance.rate = 0.90; // Natural, relaxed pace for elementary kids
         utterance.pitch = 1.0; // Clean, natural human pitch

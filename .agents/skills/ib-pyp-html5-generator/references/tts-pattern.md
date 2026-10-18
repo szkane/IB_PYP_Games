@@ -258,62 +258,79 @@ const TTS_MANAGER = {
   populateVoices() {
     if (!window.speechSynthesis || !this.list) return;
     const voices = window.speechSynthesis.getVoices();
-    let englishVoices = voices.filter(v => {
-      const lang = v.lang.toLowerCase().replace('_', '-');
+    if (!voices || voices.length === 0) return;
+
+    // Filter US/UK/EN-related voices first
+    let availableVoices = voices.filter(v => {
+      const lang = (v.lang || '').toLowerCase().replace('_', '-');
       return lang.startsWith('en');
     });
 
-    if (englishVoices.length === 0) englishVoices = voices;
-    if (englishVoices.length === 0) return;
+    let isFallback = false;
+    // Fallback logic: If the browser does not have US or EN-related TTS resources, use the browser's default TTS
+    if (availableVoices.length === 0) {
+      isFallback = true;
+      availableVoices = voices;
+    }
 
-    // Prioritization: UK English Female -> US English Female/Google US -> any UK -> any US -> others
-    englishVoices.sort((a, b) => {
-      const aName = a.name;
-      const bName = b.name;
-      const isA_UK_Fem = aName.includes('Google UK English Female') || (aName.includes('UK English') && aName.includes('Female'));
-      const isB_UK_Fem = bName.includes('Google UK English Female') || (bName.includes('UK English') && bName.includes('Female'));
-      if (isA_UK_Fem && !isB_UK_Fem) return -1;
-      if (!isA_UK_Fem && isB_UK_Fem) return 1;
+    if (!isFallback) {
+      // Prioritization: UK English Female -> US English Female/Google US -> any UK -> any US -> others
+      availableVoices.sort((a, b) => {
+        const aName = a.name || '';
+        const bName = b.name || '';
+        const isA_UK_Fem = aName.includes('Google UK English Female') || (aName.includes('UK English') && aName.includes('Female'));
+        const isB_UK_Fem = bName.includes('Google UK English Female') || (bName.includes('UK English') && bName.includes('Female'));
+        if (isA_UK_Fem && !isB_UK_Fem) return -1;
+        if (!isA_UK_Fem && isB_UK_Fem) return 1;
 
-      const isA_US = aName.includes('Google US English') || (aName.includes('US English') && aName.includes('Female'));
-      const isB_US = bName.includes('Google US English') || (bName.includes('US English') && bName.includes('Female'));
-      if (isA_US && !isB_US) return -1;
-      if (!isA_US && isB_US) return 1;
+        const isA_US = aName.includes('Google US English') || (aName.includes('US English') && aName.includes('Female'));
+        const isB_US = bName.includes('Google US English') || (bName.includes('US English') && bName.includes('Female'));
+        if (isA_US && !isB_US) return -1;
+        if (!isA_US && isB_US) return 1;
 
-      const aUK = a.lang.toLowerCase().includes('gb');
-      const bUK = b.lang.toLowerCase().includes('gb');
-      if (aUK && !bUK) return -1;
-      if (!aUK && bUK) return 1;
+        const aUK = (a.lang || '').toLowerCase().includes('gb');
+        const bUK = (b.lang || '').toLowerCase().includes('gb');
+        if (aUK && !bUK) return -1;
+        if (!aUK && bUK) return 1;
 
-      const aUS = a.lang.toLowerCase().includes('us');
-      const bUS = b.lang.toLowerCase().includes('us');
-      if (aUS && !bUS) return -1;
-      if (!aUS && bUS) return 1;
+        const aUS = (a.lang || '').toLowerCase().includes('us');
+        const bUS = (b.lang || '').toLowerCase().includes('us');
+        if (aUS && !bUS) return -1;
+        if (!aUS && bUS) return 1;
 
-      return aName.localeCompare(bName);
-    });
+        return aName.localeCompare(bName);
+      });
+    }
 
     const saved = localStorage.getItem('ib_pyp_voice_name');
     let selected = null;
-    if (saved) selected = englishVoices.find(v => v.name === saved);
-    if (!selected) selected = englishVoices.find(v => v.name.includes('Google UK English Female') || (v.name.includes('UK English') && v.name.includes('Female')));
-    if (!selected) selected = englishVoices.find(v => v.name.includes('Google US English'));
-    if (!selected) selected = englishVoices.find(v => v.lang.toLowerCase().includes('gb'));
-    if (!selected) selected = englishVoices.find(v => v.lang.toLowerCase().includes('us'));
-    if (!selected) selected = englishVoices[0];
+    if (saved) selected = availableVoices.find(v => v.name === saved);
+    if (!selected && !isFallback) {
+      selected = availableVoices.find(v => v.name.includes('Google UK English Female') || (v.name.includes('UK English') && v.name.includes('Female')));
+      if (!selected) selected = availableVoices.find(v => v.name.includes('Google US English'));
+      if (!selected) selected = availableVoices.find(v => (v.lang || '').toLowerCase().includes('gb'));
+      if (!selected) selected = availableVoices.find(v => (v.lang || '').toLowerCase().includes('us'));
+    }
+    // Browser default fallback if no selected voice yet
+    if (!selected) {
+      selected = availableVoices.find(v => v.default) || availableVoices[0] || voices.find(v => v.default) || voices[0] || null;
+    }
 
     this.currentVoiceName = selected ? selected.name : '';
 
-    this.renderMenu(englishVoices);
+    this.renderMenu(availableVoices);
     this.updateTriggerUI(selected);
   },
 
   renderMenu(voices) {
     this.list.innerHTML = '';
-    voices.forEach(v => {
-      const isUK = v.lang.toLowerCase().replace('_', '-').includes('gb');
-      const flag = isUK ? '🇬🇧' : '🇺🇸';
-      const region = isUK ? 'UK' : 'US';
+    voices.slice(0, 15).forEach(v => {
+      const lang = (v.lang || '').toLowerCase().replace('_', '-');
+      const isUK = lang.includes('gb');
+      const isAU = lang.includes('au');
+      const isUS = lang.includes('us') || lang.startsWith('en');
+      const flag = isAU ? '🇦🇺' : isUK ? '🇬🇧' : isUS ? '🇺🇸' : '🌐';
+      const region = isAU ? 'AU' : isUK ? 'UK' : isUS ? 'US' : (v.lang || (v.default ? 'Default' : 'System'));
       const isActive = v.name === this.currentVoiceName;
 
       const btn = document.createElement('button');
@@ -351,10 +368,17 @@ const TTS_MANAGER = {
   },
 
   updateTriggerUI(v) {
-    if (!v) return;
-    const isUK = v.lang.toLowerCase().replace('_', '-').includes('gb');
-    this.flag.textContent = isUK ? '🇬🇧' : '🇺🇸';
-    let shortName = v.name.replace(/^(Google|Microsoft|Apple)\s+/i, '');
+    if (!v) {
+      if (this.flag) this.flag.textContent = '🌐';
+      if (this.label) this.label.textContent = 'Voice';
+      return;
+    }
+    const lang = (v.lang || '').toLowerCase().replace('_', '-');
+    const isUK = lang.includes('gb');
+    const isAU = lang.includes('au');
+    const isUS = lang.includes('us') || lang.startsWith('en');
+    this.flag.textContent = isAU ? '🇦🇺' : isUK ? '🇬🇧' : isUS ? '🇺🇸' : '🌐';
+    let shortName = (v.name || 'Default').replace(/^(Google|Microsoft|Apple)\s+/i, '');
     if (shortName.length > 14) shortName = shortName.substring(0, 12) + '...';
     this.label.textContent = shortName;
   },
@@ -366,12 +390,19 @@ const TTS_MANAGER = {
 
     const utterance = new SpeechSynthesisUtterance(text);
     const voices = window.speechSynthesis.getVoices();
+    let chosenVoice = null;
     const voiceName = this.currentVoiceName || localStorage.getItem('ib_pyp_voice_name');
-    if (voiceName) {
-      const match = voices.find(v => v.name === voiceName);
-      if (match) utterance.voice = match;
+    if (voiceName && voices && voices.length > 0) {
+      chosenVoice = voices.find(v => v.name === voiceName);
     }
-    utterance.rate = 0.85; // Age-appropriate, clear pace for young learners
+    // Fallback: If chosen voice not found or browser lacks US/EN-related TTS, use browser default TTS
+    if (!chosenVoice && voices && voices.length > 0) {
+      chosenVoice = voices.find(v => v.default) || voices[0] || null;
+    }
+    if (chosenVoice) {
+      utterance.voice = chosenVoice;
+    }
+    utterance.rate = 0.88; // Age-appropriate, clear pace for young learners
     if (onEnd) {
       utterance.onend = onEnd;
       utterance.onerror = onEnd;
