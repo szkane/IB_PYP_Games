@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flashcards Starter - IB PYP Vocabulary Template</title>
+  <style>
+    :root {
+      --bg: #FFFDF0;
+      --ink: #111111;
+      --yellow: #FFE156;
+      --coral: #FF6584;
+      --teal: #4ECDC4;
+      --purple: #B388FF;
+      --white: #FFFFFF;
+      --border: 3.5px solid var(--ink);
+      --shadow: 4px 4px 0 var(--ink);
+      --shadow-sm: 2px 2px 0 var(--ink);
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 12px 16px 36px;
+    }
+
+    .container { max-width: 960px; margin: 0 auto; }
+
+    .nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .nav-link {
+      background: var(--yellow);
+      border: var(--border);
+      box-shadow: var(--shadow-sm);
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-weight: 800;
+      font-size: 0.9rem;
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    .hero {
+      background: var(--white);
+      border: var(--border);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .hero-title { font-size: 1.35rem; font-weight: 900; }
+    .hero-tag {
+      background: var(--purple);
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-weight: 800;
+      font-size: 0.8rem;
+    }
+
+    /* Filter Pills */
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .pill-btn {
+      padding: 8px 16px;
+      background: var(--white);
+      border: 2px solid var(--ink);
+      box-shadow: 2px 2px 0 var(--ink);
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .pill-btn.active { background: var(--yellow); }
+
+    /* Flashcard Grid */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    /* 3D Flip Card Container */
+    .flashcard {
+      background: transparent;
+      perspective: 1000px;
+      height: 220px;
+      cursor: pointer;
+    }
+
+    .card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-style: preserve-3d;
+    }
+
+    .flashcard.flipped .card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .card-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border: var(--border);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-front {
+      background: var(--white);
+    }
+
+    .card-back {
+      background: #FFF9D2;
+      transform: rotateY(180deg);
+    }
+
+    .word-icon { font-size: 2.4rem; margin-top: 8px; }
+    .word-title { font-size: 1.4rem; font-weight: 900; }
+    .word-cat {
+      font-size: 0.75rem;
+      font-weight: 800;
+      background: #EEE;
+      border: 1.5px solid var(--ink);
+      border-radius: 6px;
+      padding: 2px 8px;
+    }
+
+    .word-def {
+      font-size: 0.95rem;
+      font-weight: 700;
+      line-height: 1.4;
+      margin-top: 10px;
+    }
+
+    .word-example {
+      font-size: 0.85rem;
+      font-style: italic;
+      color: #555;
+      margin-top: 6px;
+    }
+
+    .card-hint {
+      font-size: 0.75rem;
+      color: #777;
+      font-weight: 700;
+    }
+
+    .btn-speaker {
+      background: var(--teal);
+      border: 2px solid var(--ink);
+      border-radius: 50%;
+      width: 34px;
+      height: 34px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav class="nav-bar">
+      <a class="nav-link" href="../index.html">← Back</a>
+      <div style="font-weight: 800; font-size: 0.85rem;">
+        🗣️ Read-Aloud: Native TTS
+      </div>
+    </nav>
+
+    <header class="hero">
+      <div>
+        <h1 class="hero-title">Inquiry Words Flashcards 📚</h1>
+        <p style="font-size: 0.85rem; color: #555;">Tap any card to flip and hear the definition.</p>
+      </div>
+      <span class="hero-tag">How We Express Ourselves</span>
+    </header>
+
+    <nav class="filter-bar">
+      <button class="pill-btn active" onclick="filterCards('all')">All Words (6)</button>
+      <button class="pill-btn" onclick="filterCards('science')">Science 🔬</button>
+      <button class="pill-btn" onclick="filterCards('uoi')">Community 🤝</button>
+    </nav>
+
+    <main class="card-grid" id="cardGrid"></main>
+  </div>
+
+  <script>
+    const vocab = [
+      { id: 1, category: "science", word: "Vibration", icon: "〰️", def: "A fast back-and-forth movement that makes sound.", example: "Guitar strings vibrate when plucked." },
+      { id: 2, category: "science", word: "Pitch", icon: "🎵", def: "How high or low a sound sounds to our ears.", example: "Birds make high-pitch chirps." },
+      { id: 3, category: "science", word: "Opaque", icon: "🧱", def: "A material that blocks all light and makes dark shadows.", example: "A wooden door is completely opaque." },
+      { id: 4, category: "uoi", word: "Responsibility", icon: "🌟", def: "Doing the right thing and taking care of our tasks.", example: "Putting away books is our classroom responsibility." },
+      { id: 5, category: "uoi", word: "Cooperation", icon: "🤝", def: "Working together kindly to finish a common goal.", example: "We built the tower using cooperation." },
+      { id: 6, category: "uoi", word: "Reflective", icon: "🪞", def: "Thinking about our choices and how to improve next time.", example: "A reflective learner thinks about mistakes." }
+    ];
+
+    function speakText(text, event) {
+      if (event) event.stopPropagation();
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.rate = 0.9;
+      window.speechSynthesis.speak(utter);
+    }
+
+    function renderCards(list) {
+      const grid = document.getElementById('cardGrid');
+      grid.innerHTML = '';
+      list.forEach(v => {
+        const card = document.createElement('div');
+        card.className = 'flashcard';
+        card.onclick = () => card.classList.toggle('flipped');
+
+        card.innerHTML = `
+          <div class="card-inner">
+            <div class="card-face card-front">
+              <span class="word-cat">${v.category.toUpperCase()}</span>
+              <div class="word-icon">${v.icon}</div>
+              <div class="word-title">${v.word}</div>
+              <button class="btn-speaker" onclick="speakText('${v.word}', event)">🔊</button>
+              <div class="card-hint">Tap card to flip ↺</div>
+            </div>
+            <div class="card-face card-back">
+              <div class="word-def">${v.def}</div>
+              <div class="word-example">"${v.example}"</div>
+              <button class="btn-speaker" onclick="speakText('${v.def}', event)">🔊</button>
+              <div class="card-hint">Tap to flip back ↻</div>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function filterCards(cat) {
+      document.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+      if (cat === 'all') {
+        renderCards(vocab);
+      } else {
+        renderCards(vocab.filter(v => v.category === cat));
+      }
+    }
+
+    renderCards(vocab);
+  </script>
+</body>
+</html>

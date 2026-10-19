@@ -117,7 +117,7 @@ body {
 
 ## Header rules
 
-- One nav row + one compact hero. No eyebrow labels, no long subtitles, no sticky bars. The user removed these from `g2_vocabulary.html` because they ate iPad landscape height.
+- One nav row + one compact hero. No eyebrow labels, no long subtitles, no sticky bars—these eat critical vertical height on iPad landscape screens (768px–820px).
 - Put the driving question or instructions inside the play area next to a 🔊 button, not in a tall header.
 
 ## iPad landscape rules

@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Decision Quest Starter - IB PYP Balanced Choices Template</title>
+  <style>
+    :root {
+      --bg: #FFFDF0;
+      --ink: #111111;
+      --yellow: #FFE156;
+      --coral: #FF6584;
+      --teal: #4ECDC4;
+      --blue: #38B6FF;
+      --purple: #B388FF;
+      --white: #FFFFFF;
+      --border: 3.5px solid var(--ink);
+      --shadow: 4px 4px 0 var(--ink);
+      --shadow-sm: 2px 2px 0 var(--ink);
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 12px 16px 36px;
+    }
+
+    .container { max-width: 860px; margin: 0 auto; }
+
+    .nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .nav-link {
+      background: var(--yellow);
+      border: var(--border);
+      box-shadow: var(--shadow-sm);
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-weight: 800;
+      font-size: 0.9rem;
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    .hero {
+      background: var(--white);
+      border: var(--border);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .hero-title { font-size: 1.3rem; font-weight: 900; }
+    .hero-tag {
+      background: var(--teal);
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-weight: 800;
+      font-size: 0.8rem;
+    }
+
+    /* Multi-Meter Status Dashboard */
+    .meter-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 600px) {
+      .meter-grid { grid-template-columns: 1fr; }
+    }
+
+    .meter-card {
+      background: var(--white);
+      border: var(--border);
+      box-shadow: var(--shadow-sm);
+      border-radius: 12px;
+      padding: 10px 14px;
+    }
+
+    .meter-header {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 800;
+      font-size: 0.85rem;
+      margin-bottom: 6px;
+    }
+
+    .meter-bar-track {
+      background: #EEE;
+      border: 2px solid var(--ink);
+      border-radius: 999px;
+      height: 14px;
+      overflow: hidden;
+    }
+
+    .meter-fill {
+      height: 100%;
+      width: 70%;
+      transition: width 0.3s ease-out, background 0.3s;
+    }
+
+    /* Dilemma Quest Card */
+    .quest-card {
+      background: var(--white);
+      border: var(--border);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 14px;
+    }
+
+    .scenario-title {
+      font-size: 1.15rem;
+      font-weight: 900;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .scenario-desc {
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.45;
+      margin-bottom: 18px;
+      color: #333;
+    }
+
+    .choice-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .btn-action {
+      background: #FDFDFD;
+      border: var(--border);
+      box-shadow: var(--shadow-sm);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: transform 0.1s;
+    }
+    .btn-action:active { transform: translate(2px, 2px); }
+    .btn-action:hover { background: #FFF9D2; }
+
+    /* Consequence Modal */
+    .reflection-modal {
+      display: none;
+      background: #FFF9D2;
+      border: var(--border);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-top: 14px;
+    }
+    .reflection-modal.show { display: block; }
+    .reflection-text { font-weight: 700; font-size: 0.95rem; margin-bottom: 12px; line-height: 1.4; }
+
+    .btn-next {
+      background: var(--coral);
+      color: var(--white);
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav class="nav-bar">
+      <a class="nav-link" href="../index.html">← Back</a>
+      <span style="font-weight: 800; font-size: 0.85rem;">IB PYP: Who We Are</span>
+    </nav>
+
+    <header class="hero">
+      <div>
+        <h1 class="hero-title">A Day of Balanced Choices ☀️</h1>
+        <p style="font-size: 0.85rem; color: #555;">Central Idea: Daily decisions affect our health, energy, and happiness.</p>
+      </div>
+      <span class="hero-tag">Balanced Learner</span>
+    </header>
+
+    <!-- Multi-Meter Dashboard -->
+    <section class="meter-grid">
+      <div class="meter-card">
+        <div class="meter-header">
+          <span>⚡ Energy</span>
+          <span id="val-energy">70%</span>
+        </div>
+        <div class="meter-bar-track">
+          <div class="meter-fill" id="bar-energy" style="width: 70%; background: var(--yellow);"></div>
+        </div>
+      </div>
+
+      <div class="meter-card">
+        <div class="meter-header">
+          <span>🍎 Physical Health</span>
+          <span id="val-health">70%</span>
+        </div>
+        <div class="meter-bar-track">
+          <div class="meter-fill" id="bar-health" style="width: 70%; background: var(--teal);"></div>
+        </div>
+      </div>
+
+      <div class="meter-card">
+        <div class="meter-header">
+          <span>😊 Mood & Well-being</span>
+          <span id="val-mood">70%</span>
+        </div>
+        <div class="meter-bar-track">
+          <div class="meter-fill" id="bar-mood" style="width: 70%; background: var(--purple);"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dilemma Card -->
+    <main class="quest-card">
+      <div class="scenario-title">
+        <span id="quest-stage">Scene 1 / 3: Recess Time 🏃</span>
+      </div>
+      <p class="scenario-desc" id="quest-desc">
+        It is morning break! Your classmates are playing tag outside on the grass, but someone brought a portable video game inside. What will you do?
+      </p>
+
+      <div class="choice-list" id="choices-container"></div>
+
+      <div class="reflection-modal" id="reflection-box">
+        <p class="reflection-text" id="reflection-msg"></p>
+        <button class="btn-next" onclick="nextScene()">Next Challenge ➔</button>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Audio Chimes
+    class SoundFX {
+      constructor() { this.ctx = null; }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+      }
+      playChime() {
+        this.init();
+        const t = this.ctx.currentTime;
+        [523.25, 659.25, 783.99].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, t + idx * 0.06);
+          gain.gain.setValueAtTime(0.12, t + idx * 0.06);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + idx * 0.06 + 0.2);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(t + idx * 0.06);
+          osc.stop(t + idx * 0.06 + 0.25);
+        });
+      }
+    }
+    const sfx = new SoundFX();
+
+    // Game State
+    const state = { energy: 70, health: 70, mood: 70 };
+
+    const scenarios = [
+      {
+        stage: "Scene 1: Recess Time 🏃",
+        desc: "It is morning break! Friends are running outside on the playground, while one student is playing games on a phone. What is your choice?",
+        options: [
+          {
+            text: "Join the outdoor tag game and get fresh air 🌳",
+            delta: { energy: -10, health: +20, mood: +15 },
+            feedback: "Awesome! Running boosts heart health and endorphins. You feel energized and connected with friends."
+          },
+          {
+            text: "Sit on the bench and look at the screen 📱",
+            delta: { energy: +5, health: -10, mood: -5 },
+            feedback: "Resting is okay, but screen time during outdoor recess misses an opportunity to stretch muscles and soak up sunshine."
+          }
+        ]
+      },
+      {
+        stage: "Scene 2: Afternoon Snack 🍎",
+        desc: "You arrive home hungry after school. You see a bag of sugary chips in the pantry and fresh sliced apples in the fridge.",
+        options: [
+          {
+            text: "Eat the crisp apple slices with a glass of water 💧",
+            delta: { energy: +15, health: +20, mood: +10 },
+            feedback: "Smart Choice! Fruits provide natural vitamins and sustained energy without a sugar crash."
+          },
+          {
+            text: "Eat the whole bag of chips while watching cartoons 🥔",
+            delta: { energy: -10, health: -15, mood: +5 },
+            feedback: "Salty snacks taste good, but too much salt and fried fat makes your body feel sluggish later."
+          }
+        ]
+      },
+      {
+        stage: "Scene 3: Bedtime Routine 🌙",
+        desc: "It is 8:30 PM. Your favorite show is still playing on TV, but school starts early tomorrow morning.",
+        options: [
+          {
+            text: "Brush teeth, read a calming book, and turn off lights 🛌",
+            delta: { energy: +25, health: +15, mood: +15 },
+            feedback: "Reflective learner! Getting 9-10 hours of sleep recharges your brain and sets you up for a great tomorrow."
+          },
+          {
+            text: "Sneak an extra hour of TV in bed with the lights off 📺",
+            delta: { energy: -25, health: -10, mood: -15 },
+            feedback: "Blue light keeps your brain awake. Staying up late will make waking up difficult tomorrow."
+          }
+        ]
+      }
+    ];
+
+    let currentScene = 0;
+
+    function renderScene() {
+      const s = scenarios[currentScene];
+      document.getElementById('quest-stage').textContent = s.stage;
+      document.getElementById('quest-desc').textContent = s.desc;
+      document.getElementById('reflection-box').classList.remove('show');
+
+      const container = document.getElementById('choices-container');
+      container.innerHTML = '';
+      s.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'btn-action';
+        btn.innerHTML = `<span>${opt.text}</span>`;
+        btn.onclick = () => makeChoice(idx);
+        container.appendChild(btn);
+      });
+    }
+
+    function makeChoice(idx) {
+      sfx.playChime();
+      const opt = scenarios[currentScene].options[idx];
+      state.energy = Math.max(10, Math.min(100, state.energy + opt.delta.energy));
+      state.health = Math.max(10, Math.min(100, state.health + opt.delta.health));
+      state.mood = Math.max(10, Math.min(100, state.mood + opt.delta.mood));
+      updateMeters();
+
+      const box = document.getElementById('reflection-box');
+      document.getElementById('reflection-msg').textContent = opt.feedback;
+      box.classList.add('show');
+    }
+
+    function updateMeters() {
+      ['energy', 'health', 'mood'].forEach(m => {
+        document.getElementById(`val-${m}`).textContent = state[m] + '%';
+        document.getElementById(`bar-${m}`).style.width = state[m] + '%';
+      });
+    }
+
+    function nextScene() {
+      currentScene++;
+      if (currentScene < scenarios.length) {
+        renderScene();
+      } else {
+        document.querySelector('.quest-card').innerHTML = `
+          <div style="text-align: center; padding: 20px;">
+            <h2 style="font-size: 1.5rem; margin-bottom: 8px;">🎉 Quest Complete: Balanced Life Champion!</h2>
+            <p style="font-weight: 700; color: #444; margin-bottom: 16px;">
+              Final Scores — Energy: ${state.energy}% | Health: ${state.health}% | Mood: ${state.mood}%
+            </p>
+            <p style="font-size: 0.95rem; font-weight: 600; line-height: 1.5; max-width: 500px; margin: 0 auto 20px;">
+              Remember: Being Balanced means taking care of both our minds and bodies through sleep, healthy food, exercise, and friendship.
+            </p>
+            <button class="nav-link" onclick="location.reload()">Play Again 🔄</button>
+          </div>
+        `;
+      }
+    }
+
+    renderScene();
+  </script>
+</body>
+</html>

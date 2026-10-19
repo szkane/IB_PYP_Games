@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Speed Arcade & Clinic - IB PYP Fluency Template</title>
+  <style>
+    :root {
+      --bg: #FFFDF0;
+      --ink: #111111;
+      --yellow: #FFE156;
+      --coral: #FF6584;
+      --teal: #4ECDC4;
+      --purple: #B388FF;
+      --white: #FFFFFF;
+      --border: 3.5px solid var(--ink);
+      --shadow: 4px 4px 0 var(--ink);
+      --shadow-sm: 2px 2px 0 var(--ink);
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 12px 16px 36px;
+    }
+
+    .container { max-width: 860px; margin: 0 auto; }
+
+    .nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .nav-link {
+      background: var(--yellow);
+      border: var(--border);
+      box-shadow: var(--shadow-sm);
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-weight: 800;
+      font-size: 0.9rem;
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    .hero {
+      background: var(--white);
+      border: var(--border);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .hero-title { font-size: 1.3rem; font-weight: 900; }
+    .hero-tag {
+      background: var(--coral);
+      color: #FFF;
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-weight: 800;
+      font-size: 0.8rem;
+    }
+
+    /* Sub-Mode Switcher */
+    .mode-nav {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .mode-btn {
+      flex: 1;
+      padding: 10px;
+      font-weight: 900;
+      font-size: 0.95rem;
+      background: var(--white);
+      border: var(--border);
+      box-shadow: var(--shadow-sm);
+      border-radius: var(--radius);
+      cursor: pointer;
+    }
+    .mode-btn.active {
+      background: var(--yellow);
+      transform: translate(-2px, -2px);
+      box-shadow: var(--shadow);
+    }
+
+    .game-card {
+      background: var(--white);
+      border: var(--border);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+
+    /* Variant A: Speed Sprint Stats */
+    .arcade-stats {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      font-weight: 900;
+      font-size: 1.1rem;
+    }
+
+    .stat-badge {
+      background: #EEE;
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      padding: 4px 12px;
+    }
+
+    .math-target-card {
+      background: #FFF9D2;
+      border: 3px solid var(--ink);
+      border-radius: 16px;
+      padding: 30px;
+      text-align: center;
+      font-size: 2.4rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+      margin-bottom: 20px;
+    }
+
+    .arcade-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .btn-speed {
+      padding: 18px;
+      font-size: 1.4rem;
+      font-weight: 900;
+      border: var(--border);
+      box-shadow: var(--shadow-sm);
+      border-radius: 12px;
+      background: var(--white);
+      cursor: pointer;
+      transition: transform 0.05s;
+    }
+    .btn-speed:active { transform: translate(2px, 2px); }
+
+    /* Variant B: Sentence Doctor Clinic */
+    .sentence-exam-table {
+      background: #F8F9FA;
+      border: 2px dashed var(--ink);
+      border-radius: 12px;
+      padding: 24px;
+      font-size: 1.25rem;
+      font-weight: 800;
+      line-height: 2;
+      margin-bottom: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .word-token {
+      display: inline-block;
+      padding: 2px 8px;
+      border: 2px solid transparent;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .word-token:hover { background: #E2E8F0; }
+    .word-token.healed {
+      background: #D4EDDA;
+      border-color: #28A745;
+      color: #155724;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav class="nav-bar">
+      <a class="nav-link" href="../index.html">← Back</a>
+      <span style="font-weight: 800; font-size: 0.85rem;">IB PYP: Fluency & Mechanics</span>
+    </nav>
+
+    <header class="hero">
+      <div>
+        <h1 class="hero-title">Fluency Sprint & Doctor Clinic ⚡</h1>
+        <p style="font-size: 0.85rem; color: #555;">Choose between rapid speed drills or grammar error diagnosis.</p>
+      </div>
+      <span class="hero-tag">Speed & Automaticity</span>
+    </header>
+
+    <div class="mode-nav">
+      <button class="mode-btn active" id="btn-mode-arcade" onclick="switchMode('arcade')">🏎️ Speed Math Sprint</button>
+      <button class="mode-btn" id="btn-mode-clinic" onclick="switchMode('clinic')">🩺 Sentence Doctor Clinic</button>
+    </div>
+
+    <!-- Variant A: Speed Arcade -->
+    <main class="game-card" id="arcadeView">
+      <div class="arcade-stats">
+        <span class="stat-badge">⏱️ Time: <span id="timerVal">30</span>s</span>
+        <span class="stat-badge">🔥 Streak: <span id="streakVal">0</span></span>
+        <span class="stat-badge">⭐ Score: <span id="scoreVal">0</span></span>
+      </div>
+
+      <div class="math-target-card" id="mathProblem">4 × 5 = ?</div>
+      <div class="arcade-options" id="mathChoices"></div>
+    </main>
+
+    <!-- Variant B: Sentence Doctor -->
+    <main class="game-card" id="clinicView" style="display: none;">
+      <div style="font-weight: 900; font-size: 1.1rem; margin-bottom: 8px;">Patient Chart: Capital Letter & Period Injury 🩹</div>
+      <p style="font-size: 0.85rem; color: #555; margin-bottom: 16px;">
+        Tap the injured words to apply healing bandages! (Fix lowercase start and missing ending periods)
+      </p>
+
+      <div class="sentence-exam-table" id="sentenceContainer"></div>
+      <div id="clinicFeedback" style="font-weight: 800; color: #155724;"></div>
+    </main>
+  </div>
+
+  <script>
+    // Audio FX
+    class SoundFX {
+      constructor() { this.ctx = null; }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+      }
+      playCorrect() {
+        this.init();
+        const t = this.ctx.currentTime;
+        [523.25, 783.99].forEach((f, i) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(f, t + i * 0.05);
+          gain.gain.setValueAtTime(0.12, t + i * 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.05 + 0.15);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(t + i * 0.05);
+          osc.stop(t + i * 0.05 + 0.18);
+        });
+      }
+      playBuzz() {
+        this.init();
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(160, t);
+        gain.gain.setValueAtTime(0.1, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.18);
+      }
+    }
+    const sfx = new SoundFX();
+
+    // Mode Switcher
+    function switchMode(m) {
+      document.getElementById('arcadeView').style.display = m === 'arcade' ? 'block' : 'none';
+      document.getElementById('clinicView').style.display = m === 'clinic' ? 'block' : 'none';
+      document.getElementById('btn-mode-arcade').classList.toggle('active', m === 'arcade');
+      document.getElementById('btn-mode-clinic').classList.toggle('active', m === 'clinic');
+    }
+
+    // --- Mode A: Speed Sprint ---
+    let score = 0;
+    let streak = 0;
+    let timeLeft = 30;
+    let timerId = null;
+    let currentAns = 20;
+
+    function nextMathProblem() {
+      const a = Math.floor(Math.random() * 8) + 2;
+      const b = Math.floor(Math.random() * 8) + 2;
+      currentAns = a * b;
+      document.getElementById('mathProblem').textContent = `${a} × ${b} = ?`;
+
+      const options = [currentAns, currentAns + 2, Math.max(2, currentAns - 3), currentAns + 5].sort(() => Math.random() - 0.5);
+      const container = document.getElementById('mathChoices');
+      container.innerHTML = '';
+      options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'btn-speed';
+        btn.textContent = opt;
+        btn.onclick = () => {
+          if (opt === currentAns) {
+            sfx.playCorrect();
+            score += 10 + streak * 2;
+            streak++;
+          } else {
+            sfx.playBuzz();
+            streak = 0;
+          }
+          document.getElementById('scoreVal').textContent = score;
+          document.getElementById('streakVal').textContent = streak;
+          nextMathProblem();
+        };
+        container.appendChild(btn);
+      });
+    }
+
+    function startTimer() {
+      if (timerId) clearInterval(timerId);
+      timeLeft = 30;
+      document.getElementById('timerVal').textContent = timeLeft;
+      timerId = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timerVal').textContent = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(timerId);
+          document.getElementById('mathProblem').textContent = `Time's Up! Final Score: ${score} 🎉`;
+          document.getElementById('mathChoices').innerHTML = '<button class="btn-speed" style="grid-column:span 2; background: var(--yellow);" onclick="beginSprint()">Play Again 🔄</button>';
+        }
+      }, 1000);
+    }
+
+    function beginSprint() {
+      score = 0;
+      streak = 0;
+      document.getElementById('scoreVal').textContent = score;
+      document.getElementById('streakVal').textContent = streak;
+      nextMathProblem();
+      startTimer();
+    }
+
+    function showReadyState() {
+      document.getElementById('mathProblem').textContent = 'Ready for a 30s Sprint? 🏎️';
+      document.getElementById('mathChoices').innerHTML = '<button class="btn-speed" style="grid-column:span 2; background: var(--yellow);" onclick="beginSprint()">▶️ Start 30s Sprint</button>';
+    }
+
+    showReadyState();
+
+    // --- Mode B: Sentence Doctor ---
+    const sentenceTokens = [
+      { text: "we", isError: true, healedText: "We" },
+      { text: "learn", isError: false },
+      { text: "about", isError: false },
+      { text: "light", isError: false },
+      { text: "and", isError: false },
+      { text: "shadows", isError: true, healedText: "shadows." }
+    ];
+
+    function renderClinic() {
+      const c = document.getElementById('sentenceContainer');
+      c.innerHTML = '';
+      let remainingErrors = 0;
+      sentenceTokens.forEach(t => {
+        const span = document.createElement('span');
+        span.className = 'word-token' + (t.fixed ? ' healed' : '');
+        span.textContent = t.fixed ? t.healedText : t.text;
+        if (t.isError && !t.fixed) remainingErrors++;
+
+        span.onclick = () => {
+          if (t.isError && !t.fixed) {
+            sfx.playCorrect();
+            t.fixed = true;
+            renderClinic();
+          } else if (!t.isError) {
+            sfx.playBuzz();
+          }
+        };
+        c.appendChild(span);
+      });
+
+      if (remainingErrors === 0) {
+        document.getElementById('clinicFeedback').textContent = '🎉 Healthy Sentence Restored! Capital letter healed and ending punctuation attached.';
+      }
+    }
+    renderClinic();
+  </script>
+</body>
+</html>

@@ -33,5 +33,15 @@
       "Formative feedback explaining market outcomes kindly",
       "Includes curriculum map JSON registration snippet"
     ]
+  },
+  {
+    "id": "g2_light_shadow_archetype_recommendation",
+    "prompt": "I want to create a Grade 2 science activity about light, shadows, and opaque vs transparent objects for How the World Works. What kind of interactive game should I build, and why? Please recommend the best game type and explain how the gameplay will work.",
+    "expected_outputs": [
+      "Recommends Type 4 (3D Spatial Inspector) or Type 3 (Interactive Concept Lab) with clear pedagogical rationale explaining why 3D spatial depth and ray occlusion are essential for optics learning",
+      "Contrasts recommended archetype against alternatives (e.g. explaining why 3D diorama/manipulatives outperform 2D text quizzes for shadow formation)",
+      "Clarifies differentiated interactive gameplay mechanics: 3D orbit controls, movable light source, real-time shadow projection, object material opacity toggles, and zero pre-selection challenge cases",
+      "Maps to PYP theme How the World Works, Key Concepts (Form, Causation), and Explore-First flow"
+    ]
   }
 ]

@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Concept Lab Starter - IB PYP Interactive Template</title>
+  <style>
+    :root {
+      --bg: #FFFDF0;
+      --ink: #111111;
+      --yellow: #FFE156;
+      --coral: #FF6584;
+      --teal: #4ECDC4;
+      --blue: #38B6FF;
+      --purple: #B388FF;
+      --white: #FFFFFF;
+      --border: 3.5px solid var(--ink);
+      --shadow: 4px 4px 0 var(--ink);
+      --shadow-sm: 2px 2px 0 var(--ink);
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 12px 16px 24px;
+    }
+
+    .container { max-width: 960px; margin: 0 auto; }
+
+    /* Compact Top Navigation */
+    .nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      background: var(--yellow);
+      border: var(--border);
+      box-shadow: var(--shadow-sm);
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-weight: 800;
+      font-size: 0.9rem;
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    .tts-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--white);
+      border: var(--border);
+      box-shadow: var(--shadow-sm);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .tts-controls select {
+      border: none;
+      background: transparent;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .btn-speaker {
+      background: var(--teal);
+      border: 2px solid var(--ink);
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: transform 0.1s;
+    }
+    .btn-speaker:active { transform: scale(0.92); }
+
+    /* Hero Banner */
+    .hero {
+      background: var(--white);
+      border: var(--border);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding: 12px 18px;
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .hero-title { font-size: 1.4rem; font-weight: 900; }
+    .hero-tag {
+      background: var(--purple);
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-weight: 800;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+    }
+
+    /* Tab Switcher */
+    .mode-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      font-size: 1rem;
+      font-weight: 900;
+      border: var(--border);
+      box-shadow: var(--shadow-sm);
+      border-radius: var(--radius);
+      cursor: pointer;
+      background: var(--white);
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .tab-btn.active {
+      background: var(--yellow);
+      box-shadow: var(--shadow);
+      transform: translate(-2px, -2px);
+    }
+
+    /* Main Responsive Grid */
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 768px) {
+      .workspace-grid { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background: var(--white);
+      border: var(--border);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+
+    .panel-title {
+      font-size: 1.1rem;
+      font-weight: 900;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Interactive Visual Manipulative */
+    .canvas-container {
+      background: #1A1A2E;
+      border: var(--border);
+      border-radius: 10px;
+      height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    canvas { width: 100%; height: 100%; }
+
+    .control-group {
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .control-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      height: 12px;
+      accent-color: var(--coral);
+      cursor: pointer;
+    }
+
+    .badge-val {
+      background: var(--teal);
+      border: 2px solid var(--ink);
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-weight: 800;
+      min-width: 60px;
+      text-align: center;
+      font-size: 0.85rem;
+    }
+
+    /* Mission Cases */
+    .case-nav {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .case-tab {
+      flex: 1;
+      padding: 6px;
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      background: #EEE;
+      font-weight: 800;
+      font-size: 0.8rem;
+      cursor: pointer;
+      text-align: center;
+    }
+    .case-tab.active { background: var(--coral); color: var(--white); }
+    .case-tab.solved { background: var(--teal); }
+
+    .mission-prompt {
+      background: #F8F9FA;
+      border: 2px dashed var(--ink);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 14px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    .choice-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .btn-choice {
+      padding: 10px;
+      border: 2px solid var(--ink);
+      box-shadow: 2px 2px 0 var(--ink);
+      border-radius: 10px;
+      background: var(--white);
+      font-size: 0.9rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.05s;
+    }
+    .btn-choice:active { transform: translate(1px, 1px); }
+    .btn-choice.active { background: var(--yellow); }
+
+    .btn-submit {
+      width: 100%;
+      padding: 12px;
+      background: var(--coral);
+      color: var(--white);
+      border: var(--border);
+      box-shadow: var(--shadow-sm);
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    .btn-submit:active { transform: translate(2px, 2px); }
+
+    .feedback-box {
+      margin-top: 12px;
+      padding: 10px;
+      border-radius: 8px;
+      border: 2px solid var(--ink);
+      font-size: 0.9rem;
+      font-weight: 700;
+      display: none;
+    }
+    .feedback-box.show { display: block; }
+    .feedback-box.correct { background: #D4EDDA; color: #155724; }
+    .feedback-box.incorrect { background: #F8D7DA; color: #721C24; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Top Nav -->
+    <nav class="nav-bar">
+      <a class="nav-link" href="../index.html">← Back</a>
+      <div class="tts-controls">
+        <span>🗣️ Voice:</span>
+        <select id="tts-voice-select">
+          <option value="en-US">US English</option>
+          <option value="en-GB">UK English</option>
+        </select>
+      </div>
+    </nav>
+
+    <!-- Header -->
+    <header class="hero">
+      <div>
+        <h1 class="hero-title">Sound Lab: Pitch & Frequency 🎵</h1>
+        <p style="font-size: 0.85rem; color: #555; margin-top: 2px;">Central Idea: Sound is energy traveling in vibrations that we can explore.</p>
+      </div>
+      <span class="hero-tag">How The World Works</span>
+    </header>
+
+    <!-- Explore First Tabs -->
+    <div class="mode-tabs">
+      <button class="tab-btn active" id="tab-explore" onclick="switchMode('explore')">1. Free Explore 🧪</button>
+      <button class="tab-btn" id="tab-mission" onclick="switchMode('mission')">2. Mission Cases 🎯</button>
+    </div>
+
+    <!-- Main Workspace -->
+    <main class="workspace-grid">
+      <!-- Left: Interactive Manipulative -->
+      <section class="panel">
+        <div class="panel-title">
+          <span>Interactive Waveform</span>
+          <button class="btn-speaker" onclick="TTS.speak('Move the slider to hear how vibrations change sound.')" title="Listen">🔊</button>
+        </div>
+
+        <div class="canvas-container">
+          <canvas id="waveCanvas" width="450" height="200"></canvas>
+        </div>
+
+        <div class="control-group">
+          <div class="control-row">
+            <label style="font-weight: 800;">Vibration Speed (Pitch):</label>
+            <input type="range" id="freqSlider" min="200" max="800" value="440" oninput="updateFrequency(this.value)">
+            <span class="badge-val" id="freqVal">440 Hz</span>
+          </div>
+          <button class="btn-choice" id="btn-play-tone" style="background: var(--yellow);" onclick="toggleAudioPreview()">▶️ Play Sound</button>
+        </div>
+      </section>
+
+      <!-- Right: Challenge Console -->
+      <section class="panel" id="challenge-panel">
+        <div class="panel-title">
+          <span>Sound Detective</span>
+          <span style="font-size: 0.8rem; font-weight: 700;" id="scoreBadge">Solved: 0/3</span>
+        </div>
+
+        <div class="case-nav">
+          <button class="case-tab active" id="case-tab-0" onclick="selectCase(0)">Case 1</button>
+          <button class="case-tab" id="case-tab-1" onclick="selectCase(1)">Case 2</button>
+          <button class="case-tab" id="case-tab-2" onclick="selectCase(2)">Case 3</button>
+        </div>
+
+        <div class="mission-prompt" id="missionText">
+          Loading case...
+        </div>
+
+        <!-- Zero pre-selection choices -->
+        <div class="choice-grid" id="choiceContainer"></div>
+
+        <button class="btn-submit" onclick="submitAnswer()">Check Answer ✨</button>
+
+        <div class="feedback-box" id="feedback"></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // --- 1. Synthesized Web Audio ---
+    class SoundFX {
+      constructor() { this.ctx = null; this.osc = null; this.gain = null; this.isPlaying = false; }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+      }
+      playCorrect() {
+        this.init();
+        const t = this.ctx.currentTime;
+        [523.25, 659.25, 783.99, 1046.5].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, t + idx * 0.05);
+          gain.gain.setValueAtTime(0.15, t + idx * 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + idx * 0.05 + 0.18);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(t + idx * 0.05);
+          osc.stop(t + idx * 0.05 + 0.2);
+        });
+      }
+      playBuzz() {
+        this.init();
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(180, t);
+        gain.gain.setValueAtTime(0.12, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.2);
+      }
+      startTone(freq) {
+        this.init();
+        if (this.osc) this.stopTone();
+        this.osc = this.ctx.createOscillator();
+        this.gain = this.ctx.createGain();
+        this.osc.type = 'sine';
+        this.osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+        this.gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+        this.osc.connect(this.gain);
+        this.gain.connect(this.ctx.destination);
+        this.osc.start();
+        this.isPlaying = true;
+      }
+      setFrequency(freq) {
+        if (this.osc && this.isPlaying) {
+          this.osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+        }
+      }
+      stopTone() {
+        if (this.osc) {
+          this.gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.05);
+          setTimeout(() => {
+            if (this.osc) { this.osc.stop(); this.osc.disconnect(); this.osc = null; }
+          }, 50);
+        }
+        this.isPlaying = false;
+      }
+    }
+    const sfx = new SoundFX();
+
+    // --- 2. Switchable TTS Manager ---
+    const TTS = {
+      speak(text) {
+        if (!('speechSynthesis' in window)) return;
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.rate = 0.9;
+        const lang = document.getElementById('tts-voice-select').value;
+        const voices = window.speechSynthesis.getVoices();
+        const voice = voices.find(v => v.lang.startsWith(lang)) || voices.find(v => v.default) || voices[0];
+        if (voice) utter.voice = voice;
+        window.speechSynthesis.speak(utter);
+      }
+    };
+
+    // --- 3. Dynamic Waveform Canvas ---
+    const canvas = document.getElementById('waveCanvas');
+    const ctx = canvas.getContext('2d');
+    let currentFreq = 440;
+    let waveOffset = 0;
+
+    function drawWave() {
+      ctx.fillStyle = '#1A1A2E';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.lineWidth = 3.5;
+      ctx.strokeStyle = '#4ECDC4';
+      ctx.beginPath();
+      const waveSpeed = currentFreq / 60;
+      const waveCycles = (currentFreq / 440) * 4;
+      for (let x = 0; x < canvas.width; x++) {
+        const y = canvas.height / 2 + Math.sin((x / canvas.width) * Math.PI * 2 * waveCycles + waveOffset) * 45;
+        if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      waveOffset -= 0.06;
+      requestAnimationFrame(drawWave);
+    }
+    requestAnimationFrame(drawWave);
+
+    function updateFrequency(val) {
+      currentFreq = parseFloat(val);
+      document.getElementById('freqVal').textContent = val + ' Hz';
+      sfx.setFrequency(currentFreq);
+    }
+
+    function toggleAudioPreview() {
+      const btn = document.getElementById('btn-play-tone');
+      if (!sfx.isPlaying) {
+        sfx.startTone(currentFreq);
+        btn.textContent = '⏹️ Stop Sound';
+        btn.style.background = 'var(--coral)';
+      } else {
+        sfx.stopTone();
+        btn.textContent = '▶️ Play Sound';
+        btn.style.background = 'var(--yellow)';
+      }
+    }
+
+    // --- 4. Mission Cases with Zero Pre-Selection ---
+    const cases = [
+      {
+        prompt: "A baby bird calls for its mother with a tiny, fast chirp. Is this a High Pitch or Low Pitch sound?",
+        options: ["High Pitch (Fast vibrations) 🐥", "Low Pitch (Slow vibrations) 🐘"],
+        correct: 0,
+        explanation: "Correct! Fast vibrations create high-pitch sounds like a baby bird's chirp."
+      },
+      {
+        prompt: "A giant drum makes deep, slow rumbles. How do the sound waves vibrate?",
+        options: ["Slow vibrations 🥁", "Lightning-fast vibrations ⚡"],
+        correct: 0,
+        explanation: "Great job! Slow, wide vibrations make deep, low-pitch sounds."
+      },
+      {
+        prompt: "An ambulance needs to clear traffic quickly. Why does its siren go from low to high?",
+        options: ["To grab attention with changing pitch 🚨", "To make everyone fall asleep 😴"],
+        correct: 0,
+        explanation: "Spot on! Changing frequencies alert our ears quickly in an emergency."
+      }
+    ];
+
+    let currentCaseIndex = 0;
+    let selectedChoice = null; // Zero pre-selection
+    const solvedCases = [false, false, false];
+
+    function selectCase(index) {
+      currentCaseIndex = index;
+      selectedChoice = null;
+      document.querySelectorAll('.case-tab').forEach((tab, i) => {
+        tab.classList.toggle('active', i === index);
+      });
+      renderCase();
+    }
+
+    function renderCase() {
+      const c = cases[currentCaseIndex];
+      document.getElementById('missionText').innerHTML = `
+        <span>${c.prompt}</span>
+        <button class="btn-speaker" style="width:26px; height:26px; font-size:0.8rem; margin-left:6px;" onclick="TTS.speak('${c.prompt.replace(/'/g, "\\'")}')">🔊</button>
+      `;
+
+      const container = document.getElementById('choiceContainer');
+      container.innerHTML = '';
+      c.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'btn-choice';
+        btn.textContent = opt;
+        btn.onclick = () => {
+          selectedChoice = idx;
+          document.querySelectorAll('#choiceContainer .btn-choice').forEach((b, i) => {
+            b.classList.toggle('active', i === idx);
+          });
+        };
+        container.appendChild(btn);
+      });
+
+      const fb = document.getElementById('feedback');
+      fb.className = 'feedback-box';
+      fb.textContent = '';
+    }
+
+    function submitAnswer() {
+      const fb = document.getElementById('feedback');
+      if (selectedChoice === null) {
+        fb.className = 'feedback-box show incorrect';
+        fb.textContent = '👆 Please tap an answer choice first!';
+        sfx.playBuzz();
+        return;
+      }
+
+      const c = cases[currentCaseIndex];
+      if (selectedChoice === c.correct) {
+        fb.className = 'feedback-box show correct';
+        fb.textContent = '🎉 ' + c.explanation;
+        sfx.playCorrect();
+        solvedCases[currentCaseIndex] = true;
+        document.getElementById(`case-tab-${currentCaseIndex}`).classList.add('solved');
+        const count = solvedCases.filter(Boolean).length;
+        document.getElementById('scoreBadge').textContent = `Solved: ${count}/3`;
+      } else {
+        fb.className = 'feedback-box show incorrect';
+        fb.textContent = '🤔 Not quite. Try moving the slider on the left to listen again!';
+        sfx.playBuzz();
+      }
+    }
+
+    function switchMode(mode) {
+      document.getElementById('tab-explore').classList.toggle('active', mode === 'explore');
+      document.getElementById('tab-mission').classList.toggle('active', mode === 'mission');
+    }
+
+    // Init
+    selectCase(0);
+  </script>
+</body>
+</html>

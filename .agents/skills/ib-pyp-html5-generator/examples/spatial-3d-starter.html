@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Spatial Inspector - IB PYP Optics & Geometry Template</title>
+  <style>
+    :root {
+      --bg: #FFFDF0;
+      --ink: #111111;
+      --yellow: #FFE156;
+      --coral: #FF6584;
+      --teal: #4ECDC4;
+      --purple: #B388FF;
+      --white: #FFFFFF;
+      --border: 3.5px solid var(--ink);
+      --shadow: 4px 4px 0 var(--ink);
+      --shadow-sm: 2px 2px 0 var(--ink);
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 12px 16px;
+    }
+
+    .container { max-width: 980px; margin: 0 auto; }
+
+    .nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .nav-link {
+      background: var(--yellow);
+      border: var(--border);
+      box-shadow: var(--shadow-sm);
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-weight: 800;
+      font-size: 0.9rem;
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    .hero {
+      background: var(--white);
+      border: var(--border);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding: 12px 18px;
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .hero-title { font-size: 1.3rem; font-weight: 900; }
+    .hero-tag {
+      background: var(--teal);
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-weight: 800;
+      font-size: 0.8rem;
+    }
+
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 768px) {
+      .workspace-grid { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background: var(--white);
+      border: var(--border);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+
+    /* 3D Viewport */
+    .viewport-container {
+      width: 100%;
+      height: 280px;
+      background: #111424;
+      border: var(--border);
+      border-radius: 10px;
+      position: relative;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    #threeCanvas { width: 100%; height: 100%; display: block; }
+
+    .viewport-overlay {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px solid var(--ink);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      pointer-events: none;
+    }
+
+    .control-row {
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      height: 10px;
+      accent-color: var(--coral);
+      cursor: pointer;
+    }
+
+    .btn-toggle {
+      padding: 8px 12px;
+      border: 2px solid var(--ink);
+      box-shadow: 2px 2px 0 var(--ink);
+      border-radius: 8px;
+      background: var(--yellow);
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    /* Mission Panel */
+    .mission-prompt {
+      background: #FDFDFD;
+      border: 2px dashed var(--ink);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 14px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    .choice-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .btn-choice {
+      padding: 10px 14px;
+      border: 2px solid var(--ink);
+      box-shadow: 2px 2px 0 var(--ink);
+      border-radius: 10px;
+      background: var(--white);
+      font-size: 0.9rem;
+      font-weight: 800;
+      cursor: pointer;
+      text-align: left;
+    }
+    .btn-choice.active { background: var(--yellow); }
+
+    .btn-submit {
+      width: 100%;
+      padding: 12px;
+      background: var(--coral);
+      color: var(--white);
+      border: var(--border);
+      box-shadow: var(--shadow-sm);
+      border-radius: 10px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .toast {
+      margin-top: 12px;
+      padding: 10px;
+      border-radius: 8px;
+      border: 2px solid var(--ink);
+      font-weight: 800;
+      font-size: 0.9rem;
+      display: none;
+    }
+    .toast.show { display: block; }
+  </style>
+
+  <!-- CDN Importmap for Three.js -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div class="container">
+    <nav class="nav-bar">
+      <a class="nav-link" href="../index.html">← Back</a>
+      <span style="font-weight: 800; font-size: 0.85rem;">IB PYP: How The World Works</span>
+    </nav>
+
+    <header class="hero">
+      <div>
+        <h1 class="hero-title">3D Light & Shadow Optics Lab 🔦</h1>
+        <p style="font-size: 0.85rem; color: #555;">Drag to orbit the 3D diorama. Move the light to inspect real-time cast shadows.</p>
+      </div>
+      <span class="hero-tag">Key Concept: Causation</span>
+    </header>
+
+    <main class="workspace-grid">
+      <!-- 3D Viewport Panel -->
+      <section class="panel">
+        <div style="display: flex; justify-content: space-between; font-weight: 900; margin-bottom: 8px;">
+          <span>3D Optics Diorama</span>
+          <span style="font-size: 0.8rem; color: #666;">👆 Drag to rotate view</span>
+        </div>
+
+        <div class="viewport-container" id="viewport">
+          <canvas id="threeCanvas"></canvas>
+          <div class="viewport-overlay">Orbit Camera Active 🔄</div>
+        </div>
+
+        <div class="control-row">
+          <label style="font-weight: 800; font-size: 0.85rem;">Sun Position (Angle):</label>
+          <input type="range" id="lightAngleSlider" min="-50" max="50" value="0">
+        </div>
+
+        <div class="control-row">
+          <button class="btn-toggle" id="btnMaterial" onclick="toggleMaterial()">Material: Opaque Cube 🧱</button>
+        </div>
+      </section>
+
+      <!-- Challenge Panel -->
+      <section class="panel">
+        <div style="font-weight: 900; font-size: 1.1rem; margin-bottom: 12px;">Shadow Detective 🕵️</div>
+        <div class="mission-prompt">
+          Case 1: When the flashlight moves lower toward the ground, what happens to the length of the shadow on the floor?
+        </div>
+
+        <div class="choice-group">
+          <button class="btn-choice" onclick="selectChoice(0, this)">The shadow grows longer 📏</button>
+          <button class="btn-choice" onclick="selectChoice(1, this)">The shadow disappears completely 👻</button>
+          <button class="btn-choice" onclick="selectChoice(2, this)">The shadow shrinks into a tiny dot 🤏</button>
+        </div>
+
+        <button class="btn-submit" onclick="checkAnswer()">Submit Case ✨</button>
+        <div class="toast" id="toast"></div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    const container = document.getElementById('viewport');
+    const canvas = document.getElementById('threeCanvas');
+
+    // Scene, Camera, Renderer
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x1a1e36);
+
+    const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+    camera.position.set(0, 5, 8);
+
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.maxPolarAngle = Math.PI / 2 - 0.05; // Prevent camera from going below floor
+
+    // Floor Plane
+    const floorGeo = new THREE.PlaneGeometry(14, 14);
+    const floorMat = new THREE.MeshStandardMaterial({ color: 0xE8ECEF, roughness: 0.8 });
+    const floor = new THREE.Mesh(floorGeo, floorMat);
+    floor.rotation.x = -Math.PI / 2;
+    floor.receiveShadow = true;
+    scene.add(floor);
+
+    // Target Block (Cube)
+    const cubeGeo = new THREE.BoxGeometry(1.6, 1.6, 1.6);
+    const cubeMatOpaque = new THREE.MeshStandardMaterial({ color: 0xFF6584, roughness: 0.4 });
+    const cubeMatGlass = new THREE.MeshStandardMaterial({ color: 0x4ECDC4, transparent: true, opacity: 0.35, roughness: 0.1 });
+    const cube = new THREE.Mesh(cubeGeo, cubeMatOpaque);
+    cube.position.set(0, 0.8, 0);
+    cube.castShadow = true;
+    cube.receiveShadow = false;
+    scene.add(cube);
+
+    // Ambient Light
+    const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.4);
+    scene.add(ambientLight);
+
+    // Movable Directional Light (Flashlight/Sun)
+    const dirLight = new THREE.DirectionalLight(0xFFE156, 1.8);
+    dirLight.position.set(0, 4, 3);
+    dirLight.castShadow = true;
+    dirLight.shadow.mapSize.width = 1024;
+    dirLight.shadow.mapSize.height = 1024;
+    scene.add(dirLight);
+
+    // Light Helper Sphere
+    const lightSphere = new THREE.Mesh(
+      new THREE.SphereGeometry(0.2, 16, 16),
+      new THREE.MeshBasicMaterial({ color: 0xFFE156 })
+    );
+    dirLight.add(lightSphere);
+
+    // Animation Loop
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // Slider Event
+    const slider = document.getElementById('lightAngleSlider');
+    slider.addEventListener('input', (e) => {
+      const x = parseFloat(e.target.value) / 10;
+      dirLight.position.x = x;
+      dirLight.position.y = 4 - Math.abs(x) * 0.3; // Lowers angle as it moves out
+    });
+
+    // Material Toggle
+    let isGlass = false;
+    window.toggleMaterial = function() {
+      isGlass = !isGlass;
+      cube.material = isGlass ? cubeMatGlass : cubeMatOpaque;
+      cube.castShadow = !isGlass; // Transparent object casts almost no shadow
+      document.getElementById('btnMaterial').textContent = isGlass ? "Material: Glass (Transparent) 🪟" : "Material: Opaque Cube 🧱";
+    };
+
+    // Resize Handler
+    window.addEventListener('resize', () => {
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    });
+
+    // Detective Challenge State
+    let chosenIndex = null;
+    window.selectChoice = function(idx, el) {
+      chosenIndex = idx;
+      document.querySelectorAll('.btn-choice').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+    };
+
+    window.checkAnswer = function() {
+      const toast = document.getElementById('toast');
+      toast.className = 'toast show';
+      if (chosenIndex === null) {
+        toast.style.background = '#FFF3CD';
+        toast.textContent = '👆 Please select a choice first!';
+        return;
+      }
+      if (chosenIndex === 0) {
+        toast.style.background = '#D4EDDA';
+        toast.textContent = '🎉 Brilliant observation! Lower light angles cast longer stretched shadows.';
+      } else {
+        toast.style.background = '#F8D7DA';
+        toast.textContent = '🤔 Try moving the slider all the way to the side and look at the floor shadow!';
+      }
+    };
+  </script>
+</body>
+</html>

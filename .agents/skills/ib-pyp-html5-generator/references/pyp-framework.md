@@ -78,7 +78,7 @@ Map the inquiry cycle onto screens or modes:
 5. **Reflecting** — one-line takeaway linked to the central idea.
 6. **Taking action** — choose a real-world action or a next challenge.
 
-`g2_angle_explorer.html` (Learn → Build → Detective) is the house example.
+The **Interactive Concept Lab** (`examples/concept-lab-starter.html`: Free Explore → Build → Detective Case) is the classic house pattern.
 
 ## 7. Project-based learning layer
 
@@ -102,11 +102,11 @@ When the user wants a project-based activity, add:
 
 Grade 2, Unit "How the World Works" — central idea: *Light and sound help us understand the world around us.*
 
-| Line of inquiry | Key concept | Game | Mechanic |
+| Line of inquiry | Key concept | Recommended Archetype | Mechanic |
 | --- | --- | --- | --- |
-| How shadows form | Causation | `g2_light_shadow_master.html` | Move a torch, pick material opacity, watch the shadow change |
-| How sounds are made and travel | Function | `g2_sound_explorer.html` | Scenario cards; test pitch/volume; read-aloud scenarios |
-| How we use light and sound safely | Responsibility | (new) | Choose safe actions, see consequences, commit to one at home |
+| How shadows form | Causation | **Type 4: 3D Spatial Inspector** (`examples/spatial-3d-starter.html`) | Move a 3D torch, toggle material opacity, watch real-time shadow projection change |
+| How sounds are made and travel | Function | **Type 3: Concept Lab** (`examples/concept-lab-starter.html`) | Adjust frequency/volume sliders; observe live waveform and test pitch scenarios |
+| How we use light and sound safely | Responsibility | **Type 8: Scenario Decision Quest** (`examples/decision-quest-starter.html`) | Choose safe actions in daily dilemmas, see meter consequences, commit to an action |
 
 ---
 

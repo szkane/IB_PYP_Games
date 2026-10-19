@@ -1,0 +1,671 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Printable Practice Worksheet - IB PYP Generator Template</title>
+  <style>
+    :root {
+      --bg: #FFFDF0;
+      --ink: #111111;
+      --yellow: #FFE156;
+      --coral: #FF6584;
+      --teal: #4ECDC4;
+      --green: #86EFAC;
+      --purple: #B388FF;
+      --white: #FFFFFF;
+      --border: 3.5px solid var(--ink);
+      --shadow: 4px 4px 0 var(--ink);
+      --shadow-sm: 2px 2px 0 var(--ink);
+      --radius: 14px;
+      --grid-cell: 14mm;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "KaiTi", serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100dvh;
+      padding: 12px 16px 28px;
+    }
+
+    .nav-bar {
+      max-width: 1120px;
+      margin: 0 auto 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .pyp-map-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 8px 16px;
+      background: var(--yellow);
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 900;
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .app-layout {
+      max-width: 1120px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .app-layout { grid-template-columns: 1fr; }
+    }
+
+    /* Screen-Only Control Console */
+    .control-panel {
+      background: var(--white);
+      border: var(--border);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+
+    .panel-title {
+      font-size: 1.1rem;
+      font-weight: 900;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--ink);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .form-group { margin-bottom: 12px; }
+
+    .form-group label {
+      display: block;
+      font-size: 0.84rem;
+      font-weight: 800;
+      margin-bottom: 5px;
+    }
+
+    .form-group select,
+    .form-group input[type="text"] {
+      width: 100%;
+      min-height: 42px;
+      padding: 8px 10px;
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      background: #FFF;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.88rem;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    .btn-action-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .btn-tactile {
+      min-height: 44px;
+      padding: 10px 14px;
+      border: var(--border);
+      box-shadow: var(--shadow-sm);
+      border-radius: 10px;
+      font-weight: 900;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      touch-action: manipulation;
+      transition: transform 0.1s;
+    }
+    .btn-tactile:active { transform: translate(2px, 2px); }
+    .btn-print { background: var(--coral); color: var(--white); }
+    .btn-generate { background: var(--yellow); color: var(--ink); }
+    .btn-check { background: var(--teal); color: var(--ink); }
+
+    .feedback-banner {
+      margin-top: 10px;
+      padding: 10px;
+      border: 2px solid var(--ink);
+      border-radius: 10px;
+      font-weight: 800;
+      font-size: 0.88rem;
+      display: none;
+    }
+    .feedback-banner.show { display: block; }
+
+    /* Worksheet A4 Preview Paper */
+    .paper-preview-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .a4-paper {
+      background: var(--white);
+      width: 100%;
+      max-width: 210mm;
+      min-height: 275mm;
+      padding: 12mm 14mm;
+      border: var(--border);
+      box-shadow: var(--shadow);
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sheet-header {
+      border-bottom: 2.5px solid #000;
+      padding-bottom: 8px;
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .sheet-title {
+      font-size: 1.25rem;
+      font-weight: 900;
+    }
+
+    .sheet-meta-fields {
+      display: flex;
+      gap: 14px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .meta-line {
+      border-bottom: 1.5px solid #000;
+      min-width: 60px;
+      display: inline-block;
+    }
+
+    /* Mode A: Math Vertical Column Calculation Grid */
+    .math-vertical-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      row-gap: 22px;
+      column-gap: 16px;
+    }
+
+    .math-vertical-card {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 1.3rem;
+      font-weight: bold;
+      padding: 6px 10px;
+      border: 1px dashed #DDD;
+      border-radius: 6px;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .math-op-line {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      border-bottom: 2px solid #000;
+      padding-bottom: 2px;
+    }
+
+    .carry-box {
+      width: 14px;
+      height: 14px;
+      border: 1px dashed #AAA;
+      font-size: 0.65rem;
+      margin-right: 12px;
+      margin-bottom: 2px;
+    }
+
+    .math-answer-input {
+      width: 100%;
+      height: 28px;
+      border: none;
+      text-align: right;
+      font-family: inherit;
+      font-size: 1.2rem;
+      font-weight: bold;
+      outline: none;
+      background: transparent;
+    }
+    .math-answer-input.correct { color: #15803D; background: #DCFCE7; }
+    .math-answer-input.wrong { color: #B91C1C; background: #FEE2E2; }
+
+    /* Mode B: 3-Number Mixed Horizontal Arithmetic */
+    .math-mixed-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      row-gap: 16px;
+      column-gap: 16px;
+    }
+
+    .math-mixed-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: "Courier New", Courier, monospace;
+      font-size: 1.1rem;
+      font-weight: bold;
+      padding: 6px 8px;
+      border-bottom: 1px dashed #CCC;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .mixed-box {
+      width: 54px;
+      height: 28px;
+      border: 1.5px solid #000;
+      border-radius: 4px;
+      text-align: center;
+      font-family: inherit;
+      font-size: 1.05rem;
+      font-weight: bold;
+    }
+
+    /* Mode C: Chinese Penmanship Grid (Tian Zi Ge / Mi Zi Ge) */
+    .tian-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .tian-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .pinyin-ruby {
+      font-family: system-ui, sans-serif;
+      font-size: 0.9rem;
+      font-weight: 800;
+      width: 22mm;
+      text-align: center;
+    }
+
+    .tian-cell-group {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .tian-cell {
+      width: var(--grid-cell);
+      height: var(--grid-cell);
+      border: 1.5px solid #000;
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: calc(var(--grid-cell) * 0.72);
+      font-family: "KaiTi", "楷体", "STKaiti", serif;
+      user-select: none;
+    }
+
+    .tian-cell::before {
+      content: '';
+      position: absolute;
+      top: 50%; left: 0; right: 0;
+      border-top: 1px dashed #AAA;
+      pointer-events: none;
+    }
+    .tian-cell::after {
+      content: '';
+      position: absolute;
+      left: 50%; top: 0; bottom: 0;
+      border-left: 1px dashed #AAA;
+      pointer-events: none;
+    }
+
+    /* Mi Zi Ge diagonal crosshairs */
+    .tian-cell.mi-zi-ge {
+      background-image:
+        linear-gradient(45deg, transparent 49.2%, #CCC 49.5%, #CCC 50.5%, transparent 50.8%),
+        linear-gradient(-45deg, transparent 49.2%, #CCC 49.5%, #CCC 50.5%, transparent 50.8%);
+    }
+
+    .char-model { z-index: 1; color: #000; }
+    .char-trace { z-index: 1; color: #D0D0D0; }
+
+    .sheet-footer {
+      margin-top: auto;
+      padding-top: 8px;
+      border-top: 1px solid #CCC;
+      font-size: 0.75rem;
+      color: #555;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* Answer Key Section (Page 2 when printed) */
+    .answer-key-paper {
+      display: none;
+    }
+    .answer-key-paper.visible {
+      display: flex;
+    }
+
+    /* --- PRINT STYLING (MANDATORY EXACT A4 RULES) --- */
+    @page {
+      size: A4 portrait;
+      margin: 8mm 10mm;
+    }
+
+    @media print {
+      html, body {
+        background: #FFF !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        color: #000 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .control-panel,
+      .nav-bar,
+      .pyp-map-link,
+      .no-print {
+        display: none !important;
+      }
+
+      .app-layout,
+      .paper-preview-container {
+        display: block !important;
+        width: 100% !important;
+        margin: 0 !important;
+      }
+
+      .a4-paper {
+        border: none !important;
+        box-shadow: none !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-height: auto !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+
+      .page-break {
+        page-break-before: always;
+        break-before: page;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav-bar no-print">
+    <a class="pyp-map-link" href="../index.html">← PYP Map</a>
+    <span style="font-weight: 900; font-size: 0.9rem;">🖨️ Type 1: Printable Worksheet & Penmanship Generator</span>
+  </nav>
+
+  <div class="app-layout">
+    <!-- Screen Control Console -->
+    <aside class="control-panel no-print">
+      <div class="panel-title">
+        <span>Worksheet Builder ⚙️</span>
+      </div>
+
+      <div class="form-group">
+        <label for="sheetType">Worksheet Mode:</label>
+        <select id="sheetType" onchange="renderWorksheet()">
+          <option value="math-vertical">Math: 2-Digit Vertical Columns (竖式)</option>
+          <option value="math-mixed">Math: 3-Number Mixed Operations (+ / -)</option>
+          <option value="tian">Chinese: Tian Zi Ge Penmanship (田字格)</option>
+          <option value="mi">Chinese: Mi Zi Ge Penmanship (米字格)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="itemCount">Problem / Row Count:</label>
+        <select id="itemCount" onchange="renderWorksheet()">
+          <option value="12">12 Items (Spacious)</option>
+          <option value="16" selected>16 Items (Standard A4 Page)</option>
+          <option value="20">20 Items (Full Page)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="titleInput">Sheet Heading:</label>
+        <input type="text" id="titleInput" value="Daily Practice: Fluency & Penmanship" oninput="updateTitle(this.value)">
+      </div>
+
+      <label class="checkbox-row">
+        <input type="checkbox" id="chkAnswerKey" onchange="toggleAnswerKey(this.checked)">
+        <span>Include Answer Key Page (Page 2)</span>
+      </label>
+
+      <div class="btn-action-group">
+        <button type="button" class="btn-tactile btn-print" onclick="window.print()">
+          <span>🖨️ Print A4 Worksheet</span>
+        </button>
+        <button type="button" class="btn-tactile btn-generate" onclick="renderWorksheet()">
+          <span>🎲 Generate Fresh Set</span>
+        </button>
+        <button type="button" class="btn-tactile btn-check" onclick="checkOnlineAnswers()">
+          <span>✅ Check Online Answers</span>
+        </button>
+      </div>
+
+      <div class="feedback-banner" id="feedbackBanner" aria-live="polite"></div>
+    </aside>
+
+    <!-- Physical Paper Preview -->
+    <main class="paper-preview-container">
+      <!-- Page 1: Student Worksheet -->
+      <article class="a4-paper">
+        <header class="sheet-header">
+          <div>
+            <h1 class="sheet-title" id="displayTitle">Daily Practice: Fluency & Penmanship</h1>
+            <p style="font-size: 0.78rem; color: #444;">IB PYP Home & Classroom Routine · Self-Management Skills</p>
+          </div>
+          <div class="sheet-meta-fields">
+            <div>Name: <span class="meta-line" style="width: 75px;"></span></div>
+            <div>Date: <span class="meta-line" style="width: 65px;"></span></div>
+            <div>Score: <span class="meta-line" style="width: 45px;"></span> / <span id="maxScore">16</span></div>
+          </div>
+        </header>
+
+        <section id="worksheetContent"></section>
+
+        <footer class="sheet-footer">
+          <span>IB PYP Practice Sheet · Neatness & Accuracy</span>
+          <span>Target Mastery: ≥ 90%</span>
+        </footer>
+      </article>
+
+      <!-- Page 2: Printable Answer Key (Optional) -->
+      <article class="a4-paper answer-key-paper page-break" id="answerKeyPaper">
+        <header class="sheet-header">
+          <h2 class="sheet-title">🔑 Teacher / Parent Answer Key</h2>
+          <span style="font-size: 0.82rem; font-weight: 700;">Self-Check Reference</span>
+        </header>
+        <div id="answerKeyContent" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; font-family: monospace; font-size: 1.05rem; font-weight: bold;"></div>
+      </article>
+    </main>
+  </div>
+
+  <script>
+    let currentProblems = [];
+
+    function updateTitle(val) {
+      document.getElementById('displayTitle').textContent = val;
+    }
+
+    function toggleAnswerKey(checked) {
+      document.getElementById('answerKeyPaper').classList.toggle('visible', checked);
+    }
+
+    function renderWorksheet() {
+      const type = document.getElementById('sheetType').value;
+      const count = parseInt(document.getElementById('itemCount').value, 10);
+      const container = document.getElementById('worksheetContent');
+      const answerContainer = document.getElementById('answerKeyContent');
+      const fb = document.getElementById('feedbackBanner');
+      fb.className = 'feedback-banner';
+      currentProblems = [];
+
+      if (type === 'math-vertical') {
+        document.getElementById('maxScore').textContent = count;
+        container.className = 'math-vertical-grid';
+        let html = '';
+        let ansHtml = '';
+        for (let i = 0; i < count; i++) {
+          const n1 = Math.floor(Math.random() * 55) + 18;
+          const n2 = Math.floor(Math.random() * 35) + 12;
+          const ans = n1 + n2;
+          currentProblems.push({ idx: i, ans });
+          html += `
+            <div class="math-vertical-card">
+              <span style="font-size:0.72rem; color:#666; align-self:flex-start;">#${i + 1}</span>
+              <div class="carry-box" title="Carry box"></div>
+              <span>${n1}</span>
+              <div class="math-op-line">
+                <span>+</span>
+                <span>${n2}</span>
+              </div>
+              <input type="text" inputmode="numeric" class="math-answer-input" data-idx="${i}" aria-label="Problem ${i + 1} answer">
+            </div>
+          `;
+          ansHtml += `<div>#${i + 1}: ${n1} + ${n2} = <strong>${ans}</strong></div>`;
+        }
+        container.innerHTML = html;
+        answerContainer.innerHTML = ansHtml;
+      } else if (type === 'math-mixed') {
+        document.getElementById('maxScore').textContent = count;
+        container.className = 'math-mixed-grid';
+        let html = '';
+        let ansHtml = '';
+        for (let i = 0; i < count; i++) {
+          const a = Math.floor(Math.random() * 40) + 20;
+          const b = Math.floor(Math.random() * 25) + 10;
+          const c = Math.floor(Math.random() * 18) + 5;
+          const ans = a + b - c;
+          currentProblems.push({ idx: i, ans });
+          html += `
+            <div class="math-mixed-row">
+              <span>${a} + ${b} - ${c} =</span>
+              <input type="text" inputmode="numeric" class="mixed-box math-answer-input" data-idx="${i}" aria-label="Problem ${i + 1} answer">
+            </div>
+          `;
+          ansHtml += `<div>#${i + 1}: <strong>${ans}</strong></div>`;
+        }
+        container.innerHTML = html;
+        answerContainer.innerHTML = ansHtml;
+      } else {
+        const isMi = type === 'mi';
+        const sampleChars = [
+          { pinyin: "shān", char: "山", meaning: "Mountain" },
+          { pinyin: "shuǐ", char: "水", meaning: "Water" },
+          { pinyin: "rì", char: "日", meaning: "Sun / Day" },
+          { pinyin: "yuè", char: "月", meaning: "Moon / Month" },
+          { pinyin: "tián", char: "田", meaning: "Field" },
+          { pinyin: "hé", char: "禾", meaning: "Grain" },
+          { pinyin: "huǒ", char: "火", meaning: "Fire" },
+          { pinyin: "mù", char: "木", meaning: "Tree / Wood" }
+        ];
+        document.getElementById('maxScore').textContent = sampleChars.length;
+        container.className = 'tian-grid';
+        let html = '';
+        let ansHtml = '';
+        sampleChars.forEach((item, idx) => {
+          const cellClass = isMi ? 'tian-cell mi-zi-ge' : 'tian-cell';
+          html += `
+            <div class="tian-row">
+              <span class="pinyin-ruby">${item.pinyin}</span>
+              <div class="tian-cell-group">
+                <div class="${cellClass}"><span class="char-model">${item.char}</span></div>
+                <div class="${cellClass}"><span class="char-trace">${item.char}</span></div>
+                <div class="${cellClass}"><span class="char-trace">${item.char}</span></div>
+                <div class="${cellClass}"><span class="char-trace">${item.char}</span></div>
+                <div class="${cellClass}"></div>
+                <div class="${cellClass}"></div>
+                <div class="${cellClass}"></div>
+                <div class="${cellClass}"></div>
+              </div>
+            </div>
+          `;
+          ansHtml += `<div>#${idx + 1}: ${item.char} (${item.pinyin} - ${item.meaning})</div>`;
+        });
+        container.innerHTML = html;
+        answerContainer.innerHTML = ansHtml;
+      }
+    }
+
+    function checkOnlineAnswers() {
+      const inputs = document.querySelectorAll('.math-answer-input');
+      const fb = document.getElementById('feedbackBanner');
+      if (inputs.length === 0) {
+        fb.className = 'feedback-banner show';
+        fb.style.background = '#FEF9C3';
+        fb.textContent = '✍️ Penmanship mode is designed for physical pencil tracing after printing!';
+        return;
+      }
+
+      let filled = 0;
+      let correct = 0;
+      inputs.forEach(input => {
+        const val = input.value.trim();
+        const idx = parseInt(input.getAttribute('data-idx'), 10);
+        const target = currentProblems[idx];
+        input.classList.remove('correct', 'wrong');
+        if (val !== '') {
+          filled++;
+          if (parseInt(val, 10) === target.ans) {
+            correct++;
+            input.classList.add('correct');
+          } else {
+            input.classList.add('wrong');
+          }
+        }
+      });
+
+      fb.className = 'feedback-banner show';
+      if (filled === 0) {
+        fb.style.background = '#FEF9C3';
+        fb.textContent = '👆 Type answers into the worksheet boxes first, or click Print for paper practice!';
+      } else if (correct === currentProblems.length) {
+        fb.style.background = '#DCFCE7';
+        fb.textContent = `🌟 Perfect Score! ${correct} / ${currentProblems.length} correct!`;
+      } else {
+        fb.style.background = '#FEE2E2';
+        fb.textContent = `Checked ${filled} items: ${correct} correct. Red boxes need another look!`;
+      }
+    }
+
+    renderWorksheet();
+  </script>
+</body>
+</html>
