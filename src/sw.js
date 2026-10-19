@@ -1,5 +1,5 @@
 // Cache version - auto-updated by build script
-const CACHE_VERSION = '20261018203649';
+const CACHE_VERSION = '20261020070621';
 const CACHE_NAME = `ib-pyp-games-${CACHE_VERSION}`;
 
 // Static assets to pre-cache during install
@@ -19,6 +19,7 @@ const PRECACHE_URLS = [
     '/literacy/g1_spelling_bee.html',
     '/literacy/g2_digraph_pop.html',
     '/literacy/g2_five_finger_retell.html',
+    '/literacy/g2_phonics_word_clinic.html',
     '/literacy/g2_script_director.html',
     '/literacy/g2_sentence_fixer.html',
     '/literacy/mc_words/index.html',

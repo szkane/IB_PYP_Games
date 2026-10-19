@@ -861,6 +861,76 @@
       },
       {
         id: 4,
+        time: "Lunchtime: 12:15 PM",
+        title: "Food Choices & What They Do to My Body",
+        desc: "Lunch is served in the cafeteria. How do different food choices impact your body's energy and growth?",
+        options: [
+          {
+            letter: "A",
+            title: "Choose tender roast chicken, steamed green broccoli, and whole-wheat bread.",
+            svg: `<svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="#4ECDC4"/><circle cx="12" cy="12" r="5" fill="#FFE156"/></svg>`,
+            impact: { physical: +25, emotional: +15, focus: +25 },
+            balanced: true,
+            feedbackTitle: "Muscle Power & Lasting Energy 🥦",
+            feedback: "Causation: Protein from chicken builds strong muscles, vitamins in broccoli fight germs, and whole-wheat bread gives long-lasting energy without a crash."
+          },
+          {
+            letter: "B",
+            title: "Eat sweet dessert pancakes loaded with sugar syrup only.",
+            svg: `<svg width="24" height="24" viewBox="0 0 24 24"><ellipse cx="12" cy="14" rx="8" ry="4" fill="#FFE156"/><circle cx="12" cy="12" r="2" fill="#FF6584"/></svg>`,
+            impact: { physical: -15, emotional: -10, focus: -20 },
+            balanced: false,
+            feedbackTitle: "Afternoon Sugar Crash 📉",
+            feedback: "Causation: Sugary pancakes cause a fast energy spike followed by an afternoon slump, leaving your brain tired and distracted."
+          },
+          {
+            letter: "C",
+            title: "Refuse to eat vegetables and snack on potato chips only.",
+            svg: `<svg width="24" height="24" viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="12" fill="#FF6584"/></svg>`,
+            impact: { physical: -20, emotional: -5, focus: -15 },
+            balanced: false,
+            feedbackTitle: "Missing Vital Nutrients ⚠️",
+            feedback: "Causation: Without fresh vegetables and fiber, your digestive system slows down and you lose stamina during afternoon classes."
+          }
+        ]
+      },
+      {
+        id: 5,
+        time: "After School: 04:45 PM",
+        title: "How My Emotional Choices Make Others Feel",
+        desc: "You are playing games on the Nintendo Switch or watching TV at home. Your sibling asks to share or play together. What choice do you make?",
+        options: [
+          {
+            letter: "A",
+            title: "Pass the second controller and play a fun 2-player game together, or take 10-minute turns.",
+            svg: `<svg width="24" height="24" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="8" rx="3" fill="#38B6FF"/><circle cx="8" cy="12" r="1.5" fill="#FFF"/><circle cx="16" cy="12" r="1.5" fill="#FFF"/></svg>`,
+            impact: { physical: +10, emotional: +25, focus: +20 },
+            balanced: true,
+            feedbackTitle: "Empathy & Harmony 🎮",
+            feedback: "Causation & Empathy: Sharing the Switch makes others feel included, respected, and happy. It builds friendship and trust in your family."
+          },
+          {
+            letter: "B",
+            title: "Refuse to share, shout angrily, and hoard the controller.",
+            svg: `<svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="#FF6584"/><path d="M8 15 Q12 11 16 15" stroke="#111" stroke-width="2" fill="none"/></svg>`,
+            impact: { physical: -10, emotional: -25, focus: -20 },
+            balanced: false,
+            feedbackTitle: "Emotional Hurt & Outburst 💥",
+            feedback: "Causation: When you don't share and shout, others feel angry, hurt, and sad. An emotional volcano erupts and creates household conflict."
+          },
+          {
+            letter: "C",
+            title: "Turn off the TV abruptly in anger and slam the door.",
+            svg: `<svg width="24" height="24" viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="16" fill="#B388FF"/></svg>`,
+            impact: { physical: -5, emotional: -20, focus: -15 },
+            balanced: false,
+            feedbackTitle: "Unresolved Frustration 🚪",
+            feedback: "Self-Management: Slamming doors and storming off makes family members feel puzzled and distressed. Practicing calm breathing works much better."
+          }
+        ]
+      },
+      {
+        id: 6,
         time: "Evening: 07:30 PM",
         title: "Evening Relaxation Time",
         desc: "Dinner is finished. You have 45 minutes of leisure time before bedtime routines begin.",
@@ -895,7 +965,7 @@
         ]
       },
       {
-        id: 5,
+        id: 7,
         time: "Bedtime: 08:45 PM",
         title: "Preparing for Sleep",
         desc: "It is time to get ready for sleep. Grade 2 students thrive on 10 hours of restorative rest.",

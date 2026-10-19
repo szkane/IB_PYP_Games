@@ -559,8 +559,8 @@
     </header>
 
     <div class="status-bar" id="statusBar">
-      <span>Question <strong id="qNum">1</strong> of 8</span>
-      <span>Quest Score: <strong id="scoreVal">0</strong> / 80 ⭐</span>
+      <span>Question <strong id="qNum">1</strong> of <span id="qTotal">12</span></span>
+      <span>Quest Score: <strong id="scoreVal">0</strong> / <span id="scoreMax">120</span> ⭐</span>
     </div>
 
     <!-- Active Quest Board -->
@@ -656,188 +656,227 @@
     }
     const audio = new SoundFX();
 
-    // Pure English Questions with Ending Punctuation
+    // Comprehensive Grade 2 Curriculum & Hilson Assessment Traps
     const questions = [
+      // Stage 1: Time & Clocks
       {
-        type: "Analogue & Digital Clocks",
+        type: "Stage 1: Digital Clock English",
+        render: () => `
+          <div class="clock-duo">
+            <div class="digital-clock-lcd">07:08</div>
+          </div>
+        `,
+        title: "Morning Routine: Eating Breakfast",
+        desc: "Hilson is eating breakfast at 07:08. What is the correct English phrase to state this time?",
+        options: [
+          { text: "It's seven oh eight (07:08).", correct: true },
+          { text: "It's seven of Eight.", correct: false },
+          { text: "It's seventy-eight.", correct: false }
+        ],
+        hint: "When digital minutes are between 01 and 09, pronounce the leading zero as 'oh': 'seven oh eight'."
+      },
+      {
+        type: "Stage 1: Clock Reading & Spelling",
         render: () => `
           <div class="clock-duo">
             <svg class="analog-clock-svg" viewBox="0 0 100 100">
               <circle cx="50" cy="50" r="46" fill="#FFFFFF" stroke="#111111" stroke-width="4"/>
-              <line x1="50" y1="50" x2="28" y2="44" stroke="#111111" stroke-width="4" stroke-linecap="round"/>
-              <line x1="50" y1="50" x2="16" y2="50" stroke="#FF6584" stroke-width="3" stroke-linecap="round"/>
+              <line x1="50" y1="50" x2="30" y2="34" stroke="#111111" stroke-width="4" stroke-linecap="round"/>
+              <line x1="50" y1="50" x2="50" y2="14" stroke="#FF6584" stroke-width="3" stroke-linecap="round"/>
               <circle cx="50" cy="50" r="4" fill="#111111"/>
               <text x="50" y="16" font-size="10" font-weight="900" text-anchor="middle">12</text>
               <text x="86" y="53" font-size="10" font-weight="900" text-anchor="middle">3</text>
               <text x="50" y="90" font-size="10" font-weight="900" text-anchor="middle">6</text>
               <text x="14" y="53" font-size="10" font-weight="900" text-anchor="middle">9</text>
             </svg>
-            <div class="digital-clock-lcd">08:45</div>
+            <div class="digital-clock-lcd">10:00</div>
           </div>
         `,
-        title: "Morning Arrival Time",
-        desc: "Morning classes begin soon. How do we express 08:45 in words?",
+        title: "Morning Recess Hour",
+        desc: "The morning bell rings at 10:00 sharp. How do we write and say this exact hour in English?",
         options: [
-          { text: "Eight forty-five (Quarter to nine).", correct: true },
-          { text: "Eight fifteen (Quarter past eight).", correct: false },
-          { text: "Nine forty-five.", correct: false }
+          { text: "Ten o'clock (10:00).", correct: true },
+          { text: "Ten o'clod.", correct: false },
+          { text: "Ten clock zero.", correct: false }
         ],
-        hint: "08:45 means 8 hours and 45 minutes, which is exactly fifteen minutes before 9:00."
+        hint: "Exact hours end with 'o'clock' (spelled with -ck at the end, not -d!)."
       },
       {
-        type: "Analogue & Digital Clocks",
+        type: "Stage 1: 12-Hour ⇄ 24-Hour Conversion",
         render: () => `
-          <div class="clock-duo">
-            <svg class="analog-clock-svg" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="46" fill="#FFFFFF" stroke="#111111" stroke-width="4"/>
-              <line x1="50" y1="50" x2="72" y2="52" stroke="#111111" stroke-width="4" stroke-linecap="round"/>
-              <line x1="50" y1="50" x2="84" y2="50" stroke="#FF6584" stroke-width="3" stroke-linecap="round"/>
-              <circle cx="50" cy="50" r="4" fill="#111111"/>
-              <text x="50" y="16" font-size="10" font-weight="900" text-anchor="middle">12</text>
-              <text x="86" y="53" font-size="10" font-weight="900" text-anchor="middle">3</text>
-              <text x="50" y="90" font-size="10" font-weight="900" text-anchor="middle">6</text>
-              <text x="14" y="53" font-size="10" font-weight="900" text-anchor="middle">9</text>
-            </svg>
-            <div class="digital-clock-lcd">03:15</div>
-          </div>
-        `,
-        title: "Afternoon CCA Club Time",
-        desc: "Sports clubs start at this afternoon hour. What time is shown on the clock?",
-        options: [
-          { text: "Three fifteen (Quarter past three).", correct: true },
-          { text: "Three fifty.", correct: false },
-          { text: "Four fifteen.", correct: false }
-        ],
-        hint: "03:15 indicates 3 hours and 15 minutes, known as a quarter past three."
-      },
-      {
-        type: "Calendar Inquiry",
-        render: () => `
-          <div class="calendar-mockup">
-            <div class="cal-header">September 2026</div>
-            <div class="cal-weekdays">
-              <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
-            </div>
-            <div class="cal-days-grid">
-              <span class="cal-day-cell"></span><span class="cal-day-cell"></span><span class="cal-day-cell">1</span><span class="cal-day-cell">2</span><span class="cal-day-cell">3</span><span class="cal-day-cell highlight">4</span><span class="cal-day-cell">5</span>
-              <span class="cal-day-cell">6</span><span class="cal-day-cell">7</span><span class="cal-day-cell">8</span><span class="cal-day-cell">9</span><span class="cal-day-cell">10</span><span class="cal-day-cell highlight">11</span><span class="cal-day-cell">12</span>
-              <span class="cal-day-cell">13</span><span class="cal-day-cell">14</span><span class="cal-day-cell">15</span><span class="cal-day-cell">16</span><span class="cal-day-cell">17</span><span class="cal-day-cell">18</span><span class="cal-day-cell">19</span>
-              <span class="cal-day-cell">20</span><span class="cal-day-cell">21</span><span class="cal-day-cell">22</span><span class="cal-day-cell">23</span><span class="cal-day-cell">24</span><span class="cal-day-cell">25</span><span class="cal-day-cell">26</span>
-              <span class="cal-day-cell">27</span><span class="cal-day-cell">28</span><span class="cal-day-cell">29</span><span class="cal-day-cell">30</span>
+          <div style="background:#FFFFFF; border:3px solid #111; border-radius:12px; padding:16px; text-align:center; max-width:380px; margin:0 auto; box-shadow:3px 3px 0 #111;">
+            <div style="font-weight:900; font-size:1.1rem; margin-bottom:8px; color:#1E3A8A;">School Schedule Conversion</div>
+            <div style="display:flex; justify-content:space-around; font-weight:800; font-size:1.2rem;">
+              <span style="background:#FEF08A; padding:4px 10px; border:2px solid #111; border-radius:8px;">09:00 AM</span>
+              <span style="background:#BAE6FD; padding:4px 10px; border:2px solid #111; border-radius:8px;">04:00 PM</span>
             </div>
           </div>
         `,
-        title: "Monthly Calendar Inquiry",
-        desc: "Examine the September 2026 calendar. What date is the SECOND Friday of the month?",
+        title: "24-Hour Digital Clock Conversion",
+        desc: "How do 09:00 AM (morning assembly) and 04:00 PM (school dismissal) write in 24-hour format?",
         options: [
-          { text: "September 11th.", correct: true },
-          { text: "September 4th.", correct: false },
-          { text: "September 18th.", correct: false }
+          { text: "09:00 AM is 09:00, and 04:00 PM is 16:00.", correct: true },
+          { text: "09:00 AM is 19:00, and 04:00 PM is 04:00.", correct: false },
+          { text: "09:00 AM is 09:00, and 04:00 PM is 14:00.", correct: false }
         ],
-        hint: "The 1st Friday is September 4th. Adding 7 days reaches the 2nd Friday on September 11th."
+        hint: "AM hours stay the same with leading zeros (09:00). For PM hours, add 12 to the hour: 4 + 12 = 16:00."
       },
       {
-        type: "Calendar Inquiry",
+        type: "Stage 1: Time Units & Duration",
         render: () => `
-          <div class="calendar-mockup">
-            <div class="cal-header">October 2026</div>
-            <div class="cal-weekdays">
-              <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
-            </div>
-            <div class="cal-days-grid">
-              <span class="cal-day-cell"></span><span class="cal-day-cell"></span><span class="cal-day-cell"></span><span class="cal-day-cell"></span><span class="cal-day-cell">1</span><span class="cal-day-cell">2</span><span class="cal-day-cell highlight">3</span>
-              <span class="cal-day-cell">4</span><span class="cal-day-cell">5</span><span class="cal-day-cell">6</span><span class="cal-day-cell">7</span><span class="cal-day-cell">8</span><span class="cal-day-cell">9</span><span class="cal-day-cell highlight">10</span>
-              <span class="cal-day-cell">11</span><span class="cal-day-cell">12</span><span class="cal-day-cell">13</span><span class="cal-day-cell">14</span><span class="cal-day-cell">15</span><span class="cal-day-cell">16</span><span class="cal-day-cell">17</span>
-            </div>
+          <div style="text-align:center; background:#F0FDFA; border:3px solid #111; border-radius:12px; padding:14px; max-width:400px; margin:0 auto; box-shadow:3px 3px 0 #111;">
+            <div style="font-weight:900; font-size:1.05rem; color:#0F766E;">Swimming Practice Duration</div>
+            <p style="font-weight:800; margin-top:6px;">Start: <strong>02:15 PM</strong> ➔ Finish: <strong>02:50 PM</strong></p>
           </div>
         `,
-        title: "Holiday Duration Calculation",
-        desc: "A holiday runs from Saturday Oct 3rd to Saturday Oct 10th. How many days have elapsed?",
+        title: "Duration Calculation by Minutes",
+        desc: "Hilson's swim training started at 02:15 PM and ended at 02:50 PM. How many minutes did he swim?",
         options: [
-          { text: "7 days (Exactly one week).", correct: true },
-          { text: "5 days.", correct: false },
-          { text: "10 days.", correct: false }
+          { text: "35 minutes (50 - 15 = 35).", correct: true },
+          { text: "25 minutes.", correct: false },
+          { text: "45 minutes.", correct: false }
         ],
-        hint: "10 minus 3 equals 7 days, which is exactly one full week."
+        hint: "Subtract the start minutes from the end minutes: 50 minus 15 equals 35 minutes."
       },
+
+      // Stage 2: 3-Number Arithmetic with Carrying & Borrowing Traps
       {
-        type: "Mental Arithmetic Strategies",
+        type: "Stage 2: 3-Number Addition with Carrying",
         render: () => `
           <div style="text-align:center;">
-            <div class="equation-large">15 + 8 + 5 = ?</div>
-            <svg class="numberline-svg" viewBox="0 0 300 60">
-              <line x1="20" y1="45" x2="280" y2="45" stroke="#111" stroke-width="3"/>
-              <!-- Jumps -->
-              <path d="M 20 45 Q 95 10 170 45" stroke="#38B6FF" stroke-width="3" fill="none"/>
-              <text x="95" y="20" font-size="12" font-weight="900" text-anchor="middle" fill="#1E40AF">15 + 5 = 20</text>
-              <path d="M 170 45 Q 225 15 280 45" stroke="#4ECDC4" stroke-width="3" fill="none"/>
-              <text x="225" y="24" font-size="12" font-weight="900" text-anchor="middle" fill="#065F46">+8</text>
-            </svg>
+            <div class="equation-large">24 + 28 + 13 = ?</div>
+            <div style="font-weight:800; color:#1E40AF; margin-top:6px;">Step 1: 24 + 28 = 52. Now compute Step 2: 52 + 13!</div>
           </div>
         `,
-        title: "Continuous Addition Strategy",
-        desc: "Strategy: Group friendly number bonds to 20 first (15 + 5 = 20). What is the total sum?",
+        title: "Two-Step Carrying Addition",
+        desc: "Calculate in two stages. First, 24 + 28 = 52. Next, calculate 52 + 13. What is the final sum?",
         options: [
-          { text: "28.", correct: true },
-          { text: "26.", correct: false },
-          { text: "30.", correct: false }
+          { text: "65 (52 + 13 = 65).", correct: true },
+          { text: "64 (Carrying calculation slip).", correct: false },
+          { text: "75.", correct: false }
         ],
-        hint: "Combine 15 + 5 = 20 first, then 20 + 8 gives 28."
+        hint: "In the ones column: 2 + 3 = 5. In the tens column: 5 + 1 = 6. The answer is 65 (not 64)."
       },
       {
-        type: "Mental Arithmetic Strategies",
+        type: "Stage 2: 3-Number Addition with Carrying",
         render: () => `
           <div style="text-align:center;">
-            <div class="equation-large">23 + 12 - 5 = ?</div>
-            <svg class="numberline-svg" viewBox="0 0 300 60">
-              <line x1="20" y1="45" x2="280" y2="45" stroke="#111" stroke-width="3"/>
-              <path d="M 20 45 Q 120 12 220 45" stroke="#4ECDC4" stroke-width="3" fill="none"/>
-              <text x="120" y="22" font-size="12" font-weight="900" text-anchor="middle" fill="#065F46">23 + 12 = 35</text>
-              <path d="M 220 45 Q 200 18 180 45" stroke="#FF6584" stroke-width="3" fill="none"/>
-              <text x="200" y="25" font-size="11" font-weight="900" text-anchor="middle" fill="#991B1B">-5</text>
-            </svg>
+            <div class="equation-large">27 + 37 + 25 = ?</div>
+            <div style="font-weight:800; color:#065F46; margin-top:6px;">Step 1: 27 + 37 = 64 (7+7=14, carry 1). Now add 25!</div>
           </div>
         `,
-        title: "Mixed Addition & Subtraction",
-        desc: "Calculate in two stages: First compute 23 + 12 = 35, then subtract 5.",
+        title: "Two-Step Carrying Addition",
+        desc: "Step 1: 27 + 37 = 64. Step 2: Now add 25 (64 + 25). What is the total sum?",
         options: [
-          { text: "30.", correct: true },
-          { text: "32.", correct: false },
-          { text: "25.", correct: false }
+          { text: "89 (64 + 25 = 89).", correct: true },
+          { text: "90 (from miscalculating 27+37 as 65).", correct: false },
+          { text: "87.", correct: false }
         ],
-        hint: "23 + 12 = 35; subtracting 5 yields 30."
+        hint: "27 + 37 = 64. Then 64 + 25 gives 4 + 5 = 9 in ones, and 6 + 2 = 8 in tens: 89."
       },
       {
-        type: "Mental Arithmetic Strategies",
+        type: "Stage 2: Subtraction with Borrowing",
         render: () => `
           <div style="text-align:center;">
-            <div class="equation-large">45 - 15 - 10 = ?</div>
+            <div class="equation-large">60 - 25 - 26 = ?</div>
+            <div style="font-weight:800; color:#991B1B; margin-top:6px;">Step 1: 60 - 25 = 35 (borrow 1 ten: 10-5=5, 5-2=3). Step 2: 35 - 26 = ?</div>
           </div>
         `,
-        title: "Continuous Subtraction",
-        desc: "Step 1: 45 - 15 = 30. Step 2: 30 - 10 = ?",
+        title: "Sequential Subtraction with Borrowing",
+        desc: "Step 1: 60 - 25 leaves 35. Step 2: Now calculate 35 - 26 with borrowing.",
         options: [
-          { text: "20.", correct: true },
-          { text: "25.", correct: false },
-          { text: "15.", correct: false }
+          { text: "9 (35 - 26 = 9).", correct: true },
+          { text: "15 (from borrowing slip 41-26).", correct: false },
+          { text: "11.", correct: false }
         ],
-        hint: "45 minus 15 leaves 30; subtracting 10 more leaves 20."
+        hint: "60 - 25 = 35. Then in 35 - 26, borrow 1 ten: 15 - 6 = 9, and 2 - 2 = 0. The result is 9."
       },
       {
-        type: "Mental Arithmetic Strategies",
+        type: "Stage 2: 3-Number Subtraction",
         render: () => `
           <div style="text-align:center;">
-            <div class="equation-large">34 - 14 + 20 = ?</div>
+            <div class="equation-large">76 - 35 - 30 = ?</div>
+            <div style="font-weight:800; color:#374151; margin-top:6px;">Step 1: 76 - 35 = 41. Step 2: 41 - 30 = ?</div>
           </div>
         `,
-        title: "Mixed Operation Mental Sprint",
-        desc: "Step 1: 34 - 14 = 20. Step 2: 20 + 20 = ?",
+        title: "Sequential Subtraction Accuracy",
+        desc: "First, compute 76 - 35 = 41. Next, subtract the final 30 from 41.",
         options: [
-          { text: "40.", correct: true },
-          { text: "38.", correct: false },
-          { text: "44.", correct: false }
+          { text: "11 (41 - 30 = 11).", correct: true },
+          { text: "22 (Calculation slip).", correct: false },
+          { text: "1 (Tens subtraction slip).", correct: false }
         ],
-        hint: "34 minus 14 leaves 20; adding 20 gives 40."
+        hint: "In 41 - 30: 1 - 0 = 1 in the ones column, and 4 - 3 = 1 in the tens column: 11."
+      },
+
+      // Stage 3: Word Problems & Standard Sentence Structure
+      {
+        type: "Stage 3: Word Problem Sentence Stems",
+        render: () => `
+          <div style="background:#FFF9D2; border:3px solid #111; border-radius:12px; padding:16px; text-align:center; max-width:420px; margin:0 auto; box-shadow:3px 3px 0 #111;">
+            <div style="font-weight:900; font-size:1.15rem; color:#B45309;">Zoe's Art Project</div>
+            <p style="font-weight:800; margin-top:6px;">25 blue beads + 33 yellow beads = 58 beads</p>
+          </div>
+        `,
+        title: "Standard Math Answer Sentence",
+        desc: "Zoe has 25 blue beads and 33 yellow beads (25 + 33 = 58). What is the grammatically correct written answer sentence?",
+        options: [
+          { text: "Zoe has 58 beads in total.", correct: true },
+          { text: "Zoe have 58 beats are left.", correct: false },
+          { text: "The kids has 58 beads in total.", correct: false }
+        ],
+        hint: "Use singular verb 'has' for Zoe, spell 'beads' with a d, and write 'in total' (avoid fused 'have ... are left')."
+      },
+      {
+        type: "Stage 3: Word Problem Sentence Stems",
+        render: () => `
+          <div style="background:#FEF2F2; border:3px solid #111; border-radius:12px; padding:16px; text-align:center; max-width:420px; margin:0 auto; box-shadow:3px 3px 0 #111;">
+            <div style="font-weight:900; font-size:1.15rem; color:#991B1B;">Ethan's Puzzle Pieces</div>
+            <p style="font-weight:800; margin-top:6px;">50 pieces - 21 given away = 29 pieces</p>
+          </div>
+        `,
+        title: "Standard Subtraction Answer Sentence",
+        desc: "Ethan had 50 puzzle pieces and gave 21 pieces to a classmate (50 - 21 = 29). How should his answer sentence be written?",
+        options: [
+          { text: "Ethan has 29 puzzle pieces left.", correct: true },
+          { text: "Ethan have 29 puzzle pieces are left!", correct: false },
+          { text: "Ethan has 29 puzzle pieces are left.", correct: false }
+        ],
+        hint: "Write: 'Ethan has 29 puzzle pieces left.' Do NOT include the redundant verb 'are' before 'left'!"
+      },
+      {
+        type: "Stage 3: Create Math Story",
+        render: () => `
+          <div style="background:#F0FDF4; border:3px solid #111; border-radius:12px; padding:16px; text-align:center; max-width:420px; margin:0 auto; box-shadow:3px 3px 0 #111;">
+            <div style="font-weight:900; font-size:1.15rem; color:#166534;">Robot Bank Account</div>
+            <p style="font-weight:800; margin-top:6px;">$22 in bank + $87 received = $109</p>
+          </div>
+        `,
+        title: "Math Story Writing & Vocabulary",
+        desc: "A robot has 22 dollars, and another robot gives him 87 dollars. What is the correct question and mathematical answer sentence?",
+        options: [
+          { text: "The robot has 109 dollars in the sum.", correct: true },
+          { text: "The robot have 109 dollars in the sun?", correct: false },
+          { text: "A robot give 109 dollars are left.", correct: false }
+        ],
+        hint: "Use 'has' (singular robot) and spell mathematical 'sum' (s-u-m), not the 'sun' in the sky!"
+      },
+      {
+        type: "Stage 3: Mixed Operations Challenge",
+        render: () => `
+          <div style="text-align:center;">
+            <div class="equation-large">36 + 24 - 15 = ?</div>
+            <div style="font-weight:800; color:#4338CA; margin-top:6px;">Step 1: 36 + 24 = 60. Step 2: 60 - 15 = ?</div>
+          </div>
+        `,
+        title: "Continuous Mixed Operation (+ and -)",
+        desc: "Solve the mixed operation in two stages: First compute 36 + 24 = 60. Then subtract 15 from 60.",
+        options: [
+          { text: "45 (36 + 24 = 60; 60 - 15 = 45).", correct: true },
+          { text: "55.", correct: false },
+          { text: "35.", correct: false }
+        ],
+        hint: "36 + 24 = 60. Then in 60 - 15, borrow 1 ten: 10 - 5 = 5, and 5 - 1 = 4: 45."
       }
     ];
 
@@ -845,7 +884,9 @@
     let score = 0;
 
     const qNum = document.getElementById('qNum');
+    const qTotal = document.getElementById('qTotal');
     const scoreVal = document.getElementById('scoreVal');
+    const scoreMax = document.getElementById('scoreMax');
     const questTypeBadge = document.getElementById('questTypeBadge');
     const questPromptTitle = document.getElementById('questPromptTitle');
     const questPromptDesc = document.getElementById('questPromptDesc');
@@ -857,6 +898,9 @@
     const finishCard = document.getElementById('finishCard');
     const finishDesc = document.getElementById('finishDesc');
     const btnRestart = document.getElementById('btnRestart');
+
+    if (qTotal) qTotal.textContent = questions.length;
+    if (scoreMax) scoreMax.textContent = questions.length * 10;
 
     function loadQuestion(idx) {
       const q = questions[idx];
@@ -870,7 +914,7 @@
       feedbackBanner.style.display = 'none';
       btnNext.style.display = 'none';
 
-      // Randomize / shuffle the options so the correct answer is not always in the first position
+      // Randomize / shuffle options so the correct answer is never in a fixed position
       const shuffledOptions = [...q.options].sort(() => Math.random() - 0.5);
 
       shuffledOptions.forEach(opt => {
@@ -916,7 +960,7 @@
         questBoard.style.display = 'none';
         finishCard.classList.add('active');
         audio.playCorrect();
-        finishDesc.textContent = `Congratulations! You scored ${score} out of 80 points! You have mastered analogue and digital clock reading, calendar durations, and 3-number mental math strategies!`;
+        finishDesc.textContent = `Congratulations! You scored ${score} out of ${questions.length * 10} points! You have mastered 07:08 & 10:00 time expressions, 12h/24h conversions, duration calculations, multi-step carrying & borrowing arithmetic, and complete mathematical answer sentences!`;
       }
     });
 

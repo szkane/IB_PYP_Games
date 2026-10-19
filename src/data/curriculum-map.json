@@ -550,6 +550,12 @@
                   "path": "literacy/g2_five_finger_retell.html",
                   "type": "New",
                   "description": "Interactive narrative map matching characters, setting, time, problem, and solution."
+                },
+                {
+                  "title": "Phonics & Word Clinic",
+                  "path": "literacy/g2_phonics_word_clinic.html",
+                  "type": "New",
+                  "description": "Master FLSZ doubling, regular -ed vs irregular verbs, and heal high-frequency spelling words."
                 }
               ]
             },

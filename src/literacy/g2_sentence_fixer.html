@@ -550,6 +550,7 @@
     const cases = [
       {
         id: 1,
+        stage: "Stage 1: G1 Warm-up",
         symptom: "Missing starting capital letter, verb ending, and ending period.",
         tokens: [
           { current: "yesterday", fixed: "Yesterday", mistake: true, fixes: ["Yesterday", "yesterdayed", "yesturday"] },
@@ -561,48 +562,105 @@
       },
       {
         id: 2,
-        symptom: "Missing capital letter, regular past tense (-ed), and ending period.",
+        stage: "Stage 2: Regular -ed Trap",
+        symptom: "Misspelled word, over-added -ed (saveed), and missing starting capital.",
         tokens: [
           { current: "the", fixed: "The", mistake: true, fixes: ["The", "Teh", "THE"] },
-          { current: "cheerful", fixed: "cheerful", mistake: false },
-          { current: "pupil", fixed: "pupil", mistake: false },
-          { current: "laugh", fixed: "laughed", mistake: true, fixes: ["laughed", "laughd", "laughing"] },
-          { current: "loudly", fixed: "loudly.", mistake: true, fixes: ["loudly.", "loudly!", "loudly"] }
+          { current: "saniy", fixed: "fairy", mistake: true, fixes: ["fairy", "fary", "saniy"] },
+          { current: "saveed", fixed: "saved", mistake: true, fixes: ["saved", "saveed", "saves"] },
+          { current: "him", fixed: "him.", mistake: true, fixes: ["him.", "him,", "him"] }
         ]
       },
       {
         id: 3,
-        symptom: "Missing proper noun capitalization, past tense, and ending period.",
+        stage: "Stage 2: Past Tense & Pronoun Trap",
+        symptom: "Present tense 'don't' in a past story, wrong pronoun 'she', misspelled 'pyes'.",
         tokens: [
-          { current: "last", fixed: "Last", mistake: true, fixes: ["Last", "lastly", "LAST"] },
-          { current: "night", fixed: "night", mistake: false },
-          { current: "hilson", fixed: "Hilson", mistake: true, fixes: ["Hilson", "hilsoned", "HILSON"] },
-          { current: "cook", fixed: "cooked", mistake: true, fixes: ["cooked", "cookt", "cooking"] },
-          { current: "soup", fixed: "soup.", mistake: true, fixes: ["soup.", "soup!", "soup"] }
+          { current: "the", fixed: "The", mistake: true, fixes: ["The", "Teh", "THE"] },
+          { current: "fairy", fixed: "fairy", mistake: false },
+          { current: "don't", fixed: "didn't", mistake: true, fixes: ["didn't", "don't", "not"] },
+          { current: "open", fixed: "open", mistake: false },
+          { current: "she", fixed: "her", mistake: true, fixes: ["her", "she", "hers"] },
+          { current: "pyes!!", fixed: "eyes.", mistake: true, fixes: ["eyes.", "pyes!!", "eyes?"] }
         ]
       },
       {
         id: 4,
-        symptom: "Needs capital letter on 'we', past tense (-ed on 'look'), and question mark.",
+        stage: "Stage 3: Hilson Writing Error",
+        symptom: "Random capital letter mid-sentence on 'Want', missing past tense, missing capital on 'the'.",
         tokens: [
-          { current: "we", fixed: "We", mistake: true, fixes: ["We", "us", "WE"] },
-          { current: "look", fixed: "looked", mistake: true, fixes: ["looked", "lookt", "looking"] },
-          { current: "at", fixed: "at", mistake: false },
+          { current: "the", fixed: "The", mistake: true, fixes: ["The", "Teh", "THE"] },
+          { current: "witch", fixed: "witch", mistake: false },
+          { current: "Want", fixed: "wanted", mistake: true, fixes: ["wanted", "Want", "wants"] },
+          { current: "to", fixed: "to", mistake: false },
+          { current: "catch", fixed: "catch", mistake: false },
           { current: "the", fixed: "the", mistake: false },
-          { current: "digital", fixed: "digital", mistake: false },
-          { current: "clock", fixed: "clock.", mistake: true, fixes: ["clock.", "clock?", "clock,"] }
+          { current: "man", fixed: "man.", mistake: true, fixes: ["man.", "man", "man,"] }
         ]
       },
       {
         id: 5,
-        symptom: "Question sentence! Needs capital 'did' and an ending question mark.",
+        stage: "Stage 3: Irregular Verb & Spelling",
+        symptom: "Misspelled irregular past tense 'flet', misspelled 'scraed', missing capital and period.",
         tokens: [
-          { current: "did", fixed: "Did", mistake: true, fixes: ["Did", "Do", "DID"] },
-          { current: "you", fixed: "you", mistake: false },
-          { current: "finish", fixed: "finish", mistake: false },
-          { current: "your", fixed: "your", mistake: false },
-          { current: "reading", fixed: "reading", mistake: false },
-          { current: "log", fixed: "log?", mistake: true, fixes: ["log?", "log.", "log!"] }
+          { current: "the", fixed: "The", mistake: true, fixes: ["The", "Teh", "THE"] },
+          { current: "man", fixed: "man", mistake: false },
+          { current: "flet", fixed: "felt", mistake: true, fixes: ["felt", "flet", "feeled"] },
+          { current: "scraed", fixed: "scared", mistake: true, fixes: ["scared", "scraed", "sceed"] },
+          { current: "and", fixed: "and", mistake: false },
+          { current: "sad", fixed: "sad.", mistake: true, fixes: ["sad.", "sad,", "sad"] }
+        ]
+      },
+      {
+        id: 6,
+        stage: "Stage 3: Comma Splice & Verb Flow",
+        symptom: "Misplaced comma separating verb from object ('caught, the man,').",
+        tokens: [
+          { current: "Next,", fixed: "Next,", mistake: false },
+          { current: "the", fixed: "the", mistake: false },
+          { current: "witch", fixed: "witch", mistake: false },
+          { current: "caught,", fixed: "caught", mistake: true, fixes: ["caught", "caught,", "catched"] },
+          { current: "the", fixed: "the", mistake: false },
+          { current: "man,", fixed: "man.", mistake: true, fixes: ["man.", "man,", "man"] }
+        ]
+      },
+      {
+        id: 7,
+        stage: "Stage 3: Math Word Problem Grammar",
+        symptom: "Subject-verb disagreement: 'The kids has' instead of 'The kids have'.",
+        tokens: [
+          { current: "The", fixed: "The", mistake: false },
+          { current: "kids", fixed: "kids", mistake: false },
+          { current: "has", fixed: "have", mistake: true, fixes: ["have", "has", "having"] },
+          { current: "24", fixed: "24", mistake: false },
+          { current: "stickers", fixed: "stickers", mistake: false },
+          { current: "in", fixed: "in", mistake: false },
+          { current: "total", fixed: "total.", mistake: true, fixes: ["total.", "total,", "total"] }
+        ]
+      },
+      {
+        id: 8,
+        stage: "Stage 3: Math Word Problem Fused Sentence",
+        symptom: "Wrong verb 'have', misspelled 'beats', fused double verb ('are left').",
+        tokens: [
+          { current: "Zoe", fixed: "Zoe", mistake: false },
+          { current: "have", fixed: "has", mistake: true, fixes: ["has", "have", "had"] },
+          { current: "58", fixed: "58", mistake: false },
+          { current: "beats", fixed: "beads", mistake: true, fixes: ["beads", "beats", "bead"] },
+          { current: "are", fixed: "left.", mistake: true, fixes: ["left.", "are", "are left."] }
+        ]
+      },
+      {
+        id: 9,
+        stage: "Stage 3: Math Word Problem Fused Sentence",
+        symptom: "Subject-verb mismatch 'Ethan have' and redundant 'are' in fused sentence.",
+        tokens: [
+          { current: "Ethan", fixed: "Ethan", mistake: false },
+          { current: "have", fixed: "has", mistake: true, fixes: ["has", "have", "had"] },
+          { current: "29", fixed: "29", mistake: false },
+          { current: "puzzle", fixed: "puzzle", mistake: false },
+          { current: "pieces", fixed: "pieces", mistake: false },
+          { current: "are", fixed: "left.", mistake: true, fixes: ["left.", "are", "is"] }
         ]
       }
     ];
@@ -628,7 +686,7 @@
     function loadCase(idx) {
       const c = cases[idx];
       caseNum.textContent = idx + 1;
-      caseBadge.textContent = "Symptom: " + c.symptom;
+      caseBadge.textContent = (c.stage ? `[${c.stage}] ` : '') + "Symptom: " + c.symptom;
       tokensBox.innerHTML = '';
       btnNext.style.display = 'none';
       drawerTitle.textContent = "💡 Tap a sick word token above to examine it";

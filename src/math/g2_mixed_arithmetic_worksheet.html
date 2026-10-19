@@ -538,6 +538,7 @@
             <button class="option-btn" data-value="add" type="button">➕ 3-Term Addition</button>
             <button class="option-btn" data-value="sub" type="button">➖ 3-Term Subtraction</button>
             <button class="option-btn active" data-value="mixed" type="button">🔀 Mixed (+ / -)</button>
+            <button class="option-btn" data-value="hilson" type="button">🎯 Hilson Focus (Carrying & Borrowing)</button>
           </div>
         </div>
 
@@ -670,6 +671,36 @@
     }
 
     function generateProblem(type, maxVal) {
+      if (type === 'hilson') {
+        const hilsonProblems = [
+          { a: 24, b: 28, c: 13, op1: '+', op2: '+' },
+          { a: 27, b: 37, c: 25, op1: '+', op2: '+' },
+          { a: 60, b: 25, c: 26, op1: '-', op2: '-' },
+          { a: 76, b: 35, c: 30, op1: '-', op2: '-' },
+          { a: 38, b: 25, c: 19, op1: '+', op2: '+' },
+          { a: 45, b: 28, c: 17, op1: '+', op2: '+' },
+          { a: 80, b: 34, c: 28, op1: '-', op2: '-' },
+          { a: 92, b: 45, c: 28, op1: '-', op2: '-' },
+          { a: 36, b: 27, c: 18, op1: '+', op2: '-' },
+          { a: 52, b: 29, c: 35, op1: '+', op2: '-' },
+          { a: 65, b: 28, c: 36, op1: '-', op2: '+' },
+          { a: 74, b: 38, c: 27, op1: '-', op2: '+' },
+          { a: 29, b: 34, c: 18, op1: '+', op2: '+' },
+          { a: 70, b: 26, c: 19, op1: '-', op2: '-' },
+          { a: 55, b: 27, c: 16, op1: '+', op2: '-' },
+          { a: 81, b: 46, c: 29, op1: '-', op2: '-' }
+        ];
+        const chosen = hilsonProblems[randomInt(0, hilsonProblems.length - 1)];
+        const step1 = chosen.op1 === '+' ? chosen.a + chosen.b : chosen.a - chosen.b;
+        const ans = chosen.op2 === '+' ? step1 + chosen.c : step1 - chosen.c;
+        return {
+          text: `${chosen.a} ${chosen.op1} ${chosen.b} ${chosen.op2} ${chosen.c}`,
+          a: chosen.a, b: chosen.b, c: chosen.c,
+          op1: chosen.op1, op2: chosen.op2,
+          step1, ans
+        };
+      }
+
       for (let attempt = 0; attempt < 100; attempt++) {
         if (type === 'add') {
           const a = randomInt(2, Math.floor(maxVal * 0.4));
@@ -734,10 +765,11 @@
     function renderVerticalWorkspace(prob) {
       return `
         <div class="vertical-working-box">
-          <div class="working-tag">Vertical Working Space</div>
+          <div class="working-tag">Vertical Working Space (Mark Carrying / Borrowing)</div>
           <div class="vertical-calc-display">
             <!-- Step 1: a op1 b -->
             <div class="vertical-column-math">
+              <div style="font-size:0.72rem; color:#9CA3AF; height:12px; text-align:right; font-weight:800;">[ · ]</div>
               <div class="calc-row">${prob.a}</div>
               <div class="calc-row op-row"><span>${prob.op1}</span><span>${prob.b}</span></div>
               <div class="calc-line"></div>
@@ -749,6 +781,7 @@
 
             <!-- Step 2: (step1) op2 c -->
             <div class="vertical-column-math">
+              <div style="font-size:0.72rem; color:#9CA3AF; height:12px; text-align:right; font-weight:800;">[ · ]</div>
               <div class="calc-row vertical-final-ans" style="min-height:16px;"><span>${prob.step1}</span></div>
               <div class="calc-row op-row"><span>${prob.op2}</span><span>${prob.c}</span></div>
               <div class="calc-line"></div>

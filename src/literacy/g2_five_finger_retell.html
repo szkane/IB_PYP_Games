@@ -463,14 +463,16 @@
     <div class="retell-layout">
       <!-- Left: Story Reader -->
       <aside class="story-card">
+        <div style="margin-bottom: 10px; display: flex; gap: 6px; flex-wrap: wrap;" id="storySelectorWrap"></div>
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
           <h2 class="story-title" style="margin-bottom: 0;">
-            <span id="storyTitleText">📘 The Playground Mystery</span>
+            <span id="storyTitleText">🐻 Goldilocks and the Three Bears</span>
           </h2>
           <button type="button" class="btn-speaker" id="btnSpeakStory" title="Read story aloud" aria-label="Read story aloud">🔊</button>
         </div>
+        <div id="spellingNotice" style="display:none; background:#FEF3C7; border:2px solid #D97706; border-radius:8px; padding:6px 10px; font-size:0.82rem; font-weight:800; color:#92400E; margin-bottom:10px;"></div>
         <div class="story-text" id="storyBodyText">
-          On a chilly Monday morning, Hilson arrived at the sunny SGA playground. Suddenly, he noticed his red lunchbox was missing! He searched the room, asked his teacher Ms. Green, and together they checked the lost-and-found shelf. Hilson found his lunchbox safe and smiled happily with relief.
+          Loading story...
         </div>
         <div class="retell-tracker">
           <span>Hand Retell Progress:</span>
@@ -561,6 +563,44 @@
     const audio = new SoundFX();
 
     const stories = [
+      {
+        id: 0,
+        title: "🐻 Goldilocks & Three Bears",
+        spellingNotes: "Notice Key Spelling: food (not foot) · bed (not had) · scared (not scraed/sceed) · other's (not aths)",
+        text: "Once upon a time on a sunny morning, Goldilocks wandered into the Three Bears' forest cottage without asking. Hungry and tired, she ate up Baby Bear's porridge food, broke his little wooden chair, and fell fast asleep in his cozy bed! When the Three Bears returned home, Goldilocks woke up, felt terrified and scared, leaped out the open window, and promised never to enter other people's houses without permission.",
+        fingerData: [
+          {
+            finger: "Thumb 👍",
+            element: "Who (Characters)",
+            correct: "Goldilocks, Papa Bear, Mama Bear, and Baby Bear",
+            options: ["Goldilocks, Papa Bear, Mama Bear, and Baby Bear", "A friendly rabbit and two birds", "A king and queen in a castle"]
+          },
+          {
+            finger: "Index Finger ☝️",
+            element: "Where (Setting)",
+            correct: "The Three Bears' cozy cottage in the deep forest",
+            options: ["The Three Bears' cozy cottage in the deep forest", "At a crowded city train station", "Inside an empty desert tent"]
+          },
+          {
+            finger: "Middle Finger 🖕",
+            element: "When (Time)",
+            correct: "Once upon a time on a sunny morning",
+            options: ["Once upon a time on a sunny morning", "Last night during midnight sleep", "Five years in the future"]
+          },
+          {
+            finger: "Ring Finger 💍",
+            element: "What Happened (Problem)",
+            correct: "Goldilocks ate Baby Bear's food, broke his chair, and slept in his bed.",
+            options: ["Goldilocks ate Baby Bear's food, broke his chair, and slept in his bed.", "The bears forgot to lock their front door.", "A stormy wind blew the cottage roof away."]
+          },
+          {
+            finger: "Pinky Finger 🤙",
+            element: "How Resolved (Solution & Ending)",
+            correct: "The bears returned; Goldilocks felt scared, escaped through the window, and learned never to enter other people's houses.",
+            options: ["The bears returned; Goldilocks felt scared, escaped through the window, and learned never to enter other people's houses.", "Papa Bear cooked pancakes and hot cocoa for everyone.", "Goldilocks stayed to wash the porridge bowls."]
+          }
+        ]
+      },
       {
         id: 1,
         title: "📘 The Playground Mystery",
@@ -756,11 +796,49 @@
     const btnPlayAgain = document.getElementById('btnPlayAgain');
     const btnSpeakStory = document.getElementById('btnSpeakStory');
 
-    function pickRandomStory() {
-      const idx = Math.floor(Math.random() * stories.length);
+    function selectStory(idx) {
       currentStory = stories[idx];
       document.getElementById('storyTitleText').textContent = currentStory.title;
       document.getElementById('storyBodyText').textContent = currentStory.text;
+
+      const notice = document.getElementById('spellingNotice');
+      if (currentStory.spellingNotes) {
+        notice.style.display = 'block';
+        notice.textContent = currentStory.spellingNotes;
+      } else {
+        notice.style.display = 'none';
+      }
+
+      // Update active chip styling
+      const chips = document.querySelectorAll('.story-chip');
+      chips.forEach((c, i) => {
+        c.style.background = (i === idx) ? 'var(--yellow)' : '#F3F4F6';
+        c.style.fontWeight = (i === idx) ? '900' : '700';
+      });
+      renderFingers();
+    }
+
+    function renderStoryChips() {
+      const wrap = document.getElementById('storySelectorWrap');
+      if (!wrap) return;
+      wrap.innerHTML = '';
+      stories.forEach((s, idx) => {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'story-chip';
+        chip.textContent = s.title.split(' ')[0] + ' ' + (s.title.split(' ')[1] || '');
+        chip.title = s.title;
+        chip.style.cssText = "padding:5px 10px; font-size:0.8rem; border:2px solid var(--ink); border-radius:8px; cursor:pointer; font-weight:700; background:#F3F4F6;";
+        chip.addEventListener('click', () => {
+          audio.playClick();
+          selectStory(idx);
+        });
+        wrap.appendChild(chip);
+      });
+    }
+
+    function pickRandomStory() {
+      selectStory(0); // Default to Goldilocks story first
     }
 
     function renderFingers() {
@@ -1012,6 +1090,7 @@
 
     // Start
     TTS_MANAGER.init();
+    renderStoryChips();
     pickRandomStory();
     renderFingers();
   </script>
