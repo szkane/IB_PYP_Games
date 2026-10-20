@@ -1,6 +1,7 @@
 # IB PYP HTML5 Generator 🎮 🌍
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![skills.sh](https://img.shields.io/badge/skills.sh-npx%20skills%20add%20szkane%2Fib--pyp--html5--generator-black.svg)](https://skills.sh/)
 [![IB PYP Curriculum](https://img.shields.io/badge/Curriculum-IB%20PYP%20(Grades%201--5)-orange.svg)](https://www.ibo.org/programmes/primary-years-programme/)
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-ibpyp.szpt.org-brightgreen.svg)](https://ibpyp.szpt.org)
 [![Zero Build Dependencies](https://img.shields.io/badge/Stack-Vanilla%20HTML5%20%2F%20CSS%20%2F%20JS-yellow.svg)](#features)
@@ -46,35 +47,48 @@ Every generated activity is intentionally mapped to an interactive archetype tai
 
 ## 🚀 Installation & Agent Setup
 
-### Method 1: Using Git Subtree in Your Existing Project (Recommended)
+### Method 1: Universal CLI via skills.sh (Recommended)
 
-Keep the skill synced with upstream updates while preserving it in your project's version control:
+Install in seconds using the universal AI agent package manager [`skills.sh`](https://skills.sh/) (`vercel-labs/skills`). This automatically detects your active coding agent (Claude Code, Cursor, Codex, OpenCode, Windsurf, Antigravity, etc.) and configures the skill in the appropriate directory:
+
+```bash
+# Add to current project / workspace
+npx skills add szkane/ib-pyp-html5-generator
+
+# Or install globally for all projects across your system
+npx skills add szkane/ib-pyp-html5-generator -g
+
+# Target a specific AI coding agent (e.g., cursor, claude-code, codex)
+npx skills add szkane/ib-pyp-html5-generator -a cursor
+```
+
+### Method 2: Git Subtree (For Monorepos & Downstream Forks)
+
+If you are maintaining a repository (such as [IB_PYP_Games](https://github.com/szkane/IB_PYP_Games)) and wish to vendor and bi-directionally sync the skill directly inside your git tree:
 
 ```bash
 # Inside the root of your project:
 git subtree add --prefix=.agents/skills/ib-pyp-html5-generator https://github.com/szkane/ib-pyp-html5-generator.git main --squash
-```
 
-To pull the latest updates in the future:
-```bash
+# To pull upstream updates in the future:
 git subtree pull --prefix=.agents/skills/ib-pyp-html5-generator https://github.com/szkane/ib-pyp-html5-generator.git main --squash
 ```
 
-### Method 2: Global or Workspace Skill Directory
+### Method 3: Direct Git Clone / Manual Copy
 
 You can clone this repository directly into your local agent skills folder:
 
 ```bash
-# For Antigravity / Gemini CLI workspace:
+# For project-level agent skills (.agents/skills/ or .claude/skills/):
 git clone https://github.com/szkane/ib-pyp-html5-generator.git .agents/skills/ib-pyp-html5-generator
 
-# Or for personal global skills:
+# Or for personal global agent configuration:
 git clone https://github.com/szkane/ib-pyp-html5-generator.git ~/.gemini/config/skills/ib-pyp-html5-generator
 ```
 
-### Method 3: Standalone Educational Use (No AI Agent Needed)
+### Method 4: Standalone Educational Use (No AI Agent Needed)
 
-Teachers and developers can directly open any starter file in [`examples/`](examples/) in any modern web browser (Chrome, Safari, Firefox, Edge) without running `npm install` or local servers.
+Teachers, students, and educators can directly open any starter file in [`examples/`](examples/) in any modern web browser (Chrome, Safari, Firefox, Edge) without running `npm install`, build steps, or local servers.
 
 ---
 
