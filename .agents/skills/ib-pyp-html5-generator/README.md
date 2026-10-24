@@ -33,7 +33,7 @@ Every generated activity is intentionally mapped to an interactive archetype tai
 
 | # | Archetype | Starter Blueprint | Cognitive Domain & Primary Use Cases |
 | :-: | :--- | :--- | :--- |
-| **1** | **Worksheet Generator & Print** | [`examples/worksheet-print-starter.html`](examples/worksheet-print-starter.html) | Physical handwriting, Chinese Tian Zi Ge / Mi Zi Ge stroke practice, column math grids, `@media print` A4 homework sheets. |
+| **1** | **Worksheet Generator & Print** | [`examples/worksheet-print-starter.html`](examples/worksheet-print-starter.html) | Physical handwriting: English international standard 4-line 3-space primary ruled lines (dashed midline) vs. Chinese Tian Zi Ge / Mi Zi Ge vs. math vertical columns, A4 `@media print` homework. |
 | **2** | **Multimedia Flashcards & Audio** | [`examples/flashcards-starter.html`](examples/flashcards-starter.html) | Sight words, phonics pronunciation, vocabulary definitions, 3D card flips with TTS voice read-aloud and recall checks. |
 | **3** | **Concept Labs & Manipulatives** | [`examples/concept-lab-starter.html`](examples/concept-lab-starter.html) | Continuous scientific and math variables (sound waves, 2D angles, row×column multiplication arrays, interactive clock hands). |
 | **4** | **3D Spatial Inspectors** | [`examples/spatial-3d-starter.html`](examples/spatial-3d-starter.html) | Three.js orbit viewing, 3D solid geometry (faces, edges, vertices), planetary orbits, and light/shadow occlusion. |
@@ -154,6 +154,11 @@ ib-pyp-html5-generator/
 ## 📋 Version History
 
 Based on the Git commit history of this skill:
+
+### v2.1.0 (2026-10-24)
+- **International Standard English Handwriting Guidelines**: Upgraded Type 1 Worksheet Generator with standard 4-line 3-space primary ruled lines (with dashed midline and bold solid baseline) for English sight words and sentence copywork.
+- **Strict Typographic Separation**: Enforced pedagogical rule forbidding Chinese square grids (Tian Zi Ge) for Latin scripts; maintained authentic Tian Zi Ge / Mi Zi Ge for Chinese and monospace aligned columns for mathematics.
+- **Multi-Subject Worksheet Studio**: Added subject tabs (English, Chinese, Math) with interactive audio dictation and vector print fidelity.
 
 ### v2.0.0 (2026-10-19)
 - **9 Core Interactive Game Archetypes**: Standardized game types with comprehensive comparison matrix and selection protocol.

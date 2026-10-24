@@ -13,6 +13,7 @@
       --teal: #4ECDC4;
       --green: #86EFAC;
       --purple: #B388FF;
+      --blue: #3B82F6;
       --white: #FFFFFF;
       --border: 3.5px solid var(--ink);
       --shadow: 4px 4px 0 var(--ink);
@@ -59,7 +60,7 @@
       max-width: 1120px;
       margin: 0 auto;
       display: grid;
-      grid-template-columns: 320px 1fr;
+      grid-template-columns: 330px 1fr;
       gap: 20px;
       align-items: start;
     }
@@ -109,11 +110,40 @@
       background: #FFF;
     }
 
+    .subject-pill-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .subject-pill {
+      min-height: 40px;
+      padding: 6px 4px;
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      background: #F3F4F6;
+      font-size: 0.78rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      transition: all 0.1s;
+    }
+    .subject-pill.active {
+      background: var(--yellow);
+      box-shadow: var(--shadow-sm);
+      transform: translate(-1px, -1px);
+    }
+
     .checkbox-row {
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 0.88rem;
+      font-size: 0.86rem;
       font-weight: 800;
       cursor: pointer;
       margin-top: 8px;
@@ -146,6 +176,24 @@
     .btn-print { background: var(--coral); color: var(--white); }
     .btn-generate { background: var(--yellow); color: var(--ink); }
     .btn-check { background: var(--teal); color: var(--ink); }
+    .btn-tts { background: var(--green); color: var(--ink); }
+
+    .btn-mini-speaker {
+      background: #FFF;
+      border: 1.5px solid #000;
+      border-radius: 6px;
+      width: 28px;
+      height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      cursor: pointer;
+      margin-left: 6px;
+      box-shadow: 1px 1px 0 #000;
+      vertical-align: middle;
+    }
+    .btn-mini-speaker:active { transform: translate(1px, 1px); box-shadow: none; }
 
     .feedback-banner {
       margin-top: 10px;
@@ -208,7 +256,176 @@
       display: inline-block;
     }
 
-    /* Mode A: Math Vertical Column Calculation Grid */
+    /* ==========================================================
+       FORMAT 1: ENGLISH PRIMARY HANDWRITING GUIDELINES (4-Line 3-Space)
+       International Standard: Top Ascender Line, Dashed Midline,
+       Solid Bold Baseline, Bottom Descender Line.
+       ========================================================== */
+    .english-word-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .english-word-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .english-meta-tag {
+      width: 120px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #1E293B;
+    }
+
+    .ruled-track-wrapper {
+      flex: 1;
+      width: 100%;
+      height: 20mm;
+      position: relative;
+    }
+
+    .ruled-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .svg-text-model {
+      font-family: "Century Gothic", "Arial Rounded MT Bold", "Nunito", -apple-system, sans-serif;
+      font-size: 26px;
+      font-weight: 700;
+      fill: #0F172A;
+      letter-spacing: 0.5px;
+    }
+
+    .svg-text-trace {
+      font-family: "Century Gothic", "Arial Rounded MT Bold", "Nunito", -apple-system, sans-serif;
+      font-size: 26px;
+      font-weight: 700;
+      fill: #CBD5E1;
+      letter-spacing: 0.5px;
+    }
+
+    /* English Format B: Sentence Copywork & Reflection */
+    .english-sentence-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .sentence-card {
+      border: 1px solid #E2E8F0;
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: #FAFAFA;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .sentence-prompt-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-weight: 800;
+      font-size: 0.98rem;
+      color: #0F172A;
+    }
+
+    .sentence-checklist {
+      margin-top: 8px;
+      padding-top: 6px;
+      border-top: 1px dashed #CCC;
+      display: flex;
+      gap: 14px;
+      font-size: 0.76rem;
+      color: #475569;
+      font-weight: 700;
+      flex-wrap: wrap;
+    }
+
+    /* ==========================================================
+       FORMAT 2: CHINESE PENMANSHIP GRID (Tian Zi Ge / Mi Zi Ge)
+       Square Hanzi blocks with Pinyin ruby & crosshair guidelines.
+       ========================================================== */
+    .tian-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .tian-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .pinyin-ruby {
+      font-family: system-ui, sans-serif;
+      font-size: 0.9rem;
+      font-weight: 800;
+      width: 22mm;
+      text-align: center;
+      color: #1E293B;
+    }
+
+    .tian-cell-group {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .tian-cell {
+      width: var(--grid-cell);
+      height: var(--grid-cell);
+      border: 1.5px solid #000;
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: calc(var(--grid-cell) * 0.72);
+      font-family: "KaiTi", "楷体", "STKaiti", serif;
+      user-select: none;
+    }
+
+    .tian-cell::before {
+      content: '';
+      position: absolute;
+      top: 50%; left: 0; right: 0;
+      border-top: 1px dashed #AAA;
+      pointer-events: none;
+    }
+    .tian-cell::after {
+      content: '';
+      position: absolute;
+      left: 50%; top: 0; bottom: 0;
+      border-left: 1px dashed #AAA;
+      pointer-events: none;
+    }
+
+    /* Mi Zi Ge diagonal crosshairs */
+    .tian-cell.mi-zi-ge {
+      background-image:
+        linear-gradient(45deg, transparent 49.2%, #CCC 49.5%, #CCC 50.5%, transparent 50.8%),
+        linear-gradient(-45deg, transparent 49.2%, #CCC 49.5%, #CCC 50.5%, transparent 50.8%);
+    }
+
+    .char-model { z-index: 1; color: #000; }
+    .char-trace { z-index: 1; color: #D0D0D0; }
+
+    /* ==========================================================
+       FORMAT 3: MATHEMATICS GRIDS & COLUMNS (International Standard)
+       ========================================================== */
     .math-vertical-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -293,73 +510,6 @@
       font-weight: bold;
     }
 
-    /* Mode C: Chinese Penmanship Grid (Tian Zi Ge / Mi Zi Ge) */
-    .tian-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .tian-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      break-inside: avoid;
-      page-break-inside: avoid;
-    }
-
-    .pinyin-ruby {
-      font-family: system-ui, sans-serif;
-      font-size: 0.9rem;
-      font-weight: 800;
-      width: 22mm;
-      text-align: center;
-    }
-
-    .tian-cell-group {
-      display: flex;
-      gap: 4px;
-      flex-wrap: wrap;
-    }
-
-    .tian-cell {
-      width: var(--grid-cell);
-      height: var(--grid-cell);
-      border: 1.5px solid #000;
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: calc(var(--grid-cell) * 0.72);
-      font-family: "KaiTi", "楷体", "STKaiti", serif;
-      user-select: none;
-    }
-
-    .tian-cell::before {
-      content: '';
-      position: absolute;
-      top: 50%; left: 0; right: 0;
-      border-top: 1px dashed #AAA;
-      pointer-events: none;
-    }
-    .tian-cell::after {
-      content: '';
-      position: absolute;
-      left: 50%; top: 0; bottom: 0;
-      border-left: 1px dashed #AAA;
-      pointer-events: none;
-    }
-
-    /* Mi Zi Ge diagonal crosshairs */
-    .tian-cell.mi-zi-ge {
-      background-image:
-        linear-gradient(45deg, transparent 49.2%, #CCC 49.5%, #CCC 50.5%, transparent 50.8%),
-        linear-gradient(-45deg, transparent 49.2%, #CCC 49.5%, #CCC 50.5%, transparent 50.8%);
-    }
-
-    .char-model { z-index: 1; color: #000; }
-    .char-trace { z-index: 1; color: #D0D0D0; }
-
     .sheet-footer {
       margin-top: auto;
       padding-top: 8px;
@@ -397,7 +547,8 @@
       .control-panel,
       .nav-bar,
       .pyp-map-link,
-      .no-print {
+      .no-print,
+      .btn-mini-speaker {
         display: none !important;
       }
 
@@ -428,43 +579,58 @@
 <body>
   <nav class="nav-bar no-print">
     <a class="pyp-map-link" href="../index.html">← PYP Map</a>
-    <span style="font-weight: 900; font-size: 0.9rem;">🖨️ Type 1: Printable Worksheet & Penmanship Generator</span>
+    <span style="font-weight: 900; font-size: 0.9rem;">🖨️ Type 1: Printable Worksheet & Penmanship Generator (Multi-Subject)</span>
   </nav>
 
   <div class="app-layout">
     <!-- Screen Control Console -->
     <aside class="control-panel no-print">
       <div class="panel-title">
-        <span>Worksheet Builder ⚙️</span>
+        <span>Worksheet Studio ⚙️</span>
       </div>
 
       <div class="form-group">
-        <label for="sheetType">Worksheet Mode:</label>
+        <label>Select Curriculum Subject:</label>
+        <div class="subject-pill-group">
+          <button type="button" class="subject-pill active" id="pillEnglish" onclick="selectSubject('english')">
+            <span style="font-size: 1.1rem;">🔤</span>
+            <span>English</span>
+          </button>
+          <button type="button" class="subject-pill" id="pillChinese" onclick="selectSubject('chinese')">
+            <span style="font-size: 1.1rem;">🀄</span>
+            <span>Chinese</span>
+          </button>
+          <button type="button" class="subject-pill" id="pillMath" onclick="selectSubject('math')">
+            <span style="font-size: 1.1rem;">🔢</span>
+            <span>Math</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="sheetType">Formatting Mode:</label>
         <select id="sheetType" onchange="renderWorksheet()">
-          <option value="math-vertical">Math: 2-Digit Vertical Columns (竖式)</option>
-          <option value="math-mixed">Math: 3-Number Mixed Operations (+ / -)</option>
-          <option value="tian">Chinese: Tian Zi Ge Penmanship (田字格)</option>
-          <option value="mi">Chinese: Mi Zi Ge Penmanship (米字格)</option>
+          <!-- Populated dynamically based on subject -->
         </select>
       </div>
 
       <div class="form-group">
         <label for="itemCount">Problem / Row Count:</label>
         <select id="itemCount" onchange="renderWorksheet()">
-          <option value="12">12 Items (Spacious)</option>
-          <option value="16" selected>16 Items (Standard A4 Page)</option>
-          <option value="20">20 Items (Full Page)</option>
+          <option value="6">6 Items (Spacious Kindergarten / G1)</option>
+          <option value="8" selected>8 Items (Standard Practice)</option>
+          <option value="12">12 Items (Full Page Routine)</option>
         </select>
       </div>
 
       <div class="form-group">
-        <label for="titleInput">Sheet Heading:</label>
-        <input type="text" id="titleInput" value="Daily Practice: Fluency & Penmanship" oninput="updateTitle(this.value)">
+        <label for="titleInput">Worksheet Header Title:</label>
+        <input type="text" id="titleInput" value="English Handwriting: 4-Line Primary Ruled Practice" oninput="updateTitle(this.value)">
       </div>
 
       <label class="checkbox-row">
         <input type="checkbox" id="chkAnswerKey" onchange="toggleAnswerKey(this.checked)">
-        <span>Include Answer Key Page (Page 2)</span>
+        <span>Include Answer Reference (Page 2)</span>
       </label>
 
       <div class="btn-action-group">
@@ -472,9 +638,12 @@
           <span>🖨️ Print A4 Worksheet</span>
         </button>
         <button type="button" class="btn-tactile btn-generate" onclick="renderWorksheet()">
-          <span>🎲 Generate Fresh Set</span>
+          <span>🎲 Generate Fresh Pool</span>
         </button>
-        <button type="button" class="btn-tactile btn-check" onclick="checkOnlineAnswers()">
+        <button type="button" class="btn-tactile btn-tts" id="btnAudioDictation" onclick="startAudioDictation()">
+          <span>🎧 Read-Aloud Dictation</span>
+        </button>
+        <button type="button" class="btn-tactile btn-check" id="btnCheckOnline" onclick="checkOnlineAnswers()">
           <span>✅ Check Online Answers</span>
         </button>
       </div>
@@ -488,37 +657,119 @@
       <article class="a4-paper">
         <header class="sheet-header">
           <div>
-            <h1 class="sheet-title" id="displayTitle">Daily Practice: Fluency & Penmanship</h1>
-            <p style="font-size: 0.78rem; color: #444;">IB PYP Home & Classroom Routine · Self-Management Skills</p>
+            <h1 class="sheet-title" id="displayTitle">English Handwriting: 4-Line Primary Ruled Practice</h1>
+            <p id="displaySubtitle" style="font-size: 0.78rem; color: #444;">International Standard 4-Line 3-Space Guidelines · IB PYP Self-Management Skills</p>
           </div>
           <div class="sheet-meta-fields">
             <div>Name: <span class="meta-line" style="width: 75px;"></span></div>
             <div>Date: <span class="meta-line" style="width: 65px;"></span></div>
-            <div>Score: <span class="meta-line" style="width: 45px;"></span> / <span id="maxScore">16</span></div>
+            <div>Score: <span class="meta-line" style="width: 45px;"></span> / <span id="maxScore">8</span></div>
           </div>
         </header>
 
         <section id="worksheetContent"></section>
 
         <footer class="sheet-footer">
-          <span>IB PYP Practice Sheet · Neatness & Accuracy</span>
-          <span>Target Mastery: ≥ 90%</span>
+          <span>IB PYP Practice Sheet · International Standard Guidelines</span>
+          <span>Target Accuracy & Neatness: ≥ 90%</span>
         </footer>
       </article>
 
       <!-- Page 2: Printable Answer Key (Optional) -->
       <article class="a4-paper answer-key-paper page-break" id="answerKeyPaper">
         <header class="sheet-header">
-          <h2 class="sheet-title">🔑 Teacher / Parent Answer Key</h2>
-          <span style="font-size: 0.82rem; font-weight: 700;">Self-Check Reference</span>
+          <h2 class="sheet-title">🔑 Teacher / Parent Answer Reference</h2>
+          <span style="font-size: 0.82rem; font-weight: 700;">Self-Check Guide</span>
         </header>
-        <div id="answerKeyContent" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; font-family: monospace; font-size: 1.05rem; font-weight: bold;"></div>
+        <div id="answerKeyContent" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; font-size: 0.95rem; font-weight: bold;"></div>
       </article>
     </main>
   </div>
 
   <script>
+    let currentSubject = 'english';
     let currentProblems = [];
+
+    // Curriculum Data Pools
+    const ENGLISH_WORDS_POOL = [
+      { word: "Inquiry", icon: "🔍", def: "Asking questions to explore and understand" },
+      { word: "Water", icon: "💧", def: "Essential clear liquid needed for all living things" },
+      { word: "Plant", icon: "🌿", def: "Living organism that makes food from sunlight" },
+      { word: "Caring", icon: "❤️", def: "Showing empathy, kindness, and respect to others" },
+      { word: "Balanced", icon: "⚖️", def: "Understanding the importance of body, mind, and feelings" },
+      { word: "Planet", icon: "🌍", def: "A large celestial body orbiting a star, like Earth" },
+      { word: "Energy", icon: "⚡", def: "The power to do work, produce heat, or generate light" },
+      { word: "Habitat", icon: "🏡", def: "The natural home or environment of a plant or animal" },
+      { word: "Community", icon: "🤝", def: "A group of people living or working together" },
+      { word: "Reflective", icon: "🪞", def: "Thoughtfully thinking about our learning and actions" },
+      { word: "Change", icon: "🔄", def: "The process of becoming different over time" },
+      { word: "System", icon: "⚙️", def: "Connected parts working together as an organized whole" }
+    ];
+
+    const ENGLISH_SENTENCES_POOL = [
+      { text: "Living things need clean water, nutritious food, and fresh air.", theme: "Sharing the Planet 🌿" },
+      { text: "A caring learner shows empathy, compassion, and respect toward others.", theme: "Who We Are ❤️" },
+      { text: "The sun provides light and thermal energy to power Earth's water cycle.", theme: "How the World Works ☀️" },
+      { text: "Communities work together to build safe neighborhoods and fair public services.", theme: "Where We Are in Place and Time 🏙️" },
+      { text: "Scientists observe evidence, test hypotheses, and reflect on discoveries.", theme: "How We Express Ourselves 🔬" },
+      { text: "Small daily conservation choices protect our oceans and endangered wildlife.", theme: "Sharing the Planet 🐬" }
+    ];
+
+    const CHINESE_CHARS_POOL = [
+      { pinyin: "shān", char: "山", meaning: "Mountain", icon: "⛰️" },
+      { pinyin: "shuǐ", char: "水", meaning: "Water", icon: "💧" },
+      { pinyin: "rì", char: "日", meaning: "Sun / Day", icon: "☀️" },
+      { pinyin: "yuè", char: "月", meaning: "Moon / Month", icon: "🌙" },
+      { pinyin: "tián", char: "田", meaning: "Field", icon: "🌾" },
+      { pinyin: "hé", char: "禾", meaning: "Grain / Seedling", icon: "🌱" },
+      { pinyin: "huǒ", char: "火", meaning: "Fire", icon: "🔥" },
+      { pinyin: "mù", char: "木", meaning: "Tree / Wood", icon: "🌲" },
+      { pinyin: "rén", char: "人", meaning: "Person / People", icon: "🧑" },
+      { pinyin: "tiān", char: "天", meaning: "Sky / Heaven", icon: "☁️" },
+      { pinyin: "tǔ", char: "土", meaning: "Soil / Earth", icon: "🪴" },
+      { pinyin: "shí", char: "石", meaning: "Stone / Rock", icon: "🪨" }
+    ];
+
+    function selectSubject(subj) {
+      currentSubject = subj;
+      document.getElementById('pillEnglish').classList.toggle('active', subj === 'english');
+      document.getElementById('pillChinese').classList.toggle('active', subj === 'chinese');
+      document.getElementById('pillMath').classList.toggle('active', subj === 'math');
+
+      const select = document.getElementById('sheetType');
+      select.innerHTML = '';
+
+      if (subj === 'english') {
+        select.innerHTML = `
+          <option value="en-words" selected>English: 4-Line Primary Ruled Words & Tracing (四线三格)</option>
+          <option value="en-sentence">English: Sentence Copywork & Reflection (Primary Ruled)</option>
+        `;
+        document.getElementById('titleInput').value = "English Handwriting: 4-Line Primary Ruled Practice";
+        document.getElementById('displaySubtitle').textContent = "International Standard 4-Line 3-Space Guidelines · IB PYP Self-Management Skills";
+        document.getElementById('btnCheckOnline').style.display = 'none';
+        document.getElementById('btnAudioDictation').style.display = 'flex';
+      } else if (subj === 'chinese') {
+        select.innerHTML = `
+          <option value="zh-tian" selected>Chinese: Tian Zi Ge Stroke Practice (田字格)</option>
+          <option value="zh-mi">Chinese: Mi Zi Ge Proportion Practice (米字格)</option>
+        `;
+        document.getElementById('titleInput').value = "Chinese Penmanship: Tian Zi Ge Stroke Practice";
+        document.getElementById('displaySubtitle').textContent = "Traditional Character Grid Guidelines · Stroke Order & Character Balance";
+        document.getElementById('btnCheckOnline').style.display = 'none';
+        document.getElementById('btnAudioDictation').style.display = 'flex';
+      } else {
+        select.innerHTML = `
+          <option value="math-vertical" selected>Math: 2-Digit Vertical Calculation Columns (竖式)</option>
+          <option value="math-mixed">Math: 3-Number Mixed Operations (+ / -)</option>
+        `;
+        document.getElementById('titleInput').value = "Math Daily Fluency: Vertical Calculation Columns";
+        document.getElementById('displaySubtitle').textContent = "Place Value Alignment & Carry Columns · Mathematical Accuracy";
+        document.getElementById('btnCheckOnline').style.display = 'flex';
+        document.getElementById('btnAudioDictation').style.display = 'none';
+      }
+
+      renderWorksheet();
+    }
 
     function updateTitle(val) {
       document.getElementById('displayTitle').textContent = val;
@@ -526,6 +777,52 @@
 
     function toggleAnswerKey(checked) {
       document.getElementById('answerKeyPaper').classList.toggle('visible', checked);
+    }
+
+    function speakWord(text, lang = 'en-US') {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = lang;
+        utter.rate = 0.85;
+        window.speechSynthesis.speak(utter);
+      }
+    }
+
+    function startAudioDictation() {
+      const fb = document.getElementById('feedbackBanner');
+      fb.className = 'feedback-banner show';
+      fb.style.background = '#DCFCE7';
+      fb.textContent = '🎧 Audio Dictation started! Listen carefully and write on your worksheet paper.';
+
+      if (currentSubject === 'english') {
+        const type = document.getElementById('sheetType').value;
+        if (type === 'en-words') {
+          let delay = 300;
+          currentProblems.forEach((item, idx) => {
+            setTimeout(() => {
+              speakWord(`Number ${idx + 1}. ${item.word}. ${item.def}. Word is: ${item.word}.`, 'en-US');
+            }, delay);
+            delay += 6000;
+          });
+        } else {
+          let delay = 300;
+          currentProblems.forEach((item, idx) => {
+            setTimeout(() => {
+              speakWord(`Sentence ${idx + 1}. ${item.text}`, 'en-US');
+            }, delay);
+            delay += 8000;
+          });
+        }
+      } else if (currentSubject === 'chinese') {
+        let delay = 300;
+        currentProblems.forEach((item, idx) => {
+          setTimeout(() => {
+            speakWord(`第 ${idx + 1} 题。${item.char}。拼音 ${item.pinyin}。`, 'zh-CN');
+          }, delay);
+          delay += 5000;
+        });
+      }
     }
 
     function renderWorksheet() {
@@ -537,11 +834,162 @@
       fb.className = 'feedback-banner';
       currentProblems = [];
 
-      if (type === 'math-vertical') {
+      // =======================================================
+      // MODE 1: ENGLISH 4-LINE PRIMARY RULED HANDWRITING WORDS
+      // =======================================================
+      if (type === 'en-words') {
+        const shuffled = [...ENGLISH_WORDS_POOL].sort(() => 0.5 - Math.random());
+        const selected = shuffled.slice(0, Math.min(count, shuffled.length));
+        currentProblems = selected;
+        document.getElementById('maxScore').textContent = selected.length;
+
+        container.className = 'english-word-grid';
+        let html = '';
+        let ansHtml = '';
+
+        selected.forEach((item, idx) => {
+          html += `
+            <div class="english-word-row">
+              <div class="english-meta-tag">
+                <span>${item.icon} ${item.word}</span>
+                <button type="button" class="btn-mini-speaker no-print" onclick="speakWord('${item.word}')" title="Listen to pronunciation">🔊</button>
+              </div>
+              <div class="ruled-track-wrapper">
+                <svg class="ruled-svg" viewBox="0 0 650 64" preserveAspectRatio="none">
+                  <!-- Guideline 1: Top / Ascender Line -->
+                  <line x1="0" y1="4" x2="650" y2="4" stroke="#64748B" stroke-width="1.5" />
+                  <!-- Guideline 2: Midline / Mean Line (Dashed) -->
+                  <line x1="0" y1="24" x2="650" y2="24" stroke="#3B82F6" stroke-width="1.2" stroke-dasharray="6,4" />
+                  <!-- Guideline 3: Baseline (Solid Bold) -->
+                  <line x1="0" y1="44" x2="650" y2="44" stroke="#0F172A" stroke-width="2.2" />
+                  <!-- Guideline 4: Descender Line -->
+                  <line x1="0" y1="60" x2="650" y2="60" stroke="#94A3B8" stroke-width="1.2" />
+
+                  <!-- Model Word (Dark Ink) -->
+                  <text x="14" y="44" class="svg-text-model">${item.word}</text>
+                  <!-- Tracing Word 1 (Light Gray) -->
+                  <text x="180" y="44" class="svg-text-trace">${item.word}</text>
+                  <!-- Tracing Word 2 (Light Gray) -->
+                  <text x="345" y="44" class="svg-text-trace">${item.word}</text>
+                  <!-- Independent handwriting space left open between 510 and 650 -->
+                </svg>
+              </div>
+            </div>
+          `;
+          ansHtml += `<div>#${idx + 1}: ${item.icon} <strong>${item.word}</strong> — ${item.def}</div>`;
+        });
+
+        container.innerHTML = html;
+        answerContainer.innerHTML = ansHtml;
+
+      // =======================================================
+      // MODE 2: ENGLISH SENTENCE COPYWORK & REFLECTION
+      // =======================================================
+      } else if (type === 'en-sentence') {
+        const sentenceCount = Math.min(count, 5); // 4-5 sentences per page max for spacious writing
+        const shuffled = [...ENGLISH_SENTENCES_POOL].sort(() => 0.5 - Math.random());
+        const selected = shuffled.slice(0, sentenceCount);
+        currentProblems = selected;
+        document.getElementById('maxScore').textContent = selected.length;
+
+        container.className = 'english-sentence-grid';
+        let html = '';
+        let ansHtml = '';
+
+        selected.forEach((item, idx) => {
+          html += `
+            <div class="sentence-card">
+              <div class="sentence-prompt-row">
+                <span>#${idx + 1} [${item.theme}]</span>
+                <button type="button" class="btn-mini-speaker no-print" onclick="speakWord('${item.text.replace(/'/g, "\\'")}')" title="Listen to sentence">🔊</button>
+              </div>
+              <p style="font-size: 0.92rem; font-weight: 700; color: #1E293B; margin-bottom: 8px;">${item.text}</p>
+              
+              <!-- 4-Line Primary Ruled Track (Trace Line) -->
+              <div class="ruled-track-wrapper" style="height: 18mm; margin-bottom: 6px;">
+                <svg class="ruled-svg" viewBox="0 0 700 60" preserveAspectRatio="none">
+                  <line x1="0" y1="4" x2="700" y2="4" stroke="#64748B" stroke-width="1.4" />
+                  <line x1="0" y1="22" x2="700" y2="22" stroke="#3B82F6" stroke-width="1.2" stroke-dasharray="6,4" />
+                  <line x1="0" y1="40" x2="700" y2="40" stroke="#0F172A" stroke-width="2" />
+                  <line x1="0" y1="56" x2="700" y2="56" stroke="#94A3B8" stroke-width="1.2" />
+                  <text x="8" y="40" class="svg-text-trace" font-size="20px">${item.text}</text>
+                </svg>
+              </div>
+
+              <!-- 4-Line Primary Ruled Track (Blank Writing Line) -->
+              <div class="ruled-track-wrapper" style="height: 18mm;">
+                <svg class="ruled-svg" viewBox="0 0 700 60" preserveAspectRatio="none">
+                  <line x1="0" y1="4" x2="700" y2="4" stroke="#64748B" stroke-width="1.4" />
+                  <line x1="0" y1="22" x2="700" y2="22" stroke="#3B82F6" stroke-width="1.2" stroke-dasharray="6,4" />
+                  <line x1="0" y1="40" x2="700" y2="40" stroke="#0F172A" stroke-width="2" />
+                  <line x1="0" y1="56" x2="700" y2="56" stroke="#94A3B8" stroke-width="1.2" />
+                </svg>
+              </div>
+
+              <div class="sentence-checklist no-print">
+                <span>✍️ Quality Check:</span>
+                <label><input type="checkbox"> Capital start</label>
+                <label><input type="checkbox"> Finger spacing</label>
+                <label><input type="checkbox"> Sits on baseline</label>
+                <label><input type="checkbox"> Period at end</label>
+              </div>
+            </div>
+          `;
+          ansHtml += `<div style="grid-column: 1 / -1;">#${idx + 1}: ${item.text}</div>`;
+        });
+
+        container.innerHTML = html;
+        answerContainer.innerHTML = ansHtml;
+
+      // =======================================================
+      // MODE 3: CHINESE TIAN ZI GE & MI ZI GE
+      // =======================================================
+      } else if (type === 'zh-tian' || type === 'zh-mi') {
+        const isMi = type === 'zh-mi';
+        const shuffled = [...CHINESE_CHARS_POOL].sort(() => 0.5 - Math.random());
+        const selected = shuffled.slice(0, Math.min(count, shuffled.length));
+        currentProblems = selected;
+        document.getElementById('maxScore').textContent = selected.length;
+
+        container.className = 'tian-grid';
+        let html = '';
+        let ansHtml = '';
+
+        selected.forEach((item, idx) => {
+          const cellClass = isMi ? 'tian-cell mi-zi-ge' : 'tian-cell';
+          html += `
+            <div class="tian-row">
+              <span class="pinyin-ruby">
+                ${item.icon} ${item.pinyin}
+                <button type="button" class="btn-mini-speaker no-print" onclick="speakWord('${item.char}', 'zh-CN')">🔊</button>
+              </span>
+              <div class="tian-cell-group">
+                <div class="${cellClass}"><span class="char-model">${item.char}</span></div>
+                <div class="${cellClass}"><span class="char-trace">${item.char}</span></div>
+                <div class="${cellClass}"><span class="char-trace">${item.char}</span></div>
+                <div class="${cellClass}"><span class="char-trace">${item.char}</span></div>
+                <div class="${cellClass}"></div>
+                <div class="${cellClass}"></div>
+                <div class="${cellClass}"></div>
+                <div class="${cellClass}"></div>
+              </div>
+            </div>
+          `;
+          ansHtml += `<div>#${idx + 1}: ${item.char} (${item.pinyin} · ${item.meaning})</div>`;
+        });
+
+        container.innerHTML = html;
+        answerContainer.innerHTML = ansHtml;
+
+      // =======================================================
+      // MODE 4: MATH VERTICAL COLUMNS
+      // =======================================================
+      } else if (type === 'math-vertical') {
         document.getElementById('maxScore').textContent = count;
         container.className = 'math-vertical-grid';
         let html = '';
         let ansHtml = '';
+
         for (let i = 0; i < count; i++) {
           const n1 = Math.floor(Math.random() * 55) + 18;
           const n2 = Math.floor(Math.random() * 35) + 12;
@@ -561,13 +1009,19 @@
           `;
           ansHtml += `<div>#${i + 1}: ${n1} + ${n2} = <strong>${ans}</strong></div>`;
         }
+
         container.innerHTML = html;
         answerContainer.innerHTML = ansHtml;
+
+      // =======================================================
+      // MODE 5: MATH 3-NUMBER MIXED OPERATIONS
+      // =======================================================
       } else if (type === 'math-mixed') {
         document.getElementById('maxScore').textContent = count;
         container.className = 'math-mixed-grid';
         let html = '';
         let ansHtml = '';
+
         for (let i = 0; i < count; i++) {
           const a = Math.floor(Math.random() * 40) + 20;
           const b = Math.floor(Math.random() * 25) + 10;
@@ -582,43 +1036,7 @@
           `;
           ansHtml += `<div>#${i + 1}: <strong>${ans}</strong></div>`;
         }
-        container.innerHTML = html;
-        answerContainer.innerHTML = ansHtml;
-      } else {
-        const isMi = type === 'mi';
-        const sampleChars = [
-          { pinyin: "shān", char: "山", meaning: "Mountain" },
-          { pinyin: "shuǐ", char: "水", meaning: "Water" },
-          { pinyin: "rì", char: "日", meaning: "Sun / Day" },
-          { pinyin: "yuè", char: "月", meaning: "Moon / Month" },
-          { pinyin: "tián", char: "田", meaning: "Field" },
-          { pinyin: "hé", char: "禾", meaning: "Grain" },
-          { pinyin: "huǒ", char: "火", meaning: "Fire" },
-          { pinyin: "mù", char: "木", meaning: "Tree / Wood" }
-        ];
-        document.getElementById('maxScore').textContent = sampleChars.length;
-        container.className = 'tian-grid';
-        let html = '';
-        let ansHtml = '';
-        sampleChars.forEach((item, idx) => {
-          const cellClass = isMi ? 'tian-cell mi-zi-ge' : 'tian-cell';
-          html += `
-            <div class="tian-row">
-              <span class="pinyin-ruby">${item.pinyin}</span>
-              <div class="tian-cell-group">
-                <div class="${cellClass}"><span class="char-model">${item.char}</span></div>
-                <div class="${cellClass}"><span class="char-trace">${item.char}</span></div>
-                <div class="${cellClass}"><span class="char-trace">${item.char}</span></div>
-                <div class="${cellClass}"><span class="char-trace">${item.char}</span></div>
-                <div class="${cellClass}"></div>
-                <div class="${cellClass}"></div>
-                <div class="${cellClass}"></div>
-                <div class="${cellClass}"></div>
-              </div>
-            </div>
-          `;
-          ansHtml += `<div>#${idx + 1}: ${item.char} (${item.pinyin} - ${item.meaning})</div>`;
-        });
+
         container.innerHTML = html;
         answerContainer.innerHTML = ansHtml;
       }
@@ -630,7 +1048,7 @@
       if (inputs.length === 0) {
         fb.className = 'feedback-banner show';
         fb.style.background = '#FEF9C3';
-        fb.textContent = '✍️ Penmanship mode is designed for physical pencil tracing after printing!';
+        fb.textContent = '✍️ Handwriting and penmanship modes are designed for physical pencil practice on printed paper!';
         return;
       }
 
@@ -655,7 +1073,7 @@
       fb.className = 'feedback-banner show';
       if (filled === 0) {
         fb.style.background = '#FEF9C3';
-        fb.textContent = '👆 Type answers into the worksheet boxes first, or click Print for paper practice!';
+        fb.textContent = '👆 Type answers into the worksheet calculation boxes first, or click Print for paper practice!';
       } else if (correct === currentProblems.length) {
         fb.style.background = '#DCFCE7';
         fb.textContent = `🌟 Perfect Score! ${correct} / ${currentProblems.length} correct!`;
@@ -665,7 +1083,8 @@
       }
     }
 
-    renderWorksheet();
+    // Initialize with English subject
+    selectSubject('english');
   </script>
 </body>
 </html>

@@ -32,7 +32,7 @@ Every interactive activity must be intentionally structured around a well-define
 
 | # | Archetype Name | Bundled Starter Template | Best Used For |
 | :--- | :--- | :--- | :--- |
-| **1** | **Worksheet Generator & Print** | [`examples/worksheet-print-starter.html`](examples/worksheet-print-starter.html) | Physical handwriting, Chinese Tian Zi Ge / Mi Zi Ge stroke order, vertical/horizontal math columns, A4 `@media print` homework |
+| **1** | **Worksheet Generator & Print** | [`examples/worksheet-print-starter.html`](examples/worksheet-print-starter.html) | Physical handwriting: English international standard 4-line 3-space primary ruled lines (dashed midline) vs. Chinese Tian Zi Ge / Mi Zi Ge vs. math columns, A4 `@media print` homework |
 | **2** | **Multimedia Flashcards & Audio** | [`examples/flashcards-starter.html`](examples/flashcards-starter.html) | Sight words, vocabulary definitions, phonics pronunciation, 3D card flips with TTS read-aloud & recall quizzes |
 | **3** | **Concept Labs & Manipulatives** | [`examples/concept-lab-starter.html`](examples/concept-lab-starter.html) | Continuous scientific/math cause-and-effect (sound waves, 2D angles, row×column arrays, clock hands, gear ratios) |
 | **4** | **3D Spatial Inspectors** | [`examples/spatial-3d-starter.html`](examples/spatial-3d-starter.html) | 3D spatial depth, Three.js orbit viewing, light & shadow occlusion, 3D solid geometry (faces/edges/vertices), orbits |
@@ -54,7 +54,7 @@ Whenever a user describes the learning content or topic they want to build, exec
 3. **Clarify Differentiated Interactive Gameplay**:
    - Explicitly outline how the constructed gameplay works under the chosen archetype:
      - **Step 1 (Explore / Setup Mode)** vs. **Step 2 (Challenge / Output Mode)**
-     - **Interactive Manipulatives & Controls** (e.g., A4 print parameter sidebar & Tian Zi Ge CSS; SVG drag sliders & Web Audio oscillators; Three.js orbit & shadow maps; multi-attribute status bars; or clickable diagnostic word tokens)
+     - **Interactive Manipulatives & Controls** (e.g., A4 print parameter sidebar with English primary 4-line SVG tracks, Chinese Tian Zi Ge CSS, or math vertical column grids; SVG drag sliders & Web Audio oscillators; Three.js orbit & shadow maps; multi-attribute status bars; or clickable diagnostic word tokens)
      - **State & Feedback Loop** (zero pre-selection `null` initial state, formative explanations, audio chimes).
    - Read the corresponding starter file in [`examples/`](examples/) as your verified structural and technical blueprint.
 
@@ -189,7 +189,7 @@ Regardless of the scenario or archetype, every generated game must follow these 
 - Compact header (one nav row + one small hero, no sticky banners eating vertical height).
 - Responsive two-column play grid (`1.2fr 1fr` in landscape, stacked on narrow mobile).
 - Large touch targets ($\ge 44$px height/width, `touch-action: manipulation`). Use `100dvh` for full-height views.
-- For **Type 1 (Worksheet & Print)**, include `@page { size: A4 portrait; margin: 8mm 10mm; }` and `@media print` rules that strip screen UI, enforce ink-friendly black-on-white (`print-color-adjust: exact`), and prevent mid-item page breaks (`break-inside: avoid`).
+- For **Type 1 (Worksheet & Print)**, strictly separate languages: use **international standard 4-line 3-space primary ruled lines (dashed midline & solid baseline)** for English; reserve square Tian Zi Ge / Mi Zi Ge exclusively for Chinese; use monospace aligned columns for math. Include `@page { size: A4 portrait; margin: 8mm 10mm; }` and `@media print` rules that strip screen UI, enforce ink-friendly black-on-white (`print-color-adjust: exact`), and prevent mid-item page breaks (`break-inside: avoid`).
 
 ### 8. Voice Read-Aloud (TTS) with Robust Fallback & Web Audio SFX
 - **Switchable Accent TTS**: Copy the accent dropdown and `TTS_MANAGER` from [`references/tts-pattern.md`](references/tts-pattern.md) verbatim. Persists voice choice across activities via `localStorage['ib_pyp_voice_name']`. Provide 🔊 `.btn-speaker` buttons next to titles, prompts, stories, and clues.
@@ -214,6 +214,6 @@ Regardless of the scenario or archetype, every generated game must follow these 
 - [ ] **Zero Pre-Selection**: Challenge buttons start unselected; state variables initialized to `null`; badges show `❓ Tap to choose`.
 - [ ] **Case Navigation & State Reset**: Visible case tabs (`[Case 1] [Case 2] [Case 3]`), unsolved choices reset on case switch, guard checks on empty submit.
 - [ ] **Audio Etiquette**: Strictly zero sound effects auto-playing on page load; audio only triggers on explicit user gestures.
-- [ ] **Neobrutalism UI, iPad Landscape & Print Precision**: Bold borders (`3.5px #111`), hard drop shadows (`4px 4px 0 #111`), compact header; for Type 1 print pages, verified `@page { size: A4 portrait }` and `@media print` rules.
+- [ ] **Neobrutalism UI, iPad Landscape & Print Precision**: Bold borders (`3.5px #111`), hard drop shadows (`4px 4px 0 #111`), compact header; for Type 1 print pages, verified strict language guideline separation (English 4-line 3-space vs. Chinese Tian Zi Ge vs. Math columns) and `@page { size: A4 portrait }` / `@media print` rules.
 - [ ] **TTS Read-Aloud & Fallback**: Top-right accent dropdown present; 🔊 buttons on prompts; voice choice saved in `localStorage`; **browser default TTS fallback implemented if US/EN voices are missing**.
 - [ ] **Synthetic Audio**: Pure Web Audio API SFX; unlocks on first gesture; silent graceful degradation if audio is unavailable.

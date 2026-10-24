@@ -138,6 +138,43 @@ body {
 - Fixed sizes for boards and cards so feedback text never shifts the layout.
 - Use `100dvh` rather than `100vh` for full-height layouts so Safari toolbars do not clip content.
 
+## Printable Worksheets & Handwriting Guidelines (Archetype 1)
+
+When generating Type 1 printables, enforce strict typographic separation by language:
+
+### 1. English International Standard (4-Line 3-Space Primary Ruled)
+- **Do NOT use square Tian Zi Ge for English.** Alphabetical letterforms require continuous baseline alignment and proportional ascender/descender heights.
+- Render guidelines via inline SVG for razor-sharp vector printing without raster blur:
+```html
+<svg class="ruled-svg" viewBox="0 0 650 64" preserveAspectRatio="none">
+  <!-- Top Ascender line (solid #64748B) -->
+  <line x1="0" y1="4" x2="650" y2="4" stroke="#64748B" stroke-width="1.5" />
+  <!-- Midline / Mean line (dashed #3B82F6 or #64748B) -->
+  <line x1="0" y1="24" x2="650" y2="24" stroke="#3B82F6" stroke-width="1.2" stroke-dasharray="6,4" />
+  <!-- Baseline (solid bold #0F172A) -->
+  <line x1="0" y1="44" x2="650" y2="44" stroke="#0F172A" stroke-width="2.2" />
+  <!-- Descender line (solid #94A3B8) -->
+  <line x1="0" y1="60" x2="650" y2="60" stroke="#94A3B8" stroke-width="1.2" />
+  <!-- Text baseline is anchored at y="44" -->
+  <text x="14" y="44" class="svg-text-model">Inquiry</text>
+  <text x="180" y="44" class="svg-text-trace">Inquiry</text>
+</svg>
+```
+
+### 2. Chinese Character Grid (Tian Zi Ge / Mi Zi Ge)
+- Square character cells: `--grid-cell: 14mm`, solid outer border (`1.5px solid #000`), dashed internal crosshairs (`::before` horizontal, `::after` vertical; plus diagonal crosshairs for Mi Zi Ge). Pinyin ruby text placed above each row.
+
+### 3. Mandatory `@media print` Rules
+```css
+@page { size: A4 portrait; margin: 8mm 10mm; }
+@media print {
+  html, body { background: #FFF !important; color: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .control-panel, .nav-bar, .no-print, .btn-mini-speaker { display: none !important; }
+  .a4-paper { border: none !important; box-shadow: none !important; width: 100% !important; padding: 0 !important; }
+  .english-word-row, .sentence-card, .tian-row, .math-vertical-card { break-inside: avoid; page-break-inside: avoid; }
+}
+```
+
 ## Visual content
 
 - Prefer inline SVG manipulatives (clocks, protractors, scales, number lines, story cards) and emoji icons over plain text lists.

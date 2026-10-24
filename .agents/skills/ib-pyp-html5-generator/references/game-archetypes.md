@@ -75,23 +75,36 @@ Each archetype constructs a fundamentally different gameplay loop, state model, 
 
 ### Type 1: Worksheet Generator & Printable Practice (练习生成与纸笔打印型)
 * **Bundled Starter Template**: [`examples/worksheet-print-starter.html`](../examples/worksheet-print-starter.html)
-* **Pedagogical Purpose**: Develops physical penmanship, character stroke order memory, vertical calculation alignment, and offline homework habits.
-* **Sub-Variants & Layout Differences**:
-  1. **Chinese Penmanship Grid (田字格 / 米字格)**:
-     - Uses CSS `--grid-cell: 14mm`, outer solid border (`1.5px solid #000`), and internal dashed crosshairs (`::before` horizontal, `::after` vertical; plus diagonal SVG lines for Mi Zi Ge).
+* **Pedagogical Purpose**: Develops physical penmanship, letter formation, character stroke order memory, vertical calculation alignment, and offline homework habits.
+* **Language-Specific Typographic & Layout Standards**:
+  > [!IMPORTANT]
+  > **Strict Separation of Language Guidelines**:
+  > - **Never use Chinese square grids (Tian Zi Ge / Mi Zi Ge) for English or alphabetical languages!** Latin characters rely on continuous horizontal baseline alignment, x-height proportions, and vertical ascenders/descenders. Square character cells severely distort English handwriting development.
+  > - **English content must always follow the international standard Primary Ruled 4-Line 3-Space formatting** (with dashed midline and solid baseline).
+  > - **Chinese content uses square Tian Zi Ge / Mi Zi Ge** with Pinyin ruby guides.
+  1. **English Primary Ruled Guidelines (4-Line 3-Space / 四线三格)**:
+     - Consists of 4 guide lines forming 3 distinct vertical zones:
+       - **Ascender Zone (Top line to Midline)**: For capital letters and tall ascenders (*b, d, h, k, l, t*). Top line is solid (`#64748B`).
+       - **Body / x-height Zone (Midline to Baseline)**: For lowercase letters (*a, c, e, m, n, o, r, s, u, v, w, x, z*). Midline is dashed/dotted (`#3B82F6` or `#64748B`, `stroke-dasharray="6,4"`).
+       - **Descender Zone (Baseline to Bottom line)**: For letter tails (*g, j, p, q, y*). Baseline is solid and bold (`#0F172A`, `stroke-width="2.2"`). Bottom descender line is solid (`#94A3B8`).
+     - **Sub-Variants for English**:
+       - *English Sight Words & Phonics Tracing*: Left meta badge with icon + word + 🔊 audio preview, followed by a continuous 4-line vector track with 1 model word (`#0F172A`), 2 light-gray tracing words (`#CBD5E1`), and generous blank guideline space for independent handwriting.
+       - *Sentence Copywork & Reflection*: Multi-row card with prompt sentence, a traced 4-line guide, a blank 4-line guide, and a child-friendly neatness checklist (*Capital start, Finger spacing, Sits on baseline, Period at end .*).
+  2. **Chinese Character Penmanship Grid (田字格 / 米字格)**:
+     - Uses CSS `--grid-cell: 14mm`, outer solid square border (`1.5px solid #000`), and internal dashed crosshairs (`::before` horizontal, `::after` vertical; plus diagonal 45° crosshairs for Mi Zi Ge).
      - Displays Pinyin ruby header above or beside each row, 1 dark model character (`#000`), 3 light gray trace characters (`#D0D0D0`), and blank practice cells.
-  2. **Math Vertical Column Calculation (竖式计算)**:
+  3. **Math Vertical Column Calculation (竖式计算) & Equation Grids**:
      - Uses monospace alignment (`Courier New`), right-aligned place values (Hundreds, Tens, Ones), operator symbol on the left, solid bottom rule (`border-bottom: 2px solid #000`), and optional small dashed carry/borrow boxes.
-  3. **Mixed Horizontal Operations & Number Bonds**:
-     - Multi-column (`grid-template-columns: repeat(3, 1fr)`) equations with blank answer boxes (`[   ]`) for missing addends or totals.
-  4. **Audio Dictation Mode (报听写助手 - Optional Screen Companion)**:
-     - Lets a child click "🎧 Start Dictation" on screen: the page speaks each word or math problem via TTS with a configurable pause interval while the child writes on physical paper, then reveals the printed/on-screen answer sheet for self-checking.
+     - Multi-column equations with blank answer boxes (`[   ]`) for missing addends or totals.
+  4. **Audio Dictation Mode (报听写助手 - Screen Companion)**:
+     - Lets a child click "🎧 Read-Aloud Dictation" on screen: the page speaks each word, sentence, or math problem via TTS with a configurable pause interval while the child writes on physical paper.
 * **Mandatory Printing Engineering Rules**:
   - `@page { size: A4 portrait; margin: 8mm 10mm; }`
   - In `@media print`: force `background: #FFF !important; color: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact;`.
-  - Hide all screen controls (`.control-panel, .nav-bar, .no-print { display: none !important; }`).
-  - Prevent equations or character rows from splitting across page boundaries using `break-inside: avoid; page-break-inside: avoid;`.
-  - Support a toggleable **Answer Key Page** separated by `.page-break { page-break-after: always; break-after: page; }`.
+  - Vector SVG guidelines (`<line>`, `<text>`) print with razor-sharp fidelity and do not drop out even when print background graphics are turned off.
+  - Hide all screen controls (`.control-panel, .nav-bar, .no-print, .btn-mini-speaker { display: none !important; }`).
+  - Prevent equations, sentence cards, or character rows from splitting across page boundaries using `break-inside: avoid; page-break-inside: avoid;`.
+  - Support a toggleable **Answer Key Reference Page** separated by `.page-break { page-break-after: always; break-after: page; }`.
 
 ---
 
