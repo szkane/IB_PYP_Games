@@ -1,124 +1,381 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Gesture Cosmos Exploration Hub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gesture Cosmos Exploration Hub — IB PYP Unit 5</title>
   <link rel="manifest" href="../manifest.json">
-  <meta name="theme-color" content="#000000">
+  <meta name="theme-color" content="#050816">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap');
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
     body {
-      margin: 0; overflow: hidden; background: #000;
-      font-family: 'Rajdhani', 'Segoe UI', sans-serif; color: #fff;
+      margin: 0; overflow: hidden; background: #030612;
+      font-family: 'Rajdhani', ui-rounded, 'Avenir Next', 'Segoe UI', sans-serif;
+      color: #fff;
     }
-    canvas { display: block; }
+    canvas { display: block; touch-action: none; }
     .input_video { display: none; }
     #canvas-container { width: 100vw; height: 100vh; height: 100dvh; }
 
-    /* Nav Bar */
+    /* Top Nav Bar — right margin reserved for PYP Map link so tabs never collide */
     #nav-bar {
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      display: flex; flex-wrap: wrap; gap: 4px;
-      padding: 8px 12px;
-      background: linear-gradient(180deg, rgba(0,0,0,0.85) 60%, transparent);
+      display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+      padding: 10px 136px 10px 14px;
+      background: linear-gradient(180deg, rgba(3, 6, 18, 0.92) 65%, transparent);
       pointer-events: auto;
     }
     .nav-btn {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.12);
-      color: rgba(255,255,255,0.6);
+      min-height: 40px;
+      background: rgba(15, 23, 42, 0.78);
+      border: 1.5px solid rgba(148, 163, 184, 0.32);
+      color: rgba(241, 245, 249, 0.85);
       padding: 6px 14px;
       border-radius: 20px;
       cursor: pointer;
-      font: 600 13px/1 'Rajdhani', sans-serif;
-      letter-spacing: 0.5px;
-      transition: all 0.25s ease;
+      font: 700 14px/1 'Rajdhani', sans-serif;
+      letter-spacing: 0.6px;
+      transition: all 0.2s ease;
       pointer-events: auto;
       white-space: nowrap;
     }
     .nav-btn:hover {
-      background: rgba(255,255,255,0.15);
+      background: rgba(30, 41, 59, 0.95);
+      border-color: rgba(56, 189, 248, 0.7);
       color: #fff;
     }
     .nav-btn.active {
-      background: rgba(0,243,255,0.2);
+      background: rgba(0, 243, 255, 0.2);
       border-color: #00f3ff;
-      color: #00f3ff;
-      box-shadow: 0 0 12px rgba(0,243,255,0.3);
+      color: #7df9ff;
+      box-shadow: 0 0 14px rgba(0, 243, 255, 0.35);
     }
+
+    /* PYP Map Return Link */
+    .pyp-map-link {
+      position: fixed; top: 10px; right: 12px; z-index: 9999;
+      min-height: 44px; display: inline-flex; align-items: center; justify-content: center;
+      border: 2.5px solid #17211f; border-radius: 10px; padding: 8px 14px;
+      background: #FFE156; color: #17211f; text-decoration: none;
+      font: 900 14px/1 ui-rounded, "Avenir Next", "Segoe UI", sans-serif;
+      box-shadow: 3px 3px 0 #17211f; letter-spacing: 0;
+      white-space: nowrap;
+    }
+    .pyp-map-link:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #17211f; }
+    .pyp-map-link:focus-visible { outline: 3px solid #38bdf8; outline-offset: 2px; }
+    @media print { .pyp-map-link { display: none; } }
 
     /* Loading overlay */
     #loader {
-      position: fixed; inset: 0; z-index: 200;
+      position: fixed; inset: 0; z-index: 250;
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      background: #000; color: #00f3ff; letter-spacing: 3px;
-      font-size: 1.1rem;
+      background: #030612; color: #00f3ff; letter-spacing: 3px;
+      font-size: 1.15rem; font-weight: 700;
     }
     .spinner {
-      width: 40px; height: 40px; margin-bottom: 20px;
-      border: 3px solid rgba(0,243,255,0.3);
+      width: 42px; height: 42px; margin-bottom: 18px;
+      border: 3px solid rgba(0,243,255,0.28);
       border-top: 3px solid #00f3ff;
       border-radius: 50%; animation: spin 1s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .loader-sub { font-size: 0.8rem; opacity: 0.6; margin-top: 10px; max-width: 300px; text-align: center; }
+    .loader-sub { font-size: 0.9rem; opacity: 0.72; margin-top: 8px; max-width: 340px; text-align: center; letter-spacing: 1px; }
 
-    /* Permission overlay */
+    /* Permission / Dual-Mode Entry Overlay */
     #permission-overlay {
       position: fixed; inset: 0; z-index: 300;
       display: none;
       flex-direction: column;
       align-items: center; justify-content: center;
-      background: rgba(0,0,0,0.9);
-      backdrop-filter: blur(8px);
+      padding: 24px;
+      background: radial-gradient(circle at 50% 35%, rgba(14, 34, 68, 0.92), rgba(3, 6, 18, 0.96));
+      backdrop-filter: blur(10px);
     }
     #permission-overlay.visible { display: flex; }
-    #enable-gestures {
-      padding: 16px 40px;
-      border: 2px solid #00f3ff;
-      background: transparent;
-      color: #00f3ff;
-      font: 700 18px 'Rajdhani', sans-serif;
-      letter-spacing: 3px;
-      border-radius: 30px;
+    .entry-card {
+      width: min(620px, 100%);
+      background: rgba(10, 18, 36, 0.92);
+      border: 2px solid rgba(0, 243, 255, 0.45);
+      border-radius: 20px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 30px rgba(0, 243, 255, 0.14);
+      padding: 28px 26px;
+      text-align: center;
+    }
+    .entry-kicker {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: rgba(255, 225, 86, 0.16);
+      border: 1px solid rgba(255, 225, 86, 0.55);
+      color: #FFE156;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .entry-card h2 {
+      font-size: clamp(1.7rem, 3.6vw, 2.3rem);
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+      color: #ffffff;
+    }
+    .entry-desc {
+      color: rgba(226, 232, 240, 0.85);
+      font-size: 1rem;
+      line-height: 1.45;
+      margin-bottom: 22px;
+    }
+    .entry-cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 14px;
+    }
+    .entry-btn {
+      flex: 1 1 220px;
+      min-height: 54px;
+      padding: 14px 22px;
+      border-radius: 14px;
       cursor: pointer;
-      transition: all 0.3s;
+      font: 700 17px/1.2 'Rajdhani', sans-serif;
+      letter-spacing: 1px;
+      transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+    #enable-gestures {
+      background: rgba(0, 243, 255, 0.16);
+      border: 2px solid #00f3ff;
+      color: #7df9ff;
+      box-shadow: 0 0 22px rgba(0, 243, 255, 0.22);
     }
     #enable-gestures:hover {
-      background: rgba(0,243,255,0.15);
-      box-shadow: 0 0 30px rgba(0,243,255,0.3);
+      background: rgba(0, 243, 255, 0.28);
+      color: #ffffff;
+      transform: translateY(-2px);
     }
+    #explore-touch {
+      background: #FFE156;
+      border: 2px solid #111827;
+      color: #111827;
+      box-shadow: 4px 4px 0 #111827;
+    }
+    #explore-touch:hover {
+      background: #fde047;
+      transform: translateY(-2px);
+    }
+    #explore-touch:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #111827; }
     #permission-hint {
-      margin-top: 16px; color: rgba(255,255,255,0.4);
-      font-size: 0.85rem; letter-spacing: 1px;
+      margin-top: 16px;
+      color: rgba(148, 163, 184, 0.9);
+      font-size: 0.88rem;
+      letter-spacing: 0.4px;
     }
+
+    /* Compact Collapsible PYP Unit 5 Cosmic Field Card */
+    #field-card {
+      position: fixed;
+      top: 66px;
+      left: 14px;
+      z-index: 60;
+      width: min(305px, calc(100vw - 180px));
+      background: rgba(9, 17, 36, 0.86);
+      border: 2px solid rgba(56, 189, 248, 0.48);
+      border-radius: 14px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+      overflow: hidden;
+      pointer-events: auto;
+    }
+    .field-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 12px;
+      background: rgba(15, 28, 56, 0.9);
+      border-bottom: 1px solid rgba(56, 189, 248, 0.25);
+    }
+    #field-card.collapsed .field-card-head { border-bottom: none; }
+    #field-card-toggle {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: none;
+      border: none;
+      color: #FFE156;
+      font: 700 0.9rem/1.1 'Rajdhani', sans-serif;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      cursor: pointer;
+      min-height: 32px;
+      text-align: left;
+    }
+    .field-chevron { transition: transform 0.2s ease; color: #7df9ff; }
+    #field-card.collapsed .field-chevron { transform: rotate(-90deg); }
+    .field-card-body {
+      padding: 10px 12px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    #field-card.collapsed .field-card-body { display: none; }
+    #field-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: #38bdf8;
+      text-transform: uppercase;
+    }
+    #field-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.1;
+    }
+    #field-fact {
+      font-size: 0.9rem;
+      line-height: 1.38;
+      color: rgba(226, 232, 240, 0.92);
+      font-family: ui-rounded, 'Avenir Next', 'Segoe UI', sans-serif;
+    }
+    #field-inquiry {
+      font-size: 0.82rem;
+      line-height: 1.35;
+      color: #fde68a;
+      background: rgba(255, 225, 86, 0.1);
+      border-left: 3px solid #FFE156;
+      padding: 6px 8px;
+      border-radius: 0 6px 6px 0;
+      font-family: ui-rounded, 'Avenir Next', 'Segoe UI', sans-serif;
+    }
+    .field-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 2px;
+    }
+    .field-btn {
+      flex: 1;
+      min-height: 38px;
+      padding: 6px 10px;
+      border-radius: 9px;
+      border: 1.5px solid rgba(56, 189, 248, 0.65);
+      background: rgba(14, 116, 144, 0.28);
+      color: #e0f2fe;
+      font: 700 0.84rem/1.1 'Rajdhani', sans-serif;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+    .field-btn:hover { background: rgba(56, 189, 248, 0.35); color: #fff; }
+    .field-btn.speaking { background: rgba(34, 197, 94, 0.45); border-color: #86efac; }
+    .field-btn-stamp {
+      border-color: #FFE156;
+      background: rgba(255, 225, 86, 0.16);
+      color: #FFE156;
+    }
+    .field-btn-stamp:hover { background: rgba(255, 225, 86, 0.3); color: #fff; }
+
+    /* IB PYP Reflection & Passport Modal */
+    #pyp-reflect-modal {
+      position: fixed; inset: 0; z-index: 400;
+      display: none; align-items: center; justify-content: center;
+      padding: 20px;
+      background: rgba(3, 6, 18, 0.78);
+      backdrop-filter: blur(6px);
+    }
+    #pyp-reflect-modal.open { display: flex; }
+    .reflect-card {
+      width: min(490px, 100%);
+      background: #FFFDF0;
+      color: #111827;
+      border: 3.5px solid #111827;
+      border-radius: 18px;
+      box-shadow: 6px 6px 0 #111827;
+      padding: 20px 22px;
+      font-family: ui-rounded, 'Avenir Next', 'Segoe UI', sans-serif;
+    }
+    .reflect-badge {
+      display: inline-block;
+      background: #38B6FF;
+      color: #111827;
+      border: 2px solid #111827;
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-weight: 900;
+      font-size: 0.8rem;
+      margin-bottom: 8px;
+    }
+    .reflect-card h3 { font-size: 1.35rem; font-weight: 900; margin-bottom: 6px; }
+    .reflect-prompt { font-size: 0.92rem; color: #374151; margin-bottom: 12px; line-height: 1.4; }
+    .reflect-chips { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+    .reflect-chip {
+      text-align: left;
+      padding: 10px 12px;
+      border: 2.5px solid #111827;
+      border-radius: 10px;
+      background: #FFFFFF;
+      color: #111827;
+      font: 700 0.88rem/1.3 ui-rounded, 'Avenir Next', 'Segoe UI', sans-serif;
+      cursor: pointer;
+      box-shadow: 2px 2px 0 #111827;
+    }
+    .reflect-chip.active { background: #FFE156; }
+    #pyp-stamp-status {
+      min-height: 22px;
+      font-size: 0.86rem;
+      font-weight: 800;
+      color: #15803d;
+      margin-bottom: 12px;
+    }
+    .reflect-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .reflect-btn {
+      flex: 1; min-height: 44px; padding: 10px 14px;
+      border: 2.5px solid #111827; border-radius: 12px;
+      box-shadow: 3px 3px 0 #111827;
+      font: 900 0.92rem/1 ui-rounded, 'Avenir Next', 'Segoe UI', sans-serif;
+      cursor: pointer;
+    }
+    .reflect-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #111827; }
+    #btn-claim-stamp { background: #86EFAC; color: #111827; }
+    #btn-close-reflect { background: #FFFFFF; color: #111827; flex: 0 0 auto; }
 
     /* Toast */
     #toast {
-      position: fixed; bottom: 60px; left: 50%;
+      position: fixed; bottom: 56px; left: 50%;
       transform: translateX(-50%); z-index: 150;
-      background: rgba(0,0,0,0.85);
-      border: 1px solid rgba(255,255,255,0.15);
-      padding: 10px 20px; border-radius: 8px;
-      color: rgba(255,255,255,0.7); font-size: 0.85rem;
-      opacity: 0; transition: opacity 0.4s;
-      pointer-events: none;
+      background: rgba(9, 17, 36, 0.92);
+      border: 1.5px solid rgba(56, 189, 248, 0.45);
+      padding: 9px 18px; border-radius: 10px;
+      color: #e2e8f0; font-size: 0.88rem; font-weight: 600;
+      opacity: 0; transition: opacity 0.35s;
+      pointer-events: none; max-width: min(560px, 90vw); text-align: center;
     }
     #toast.visible { opacity: 1; }
 
-    /* Gesture indicator */
+    /* Live Gesture Indicator */
     #gesture-indicator {
-      position: fixed; bottom: 20px; left: 50%;
+      position: fixed; bottom: 16px; left: 50%;
       transform: translateX(-50%); z-index: 50;
-      color: #00f3ff; font-size: 0.9rem;
-      letter-spacing: 2px; opacity: 0;
-      transition: opacity 0.4s;
-      text-shadow: 0 0 10px rgba(0,243,255,0.5);
+      padding: 6px 16px;
+      border-radius: 999px;
+      background: rgba(9, 17, 36, 0.78);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: #bae6fd; font-size: 0.86rem; font-weight: 700;
+      letter-spacing: 1px; opacity: 0;
+      transition: opacity 0.35s, border-color 0.2s, color 0.2s;
+      white-space: nowrap;
+      pointer-events: none;
     }
-    #gesture-indicator.visible { opacity: 0.7; }
+    #gesture-indicator.visible { opacity: 0.95; }
+    #gesture-indicator.active-gesture {
+      border-color: #00f3ff;
+      color: #7df9ff;
+      box-shadow: 0 0 14px rgba(0, 243, 255, 0.35);
+    }
 
     /* Scene UI Container Overlay Styles */
     #scene-ui-container {
@@ -131,100 +388,112 @@
     #scene-ui-container .scene-btn {
       pointer-events: auto;
     }
-    
-    /* Shared control panel styles */
+
+    /* Shared right-hand control panel — crisp at 1180x820 and 1440x900 */
     .scene-controls {
       position: absolute;
-      top: 50%;
-      right: 30px;
-      transform: translateY(-50%);
-      width: 140px;
+      top: 68px;
+      right: 16px;
+      width: 136px;
+      max-height: calc(100dvh - 104px);
+      overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 6px;
       z-index: 20;
+      padding: 4px 2px;
     }
-    
+
     .scene-btn {
       width: 100%;
-      min-height: 44px;
-      padding: 8px 12px;
-      background: rgba(10, 20, 30, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      color: rgba(255, 255, 255, 0.5);
+      min-height: 40px;
+      padding: 7px 10px;
+      background: rgba(10, 20, 38, 0.78);
+      border: 1.5px solid rgba(148, 163, 184, 0.32);
+      color: rgba(241, 245, 249, 0.88);
       font-family: 'Rajdhani', sans-serif;
       font-weight: 700;
-      font-size: 0.85rem;
+      font-size: 0.86rem;
       cursor: pointer;
       text-transform: uppercase;
-      letter-spacing: 1px;
-      border-radius: 4px;
-      transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+      letter-spacing: 0.9px;
+      border-radius: 8px;
+      transition: all 0.2s ease;
       backdrop-filter: blur(8px);
       text-align: center;
+      flex-shrink: 0;
     }
-    
+
     .scene-btn:hover {
-      border-color: rgba(255, 255, 255, 0.5);
+      border-color: rgba(56, 189, 248, 0.85);
       color: #fff;
-      transform: translateX(-5px);
+      background: rgba(14, 34, 64, 0.9);
     }
-    
+
     .scene-btn.active {
-      background: rgba(0, 243, 255, 0.1);
-      border: 1px solid #00f3ff;
-      color: #00f3ff;
-      box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
-      text-shadow: 0 0 5px #00f3ff;
-      transform: translateX(-5px);
+      background: rgba(0, 243, 255, 0.18);
+      border: 1.5px solid #00f3ff;
+      color: #7df9ff;
+      box-shadow: 0 0 14px rgba(0, 243, 255, 0.3);
+      text-shadow: 0 0 6px rgba(0, 243, 255, 0.6);
     }
-    
-    /* HUD block styles */
+
+    /* Bottom-left HUD block */
     .scene-hud {
       position: absolute;
-      bottom: 40px;
-      left: 40px;
+      bottom: 24px;
+      left: 20px;
       color: #fff;
       z-index: 20;
       pointer-events: none;
-      text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+      text-shadow: 0 2px 16px rgba(0, 0, 0, 0.75);
     }
-    
+
     .scene-hud h1 {
-      font-size: 3.5rem;
+      font-size: clamp(1.7rem, 3vw, 2.8rem);
       margin: 0;
-      letter-spacing: 6px;
+      letter-spacing: 4px;
       font-weight: 700;
-      background: linear-gradient(to right, #fff, #88ccff);
+      background: linear-gradient(to right, #ffffff, #7dd3fc);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       text-transform: uppercase;
+      line-height: 1.05;
     }
-    
+
     .scene-hud .subtitle {
-      font-size: 1.1rem;
-      letter-spacing: 3px;
-      color: #6688aa;
-      margin-top: 5px;
+      font-size: clamp(0.85rem, 1.3vw, 1.02rem);
+      letter-spacing: 2.2px;
+      color: #93c5fd;
+      margin-top: 4px;
       text-transform: uppercase;
+      font-weight: 600;
     }
 
     .scene-status {
       position: absolute;
-      top: 50px;
-      right: 40px;
+      top: 68px;
+      right: 168px;
       text-align: right;
-      color: rgba(255, 255, 255, 0.4);
-      font-size: 0.8rem;
+      color: rgba(226, 232, 240, 0.72);
+      font-size: 0.82rem;
       letter-spacing: 1px;
-      line-height: 1.5;
+      line-height: 1.45;
+      pointer-events: none;
     }
     .scene-status span {
       color: #00f3ff;
       font-weight: bold;
     }
-  
-    html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
+
+    @media (max-width: 768px) {
+      #nav-bar { padding: 8px 118px 8px 10px; gap: 4px; }
+      .nav-btn { font-size: 12px; padding: 5px 10px; min-height: 36px; }
+      #field-card { top: 108px; width: min(260px, calc(100vw - 140px)); }
+      .scene-controls { width: 112px; right: 10px; top: 108px; }
+      .scene-hud { bottom: 48px; left: 12px; }
+      #gesture-indicator { font-size: 0.75rem; max-width: 92vw; overflow: hidden; text-overflow: ellipsis; }
+    }
   </style>
   <!-- MediaPipe -->
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
@@ -247,37 +516,76 @@
     <div class="loader-sub">Preparing six cosmic environments for exploration...</div>
   </div>
 
-  <div id="permission-overlay" class="visible">
-    <button id="enable-gestures">ENABLE GESTURES</button>
-    <div id="permission-hint">Camera access required for hand tracking · Click to start</div>
+  <div id="permission-overlay" class="visible" role="dialog" aria-modal="true" aria-labelledby="entry-title">
+    <div class="entry-card">
+      <div class="entry-kicker">IB PYP Unit 5 · How the World Works</div>
+      <h2 id="entry-title">Gesture Cosmos Hub</h2>
+      <p class="entry-desc">
+        Explore our Solar System, glowing particle planets, swirling galaxies, and cosmic shapes. Choose how you want to navigate space:
+      </p>
+      <div class="entry-cta-row">
+        <button id="enable-gestures" class="entry-btn" type="button">✋ Enable Hand Gestures</button>
+        <button id="explore-touch" class="entry-btn" type="button">👆 Explore with Touch / Mouse</button>
+      </div>
+      <div id="permission-hint">No camera? Choose Touch / Mouse to enter immediately with drag, zoom, and planet tap!</div>
+    </div>
   </div>
 
-  <nav id="nav-bar">
-    <button class="nav-btn active" data-scene="solar-system">Solar System</button>
-    <button class="nav-btn" data-scene="neon-planets">Neon Planets</button>
-    <button class="nav-btn" data-scene="galaxy-spiral">Spiral Galaxy</button>
-    <button class="nav-btn" data-scene="crystal-galaxy">Crystal Galaxy</button>
-    <button class="nav-btn" data-scene="milky-way">Milky Way</button>
-    <button class="nav-btn" data-scene="shape-motion">Shape Lab</button>
+  <nav id="nav-bar" aria-label="Cosmic Scenes">
+    <button class="nav-btn active" type="button" data-scene="solar-system">Solar System</button>
+    <button class="nav-btn" type="button" data-scene="neon-planets">Neon Planets</button>
+    <button class="nav-btn" type="button" data-scene="galaxy-spiral">Spiral Galaxy</button>
+    <button class="nav-btn" type="button" data-scene="crystal-galaxy">Crystal Galaxy</button>
+    <button class="nav-btn" type="button" data-scene="milky-way">Milky Way</button>
+    <button class="nav-btn" type="button" data-scene="shape-motion">Shape Lab</button>
   </nav>
 
-  <div id="canvas-container"></div>
-  <video class="input_video"></video>
+  <!-- Compact Collapsible PYP Unit 5 Cosmic Field Card -->
+  <aside id="field-card" aria-label="PYP Cosmic Field Card">
+    <div class="field-card-head">
+      <button id="field-card-toggle" type="button" aria-expanded="true">
+        <span>🔭 Cosmic Field Card</span>
+        <span class="field-chevron">▼</span>
+      </button>
+    </div>
+    <div class="field-card-body">
+      <div id="field-badge">UNIT 5 · PATTERNS &amp; CYCLES</div>
+      <div id="field-title">Solar System Overview</div>
+      <p id="field-fact">Eight planets orbit our Sun in repeating elliptical cycles. Inner planets are rocky, while outer giants are made of gas and ice.</p>
+      <div id="field-inquiry">Tap any planet in 3D space or on the right panel to ride along its orbit!</div>
+      <div class="field-actions">
+        <button id="field-read-btn" class="field-btn" type="button">🔊 Read Aloud</button>
+        <button id="open-reflect-btn" class="field-btn field-btn-stamp" type="button">🏅 PYP Stamp</button>
+      </div>
+    </div>
+  </aside>
 
-  <div id="gesture-indicator">Move hand to explore</div>
+  <!-- IB PYP Reflection & Passport Modal -->
+  <div id="pyp-reflect-modal" role="dialog" aria-modal="true" aria-labelledby="reflect-heading">
+    <div class="reflect-card">
+      <span class="reflect-badge">IB PYP Learner Profile · Inquirer</span>
+      <h3 id="reflect-heading">Cosmic Inquiry Reflection</h3>
+      <p class="reflect-prompt">Pick a discovery you made while exploring patterns and cycles in space, then stamp your IB PYP Passport!</p>
+      <div class="reflect-chips">
+        <button type="button" class="reflect-chip active" data-reflection="I noticed how planets follow repeating orbital cycles around the Sun.">🪐 I noticed how planets follow repeating orbital cycles around the Sun.</button>
+        <button type="button" class="reflect-chip" data-reflection="I compared rocky inner planets with gas and ice giants in the outer Solar System.">🌍 I compared rocky inner planets with gas and ice giants in the outer Solar System.</button>
+        <button type="button" class="reflect-chip" data-reflection="I explored how billions of stars form repeating spiral patterns inside galaxies.">🌌 I explored how billions of stars form repeating spiral patterns inside galaxies.</button>
+      </div>
+      <div id="pyp-stamp-status"></div>
+      <div class="reflect-actions">
+        <button id="btn-claim-stamp" class="reflect-btn" type="button">🏅 Claim Inquirer Stamp</button>
+        <button id="btn-close-reflect" class="reflect-btn" type="button">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="canvas-container"></div>
+  <video class="input_video" playsinline></video>
+
+  <div id="gesture-indicator">👆 Touch / Mouse Mode · Drag to orbit</div>
   <div id="toast"></div>
 
-  <a class="pyp-map-link" href="../index.html" aria-label="Back to PYP curriculum map">PYP Map</a>
-  <style>
-    .pyp-map-link { position: fixed; top: 12px; right: 12px; z-index: 9999; min-height: 44px; display: inline-flex; align-items: center; border: 2px solid #17211f; border-radius: 8px; padding: 8px 12px; background: #fffaf0; color: #17211f; text-decoration: none; font: 900 14px/1 ui-rounded, "Avenir Next", "Segoe UI", sans-serif; box-shadow: 3px 3px 0 #17211f; letter-spacing: 0; }
-    .pyp-map-link:focus-visible { outline: 3px solid #f2b84b; outline-offset: 2px; }
-    @media print { .pyp-map-link { display: none; } }
-    /* Responsive nav */
-    @media (max-width: 640px) {
-      #nav-bar { justify-content: center; gap: 3px; padding: 6px 8px; }
-      .nav-btn { font-size: 11px; padding: 4px 10px; }
-    }
-  </style>
+  <a class="pyp-map-link" href="../index.html" aria-label="Back to PYP curriculum map">← PYP Map</a>
 
   <script type="module" src="./gesture-cosmos/main.js"></script>
 </body>

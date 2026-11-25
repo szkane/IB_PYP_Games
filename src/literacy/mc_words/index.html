@@ -3,110 +3,125 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport"
-    content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-  <title>MEET MC WORDS</title>
-  <meta name="description" content="Learn 238 Minecraft English vocabulary words through interactive flashcards">
-  <meta name="keywords" content="Minecraft, English vocabulary, learning, flashcards, kids education">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meet MC Words — IB PYP Vocabulary Flashcards</title>
+  <meta name="description" content="Learn 322 Minecraft English vocabulary words through interactive flashcards and spelling quizzes">
+  <meta name="keywords" content="Minecraft, English vocabulary, learning, flashcards, kids education, IB PYP">
   <meta name="theme-color" content="#2d4a1c">
-  <link rel="stylesheet" href="css/mc_words_styles.css?v=20260319210542">
+  <link rel="stylesheet" href="css/mc_words_styles.css?v=20261125">
 </head>
 
 <body>
   <div id="app">
     <div class="page page-card-main-container" data-courseid="course4">
-      <div class="top-nav" id="topNav">
+      <!-- Unified Neobrutalism Top Nav Bar -->
+      <header class="top-nav" id="topNav">
         <div class="nav-left">
-          <button class="nav-back-btn" id="backBtn" aria-label="返回主页">
-            <span class="nav-back-icon">←</span>
-          </button>
+          <a class="pyp-map-link" href="../../index.html" aria-label="Back to PYP curriculum map">← PYP Map</a>
+          <button class="nav-back-btn" id="backBtn" type="button" aria-label="Back to scenes">← Scenes</button>
           <span class="nav-app-title" id="appTitle">MEET MC WORDS</span>
         </div>
-        <div class="nav-right" id="navControls" style="display: none;">
-          <button class="nav-control-btn" id="btnZh" onclick="toggleChinese()" data-active="true">中文</button>
-          <button class="nav-control-btn" id="btnEn" onclick="toggleEnglish()" data-active="true">EN</button>
-          <button class="nav-control-btn nav-control-btn-accent" id="btnQuiz" onclick="startQuiz()">📝 测验</button>
-          <button class="nav-control-btn nav-control-btn-accent" id="btnAuto" onclick="toggleAutoMode()">▶ 自动</button>
-          <button class="nav-control-btn nav-tts-btn" id="btnTts" onclick="toggleTtsAccent()" title="点击切换发音">
-            <span class="tts-icon">🔊</span>
-            <span class="tts-accent" id="ttsAccentLabel">US</span>
-          </button>
-        </div>
-      </div>
 
-      <div class="maincon">
+        <div class="nav-right">
+          <div class="nav-scene-controls" id="navControls" style="display: none;">
+            <button class="nav-control-btn" id="btnEn" type="button" onclick="toggleEnglish()" data-active="true">EN</button>
+            <button class="nav-control-btn" id="btnZh" type="button" onclick="toggleChinese()" data-active="false">CN Hint</button>
+            <button class="nav-control-btn nav-control-btn-accent" id="btnQuiz" type="button" onclick="startQuiz()">📝 Quiz</button>
+            <button class="nav-control-btn nav-control-btn-accent" id="btnAuto" type="button" onclick="toggleAutoMode()">▶ Auto</button>
+          </div>
+
+          <!-- Standard IB PYP Neobrutalism TTS Voice Dropdown -->
+          <div class="tts-dropdown-wrap" id="ttsDropdownWrap">
+            <button type="button" class="tts-trigger" id="ttsTrigger" aria-haspopup="menu" aria-expanded="false" title="Choose read-aloud voice">
+              <span id="ttsFlag">🇺🇸</span>
+              <span id="ttsLabel">Voice</span>
+              <span class="tts-arrow">▼</span>
+            </button>
+            <div class="tts-menu" id="ttsMenu" role="menu">
+              <div class="tts-menu-header">Read-Aloud Voice</div>
+              <div class="tts-radio-group" id="ttsRadioList"></div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="maincon">
+        <div class="scene-banner" id="sceneBanner">
+          <h1 id="bannerHeading">Pick a Minecraft World</h1>
+          <p id="bannerSub">Tap any category to explore 322 English words with audio flashcards and spelling quizzes!</p>
+        </div>
         <div class="flashcard-grid" id="cardGrid"></div>
-      </div>
+      </main>
+
+      <!-- Scene Quiz Modal -->
       <div class="quiz-overlay" id="quizOverlay" style="display: none;" aria-hidden="true">
         <div class="quiz-modal" role="dialog" aria-modal="true" aria-labelledby="quizTitle">
           <div class="quiz-modal-header">
             <div>
-              <h3 id="quizTitle">场景测验</h3>
+              <h3 id="quizTitle">Scene Quiz</h3>
               <p class="quiz-scene-name" id="quizSceneName"></p>
             </div>
-            <div class="quiz-score-pill" id="quizScore">0 / 0</div>
+            <div class="quiz-score-pill" id="quizScore">0 / 10</div>
           </div>
+
           <div class="quiz-setup" id="quizSetup">
-            <p class="quiz-setup-copy">Choose a difficulty to start this scene quiz.</p>
+            <p class="quiz-setup-copy">Choose a challenge level to start this scene quiz:</p>
             <div class="quiz-difficulty-grid">
               <button class="quiz-difficulty-btn" type="button" data-difficulty="easy">
                 <span class="quiz-difficulty-title">Easy</span>
-                <span class="quiz-difficulty-desc">Show word with 1 missing letter</span>
+                <span class="quiz-difficulty-desc">1 missing letter to fill in</span>
               </button>
               <button class="quiz-difficulty-btn" type="button" data-difficulty="normal">
                 <span class="quiz-difficulty-title">Normal</span>
-                <span class="quiz-difficulty-desc">Show word with 2-3 missing letters</span>
+                <span class="quiz-difficulty-desc">2–3 missing letters to fill in</span>
               </button>
               <button class="quiz-difficulty-btn" type="button" data-difficulty="hard">
                 <span class="quiz-difficulty-title">Hard</span>
-                <span class="quiz-difficulty-desc">Show only blanks for the whole word</span>
+                <span class="quiz-difficulty-desc">Spell the whole word from blanks</span>
               </button>
             </div>
           </div>
+
           <div class="quiz-question-section" id="quizQuestionSection" style="display: none;">
             <div class="quiz-image-wrap">
               <img id="quizImage" class="quiz-image" src="" alt="">
             </div>
             <div class="quiz-word-row">
               <div class="quiz-masked-word" id="quizMaskedWord"></div>
-              <button class="quiz-replay-icon-btn" id="quizReplayBtn" type="button" title="Replay word">📢</button>
+              <button class="quiz-replay-icon-btn" id="quizReplayBtn" type="button" title="Hear word again" aria-label="Hear word again">🔊</button>
             </div>
-            <p class="quiz-prompt" id="quizPrompt">Type directly into the blanks, then press Enter.</p>
+            <p class="quiz-prompt" id="quizPrompt">Type the missing letters below, then tap Check or press Enter.</p>
             <form class="quiz-form" id="quizForm">
-              <input id="quizAnswerInput" class="quiz-input quiz-input-capture" type="text" inputmode="text"
+              <input id="quizAnswerInput" class="quiz-input" type="text" inputmode="text"
                 autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false"
-                placeholder="Type the word in English">
+                placeholder="Type missing letters here...">
             </form>
-            <p class="quiz-feedback" id="quizFeedback"></p>
+            <p class="quiz-feedback" id="quizFeedback" aria-live="polite"></p>
+            <div class="quiz-passport-banner" id="quizPassportBanner" style="display: none;"></div>
           </div>
+
           <div class="quiz-actions">
-            <button class="quiz-submit-btn" id="quizSubmitBtn" type="submit" form="quizForm">Enter ↵</button>
-            <button class="quiz-secondary-btn" id="quizCancelBtn" type="button">退出测验</button>
+            <button class="quiz-secondary-btn" id="quizCancelBtn" type="button">Exit Quiz</button>
+            <button class="quiz-submit-btn" id="quizSubmitBtn" type="submit" form="quizForm">Check Answer ↵</button>
           </div>
         </div>
       </div>
-      <div class="error-modal" id="errorModal" style="display: none;">
+
+      <!-- Notice Modal -->
+      <div class="error-modal" id="errorModal" style="display: none;" role="alertdialog" aria-modal="true" aria-labelledby="errorModalHeading">
         <div class="modal-content">
-          <h3>提示</h3>
+          <h3 id="errorModalHeading">Notice</h3>
           <p id="errorModalText"></p>
           <div class="modal-buttons">
-            <button class="btn-confirm" onclick="closeErrorModal()">确定</button>
+            <button class="btn-confirm" type="button" onclick="closeErrorModal()">OK</button>
           </div>
         </div>
       </div>
     </div>
   </div>
-  <script src="js/data.js?v=20260319210542"></script>
-  <script src="js/app.js?v=20260319210542"></script>
 
-  <a class="pyp-map-link" href="../../index.html" aria-label="Back to PYP curriculum map">PYP Map</a>
-  <style>
-    .pyp-map-link { position: fixed; top: 12px; right: 12px; z-index: 9999; min-height: 44px; display: inline-flex; align-items: center; border: 2px solid #17211f; border-radius: 8px; padding: 8px 12px; background: #fffaf0; color: #17211f; text-decoration: none; font: 900 14px/1 ui-rounded, "Avenir Next", "Segoe UI", sans-serif; box-shadow: 3px 3px 0 #17211f; letter-spacing: 0; }
-    .pyp-map-link:focus-visible { outline: 3px solid #f2b84b; outline-offset: 2px; }
-    @media print { .pyp-map-link { display: none; } }
-  
-    html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
-  </style>
+  <script src="js/data.js?v=20261125"></script>
+  <script src="js/app.js?v=20261125"></script>
 </body>
 
 </html>

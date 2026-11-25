@@ -2,10 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta
       name="apple-mobile-web-app-status-bar-style"
@@ -15,18 +12,25 @@
 
     <link
       rel="manifest"
-      href="data:application/manifest+json;base64,ewogICJuYW1lIjogIlNwZWxsaW5nIEJlZSBmb3IgSUIgUFlQIEcxIiwKICAic2hvcnRfbmFtZSI6ICJTcGVsbGluZyIsCiAgInN0YXJ0X3VybCI6ICIuIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIuRjBGNEY4IiwKICAidGhlbWVfY29sb3IiOiAiIzRBOTBFMiIKfQ=="
+      href="data:application/manifest+json;base64,eyJuYW1lIjoiU3BlbGxpbmcgQmVlIGZvciBJQiBQWVAgRzEiLCJzaG9ydF9uYW1lIjoiU3BlbGxpbmciLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiI0YwRjRGOCIsInRoZW1lX2NvbG9yIjoiI0ZGRTE1NiJ9"
     />
 
     <style>
       :root {
-        --primary: #007aff;
-        --accent: #ff2d55;
-        --success: #34c759;
-        --warning: #ff9500;
-        --bg: #f5f5f7;
-        --key-bg: #ffffff;
-        --key-text: #1d1d1f;
+        --bg: #FFFDF0;
+        --ink: #111111;
+        --yellow: #FFE156;
+        --coral: #FF6584;
+        --teal: #4ECDC4;
+        --blue: #38B6FF;
+        --purple: #B388FF;
+        --mint: #86EFAC;
+        --warning: #FF9F43;
+        --white: #FFFFFF;
+        --border: 3px solid var(--ink);
+        --shadow: 4px 4px 0 var(--ink);
+        --shadow-sm: 2px 2px 0 var(--ink);
+        --radius: 14px;
       }
 
       * {
@@ -35,118 +39,341 @@
         -webkit-tap-highlight-color: transparent;
       }
 
+      html {
+        -webkit-text-size-adjust: 100%;
+      }
+
       body {
-        font-family:
-          -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue",
-          sans-serif;
-        background: var(--bg);
+        font-family: ui-rounded, "Avenir Next", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background-color: var(--bg);
+        background-image:
+          radial-gradient(circle at 12% 15%, rgba(255, 225, 86, 0.16) 0%, transparent 32%),
+          radial-gradient(circle at 88% 85%, rgba(78, 205, 196, 0.16) 0%, transparent 32%),
+          repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(17, 17, 17, 0.03) 28px);
+        color: var(--ink);
         margin: 0;
+        height: 100vh;
         height: 100dvh;
         width: 100vw;
         display: flex;
+        flex-direction: column;
         align-items: center;
-        justify-content: center;
+        padding: 10px 16px 12px;
         overflow: hidden;
         overscroll-behavior: none;
       }
 
-      /* Overlays */
+      /* Top Navigation Bar (Never collides with overlays) */
+      .top-nav {
+        width: 100%;
+        max-width: 1120px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+        flex-shrink: 0;
+        position: relative;
+        z-index: 1200;
+      }
+
+      .top-nav-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .pyp-map-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-height: 44px;
+        padding: 6px 14px;
+        background: var(--yellow);
+        color: var(--ink);
+        text-decoration: none;
+        font-weight: 900;
+        font-size: 0.92rem;
+        border: var(--border);
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        cursor: pointer;
+        transition: transform 0.1s ease, box-shadow 0.1s ease;
+      }
+
+      .pyp-map-link:hover,
+      .pyp-map-link:active {
+        transform: translate(2px, 2px);
+        box-shadow: var(--shadow-sm);
+      }
+
+      .unit-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-height: 44px;
+        padding: 6px 14px;
+        background: var(--blue);
+        color: var(--white);
+        font-weight: 900;
+        font-size: 0.88rem;
+        border: var(--border);
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+      }
+
+      /* Neobrutalism TTS Radio Dropdown */
+      .tts-dropdown-wrap {
+        position: relative;
+        display: inline-block;
+        user-select: none;
+      }
+
+      .tts-trigger {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #FFF;
+        border: 3px solid var(--ink);
+        border-radius: 12px;
+        box-shadow: 3px 3px 0 var(--ink);
+        padding: 6px 12px;
+        font-family: inherit;
+        font-size: 0.85rem;
+        font-weight: 800;
+        color: var(--ink);
+        cursor: pointer;
+        min-height: 44px;
+        transition: transform 0.1s, box-shadow 0.1s;
+      }
+
+      .tts-trigger:hover {
+        background: #FEF08A;
+      }
+
+      .tts-trigger:active {
+        transform: translate(2px, 2px);
+        box-shadow: 1px 1px 0 var(--ink);
+      }
+
+      .tts-arrow {
+        font-size: 0.75rem;
+        transition: transform 0.15s ease;
+      }
+
+      .tts-dropdown-wrap.open .tts-arrow {
+        transform: rotate(180deg);
+      }
+
+      .tts-menu {
+        display: none;
+        position: absolute;
+        top: calc(100% + 6px);
+        right: 0;
+        min-width: 245px;
+        max-width: 310px;
+        max-height: 280px;
+        overflow-y: auto;
+        background: #FFF;
+        border: 3px solid var(--ink);
+        border-radius: 12px;
+        box-shadow: 4px 4px 0 var(--ink);
+        padding: 6px;
+        z-index: 1500;
+        flex-direction: column;
+        gap: 3px;
+      }
+
+      .tts-dropdown-wrap.open .tts-menu {
+        display: flex;
+      }
+
+      .tts-menu-header {
+        font-size: 0.72rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        color: #6B7280;
+        padding: 4px 8px 6px;
+        border-bottom: 2px solid #E5E7EB;
+        margin-bottom: 3px;
+      }
+
+      .tts-radio-group {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+      }
+
+      .tts-radio-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 10px;
+        border: 2px solid transparent;
+        border-radius: 8px;
+        background: transparent;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--ink);
+        text-align: left;
+        width: 100%;
+      }
+
+      .tts-radio-item:hover {
+        background: #FEF9C3;
+        border-color: var(--ink);
+      }
+
+      .tts-radio-item.active {
+        background: #E0F2FE;
+        border-color: var(--ink);
+        font-weight: 800;
+      }
+
+      .tts-radio-circle {
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        border: 2px solid var(--ink);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        background: #FFF;
+      }
+
+      .tts-radio-item.active .tts-radio-circle::after {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--ink);
+      }
+
+      .tts-item-flag { font-size: 1rem; }
+
+      .tts-item-name {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        flex: 1;
+      }
+
+      /* Overlays (Positioned below top-nav or centered neatly as Neobrutalism modal) */
       .overlay {
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(255, 255, 255, 0.95);
-        z-index: 999;
+        inset: 0;
+        background: rgba(17, 17, 17, 0.55);
+        z-index: 1050;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        backdrop-filter: blur(5px);
+        padding: 70px 16px 16px;
+        backdrop-filter: blur(4px);
+      }
+
+      .overlay-card {
+        background: var(--bg);
+        border: 4px solid var(--ink);
+        border-radius: 20px;
+        box-shadow: 8px 8px 0 var(--ink);
+        padding: 28px 30px;
+        max-width: 460px;
+        width: 100%;
+        text-align: center;
       }
 
       #start-overlay {
-        z-index: 1000;
+        z-index: 1050;
       }
 
       #end-overlay {
         display: none;
-        z-index: 1000;
+        z-index: 1060;
       }
 
       .btn-large {
-        background: var(--primary);
-        color: white;
-        border: none;
-        padding: 15px 40px;
-        font-size: 1.5rem;
-        border-radius: 50px;
-        font-weight: bold;
-        box-shadow: 0 10px 20px rgba(0, 122, 255, 0.3);
+        background: var(--yellow);
+        color: var(--ink);
+        border: 3px solid var(--ink);
+        padding: 13px 34px;
+        font-family: inherit;
+        font-size: 1.25rem;
+        border-radius: 999px;
+        font-weight: 900;
+        box-shadow: 4px 4px 0 var(--ink);
         cursor: pointer;
-        animation: pulse 2s infinite;
+        transition: transform 0.1s ease, box-shadow 0.1s ease;
+      }
+
+      .btn-large:hover {
+        background: var(--mint);
+      }
+
+      .btn-large:active {
+        transform: translate(2px, 2px);
+        box-shadow: 2px 2px 0 var(--ink);
       }
 
       @keyframes pulse {
-        0% {
-          transform: scale(1);
-        }
-
-        50% {
-          transform: scale(1.05);
-        }
-
-        100% {
-          transform: scale(1);
-        }
+        0% { transform: scale(1); }
+        50% { transform: scale(1.06); }
+        100% { transform: scale(1); }
       }
 
       /* DIY Modal */
       #diy-overlay {
         display: none;
-        background: rgba(0, 0, 0, 0.5);
+        z-index: 1100;
       }
 
       .diy-box {
-        background: white;
-        width: 90%;
+        background: var(--white);
+        width: 92%;
         max-width: 500px;
-        border-radius: 20px;
-        padding: 25px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        border: 4px solid var(--ink);
+        border-radius: 18px;
+        padding: 22px;
+        box-shadow: 8px 8px 0 var(--ink);
         display: flex;
         flex-direction: column;
-        gap: 15px;
+        gap: 12px;
       }
 
       .diy-title {
-        font-size: 1.2rem;
-        font-weight: bold;
-        color: #1d1d1f;
+        font-size: 1.25rem;
+        font-weight: 900;
+        color: var(--ink);
         margin: 0;
       }
 
       .diy-desc {
-        font-size: 0.9rem;
-        color: #86868b;
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: #4B5563;
         margin: 0;
       }
 
       textarea#diy-input {
         width: 100%;
-        height: 150px;
-        padding: 15px;
-        font-size: 1rem;
-        border: 2px solid #e5e5ea;
+        height: 140px;
+        padding: 12px;
+        font-size: 0.98rem;
+        border: 3px solid var(--ink);
         border-radius: 12px;
         resize: none;
-        font-family: monospace;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
         outline: none;
       }
 
       textarea#diy-input:focus {
-        border-color: var(--primary);
+        border-color: var(--blue);
       }
 
       .diy-actions {
@@ -156,164 +383,84 @@
       }
 
       .btn-cancel {
-        background: #e5e5ea;
-        color: #1d1d1f;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 12px;
-        font-weight: 600;
+        background: #F3F4F6;
+        color: var(--ink);
+        border: 2.5px solid var(--ink);
+        box-shadow: 2px 2px 0 var(--ink);
+        padding: 8px 18px;
+        border-radius: 10px;
+        font-family: inherit;
+        font-weight: 900;
         cursor: pointer;
       }
 
       .btn-save {
-        background: var(--primary);
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 12px;
-        font-weight: 600;
+        background: var(--mint);
+        color: var(--ink);
+        border: 2.5px solid var(--ink);
+        box-shadow: 2px 2px 0 var(--ink);
+        padding: 8px 18px;
+        border-radius: 10px;
+        font-family: inherit;
+        font-weight: 900;
         cursor: pointer;
       }
 
-      /* Main App Layout */
+      /* Main App Board (Fits 1180x820 & 1440x900 cleanly) */
       #app {
         display: flex;
-        flex-direction: column;
-        background: white;
+        flex-direction: row;
+        background: var(--white);
         width: 100%;
-        height: 100%;
-        max-width: 1024px;
-        max-height: 820px;
-        box-shadow: 0 0 40px rgba(0, 0, 0, 0.1);
+        max-width: 1120px;
+        flex: 1;
+        min-height: 0;
+        border: var(--border);
+        border-radius: 18px;
+        box-shadow: 6px 6px 0 var(--ink);
         overflow: hidden;
       }
 
-      /* Landscape Layout (iPad) */
-      @media (min-width: 768px) and (orientation: landscape) {
-        #app {
-          flex-direction: row;
-          border-radius: 16px;
-          height: 96dvh;
-          margin: 10px;
-          border: 1px solid #d1d1d6;
-        }
-
-        .sidebar {
-          width: 260px;
-          border-right: 1px solid #e5e5ea;
-          padding: 15px !important;
-        }
-
-        .game-area {
-          flex: 1;
-          padding: 10px !important;
-        }
-
-        .puzzle-zone {
-          justify-content: flex-end !important;
-          padding-bottom: 10px !important;
-        }
-
-        .word-slot {
-          font-size: 2.8rem !important;
-          margin: 5px 0 !important;
-          min-height: 50px !important;
-          letter-spacing: 5px !important;
-        }
-
-        #user-input-display {
-          font-size: 1.8rem !important;
-          min-height: 2.5rem !important;
-          padding: 2px 20px !important;
-          margin-bottom: 5px !important;
-        }
-
-        .btn-listen {
-          padding: 8px 20px !important;
-          font-size: 0.9rem !important;
-        }
-
-        .keyboard-base {
-          padding: 8px !important;
-          padding-bottom: 10px !important;
-          gap: 5px !important;
-        }
-
-        .key {
-          height: 48px !important;
-        }
-      }
-
-      /* Portrait/Mobile Layout */
-      @media (max-width: 767px), (orientation: portrait) {
-        #app {
-          height: 100dvh;
-          border-radius: 0;
-          margin: 0;
-        }
-
-        .sidebar {
-          padding: 15px;
-          border-bottom: 1px solid #e5e5ea;
-          flex: none;
-          height: auto;
-          max-height: 35vh;
-        }
-
-        .game-area {
-          flex: 1;
-        }
-
-        .app-title {
-          font-size: 1.2rem !important;
-          margin-bottom: 5px !important;
-        }
-
-        .keyboard-base {
-          padding: 5px !important;
-          padding-bottom: 20px !important;
-        }
-
-        .key {
-          height: 44px !important;
-          font-size: 1rem !important;
-        }
-
-        .word-slot {
-          font-size: 2.5rem;
-          margin: 10px 0;
-        }
-      }
-
       .sidebar {
-        background: #fafafc;
-        padding: 24px;
+        width: 300px;
+        flex-shrink: 0;
+        background: #FFFDF0;
+        border-right: var(--border);
+        padding: 14px;
         display: flex;
         flex-direction: column;
-        gap: 15px;
+        gap: 10px;
         overflow-y: auto;
       }
 
+      .app-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
       .app-title {
-        font-size: 1.5rem;
-        font-weight: 800;
-        color: #1d1d1f;
+        font-size: 1.35rem;
+        font-weight: 900;
+        color: var(--ink);
         margin: 0;
-        line-height: 1.2;
+        line-height: 1.15;
       }
 
       .app-subtitle {
-        font-size: 0.9rem;
-        color: #86868b;
-        font-weight: 500;
+        font-size: 0.8rem;
+        color: #4B5563;
+        font-weight: 800;
       }
 
-      /* Stats Block Upgrade (Timer + Score) */
+      /* Stats Block (Timer + Score) */
       .stats-block {
-        background: white;
-        padding: 12px;
+        background: var(--white);
+        padding: 10px 12px;
+        border: 2.5px solid var(--ink);
         border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        box-shadow: 3px 3px 0 var(--ink);
         display: flex;
         justify-content: space-around;
         align-items: center;
@@ -325,118 +472,157 @@
       }
 
       .stat-divider {
-        width: 1px;
-        height: 30px;
-        background: #e5e5ea;
+        width: 2px;
+        height: 32px;
+        background: #E5E7EB;
       }
 
       .score-num {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: var(--primary);
+        font-size: 1.6rem;
+        font-weight: 900;
+        color: #0284C7;
         line-height: 1;
       }
 
       .timer-num {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: #1d1d1f;
+        font-size: 1.6rem;
+        font-weight: 900;
+        color: var(--ink);
         font-feature-settings: "tnum";
         line-height: 1;
       }
 
       .score-label {
-        font-size: 0.7rem;
-        color: #86868b;
-        letter-spacing: 1px;
+        font-size: 0.68rem;
+        color: #6B7280;
+        font-weight: 900;
+        letter-spacing: 0.8px;
         text-transform: uppercase;
-        margin-bottom: 4px;
+        margin-bottom: 3px;
       }
 
-      /* Restart Button */
       .btn-restart {
-        position: absolute;
-        top: -5px;
-        right: -25px;
-        background: none;
-        border: none;
-        color: #86868b;
+        background: var(--yellow);
+        border: 2px solid var(--ink);
+        border-radius: 8px;
+        box-shadow: 2px 2px 0 var(--ink);
+        color: var(--ink);
         cursor: pointer;
-        font-size: 1.2rem;
-        opacity: 0.6;
-        transition: 0.2s;
-        padding: 5px;
+        font-size: 1rem;
+        font-weight: 900;
+        width: 34px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
       }
 
-      .btn-restart:hover {
-        opacity: 1;
-        transform: rotate(180deg);
-        color: var(--accent);
+      .btn-restart:active {
+        transform: translate(1px, 1px);
+        box-shadow: 1px 1px 0 var(--ink);
+      }
+
+      .passport-mini {
+        background: #FAF5FF;
+        border: 2px solid var(--ink);
+        border-radius: 10px;
+        padding: 7px 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 6px;
+        font-size: 0.76rem;
+        font-weight: 900;
+        color: #4C1D95;
+      }
+
+      .passport-mini.stamped {
+        background: #DCFCE7;
+        color: #14532D;
+      }
+
+      .btn-mini-stamp {
+        background: var(--yellow);
+        border: 2px solid var(--ink);
+        border-radius: 8px;
+        padding: 3px 8px;
+        font-family: inherit;
+        font-size: 0.72rem;
+        font-weight: 900;
+        color: var(--ink);
+        cursor: pointer;
       }
 
       .control-group h4 {
-        margin: 0 0 8px 0;
-        font-size: 0.75rem;
-        color: #86868b;
+        margin: 0 0 6px 0;
+        font-size: 0.72rem;
+        color: #4B5563;
+        font-weight: 900;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.6px;
       }
 
       .chips {
         display: flex;
         flex-wrap: wrap;
-        gap: 6px;
+        gap: 5px;
+      }
+
+      .chips-scroll {
+        max-height: 290px;
+        overflow-y: auto;
+        padding-right: 2px;
       }
 
       .chip {
-        padding: 6px 12px;
-        border: 1px solid #d1d1d6;
-        border-radius: 16px;
-        font-size: 0.8rem;
-        background: white;
+        padding: 5px 9px;
+        border: 2px solid var(--ink);
+        border-radius: 10px;
+        font-size: 0.76rem;
+        font-weight: 800;
+        background: var(--white);
         cursor: pointer;
-        transition: all 0.2s ease;
-        color: #1d1d1f;
+        color: var(--ink);
+        box-shadow: 2px 2px 0 var(--ink);
+        transition: transform 0.08s ease;
       }
 
       .chip:active {
-        transform: scale(0.96);
+        transform: translate(1px, 1px);
+        box-shadow: 1px 1px 0 var(--ink);
       }
 
       .chip.active {
-        background: var(--primary);
-        color: white;
-        border-color: var(--primary);
-        box-shadow: 0 2px 6px rgba(0, 122, 255, 0.3);
+        background: var(--yellow);
+        font-weight: 900;
       }
 
       .chip.random-mode {
-        border-color: var(--accent);
-        color: var(--accent);
+        background: #FFF1F2;
       }
 
       .chip.random-mode.active {
-        background: var(--accent);
-        color: white;
-        border-color: var(--accent);
+        background: var(--coral);
+        color: var(--white);
       }
 
       .chip.diy-mode {
-        border-color: var(--warning);
-        color: var(--warning);
+        background: #FFFBEB;
       }
 
       .chip.diy-mode.active {
         background: var(--warning);
-        color: white;
-        border-color: var(--warning);
+        color: var(--ink);
       }
 
+      /* Right Game Area */
       .game-area {
+        flex: 1;
+        min-width: 0;
         display: flex;
         flex-direction: column;
         position: relative;
-        background: #ffffff;
+        background: var(--white);
       }
 
       .puzzle-zone {
@@ -445,136 +631,141 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 20px;
-        transition: all 0.3s;
+        padding: 14px 20px 10px;
+        gap: 8px;
       }
 
       .word-slot {
-        font-family: "Menlo", "Courier New", monospace;
-        font-size: 3.5rem;
-        color: #1d1d1f;
-        margin: 20px 0;
-        letter-spacing: 8px;
-        min-height: 60px;
+        font-family: ui-monospace, "Menlo", "Courier New", monospace;
+        font-size: clamp(2.2rem, 4.5vw, 3.2rem);
+        font-weight: 900;
+        color: var(--ink);
+        letter-spacing: 7px;
+        min-height: 54px;
         text-align: center;
         line-height: 1.2;
       }
 
       .missing {
-        color: var(--primary);
+        color: #0284C7;
         display: inline-block;
         min-width: 0.5em;
         text-align: center;
       }
 
-      /* Action buttons container */
+      #user-input-display {
+        font-size: 1.9rem;
+        min-height: 2.9rem;
+        min-width: 240px;
+        text-align: center;
+        background: #FFFDF0;
+        border: 3px solid var(--ink);
+        border-radius: 12px;
+        box-shadow: 3px 3px 0 var(--ink);
+        padding: 4px 20px;
+        color: #0284C7;
+        font-weight: 900;
+        letter-spacing: 3px;
+      }
+
+      #feedback {
+        min-height: 24px;
+        font-size: 1rem;
+        font-weight: 900;
+      }
+
+      .btn-listen {
+        background: var(--teal);
+        color: var(--ink);
+        border: 3px solid var(--ink);
+        box-shadow: 3px 3px 0 var(--ink);
+        padding: 8px 22px;
+        border-radius: 999px;
+        font-family: inherit;
+        font-size: 0.98rem;
+        font-weight: 900;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 44px;
+      }
+
+      .btn-listen:active {
+        transform: translate(2px, 2px);
+        box-shadow: 1px 1px 0 var(--ink);
+      }
+
       .action-buttons {
         display: flex;
-        gap: 12px;
-        margin-top: 10px;
+        gap: 10px;
+        margin-top: 2px;
       }
 
       .btn-hint {
-        background: linear-gradient(135deg, #ffd60a 0%, #ff9500 100%);
-        color: white;
-        border: none;
-        padding: 10px 24px;
-        border-radius: 20px;
-        font-size: 1rem;
-        font-weight: 600;
+        background: var(--yellow);
+        color: var(--ink);
+        border: 2.5px solid var(--ink);
+        box-shadow: 3px 3px 0 var(--ink);
+        padding: 8px 18px;
+        border-radius: 999px;
+        font-family: inherit;
+        font-size: 0.92rem;
+        font-weight: 900;
         cursor: pointer;
-        display: flex;
+        display: inline-flex;
         align-items: center;
-        gap: 8px;
-        box-shadow: 0 4px 12px rgba(255, 149, 0, 0.3);
-        transition: all 0.2s ease;
-      }
-
-      .btn-hint:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(255, 149, 0, 0.4);
+        gap: 6px;
+        min-height: 42px;
       }
 
       .btn-hint:active {
-        transform: translateY(0);
-        background: linear-gradient(135deg, #e5c100 0%, #e58500 100%);
+        transform: translate(2px, 2px);
+        box-shadow: 1px 1px 0 var(--ink);
       }
 
       .btn-hint:disabled {
-        opacity: 0.5;
+        opacity: 0.45;
         cursor: not-allowed;
         transform: none;
       }
 
       .btn-skip {
-        background: linear-gradient(135deg, #8e8e93 0%, #636366 100%);
-        color: white;
-        border: none;
-        padding: 10px 24px;
-        border-radius: 20px;
-        font-size: 1rem;
-        font-weight: 600;
+        background: #F3F4F6;
+        color: var(--ink);
+        border: 2.5px solid var(--ink);
+        box-shadow: 3px 3px 0 var(--ink);
+        padding: 8px 18px;
+        border-radius: 999px;
+        font-family: inherit;
+        font-size: 0.92rem;
+        font-weight: 900;
         cursor: pointer;
-        display: flex;
+        display: inline-flex;
         align-items: center;
-        gap: 8px;
-        box-shadow: 0 4px 12px rgba(99, 99, 102, 0.3);
-        transition: all 0.2s ease;
-      }
-
-      .btn-skip:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(99, 99, 102, 0.4);
+        gap: 6px;
+        min-height: 42px;
       }
 
       .btn-skip:active {
-        transform: translateY(0);
-        background: linear-gradient(135deg, #7a7a7f 0%, #555558 100%);
+        transform: translate(2px, 2px);
+        box-shadow: 1px 1px 0 var(--ink);
       }
 
       .hint-counter {
-        font-size: 0.8rem;
-        opacity: 0.8;
+        font-size: 0.82rem;
+        opacity: 0.85;
       }
 
-      #user-input-display {
-        font-size: 2rem;
-        min-height: 3rem;
-        border-bottom: 2px solid #e5e5ea;
-        padding: 5px 20px;
-        color: var(--primary);
-        font-weight: 600;
-        margin-bottom: 10px;
-        letter-spacing: 2px;
-      }
-
-      .btn-listen {
-        background: #f2f2f7;
-        color: var(--primary);
-        border: none;
-        padding: 10px 24px;
-        border-radius: 20px;
-        font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .btn-listen:active {
-        background: #e5e5ea;
-      }
-
+      /* Neobrutalism Tactile QWERTY + Apostrophe Keyboard */
       .keyboard-base {
-        background: #d5d6da;
-        padding: 12px;
-        padding-bottom: 20px;
+        background: #EFF6FF;
+        padding: 10px 10px 12px;
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: 7px;
         width: 100%;
-        border-top: 1px solid #c7c7cc;
+        border-top: var(--border);
         flex-shrink: 0;
       }
 
@@ -583,113 +774,156 @@
         justify-content: center;
         gap: 6px;
         width: 100%;
-        max-width: 800px;
+        max-width: 780px;
         margin: 0 auto;
       }
 
-      .kb-row:nth-child(2) {
-        padding-left: 20px;
-      }
-
-      .kb-row:nth-child(3) {
-        padding-left: 0;
-      }
-
       .key {
-        background: #ffffff;
-        border-radius: 5px;
-        box-shadow: 0 1px 0 #888;
-        height: 50px;
-        width: 45px;
+        background: var(--white);
+        border: 2.5px solid var(--ink);
+        border-radius: 10px;
+        box-shadow: 2px 3px 0 var(--ink);
+        height: 48px;
         flex: 1;
-        max-width: 55px;
+        max-width: 58px;
         display: flex;
         justify-content: center;
         align-items: center;
-        font-family: -apple-system, sans-serif;
-        font-size: 1.2rem;
-        color: #000;
+        font-family: inherit;
+        font-size: 1.15rem;
+        font-weight: 900;
+        color: var(--ink);
         cursor: pointer;
         user-select: none;
-        transition: all 0.05s ease;
+        transition: transform 0.06s ease, box-shadow 0.06s ease;
         position: relative;
       }
 
+      .key:hover {
+        background: #FEF9C3;
+      }
+
       .key:active {
-        background: #d1d1d6;
-        transform: scale(0.92);
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        background: var(--yellow);
+        transform: translate(2px, 2px);
+        box-shadow: 0 0 0 var(--ink);
       }
 
       .key.special {
-        font-size: 0.9rem;
-        background: #eef0f2;
-        color: #333;
+        font-size: 0.88rem;
+        background: #E5E7EB;
+        color: var(--ink);
+      }
+
+      .key-apostrophe {
+        background: #F3E8FF;
+        font-size: 1.35rem;
       }
 
       .key-delete {
-        flex: 1.2;
-        max-width: 70px;
-        font-size: 1rem;
+        flex: 1.5;
+        max-width: 86px;
+        background: #FEE2E2;
+        font-size: 0.9rem;
       }
 
       .key-return {
-        flex: 1.5;
-        max-width: 80px;
-        background: var(--primary);
-        color: white;
-        border: none;
-        box-shadow: 0 1px 0 #0056b3;
-      }
-
-      .key-return:active {
-        background: #0051a8 !important;
-        transform: scale(0.92);
-      }
-
-      .key-shift {
-        flex: 1.2;
-        max-width: 70px;
-        align-items: flex-end;
-        padding-bottom: 12px;
-        padding-left: 8px;
-        justify-content: flex-start;
+        flex: 1.8;
+        max-width: 104px;
+        background: var(--mint);
+        color: var(--ink);
+        font-size: 0.95rem;
       }
 
       .key[data-char="f"]::after,
       .key[data-char="j"]::after {
         content: "";
         position: absolute;
-        bottom: 8px;
+        bottom: 6px;
         width: 12px;
-        height: 2px;
-        background: #e5e5ea;
-        border-radius: 1px;
+        height: 2.5px;
+        background: #9CA3AF;
+        border-radius: 2px;
+      }
+
+      /* Portrait/Mobile Layout */
+      @media (max-width: 820px) {
+        body {
+          padding: 8px;
+          overflow-y: auto;
+          height: auto;
+          min-height: 100dvh;
+        }
+
+        #app {
+          flex-direction: column;
+          overflow: visible;
+        }
+
+        .sidebar {
+          width: 100%;
+          border-right: none;
+          border-bottom: var(--border);
+          max-height: 280px;
+        }
+
+        .key {
+          height: 44px;
+          font-size: 1rem;
+        }
       }
     </style>
   </head>
 
   <body>
+    <!-- Top Nav Bar -->
+    <nav class="top-nav">
+      <div class="top-nav-left">
+        <a class="pyp-map-link" href="../index.html" aria-label="Back to PYP curriculum map">← PYP Map</a>
+        <span class="unit-pill">🐝 Grade 1 · Spelling Bee</span>
+      </div>
+      <div class="tts-dropdown-wrap" id="ttsDropdownWrap">
+        <button type="button" class="tts-trigger" id="ttsTrigger" aria-haspopup="menu" aria-expanded="false" title="Select Voice Accent">
+          <span class="tts-trigger-flag" id="ttsFlag">🇺🇸</span>
+          <span class="tts-trigger-label" id="ttsLabel">Voice</span>
+          <span class="tts-arrow">▾</span>
+        </button>
+        <div class="tts-menu" id="ttsMenu" role="menu">
+          <div class="tts-menu-header">Select Voice Accent</div>
+          <div class="tts-radio-group" id="ttsRadioList" role="radiogroup"></div>
+        </div>
+      </div>
+    </nav>
+
     <div id="start-overlay" class="overlay">
-      <h1 style="color: #1d1d1f; margin-bottom: 10px">Ready, Let's Play !</h1>
-      <p style="color: #86868b; margin-bottom: 30px">5 Minutes Challenge! ⏳</p>
-      <button class="btn-large" onclick="game.start()">▶ Play</button>
+      <div class="overlay-card">
+        <div style="font-size: 3rem; margin-bottom: 6px;">🐝✨</div>
+        <h1 style="color: var(--ink); margin: 0 0 8px; font-size: 1.85rem; font-weight: 900;">Ready, Let's Play!</h1>
+        <p style="color: #4B5563; margin: 0 0 22px; font-weight: 800;">5 Minutes Spelling Bee Challenge! ⏳</p>
+        <button type="button" class="btn-large" onclick="game.start()">▶ Play</button>
+      </div>
     </div>
 
     <div id="end-overlay" class="overlay">
-      <h1 style="color: #ff2d55; margin-bottom: 10px">Time's Up! ⏰</h1>
-      <p style="color: #1d1d1f; margin-bottom: 30px; font-size: 1.2rem">
-        Final Score: <span id="final-score" style="font-weight: bold">0</span>
-      </p>
-      <button class="btn-large" onclick="game.restartGame()">
-        🔄 Play Again
-      </button>
+      <div class="overlay-card">
+        <div style="font-size: 3rem; margin-bottom: 6px;">🏆🐝</div>
+        <h1 style="color: #DC2626; margin: 0 0 8px; font-size: 1.85rem; font-weight: 900;">Time's Up! ⏰</h1>
+        <p style="color: var(--ink); margin: 0 0 14px; font-size: 1.2rem; font-weight: 800;">
+          Final Score: <span id="final-score" style="font-weight: 900;">0</span>
+        </p>
+        <div id="end-passport-msg" style="display:none; background:#DCFCE7; border:2px solid #111; border-radius:10px; padding:8px 12px; font-size:0.86rem; font-weight:900; color:#14532D; margin-bottom:16px;">
+          ✅ Communicator Stamp Saved to Your IB PYP Passport!
+        </div>
+        <button type="button" class="btn-large" onclick="game.restartGame()">
+          🔄 Play Again
+        </button>
+      </div>
     </div>
 
     <div id="diy-overlay" class="overlay">
       <div class="diy-box">
         <div>
-          <h3 class="diy-title">Custom Word List</h3>
+          <h3 class="diy-title">✏️ Custom Word List</h3>
           <p class="diy-desc">Edit your words below (comma separated).</p>
         </div>
         <textarea
@@ -697,17 +931,28 @@
           placeholder="Example: apple, banana, computer, science"
         ></textarea>
         <div class="diy-actions">
-          <button class="btn-cancel" onclick="game.closeDIY()">Cancel</button>
-          <button class="btn-save" onclick="game.saveDIY()">Save & Play</button>
+          <button type="button" class="btn-cancel" onclick="game.closeDIY()">Cancel</button>
+          <button type="button" class="btn-save" onclick="game.saveDIY()">Save &amp; Play</button>
         </div>
       </div>
     </div>
 
     <div id="app">
       <div class="sidebar">
-        <div>
-          <h1 class="app-title">Spelling Bee</h1>
-          <div class="app-subtitle">for IB PYP G1</div>
+        <div class="app-header">
+          <div>
+            <h1 class="app-title">Spelling Bee</h1>
+            <div class="app-subtitle">IB PYP Grade 1</div>
+          </div>
+          <button
+            type="button"
+            class="btn-restart"
+            onclick="game.restartGame()"
+            title="Restart Game"
+            aria-label="Restart Game"
+          >
+            ↺
+          </button>
         </div>
 
         <div class="stats-block">
@@ -719,14 +964,12 @@
           <div class="stat-item">
             <div class="score-label">Score</div>
             <div class="score-num" id="score">0</div>
-            <button
-              class="btn-restart"
-              onclick="game.restartGame()"
-              title="Restart Game"
-            >
-              ↺
-            </button>
           </div>
+        </div>
+
+        <div class="passport-mini" id="passportMini">
+          <span id="passportMiniText">🏅 Communicator Stamp</span>
+          <button type="button" class="btn-mini-stamp" id="btnStampBee" onclick="game.stampPassport()">Stamp</button>
         </div>
 
         <div class="control-group">
@@ -736,29 +979,21 @@
 
         <div class="control-group">
           <h4>Word List</h4>
-          <div class="chips" id="cat-chips"></div>
-        </div>
-
-        <div class="control-group">
-          <h4>Accent</h4>
-          <div class="chips" id="accent-chips"></div>
+          <div class="chips chips-scroll" id="cat-chips"></div>
         </div>
       </div>
 
       <div class="game-area">
         <div class="puzzle-zone">
-          <button class="btn-listen" onclick="game.speak()">🔊 Listen</button>
+          <button type="button" class="btn-listen" onclick="game.speak()">🔊 Listen</button>
           <div class="word-slot" id="puzzle-display"></div>
           <div id="user-input-display"></div>
-          <div
-            id="feedback"
-            style="color: var(--success); height: 24px; font-weight: 600"
-          ></div>
+          <div id="feedback"></div>
           <div class="action-buttons">
-            <button class="btn-hint" id="btn-hint" onclick="game.showHint()">
+            <button type="button" class="btn-hint" id="btn-hint" onclick="game.showHint()">
               💡 Hint <span class="hint-counter" id="hint-counter">(3)</span>
             </button>
-            <button class="btn-skip" onclick="game.skipWord()">⏭️ Skip</button>
+            <button type="button" class="btn-skip" onclick="game.skipWord()">⏭️ Skip</button>
           </div>
         </div>
 
@@ -775,7 +1010,7 @@
             <div class="key" onclick="game.input('o')">O</div>
             <div class="key" onclick="game.input('p')">P</div>
             <div class="key special key-delete" onclick="game.input('BACK')">
-              delete
+              ⌫ del
             </div>
           </div>
           <div class="kb-row">
@@ -788,10 +1023,10 @@
             <div class="key" data-char="j" onclick="game.input('j')">J</div>
             <div class="key" onclick="game.input('k')">K</div>
             <div class="key" onclick="game.input('l')">L</div>
-            <div class="key key-return" onclick="game.check()">return</div>
+            <div class="key key-apostrophe" onclick="game.input('\'')" title="Apostrophe (for contractions like can't)">'</div>
+            <div class="key key-return" onclick="game.check()">✓ Enter</div>
           </div>
           <div class="kb-row">
-            <div class="key special key-shift">⇧</div>
             <div class="key" onclick="game.input('z')">Z</div>
             <div class="key" onclick="game.input('x')">X</div>
             <div class="key" onclick="game.input('c')">C</div>
@@ -799,9 +1034,6 @@
             <div class="key" onclick="game.input('b')">B</div>
             <div class="key" onclick="game.input('n')">N</div>
             <div class="key" onclick="game.input('m')">M</div>
-            <div class="key special key-shift" style="flex: 1.2; opacity: 0.5">
-              ⇧
-            </div>
           </div>
         </div>
       </div>
@@ -1549,7 +1781,7 @@
             "add",
             "count",
             "number",
-            "and (plus)",
+            "plus",
             "minus",
             "equal",
             "more",
@@ -1569,8 +1801,8 @@
             "slow",
             "happy",
             "sad",
-            "up (meaning above)",
-            "down (meaning below)",
+            "above",
+            "below",
           ],
         },
         "KG-Positional": {
@@ -1675,9 +1907,206 @@
 
       // };
 
+      const JOKE_VOICES =
+        /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|hysterical|pipe organ|trinoids|whisper|zarvox|fred|junior|kathy|ralph|wobble/i;
+
+      const TTS_MANAGER = {
+        currentVoiceName: "",
+        wrap: null,
+        trigger: null,
+        menu: null,
+        flag: null,
+        label: null,
+        list: null,
+
+        init() {
+          this.wrap = document.getElementById("ttsDropdownWrap");
+          this.trigger = document.getElementById("ttsTrigger");
+          this.menu = document.getElementById("ttsMenu");
+          this.flag = document.getElementById("ttsFlag");
+          this.label = document.getElementById("ttsLabel");
+          this.list = document.getElementById("ttsRadioList");
+          if (!this.trigger) return;
+
+          this.trigger.addEventListener("click", (e) => {
+            e.stopPropagation();
+            this.wrap.classList.toggle("open");
+            this.trigger.setAttribute(
+              "aria-expanded",
+              this.wrap.classList.contains("open"),
+            );
+          });
+
+          document.addEventListener("click", (e) => {
+            if (this.wrap && !this.wrap.contains(e.target)) {
+              this.wrap.classList.remove("open");
+              this.trigger.setAttribute("aria-expanded", "false");
+            }
+          });
+
+          document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && this.wrap) {
+              this.wrap.classList.remove("open");
+              this.trigger.setAttribute("aria-expanded", "false");
+            }
+          });
+
+          if (window.speechSynthesis) {
+            this.populateVoices();
+            if (window.speechSynthesis.onvoiceschanged !== undefined) {
+              window.speechSynthesis.onvoiceschanged = () =>
+                this.populateVoices();
+            }
+          }
+        },
+
+        populateVoices() {
+          if (!window.speechSynthesis || !this.list) return;
+          const voices = window.speechSynthesis.getVoices();
+          if (!voices || voices.length === 0) return;
+
+          let englishVoices = voices.filter((v) => {
+            const lang = (v.lang || "").toLowerCase().replace("_", "-");
+            return lang.startsWith("en") && !JOKE_VOICES.test(v.name);
+          });
+          if (englishVoices.length === 0) {
+            englishVoices = voices.filter((v) => !JOKE_VOICES.test(v.name));
+          }
+          if (englishVoices.length === 0) englishVoices = voices;
+
+          const PREFERRED = [
+            "samantha",
+            "daniel",
+            "google us english",
+            "google uk english female",
+            "karen",
+            "serena",
+            "oliver",
+            "ava",
+            "kate",
+          ];
+          englishVoices.sort((a, b) => {
+            const aIdx = PREFERRED.findIndex((p) =>
+              a.name.toLowerCase().includes(p),
+            );
+            const bIdx = PREFERRED.findIndex((p) =>
+              b.name.toLowerCase().includes(p),
+            );
+            const aRank = aIdx === -1 ? 999 : aIdx;
+            const bRank = bIdx === -1 ? 999 : bIdx;
+            if (aRank !== bRank) return aRank - bRank;
+            return a.name.localeCompare(b.name);
+          });
+
+          const saved = localStorage.getItem("ib_pyp_voice_name");
+          let selected = saved
+            ? englishVoices.find((v) => v.name === saved)
+            : null;
+          if (!selected) {
+            selected = englishVoices.find((v) => v.default) || englishVoices[0];
+          }
+          this.currentVoiceName = selected ? selected.name : "";
+          this.renderMenu(englishVoices);
+          this.updateTriggerUI(selected);
+        },
+
+        renderMenu(voices) {
+          this.list.innerHTML = "";
+          voices.slice(0, 15).forEach((v) => {
+            const lang = (v.lang || "").toLowerCase().replace("_", "-");
+            const isUK = lang.includes("gb");
+            const isAU = lang.includes("au");
+            const flag = isAU ? "🇦🇺" : isUK ? "🇬🇧" : "🇺🇸";
+            const region = isAU ? "AU" : isUK ? "UK" : "US";
+            const isActive = v.name === this.currentVoiceName;
+
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = `tts-radio-item ${isActive ? "active" : ""}`;
+            btn.setAttribute("role", "menuitemradio");
+            btn.setAttribute("aria-checked", isActive ? "true" : "false");
+            btn.innerHTML = `
+              <span class="tts-radio-circle"></span>
+              <span class="tts-item-flag">${flag}</span>
+              <span class="tts-item-name">${v.name} (${region})</span>
+            `;
+            btn.addEventListener("click", (e) => {
+              e.stopPropagation();
+              this.selectVoice(v);
+              this.wrap.classList.remove("open");
+              this.trigger.setAttribute("aria-expanded", "false");
+              if (game.gameActive) game.speak();
+            });
+            this.list.appendChild(btn);
+          });
+        },
+
+        selectVoice(v) {
+          this.currentVoiceName = v.name;
+          localStorage.setItem("ib_pyp_voice_name", v.name);
+          this.updateTriggerUI(v);
+          this.list.querySelectorAll(".tts-radio-item").forEach((btn) => {
+            const isMatch = btn
+              .querySelector(".tts-item-name")
+              .textContent.includes(v.name);
+            btn.classList.toggle("active", isMatch);
+            btn.setAttribute("aria-checked", isMatch ? "true" : "false");
+          });
+          if (window.speechSynthesis) window.speechSynthesis.cancel();
+        },
+
+        updateTriggerUI(v) {
+          if (!v) return;
+          const lang = (v.lang || "").toLowerCase().replace("_", "-");
+          const isUK = lang.includes("gb");
+          const isAU = lang.includes("au");
+          this.flag.textContent = isAU ? "🇦🇺" : isUK ? "🇬🇧" : "🇺🇸";
+          let shortName = v.name.replace(/^(Google|Microsoft|Apple)\s+/i, "");
+          if (shortName.length > 14)
+            shortName = shortName.substring(0, 12) + "...";
+          this.label.textContent = shortName;
+        },
+
+        getSelectedVoice() {
+          if (!window.speechSynthesis) return null;
+          const voices = window.speechSynthesis.getVoices();
+          const voiceName =
+            this.currentVoiceName || localStorage.getItem("ib_pyp_voice_name");
+          if (voiceName && voices && voices.length > 0) {
+            return voices.find((v) => v.name === voiceName) || null;
+          }
+          return null;
+        },
+      };
+
+      const PASSPORT_GAME_PATH = "literacy/g1_spelling_bee.html";
+      const PASSPORT_STAMPS = ["Communicator"];
+
+      function recordPypPassport(newStamps, gamePath) {
+        try {
+          const raw = localStorage.getItem("ib_pyp_passport");
+          const parsed = raw ? JSON.parse(raw) : {};
+          const stamps = Array.isArray(parsed.stamps) ? parsed.stamps : [];
+          const completed = Array.isArray(parsed.completed)
+            ? parsed.completed
+            : [];
+          newStamps.forEach((s) => {
+            if (!stamps.includes(s)) stamps.push(s);
+          });
+          if (gamePath && !completed.includes(gamePath))
+            completed.push(gamePath);
+          parsed.stamps = stamps;
+          parsed.completed = completed;
+          localStorage.setItem("ib_pyp_passport", JSON.stringify(parsed));
+          return parsed;
+        } catch (e) {
+          return null;
+        }
+      }
+
       const game = {
         difficulty: "easy",
-        category: "sight_words",
+        category: "G1-Dolch-A",
         accent: "en-US",
         customWords: [],
         currentWord: "",
@@ -1693,15 +2122,30 @@
         processingCorrectAnswer: false,
         audioCtx: null,
 
+        ensureAudioCtx() {
+          if (!this.audioCtx) {
+            const Ctx = window.AudioContext || window.webkitAudioContext;
+            if (Ctx) this.audioCtx = new Ctx();
+          }
+          if (this.audioCtx && this.audioCtx.state === "suspended") {
+            this.audioCtx.resume();
+          }
+          return this.audioCtx;
+        },
+
         init() {
+          TTS_MANAGER.init();
           const requestedSet = new URLSearchParams(window.location.search).get(
             "set",
           );
           if (requestedSet && data[requestedSet]) {
             this.category = requestedSet;
+          } else if (!data[this.category]) {
+            this.category = "G1-Dolch-A";
           }
 
           this.renderControls();
+          this.updatePassportUI();
 
           const savedDIY = localStorage.getItem("hilson_diy_words");
           if (savedDIY) {
@@ -1710,46 +2154,82 @@
 
           document.addEventListener("keydown", (e) => {
             if (!this.gameActive) return;
-            if (e.key === "Backspace") this.input("BACK");
-            else if (e.key === "Enter") this.check();
-            else if (/^[a-zA-Z]$/.test(e.key)) this.input(e.key);
+            const diyOverlay = document.getElementById("diy-overlay");
+            if (diyOverlay && diyOverlay.style.display === "flex") return;
+            if (e.key === "Backspace") {
+              e.preventDefault();
+              this.input("BACK");
+            } else if (e.key === "Enter") {
+              e.preventDefault();
+              this.check();
+            } else if (e.key === "'" || e.key === "’") {
+              e.preventDefault();
+              this.input("'");
+            } else if (/^[a-zA-Z]$/.test(e.key)) {
+              this.input(e.key);
+            }
           });
+        },
+
+        updatePassportUI() {
+          const box = document.getElementById("passportMini");
+          const txt = document.getElementById("passportMiniText");
+          const btn = document.getElementById("btnStampBee");
+          if (!box || !txt || !btn) return;
+          try {
+            const raw = localStorage.getItem("ib_pyp_passport");
+            const parsed = raw ? JSON.parse(raw) : null;
+            const done =
+              parsed &&
+              Array.isArray(parsed.completed) &&
+              parsed.completed.includes(PASSPORT_GAME_PATH);
+            if (done) {
+              box.classList.add("stamped");
+              txt.textContent = "✅ Communicator Stamped";
+              btn.textContent = "Saved";
+            }
+          } catch (e) {}
+        },
+
+        stampPassport() {
+          this.audioAllowed = true;
+          this.ensureAudioCtx();
+          this.playFanfare();
+          recordPypPassport(PASSPORT_STAMPS, PASSPORT_GAME_PATH);
+          this.updatePassportUI();
         },
 
         start() {
           this.audioAllowed = true;
           this.gameActive = true;
-          // 初始化音频上下文
-          this.audioCtx = new (
-            window.AudioContext || window.webkitAudioContext
-          )();
+          this.ensureAudioCtx();
 
           document.getElementById("start-overlay").style.display = "none";
-          const u = new SpeechSynthesisUtterance("");
-          window.speechSynthesis.speak(u);
+          if (window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+          }
           this.startTimer();
           this.nextWord();
         },
 
-        // 重启游戏：重置时间、分数、单词
+        // Restart game: reset time, score, hints, and word
         restartGame() {
           document.getElementById("end-overlay").style.display = "none";
 
-          // 核心逻辑：
-          this.timeLeft = 300; // 重置时间
-          this.score = 0; // 重置分数
-          this.hintsRemaining = 3; // 重置提示次数
+          this.timeLeft = 300;
+          this.score = 0;
+          this.hintsRemaining = 3;
           document.getElementById("score").innerText = this.score;
           this.updateHintUI();
           this.processingCorrectAnswer = false;
 
-          this.gameActive = true; // 激活游戏状态
-          this.startTimer(); // 重启计时器
-          this.nextWord(); // 出新题
+          this.gameActive = true;
+          this.startTimer();
+          this.nextWord();
         },
 
         startTimer() {
-          clearInterval(this.timerInterval); // 防止多重计时器
+          clearInterval(this.timerInterval);
           this.updateTimerUI();
 
           this.timerInterval = setInterval(() => {
@@ -1770,14 +2250,23 @@
           const timerEl = document.getElementById("timer");
           timerEl.innerText = `${m}:${s}`;
 
-          if (this.timeLeft <= 30) timerEl.style.color = "var(--accent)";
-          else timerEl.style.color = "#1D1D1F";
+          if (this.timeLeft <= 30) timerEl.style.color = "#DC2626";
+          else timerEl.style.color = "#111111";
         },
 
         endGame() {
           clearInterval(this.timerInterval);
           this.gameActive = false;
           document.getElementById("final-score").innerText = this.score;
+          const passportMsg = document.getElementById("end-passport-msg");
+          if (this.score > 0) {
+            this.playFanfare();
+            recordPypPassport(PASSPORT_STAMPS, PASSPORT_GAME_PATH);
+            this.updatePassportUI();
+            if (passportMsg) passportMsg.style.display = "block";
+          } else if (passportMsg) {
+            passportMsg.style.display = "none";
+          }
           document.getElementById("end-overlay").style.display = "flex";
         },
 
@@ -1814,20 +2303,6 @@
           diy.innerText = "✏️ DIY";
           diy.onclick = () => this.openDIYModal();
           catBox.appendChild(diy);
-
-          const accentBox = document.getElementById("accent-chips");
-          accentBox.innerHTML = "";
-          const accents = [
-            { id: "en-US", label: "🇺🇸 US" },
-            { id: "en-GB", label: "🇬🇧 UK" },
-          ];
-          accents.forEach((acc) => {
-            const btn = document.createElement("div");
-            btn.className = `chip ${this.accent === acc.id ? "active" : ""}`;
-            btn.innerText = acc.label;
-            btn.onclick = () => this.setAccent(acc.id);
-            accentBox.appendChild(btn);
-          });
         },
 
         setDifficulty(level) {
@@ -1840,12 +2315,6 @@
           this.category = cat;
           this.renderControls();
           if (this.gameActive) this.nextWord();
-        },
-
-        setAccent(lang) {
-          this.accent = lang;
-          this.renderControls();
-          if (this.gameActive) this.speak();
         },
 
         openDIYModal() {
@@ -1897,7 +2366,11 @@
           } else if (this.category === "diy") {
             return this.customWords;
           } else {
-            return data[this.category].words;
+            const entry =
+              data[this.category] ||
+              data["G1-Dolch-A"] ||
+              Object.values(data)[0];
+            return entry ? entry.words : [];
           }
         },
 
@@ -1908,7 +2381,12 @@
             return;
           }
 
-          this.currentWord = list[Math.floor(Math.random() * list.length)];
+          // Prevent back-to-back duplicate words
+          const pool =
+            list.length > 1
+              ? list.filter((w) => w !== this.currentWord)
+              : list;
+          this.currentWord = pool[Math.floor(Math.random() * pool.length)];
           this.userText = "";
           this.updateInputUI();
 
@@ -1946,37 +2424,99 @@
         },
 
         speak() {
-          if (!this.audioAllowed) return;
+          if (!this.audioAllowed || !window.speechSynthesis || !this.currentWord)
+            return;
+          window.speechSynthesis.cancel();
           const u = new SpeechSynthesisUtterance(this.currentWord);
-          u.lang = this.accent;
-          u.rate = 0.75;
+          const voice = TTS_MANAGER.getSelectedVoice();
+          if (voice) {
+            u.voice = voice;
+            u.lang = voice.lang;
+          } else {
+            u.lang = this.accent;
+          }
+          u.rate = 0.78;
           window.speechSynthesis.speak(u);
         },
 
         playKeySound() {
-          if (!this.audioAllowed || !this.audioCtx) return;
-          if (this.audioCtx.state === "suspended") this.audioCtx.resume();
+          if (!this.audioAllowed) return;
+          const ctx = this.ensureAudioCtx();
+          if (!ctx) return;
 
-          const osc = this.audioCtx.createOscillator();
-          const gain = this.audioCtx.createGain();
-
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
           osc.type = "sine";
-          osc.frequency.setValueAtTime(150, this.audioCtx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(
-            0.01,
-            this.audioCtx.currentTime + 0.1,
-          );
-
-          gain.gain.setValueAtTime(0.1, this.audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(
-            0.01,
-            this.audioCtx.currentTime + 0.1,
-          );
-
+          osc.frequency.setValueAtTime(240, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + 0.06);
+          gain.gain.setValueAtTime(0.09, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.06);
           osc.connect(gain);
-          gain.connect(this.audioCtx.destination);
+          gain.connect(ctx.destination);
           osc.start();
-          osc.stop(this.audioCtx.currentTime + 0.1);
+          osc.stop(ctx.currentTime + 0.07);
+        },
+
+        playSuccessChime() {
+          if (!this.audioAllowed) return;
+          const ctx = this.ensureAudioCtx();
+          if (!ctx) return;
+          const now = ctx.currentTime;
+          [523.25, 659.25, 783.99, 1046.5].forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = "triangle";
+            osc.frequency.setValueAtTime(freq, now + idx * 0.07);
+            gain.gain.setValueAtTime(0.18, now + idx * 0.07);
+            gain.gain.exponentialRampToValueAtTime(
+              0.001,
+              now + idx * 0.07 + 0.3,
+            );
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + idx * 0.07);
+            osc.stop(now + idx * 0.07 + 0.32);
+          });
+        },
+
+        playErrorBuzz() {
+          if (!this.audioAllowed) return;
+          const ctx = this.ensureAudioCtx();
+          if (!ctx) return;
+          const now = ctx.currentTime;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(185, now);
+          osc.frequency.linearRampToValueAtTime(125, now + 0.22);
+          gain.gain.setValueAtTime(0.16, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        },
+
+        playFanfare() {
+          if (!this.audioAllowed) return;
+          const ctx = this.ensureAudioCtx();
+          if (!ctx) return;
+          const now = ctx.currentTime;
+          [523.25, 659.25, 783.99, 1046.5, 1318.51].forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(freq, now + idx * 0.09);
+            gain.gain.setValueAtTime(0.2, now + idx * 0.09);
+            gain.gain.exponentialRampToValueAtTime(
+              0.001,
+              now + idx * 0.09 + 0.42,
+            );
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + idx * 0.09);
+            osc.stop(now + idx * 0.09 + 0.45);
+          });
         },
 
         input(char) {
@@ -1985,7 +2525,7 @@
           if (char === "BACK") {
             this.userText = this.userText.slice(0, -1);
           } else {
-            if (this.userText.length < 15) this.userText += char.toLowerCase();
+            if (this.userText.length < 18) this.userText += char.toLowerCase();
           }
           this.updateInputUI();
         },
@@ -1999,20 +2539,25 @@
           if (!this.gameActive) return;
           if (this.processingCorrectAnswer) return;
           if (!this.userText) return;
-          this.playKeySound();
           const feedback = document.getElementById("feedback");
           if (this.userText.toLowerCase() === this.currentWord.toLowerCase()) {
             this.processingCorrectAnswer = true;
             this.score += 10;
             document.getElementById("score").innerText = this.score;
-            feedback.style.color = "var(--success)";
+            this.playSuccessChime();
+            feedback.style.color = "#15803D";
             feedback.innerText = "Correct! 🎉";
+            if (this.score >= 50) {
+              recordPypPassport(PASSPORT_STAMPS, PASSPORT_GAME_PATH);
+              this.updatePassportUI();
+            }
             setTimeout(() => {
               this.nextWord();
               this.processingCorrectAnswer = false;
-            }, 1200);
+            }, 1100);
           } else {
-            feedback.style.color = "#FF2D55";
+            this.playErrorBuzz();
+            feedback.style.color = "#DC2626";
             feedback.innerText = "Try again!";
             this.shake();
           }
@@ -2025,43 +2570,36 @@
           setTimeout(() => (el.style.transform = "translateX(0)"), 100);
         },
 
-        // 提示功能：显示一个缺失的字母
         showHint() {
           if (!this.gameActive || this.hintsRemaining <= 0) return;
 
-          // 找出还没被揭示的缺失字母
           const unrevealed = this.missingIndices.filter(
             (i) => !this.revealedIndices.includes(i),
           );
           if (unrevealed.length === 0) return;
 
-          // 随机选择一个字母揭示
           const randomIndex =
             unrevealed[Math.floor(Math.random() * unrevealed.length)];
           this.revealedIndices.push(randomIndex);
 
-          // 更新UI显示揭示的字母
           const missingSpans = document.querySelectorAll(".missing");
           missingSpans.forEach((span) => {
             const idx = parseInt(span.getAttribute("data-index"));
             if (idx === randomIndex) {
               span.innerHTML = this.currentWord[idx];
-              span.style.color = "var(--warning)";
+              span.style.color = "#D97706";
               span.style.animation = "pulse 0.5s ease";
             }
           });
 
-          // 减少提示次数
           this.hintsRemaining--;
           this.updateHintUI();
 
-          // 扣分惩罚（可选）
           if (this.score > 0) {
             this.score = Math.max(0, this.score - 2);
             document.getElementById("score").innerText = this.score;
           }
 
-          // 播放提示音效
           this.playHintSound();
         },
 
@@ -2073,50 +2611,38 @@
         },
 
         playHintSound() {
-          if (!this.audioAllowed || !this.audioCtx) return;
-          if (this.audioCtx.state === "suspended") this.audioCtx.resume();
+          if (!this.audioAllowed) return;
+          const ctx = this.ensureAudioCtx();
+          if (!ctx) return;
 
-          const osc = this.audioCtx.createOscillator();
-          const gain = this.audioCtx.createGain();
-
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
           osc.type = "triangle";
-          osc.frequency.setValueAtTime(800, this.audioCtx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(
-            1200,
-            this.audioCtx.currentTime + 0.1,
-          );
-
-          gain.gain.setValueAtTime(0.15, this.audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(
-            0.01,
-            this.audioCtx.currentTime + 0.2,
-          );
-
+          osc.frequency.setValueAtTime(800, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.1);
+          gain.gain.setValueAtTime(0.15, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
           osc.connect(gain);
-          gain.connect(this.audioCtx.destination);
+          gain.connect(ctx.destination);
           osc.start();
-          osc.stop(this.audioCtx.currentTime + 0.2);
+          osc.stop(ctx.currentTime + 0.2);
         },
 
-        // 跳过当前单词
         skipWord() {
           if (!this.gameActive) return;
           if (this.processingCorrectAnswer) return;
 
           const feedback = document.getElementById("feedback");
-          feedback.style.color = "var(--warning)";
+          feedback.style.color = "#D97706";
           feedback.innerText = `Skipped! Answer: ${this.currentWord}`;
 
-          // 扣分惩罚
           if (this.score > 0) {
             this.score = Math.max(0, this.score - 5);
             document.getElementById("score").innerText = this.score;
           }
 
-          // 播放跳过音效
           this.playSkipSound();
 
-          // 延迟后显示下一个单词
           this.processingCorrectAnswer = true;
           setTimeout(() => {
             this.nextWord();
@@ -2125,73 +2651,25 @@
         },
 
         playSkipSound() {
-          if (!this.audioAllowed || !this.audioCtx) return;
-          if (this.audioCtx.state === "suspended") this.audioCtx.resume();
+          if (!this.audioAllowed) return;
+          const ctx = this.ensureAudioCtx();
+          if (!ctx) return;
 
-          const osc = this.audioCtx.createOscillator();
-          const gain = this.audioCtx.createGain();
-
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
           osc.type = "sawtooth";
-          osc.frequency.setValueAtTime(400, this.audioCtx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(
-            200,
-            this.audioCtx.currentTime + 0.15,
-          );
-
-          gain.gain.setValueAtTime(0.1, this.audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(
-            0.01,
-            this.audioCtx.currentTime + 0.15,
-          );
-
+          osc.frequency.setValueAtTime(400, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.15);
+          gain.gain.setValueAtTime(0.1, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
           osc.connect(gain);
-          gain.connect(this.audioCtx.destination);
+          gain.connect(ctx.destination);
           osc.start();
-          osc.stop(this.audioCtx.currentTime + 0.15);
+          osc.stop(ctx.currentTime + 0.15);
         },
       };
 
       window.onload = () => game.init();
     </script>
-
-    <a
-      class="pyp-map-link"
-      href="../index.html"
-      aria-label="Back to PYP curriculum map"
-      >PYP Map</a
-    >
-    <style>
-      .pyp-map-link {
-        position: fixed;
-        top: 12px;
-        right: 12px;
-        z-index: 9999;
-        min-height: 44px;
-        display: inline-flex;
-        align-items: center;
-        border: 2px solid #17211f;
-        border-radius: 8px;
-        padding: 8px 12px;
-        background: #fffaf0;
-        color: #17211f;
-        text-decoration: none;
-        font:
-          900 14px/1 ui-rounded,
-          "Avenir Next",
-          "Segoe UI",
-          sans-serif;
-        box-shadow: 3px 3px 0 #17211f;
-        letter-spacing: 0;
-      }
-      .pyp-map-link:focus-visible {
-        outline: 3px solid #f2b84b;
-        outline-offset: 2px;
-      }
-      @media print {
-        .pyp-map-link {
-          display: none;
-        }
-      }
-    </style>
   </body>
 </html>

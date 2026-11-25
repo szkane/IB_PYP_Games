@@ -1,156 +1,113 @@
 /**
- * WordQuest - Voice Control Module
- *
- * Wires up the in-game voice/accent switcher UI.
- * Populates the voice dropdown, wires accent buttons, and restores
- * the saved preference. Also provides showVoiceControl() to toggle
- * visibility of the switcher vs the PYP Map link.
+ * WordQuest - Standard IB PYP Neobrutalism Voice Control Module
+ * Syncs with localStorage['ib_pyp_voice_name'] and stays visible in the unified top nav bar.
  */
 
-import { speech } from './audio.js';
+import { speech, sfx } from './audio.js';
 
-/**
- * Initialize the voice switcher UI.
- * Populates the voice dropdown, wires accent buttons, restores saved preference.
- * Called once on DOMContentLoaded.
- */
 export function initVoiceControl() {
-  const switcher = document.getElementById('voice-switcher');
-  if (!switcher) return;
+  const wrap = document.getElementById('ttsDropdownWrap');
+  const trigger = document.getElementById('ttsTrigger');
+  const flagEl = document.getElementById('ttsFlag');
+  const labelEl = document.getElementById('ttsLabel');
+  const listEl = document.getElementById('ttsRadioList');
+  if (!wrap || !trigger || !listEl) return;
 
-  const select = switcher.querySelector('.voice-select');
-  const accentBtns = switcher.querySelectorAll('.accent-btn');
-  if (!select || !accentBtns.length) return;
+  function updateTriggerUI(v) {
+    if (!v) {
+      if (flagEl) flagEl.textContent = '🌐';
+      if (labelEl) labelEl.textContent = 'Voice';
+      return;
+    }
+    const lang = (v.lang || '').toLowerCase().replace('_', '-');
+    if (flagEl) {
+      flagEl.textContent = lang.includes('au') ? '🇦🇺' : lang.includes('gb') ? '🇬🇧' : (lang.includes('us') || lang.startsWith('en')) ? '🇺🇸' : '🌐';
+    }
+    let shortName = (v.name || 'Voice').replace(/^(Google|Microsoft|Apple)\s+/i, '');
+    if (shortName.length > 14) shortName = shortName.substring(0, 12) + '...';
+    if (labelEl) labelEl.textContent = shortName;
+  }
 
-  /** Populate the <select> with available English voices, grouped by accent. */
   function populateVoices() {
     const voices = speech.getVoices();
-    select.innerHTML = '';
+    if (!voices.length) return;
+    speech.restorePreference();
+    const selected = speech.getSelectedVoice();
+    const currentName = selected ? selected.name : '';
 
-    // Default option
-    const defOpt = document.createElement('option');
-    defOpt.value = '';
-    defOpt.textContent = 'Default';
-    select.appendChild(defOpt);
+    listEl.innerHTML = '';
+    voices.slice(0, 15).forEach(v => {
+      const lang = (v.lang || '').toLowerCase().replace('_', '-');
+      const flag = lang.includes('au') ? '🇦🇺' : lang.includes('gb') ? '🇬🇧' : (lang.includes('us') || lang.startsWith('en')) ? '🇺🇸' : '🌐';
+      const region = lang.includes('au') ? 'AU' : lang.includes('gb') ? 'UK' : (lang.includes('us') || lang.startsWith('en')) ? 'US' : (v.lang || 'System');
+      const isActive = v.name === currentName;
 
-    // Group: American English
-    const usVoices = voices.filter(v => v.lang.startsWith('en-US'));
-    if (usVoices.length) {
-      const grp = document.createElement('optgroup');
-      grp.label = '\uD83C\uDDFA\uD83C\uDDF8 American';
-      for (const v of usVoices) {
-        const opt = document.createElement('option');
-        opt.value = v.voiceURI;
-        opt.textContent = v.name;
-        grp.appendChild(opt);
-      }
-      select.appendChild(grp);
-    }
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = `tts-radio-item${isActive ? ' active' : ''}`;
+      btn.setAttribute('role', 'menuitemradio');
+      btn.setAttribute('aria-checked', String(isActive));
 
-    // Group: British English
-    const ukVoices = voices.filter(v => v.lang.startsWith('en-GB'));
-    if (ukVoices.length) {
-      const grp = document.createElement('optgroup');
-      grp.label = '\uD83C\uDDEC\uD83C\uDDE7 British';
-      for (const v of ukVoices) {
-        const opt = document.createElement('option');
-        opt.value = v.voiceURI;
-        opt.textContent = v.name;
-        grp.appendChild(opt);
-      }
-      select.appendChild(grp);
-    }
+      const circle = document.createElement('span');
+      circle.className = 'tts-radio-circle';
+      const flagSpan = document.createElement('span');
+      flagSpan.className = 'tts-item-flag';
+      flagSpan.textContent = flag;
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'tts-item-name';
+      nameSpan.textContent = `${v.name} (${region})`;
+      btn.append(circle, flagSpan, nameSpan);
 
-    // Group: Other English
-    const otherVoices = voices.filter(v =>
-      !v.lang.startsWith('en-US') && !v.lang.startsWith('en-GB'));
-    if (otherVoices.length) {
-      const grp = document.createElement('optgroup');
-      grp.label = 'Other English';
-      for (const v of otherVoices) {
-        const opt = document.createElement('option');
-        opt.value = v.voiceURI;
-        opt.textContent = `${v.name} (${v.lang})`;
-        grp.appendChild(opt);
-      }
-      select.appendChild(grp);
-    }
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        sfx.click();
+        speech.setVoiceByName(v.name);
+        updateTriggerUI(v);
+        listEl.querySelectorAll('.tts-radio-item').forEach(b => {
+          const active = b === btn;
+          b.classList.toggle('active', active);
+          b.setAttribute('aria-checked', String(active));
+        });
+        wrap.classList.remove('open');
+        trigger.setAttribute('aria-expanded', 'false');
+        speech.speak('Hello! Let us explore words together!');
+      });
 
-    // Sync select value with current speech preference
-    // (after restorePreference has run)
-    syncSelectValue();
-  }
-
-  /** Sync the <select> value to match speech._selectedVoice */
-  function syncSelectValue() {
-    // We can't directly read _selectedVoice.voiceURI, so we check localStorage
-    try {
-      const saved = localStorage.getItem('wq_voice');
-      if (saved) select.value = saved;
-      else select.value = '';
-    } catch (e) {
-      select.value = '';
-    }
-  }
-
-  /** Update active state on accent buttons */
-  function syncAccentButtons() {
-    let currentAccent = 'default';
-    try {
-      currentAccent = localStorage.getItem('wq_accent') || 'default';
-    } catch (e) { /* non-critical */ }
-    accentBtns.forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.accent === currentAccent);
+      listEl.appendChild(btn);
     });
+
+    updateTriggerUI(selected);
   }
 
-  // Accent button click
-  accentBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const accent = btn.dataset.accent;
-      speech.setAccent(accent);
-      // Clear voice-specific selection when switching accent
-      try { localStorage.removeItem('wq_voice'); } catch (e) {}
-      syncAccentButtons();
-      select.value = '';
-      // Preview: speak a sample word
-      try { speech.speak('hello'); } catch (e) { /* non-critical */ }
-    });
+  trigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    sfx.click();
+    wrap.classList.toggle('open');
+    trigger.setAttribute('aria-expanded', String(wrap.classList.contains('open')));
   });
 
-  // Voice select change
-  select.addEventListener('change', () => {
-    const voiceURI = select.value;
-    if (voiceURI) {
-      speech.setVoice(voiceURI);
-      // Clear accent when specific voice is chosen
-      try { localStorage.removeItem('wq_accent'); } catch (e) {}
-      syncAccentButtons();
-    } else {
-      speech.setAccent('default');
-      syncAccentButtons();
+  document.addEventListener('click', (e) => {
+    if (!wrap.contains(e.target)) {
+      wrap.classList.remove('open');
+      trigger.setAttribute('aria-expanded', 'false');
     }
-    // Preview
-    try { speech.speak('hello'); } catch (e) { /* non-critical */ }
   });
 
-  // Listen for async voice loading (Chrome)
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      wrap.classList.remove('open');
+      trigger.setAttribute('aria-expanded', 'false');
+    }
+  });
+
   if (typeof speechSynthesis !== 'undefined') {
     speechSynthesis.addEventListener('voiceschanged', populateVoices);
   }
-
-  // Initial population (voices may already be available in Safari)
   populateVoices();
-  syncAccentButtons();
 }
 
 /**
- * Toggle visibility of the voice switcher and PYP Map link.
- * @param {boolean} show - true = show voice switcher (hide PYP Map); false = reverse
+ * Retained as a safe no-op export for API compatibility; both PYP Map and Voice Dropdown
+ * remain permanently visible in the unified top nav bar without ever overlapping.
  */
-export function showVoiceControl(show) {
-  const switcher = document.getElementById('voice-switcher');
-  const mapLink = document.querySelector('.pyp-map-link');
-  if (switcher) switcher.style.display = show ? '' : 'none';
-  if (mapLink) mapLink.style.display = show ? 'none' : '';
-}
+export function showVoiceControl() {}

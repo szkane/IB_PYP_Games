@@ -14,6 +14,7 @@
       --teal: #4ECDC4;
       --blue: #38B6FF;
       --purple: #B388FF;
+      --mint: #86EFAC;
       --white: #FFFFFF;
       --border: 3.5px solid var(--ink);
       --shadow: 4px 4px 0 var(--ink);
@@ -27,6 +28,11 @@
       padding: 0;
     }
 
+    html {
+      -webkit-tap-highlight-color: transparent;
+      -webkit-text-size-adjust: 100%;
+    }
+
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: var(--bg);
@@ -35,8 +41,9 @@
         radial-gradient(circle at 88% 82%, rgba(56, 182, 255, 0.12) 0%, transparent 28%),
         radial-gradient(circle at 50% 50%, rgba(255, 225, 86, 0.08) 0%, transparent 50%);
       color: var(--ink);
-      min-height: 100vh; min-height: 100dvh;
-      padding: 14px 16px 36px;
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding: 12px 16px 28px;
     }
 
     .container {
@@ -49,8 +56,15 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 14px;
+      gap: 10px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
       flex-wrap: wrap;
     }
 
@@ -61,11 +75,11 @@
       color: var(--ink);
       text-decoration: none;
       font-weight: 900;
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       border: var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 8px 16px;
+      padding: 7px 14px;
       min-height: 44px;
       cursor: pointer;
       transition: transform 0.1s ease;
@@ -82,12 +96,35 @@
       border: var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 8px 14px;
+      padding: 7px 12px;
       font-weight: 800;
-      font-size: 0.88rem;
+      font-size: 0.86rem;
       min-height: 44px;
       display: inline-flex;
       align-items: center;
+    }
+
+    .btn-reflect-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 44px;
+      padding: 7px 13px;
+      border: var(--border);
+      border-radius: var(--radius);
+      background: #E9D5FF;
+      color: var(--ink);
+      font-family: inherit;
+      font-weight: 900;
+      font-size: 0.86rem;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: transform 0.1s ease;
+    }
+
+    .btn-reflect-pill:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-sm);
     }
 
     /* Compact Header Card */
@@ -96,23 +133,23 @@
       border: var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 14px 18px;
-      margin-bottom: 16px;
+      padding: 12px 16px;
+      margin-bottom: 14px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 16px;
+      gap: 14px;
       flex-wrap: wrap;
     }
 
     .hero-left h1 {
-      font-size: clamp(1.25rem, 2.8vw, 1.65rem);
+      font-size: clamp(1.2rem, 2.6vw, 1.55rem);
       font-weight: 900;
       margin-bottom: 2px;
     }
 
     .hero-left p {
-      font-size: 0.88rem;
+      font-size: 0.86rem;
       font-weight: 700;
       color: #4B5563;
     }
@@ -136,12 +173,12 @@
       background: var(--yellow);
     }
 
-    /* Main Grid: Interactive Sound Wave Rig + Mission Card */
+    /* Main Grid */
     .lab-grid {
       display: grid;
-      grid-template-columns: 1fr 1.15fr;
-      gap: 16px;
-      margin-bottom: 18px;
+      grid-template-columns: 1fr 1.18fr;
+      gap: 14px;
+      margin-bottom: 14px;
     }
 
     .card {
@@ -149,19 +186,19 @@
       border: var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 16px 18px;
+      padding: 14px 16px;
     }
 
     .card-title {
-      font-size: 1.1rem;
+      font-size: 1.06rem;
       font-weight: 900;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       display: flex;
       align-items: center;
       gap: 8px;
     }
 
-    /* Sound Synthesizer Visualizer Stage */
+    /* Oscilloscope Visualizer */
     .osc-stage {
       background: #111827;
       border: 3px solid var(--ink);
@@ -170,31 +207,42 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
       position: relative;
+    }
+
+    .osc-stage.playing {
+      box-shadow: 0 0 0 3px #FFE156;
     }
 
     .wave-svg {
       width: 100%;
-      height: 110px;
+      height: 112px;
       display: block;
     }
 
     .osc-indicator {
       display: flex;
       justify-content: space-between;
+      gap: 8px;
       width: 100%;
       color: #E5E7EB;
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       font-weight: 800;
       margin-top: 8px;
       font-family: monospace;
+      flex-wrap: wrap;
     }
 
     .osc-indicator span {
-      background: rgba(255, 255, 255, 0.12);
-      padding: 3px 8px;
+      background: rgba(255, 255, 255, 0.14);
+      padding: 4px 8px;
       border-radius: 6px;
+    }
+
+    .osc-indicator span.verified {
+      background: rgba(134, 239, 172, 0.24);
+      color: #86EFAC;
     }
 
     /* Audio Play Button */
@@ -205,10 +253,10 @@
       color: var(--white);
       border: var(--border);
       border-radius: 10px;
-      font-size: 1.05rem;
+      font-size: 1.04rem;
       font-weight: 900;
-      padding: 12px 18px;
-      min-height: 52px;
+      padding: 10px 18px;
+      min-height: 50px;
       cursor: pointer;
       box-shadow: var(--shadow);
       display: inline-flex;
@@ -228,8 +276,8 @@
       background: #FFF9D2;
       border: 2.5px solid var(--ink);
       border-radius: 10px;
-      padding: 12px 14px;
-      margin-bottom: 14px;
+      padding: 10px 14px;
+      margin-bottom: 12px;
     }
 
     .scenario-badge {
@@ -241,30 +289,29 @@
       font-weight: 900;
       font-size: 0.75rem;
       text-transform: uppercase;
-      margin-bottom: 6px;
       border: 1.5px solid var(--ink);
     }
 
     .scenario-title {
-      font-size: 1.15rem;
+      font-size: 1.12rem;
       font-weight: 900;
-      margin-bottom: 4px;
+      margin-bottom: 3px;
     }
 
     .scenario-desc {
-      font-size: 0.92rem;
+      font-size: 0.9rem;
       font-weight: 700;
       color: #374151;
-      line-height: 1.35;
+      line-height: 1.32;
     }
 
     /* Attribute Selection Controls */
     .property-section {
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
     .property-label {
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       font-weight: 900;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -272,7 +319,8 @@
       display: block;
     }
 
-    .btn-group {
+    .btn-group,
+    .purpose-group {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
@@ -284,10 +332,10 @@
       color: var(--ink);
       border: 2.5px solid var(--ink);
       border-radius: 8px;
-      padding: 10px;
-      font-size: 0.92rem;
+      padding: 8px 10px;
+      font-size: 0.88rem;
       font-weight: 900;
-      min-height: 46px;
+      min-height: 44px;
       cursor: pointer;
       box-shadow: var(--shadow-sm);
       display: inline-flex;
@@ -297,7 +345,7 @@
       transition: all 0.1s ease;
     }
 
-    .choice-btn:hover {
+    .choice-btn:hover:not(:disabled) {
       background: #F3F4F6;
     }
 
@@ -305,25 +353,21 @@
       background: var(--yellow);
       transform: translate(2px, 2px);
       box-shadow: 0 0 0;
-      border-color: var(--ink);
     }
 
-    /* Purpose / Emotion Buttons */
-    .purpose-group {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
+    .choice-btn:disabled {
+      cursor: default;
     }
 
     /* Feedback Box */
     .feedback-banner {
       display: none;
-      padding: 10px 14px;
+      padding: 9px 12px;
       border-radius: 8px;
       border: 2.5px solid var(--ink);
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       font-weight: 800;
-      margin-top: 12px;
+      margin-top: 10px;
       line-height: 1.35;
     }
 
@@ -353,8 +397,12 @@
       min-height: 48px;
       cursor: pointer;
       box-shadow: var(--shadow);
-      margin-top: 14px;
+      margin-top: 10px;
       transition: transform 0.1s ease;
+    }
+
+    .btn-submit.next-ready {
+      background: var(--mint);
     }
 
     .btn-submit:active {
@@ -362,56 +410,118 @@
       box-shadow: var(--shadow-sm);
     }
 
-    /* Win Modal */
+    /* Win & Reflection Modals */
     .modal-overlay {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.7);
+      background: rgba(0, 0, 0, 0.72);
       backdrop-filter: blur(4px);
-      z-index: 100;
+      z-index: 1500;
       align-items: center;
       justify-content: center;
       padding: 16px;
     }
 
+    .modal-overlay.open {
+      display: flex;
+    }
+
     .modal-card {
-      background: var(--white);
+      background: #FFFDF0;
       border: 4px solid var(--ink);
-      border-radius: 16px;
+      border-radius: 18px;
       box-shadow: 8px 8px 0 var(--ink);
-      padding: 24px;
-      max-width: 480px;
+      padding: 22px;
+      max-width: 520px;
       width: 100%;
       text-align: center;
     }
 
     .modal-badge {
-      font-size: 3.5rem;
-      margin-bottom: 8px;
+      font-size: 3.2rem;
+      margin-bottom: 6px;
     }
 
     .modal-title {
-      font-size: 1.6rem;
+      font-size: 1.5rem;
       font-weight: 900;
       margin-bottom: 8px;
     }
 
     .modal-desc {
-      font-size: 0.98rem;
+      font-size: 0.95rem;
       font-weight: 700;
-      color: #4B5563;
-      margin-bottom: 20px;
+      color: #374151;
+      margin-bottom: 14px;
       line-height: 1.4;
     }
 
-    @media (max-width: 820px) {
-      .lab-grid {
-        grid-template-columns: 1fr;
-      }
-      .hero-card {
-        padding: 12px 14px;
-      }
+    .pyp-modal-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: var(--yellow);
+      border: 3px solid var(--ink);
+      border-radius: 999px;
+      font-weight: 900;
+      font-size: 0.88rem;
+      margin-bottom: 10px;
+    }
+
+    .pyp-modal-box {
+      background: var(--white);
+      border: 2.5px solid var(--ink);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      line-height: 1.4;
+      text-align: left;
+      margin-bottom: 10px;
+    }
+
+    .pyp-modal-box strong {
+      display: block;
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      color: #0F766E;
+      margin-bottom: 3px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .pyp-modal-btn {
+      flex: 1;
+      min-height: 46px;
+      padding: 10px 14px;
+      border: 3px solid var(--ink);
+      border-radius: 12px;
+      box-shadow: 3px 3px 0 var(--ink);
+      font-family: inherit;
+      font-weight: 900;
+      font-size: 0.9rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--ink);
+      background: var(--white);
+    }
+
+    .pyp-modal-btn.primary {
+      background: var(--mint);
+    }
+
+    .pyp-modal-btn.yellow {
+      background: var(--yellow);
     }
 
     /* Neobrutalism TTS Radio Dropdown */
@@ -421,6 +531,7 @@
       user-select: none;
       font-family: inherit;
     }
+
     .tts-trigger {
       display: inline-flex;
       align-items: center;
@@ -435,25 +546,23 @@
       font-weight: 800;
       color: var(--ink);
       cursor: pointer;
-      min-height: 38px;
+      min-height: 44px;
       transition: transform 0.1s, box-shadow 0.1s;
     }
+
     .tts-trigger:hover {
       background: #FEF08A;
-      transform: translate(-1px, -1px);
-      box-shadow: 4px 4px 0 var(--ink);
     }
-    .tts-trigger:active {
-      transform: translate(2px, 2px);
-      box-shadow: 1px 1px 0 var(--ink);
-    }
+
     .tts-arrow {
       font-size: 0.75rem;
       transition: transform 0.15s ease;
     }
+
     .tts-dropdown-wrap.open .tts-arrow {
       transform: rotate(180deg);
     }
+
     .tts-menu {
       display: none;
       position: absolute;
@@ -461,7 +570,7 @@
       right: 0;
       min-width: 250px;
       max-width: 320px;
-      max-height: 290px;
+      max-height: 280px;
       overflow-y: auto;
       background: #FFF;
       border: 3px solid var(--ink);
@@ -472,9 +581,11 @@
       flex-direction: column;
       gap: 3px;
     }
+
     .tts-dropdown-wrap.open .tts-menu {
       display: flex;
     }
+
     .tts-menu-header {
       font-size: 0.72rem;
       font-weight: 900;
@@ -485,11 +596,13 @@
       border-bottom: 2px solid #E5E7EB;
       margin-bottom: 3px;
     }
+
     .tts-radio-group {
       display: flex;
       flex-direction: column;
       gap: 3px;
     }
+
     .tts-radio-item {
       display: flex;
       align-items: center;
@@ -505,17 +618,19 @@
       color: var(--ink);
       text-align: left;
       width: 100%;
-      transition: background 0.1s, border-color 0.1s;
     }
+
     .tts-radio-item:hover {
       background: #FEF9C3;
       border-color: var(--ink);
     }
+
     .tts-radio-item.active {
       background: #E0F2FE;
       border-color: var(--ink);
       font-weight: 800;
     }
+
     .tts-radio-circle {
       width: 15px;
       height: 15px;
@@ -527,6 +642,7 @@
       flex-shrink: 0;
       background: #FFF;
     }
+
     .tts-radio-item.active .tts-radio-circle::after {
       content: '';
       width: 7px;
@@ -534,9 +650,7 @@
       border-radius: 50%;
       background: var(--ink);
     }
-    .tts-item-flag {
-      font-size: 1rem;
-    }
+
     .tts-item-name {
       white-space: nowrap;
       overflow: hidden;
@@ -556,38 +670,32 @@
       height: 34px;
       cursor: pointer;
       font-size: 1rem;
-      line-height: 1;
       flex-shrink: 0;
-      transition: transform 0.1s, box-shadow 0.1s, background-color 0.1s;
     }
-    .btn-speaker:hover {
-      background: #FDE047;
-      transform: translate(-1px, -1px);
-      box-shadow: 3px 3px 0 var(--ink);
-    }
-    .btn-speaker:active {
-      transform: translate(2px, 2px);
-      box-shadow: 0 0 0 var(--ink);
-    }
+
     .btn-speaker.speaking {
       background: #86EFAC;
-      animation: ttsPulse 0.7s infinite alternate;
     }
-    @keyframes ttsPulse {
-      from { transform: scale(1); }
-      to { transform: scale(1.1); }
+
+    @media (max-width: 820px) {
+      .lab-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-card {
+        padding: 12px 14px;
+      }
     }
-  
-    html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
   </style>
 </head>
 
 <body>
   <div class="container">
     <nav class="nav-bar">
-      <div style="display: flex; align-items: center; gap: 10px;">
+      <div class="nav-left">
         <a class="pyp-map-link" href="../index.html">← PYP Map</a>
-        <span class="unit-tag">🔊 Grade 2 · Unit 2: Sound & Light</span>
+        <span class="unit-tag">🔊 Grade 2 · Unit 2: Sound &amp; Light</span>
+        <button type="button" class="btn-reflect-pill" id="btnOpenReflect">🔍 Reflect &amp; Stamp</button>
       </div>
       <div class="tts-dropdown-wrap" id="ttsDropdownWrap">
         <button type="button" class="tts-trigger" id="ttsTrigger" aria-haspopup="menu" aria-expanded="false" title="Select Voice Accent">
@@ -617,14 +725,15 @@
       <!-- Left Column: Audio Wave Lab & Player -->
       <section class="card">
         <h2 class="card-title"><span>🔊</span> Sound Wave Visualizer</h2>
-        <div class="osc-stage">
-          <svg class="wave-svg" viewBox="0 0 400 110" id="waveSvg">
-            <path id="wavePath" d="M 0 55 Q 25 15, 50 55 T 100 55 T 150 55 T 200 55 T 250 55 T 300 55 T 350 55 T 400 55"
+        <div class="osc-stage" id="oscStage">
+          <svg class="wave-svg" viewBox="0 0 400 110" id="waveSvg" role="img" aria-label="Sound oscilloscope waveform">
+            <line x1="0" y1="55" x2="400" y2="55" stroke="rgba(255,255,255,0.16)" stroke-width="1.5" stroke-dasharray="6 6" />
+            <path id="wavePath" d="M 0 55 Q 50 45, 100 55 T 200 55 T 300 55 T 400 55"
               fill="none" stroke="#00F0FF" stroke-width="4.5" stroke-linecap="round" />
           </svg>
           <div class="osc-indicator">
-            <span id="labelVolume">Volume: Quiet</span>
-            <span id="labelPitch">Pitch: High</span>
+            <span id="labelVolume">Volume: ?</span>
+            <span id="labelPitch">Pitch: ?</span>
           </div>
         </div>
 
@@ -632,16 +741,16 @@
           <span>▶️</span> Listen to the Sound
         </button>
 
-        <div style="margin-top: 14px; font-size: 0.84rem; font-weight: 700; color: #4B5563; line-height: 1.35;">
-          💡 <strong>Sound Inquiry</strong>: High pitch vibrates faster (more tight waves). High volume has taller wave peaks!
+        <div style="margin-top: 12px; font-size: 0.84rem; font-weight: 700; color: #4B5563; line-height: 1.4;">
+          💡 <strong>Sound Inquiry</strong>: Listen closely first! High pitch vibrates faster (tighter waves). Loud sounds have stronger energy and taller peaks!
         </div>
       </section>
 
       <!-- Right Column: Interactive Inquiry Mission -->
       <section class="card">
         <div class="scenario-box">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <span class="scenario-badge" id="scenarioCategory" style="margin-bottom: 0;">Safety Alert</span>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+            <span class="scenario-badge" id="scenarioCategory">Safety Alert</span>
             <button type="button" class="btn-speaker" id="btnSpeakScenario" title="Read scenario aloud" aria-label="Read scenario aloud">🔊</button>
           </div>
           <h3 class="scenario-title" id="scenarioTitle">Police Siren</h3>
@@ -671,12 +780,10 @@
         <!-- Property 3: Purpose / Signal -->
         <div class="property-section">
           <label class="property-label">3. Message / Function (Why use this sound?)</label>
-          <div class="purpose-group" id="purposeGroup">
-            <!-- Rendered by JS -->
-          </div>
+          <div class="purpose-group" id="purposeGroup"></div>
         </div>
 
-        <div class="feedback-banner" id="feedbackBanner"></div>
+        <div class="feedback-banner" id="feedbackBanner" aria-live="polite"></div>
 
         <button class="btn-submit" id="btnSubmitCheck" type="button">Check My Science Answers 🔎</button>
       </section>
@@ -684,34 +791,65 @@
   </div>
 
   <!-- Win Modal -->
-  <div class="modal-overlay" id="winModal">
+  <div class="modal-overlay" id="winModal" role="dialog" aria-modal="true">
     <div class="modal-card">
       <div class="modal-badge">🏅</div>
+      <div class="pyp-modal-badge">🔍 Learner Profile Stamp: Inquirer</div>
       <h2 class="modal-title">Junior Sound Scientist!</h2>
       <p class="modal-desc">
-        Congratulations! You mastered the properties of sound: volume, pitch, and communication signals.
+        Congratulations! You investigated all 6 sound scenarios and mastered volume, pitch, and communication signals.
       </p>
-      <button class="btn-submit" id="btnRestart" type="button">Explore Again 🔄</button>
+      <div id="winStampStatus" style="font-weight:900; font-size:0.88rem; color:#15803D; margin-bottom:6px;"></div>
+      <div class="modal-actions">
+        <button class="pyp-modal-btn primary" id="btnWinClaimStamp" type="button">🔍 Stamp My Passport!</button>
+        <a class="pyp-modal-btn yellow" href="../index.html">← PYP Map</a>
+        <button class="pyp-modal-btn" id="btnRestart" type="button">Explore Again 🔄</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- IB PYP Reflection Modal -->
+  <div class="modal-overlay" id="pypReflectModal" role="dialog" aria-modal="true" aria-labelledby="pypModalTitle">
+    <div class="modal-card">
+      <div class="pyp-modal-badge">🔍 Learner Profile Stamp: Inquirer</div>
+      <h2 id="pypModalTitle" class="modal-title">🌟 IB PYP Reflection &amp; Action</h2>
+      <div class="pyp-modal-box">
+        <strong>Key Concept · Form &amp; Function</strong>
+        <span>Sounds travel in vibrations. Changing volume (loud vs. quiet) and pitch (high vs. low) helps people and animals send clear warnings, calm feelings, and messages.</span>
+      </div>
+      <div class="pyp-modal-box" style="background:#ECFDF5;">
+        <strong>🚀 Take Action in Real Life</strong>
+        <span>Close your eyes for 30 seconds today and listen to 3 sounds around you. Decide whether each sound is loud or quiet, high-pitched or low-pitched!</span>
+      </div>
+      <div id="pypStampStatus" style="font-weight:900; font-size:0.88rem; color:#15803D;"></div>
+      <div class="modal-actions">
+        <button type="button" class="pyp-modal-btn primary" id="btnClaimStamp">🔍 Stamp My Passport!</button>
+        <a class="pyp-modal-btn yellow" href="../index.html">🗺️ View Passport</a>
+        <button type="button" class="pyp-modal-btn" id="btnCloseReflect">Keep Exploring</button>
+      </div>
     </div>
   </div>
 
   <script>
-    // Web Audio Synthesizer for zero-dependency sound effects
+    // Web Audio Synthesizer with clear Loud vs Soft gain contrast
     class SoundLabAudio {
       constructor() {
         this.ctx = null;
       }
       init() {
-        if (!this.ctx) {
-          const AudioContext = window.AudioContext || window.webkitAudioContext;
-          this.ctx = new AudioContext();
-        }
-        if (this.ctx.state === 'suspended') {
-          this.ctx.resume();
-        }
+        try {
+          if (!this.ctx) {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            this.ctx = new AudioContext();
+          }
+          if (this.ctx.state === 'suspended') {
+            this.ctx.resume();
+          }
+        } catch (_) {}
       }
       playCorrect() {
         this.init();
+        if (!this.ctx) return;
         const now = this.ctx.currentTime;
         [523.25, 659.25, 783.99, 1046.5].forEach((freq, idx) => {
           const osc = this.ctx.createOscillator();
@@ -728,13 +866,14 @@
       }
       playWrong() {
         this.init();
+        if (!this.ctx) return;
         const now = this.ctx.currentTime;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         osc.type = 'sawtooth';
         osc.frequency.setValueAtTime(180, now);
         osc.frequency.linearRampToValueAtTime(120, now + 0.2);
-        gain.gain.setValueAtTime(0.18, now);
+        gain.gain.setValueAtTime(0.16, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
         osc.connect(gain);
         gain.connect(this.ctx.destination);
@@ -743,11 +882,14 @@
       }
       playClick() {
         this.init();
+        if (!this.ctx) return;
         const now = this.ctx.currentTime;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
-        osc.frequency.setValueAtTime(500, now);
-        gain.gain.setValueAtTime(0.08, now);
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(520, now);
+        osc.frequency.exponentialRampToValueAtTime(340, now + 0.045);
+        gain.gain.setValueAtTime(0.09, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
         osc.connect(gain);
         gain.connect(this.ctx.destination);
@@ -756,91 +898,100 @@
       }
       playScenarioSound(id) {
         this.init();
+        if (!this.ctx) return 1000;
         const now = this.ctx.currentTime;
+
         if (id === 'siren') {
-          // Police siren sweep
+          // Loud, high police siren sweep
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
           osc.type = 'sawtooth';
-          gain.gain.setValueAtTime(0.2, now);
-          gain.gain.setValueAtTime(0.2, now + 1.2);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 1.3);
-          osc.frequency.setValueAtTime(600, now);
-          osc.frequency.linearRampToValueAtTime(950, now + 0.3);
-          osc.frequency.linearRampToValueAtTime(600, now + 0.6);
-          osc.frequency.linearRampToValueAtTime(950, now + 0.9);
-          osc.frequency.linearRampToValueAtTime(600, now + 1.2);
+          gain.gain.setValueAtTime(0.35, now);
+          gain.gain.setValueAtTime(0.35, now + 1.2);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 1.32);
+          osc.frequency.setValueAtTime(700, now);
+          osc.frequency.linearRampToValueAtTime(1150, now + 0.3);
+          osc.frequency.linearRampToValueAtTime(700, now + 0.6);
+          osc.frequency.linearRampToValueAtTime(1150, now + 0.9);
+          osc.frequency.linearRampToValueAtTime(700, now + 1.2);
           osc.connect(gain);
           gain.connect(this.ctx.destination);
           osc.start(now);
-          osc.stop(now + 1.3);
+          osc.stop(now + 1.35);
+          return 1350;
         } else if (id === 'bird') {
-          // High pitch bird chirp
-          [1800, 2200, 2400].forEach((freq, idx) => {
+          // Quiet, high pitch bird chirp
+          [1850, 2250, 2450].forEach((freq, idx) => {
             const osc = this.ctx.createOscillator();
             const gain = this.ctx.createGain();
             osc.type = 'sine';
-            osc.frequency.setValueAtTime(freq, now + idx * 0.12);
-            gain.gain.setValueAtTime(0.15, now + idx * 0.12);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.12 + 0.1);
+            osc.frequency.setValueAtTime(freq, now + idx * 0.14);
+            gain.gain.setValueAtTime(0.075, now + idx * 0.14);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.14 + 0.11);
             osc.connect(gain);
             gain.connect(this.ctx.destination);
-            osc.start(now + idx * 0.12);
-            osc.stop(now + idx * 0.12 + 0.12);
+            osc.start(now + idx * 0.14);
+            osc.stop(now + idx * 0.14 + 0.13);
           });
+          return 650;
         } else if (id === 'thunder') {
-          // Low pitch loud rumble
+          // Loud, low pitch rumble
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
           osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(90, now);
-          osc.frequency.exponentialRampToValueAtTime(45, now + 1.0);
-          gain.gain.setValueAtTime(0.3, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 1.1);
+          osc.frequency.setValueAtTime(92, now);
+          osc.frequency.exponentialRampToValueAtTime(42, now + 1.1);
+          gain.gain.setValueAtTime(0.42, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
           osc.connect(gain);
           gain.connect(this.ctx.destination);
           osc.start(now);
-          osc.stop(now + 1.1);
+          osc.stop(now + 1.22);
+          return 1220;
         } else if (id === 'whisper') {
-          // Quiet gentle breath
+          // Very soft, low gentle whisper tone
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
           osc.type = 'triangle';
-          osc.frequency.setValueAtTime(320, now);
-          gain.gain.setValueAtTime(0.05, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+          osc.frequency.setValueAtTime(190, now);
+          osc.frequency.linearRampToValueAtTime(165, now + 0.7);
+          gain.gain.setValueAtTime(0.035, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.75);
           osc.connect(gain);
           gain.connect(this.ctx.destination);
           osc.start(now);
-          osc.stop(now + 0.6);
+          osc.stop(now + 0.78);
+          return 780;
         } else if (id === 'fire_alarm') {
-          // Rapid high beeps
-          [0, 0.25, 0.5, 0.75].forEach(t => {
+          // Loud, sharp high beeps
+          [0, 0.25, 0.5, 0.75].forEach((t) => {
             const osc = this.ctx.createOscillator();
             const gain = this.ctx.createGain();
             osc.type = 'square';
-            osc.frequency.setValueAtTime(1400, now + t);
-            gain.gain.setValueAtTime(0.18, now + t);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + t + 0.15);
+            osc.frequency.setValueAtTime(1450, now + t);
+            gain.gain.setValueAtTime(0.32, now + t);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + t + 0.16);
             osc.connect(gain);
             gain.connect(this.ctx.destination);
             osc.start(now + t);
-            osc.stop(now + t + 0.16);
+            osc.stop(now + t + 0.18);
           });
+          return 1000;
         } else {
-          // Lullaby bell
-          [440, 523.25, 587.33, 659.25].forEach((freq, idx) => {
+          // Quiet, high music box lullaby
+          [660, 783.99, 880, 1046.5].forEach((freq, idx) => {
             const osc = this.ctx.createOscillator();
             const gain = this.ctx.createGain();
             osc.type = 'sine';
-            osc.frequency.setValueAtTime(freq, now + idx * 0.25);
-            gain.gain.setValueAtTime(0.15, now + idx * 0.25);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.25 + 0.4);
+            osc.frequency.setValueAtTime(freq, now + idx * 0.24);
+            gain.gain.setValueAtTime(0.06, now + idx * 0.24);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.24 + 0.38);
             osc.connect(gain);
             gain.connect(this.ctx.destination);
-            osc.start(now + idx * 0.25);
-            osc.stop(now + idx * 0.25 + 0.42);
+            osc.start(now + idx * 0.24);
+            osc.stop(now + idx * 0.24 + 0.4);
           });
+          return 1200;
         }
       }
     }
@@ -939,47 +1090,111 @@
     let selectedVolume = null;
     let selectedPitch = null;
     let selectedPurposeIdx = null;
+    let missionSolved = false;
+    let waveAnimId = null;
 
-    function updateWaveform(volume, pitch) {
-      const isLoud = volume === 'Loud';
-      const isHigh = pitch === 'High';
-      const amp = isLoud ? 38 : 16;
-      const freqMultiplier = isHigh ? 2 : 1;
-
-      let d = 'M 0 55 ';
-      const segments = freqMultiplier * 6;
-      const step = 400 / segments;
-      for (let i = 0; i < segments; i++) {
-        const x1 = i * step + step * 0.25;
-        const y1 = (i % 2 === 0) ? 55 - amp : 55 + amp;
-        const x2 = (i + 1) * step;
-        const y2 = 55;
-        d += `Q ${x1} ${y1}, ${x2} ${y2} `;
+    function buildWavePath(amp, cycles, phase = 0) {
+      const points = 64;
+      let d = '';
+      for (let i = 0; i <= points; i++) {
+        const x = (i / points) * 400;
+        const angle = (i / points) * Math.PI * 2 * cycles + phase;
+        const y = 55 - Math.sin(angle) * amp;
+        d += i === 0 ? `M ${x.toFixed(1)} ${y.toFixed(1)}` : ` L ${x.toFixed(1)} ${y.toFixed(1)}`;
       }
-      document.getElementById('wavePath').setAttribute('d', d);
-      document.getElementById('labelVolume').textContent = `Volume: ${volume || '---'}`;
-      document.getElementById('labelPitch').textContent = `Pitch: ${pitch || '---'}`;
+      return d;
+    }
+
+    function updateOscillatorDisplay() {
+      const m = missions[currentMissionIdx];
+      const labelVol = document.getElementById('labelVolume');
+      const labelPitch = document.getElementById('labelPitch');
+      const wavePath = document.getElementById('wavePath');
+
+      if (missionSolved) {
+        // Reveal verified science readings ONLY after solved!
+        labelVol.textContent = `Volume: ${m.volume} ✓`;
+        labelPitch.textContent = `Pitch: ${m.pitch} ✓`;
+        labelVol.classList.add('verified');
+        labelPitch.classList.add('verified');
+        const amp = m.volume === 'Loud' ? 38 : 14;
+        const cycles = m.pitch === 'High' ? 6 : 2.5;
+        wavePath.setAttribute('stroke', '#86EFAC');
+        wavePath.setAttribute('d', buildWavePath(amp, cycles, 0));
+      } else {
+        // Mask true answers while investigating — show ? or student's live guesses
+        labelVol.classList.remove('verified');
+        labelPitch.classList.remove('verified');
+        labelVol.textContent = selectedVolume ? `Volume: ? (${selectedVolume})` : 'Volume: ?';
+        labelPitch.textContent = selectedPitch ? `Pitch: ? (${selectedPitch})` : 'Pitch: ?';
+
+        const guessAmp = selectedVolume === 'Loud' ? 34 : selectedVolume === 'Quiet' ? 14 : 18;
+        const guessCycles = selectedPitch === 'High' ? 5.5 : selectedPitch === 'Low' ? 2.5 : 3.5;
+        wavePath.setAttribute('stroke', '#00F0FF');
+        wavePath.setAttribute('d', buildWavePath(guessAmp, guessCycles, 0));
+      }
+    }
+
+    function animatePlaybackWave(durationMs) {
+      if (waveAnimId) cancelAnimationFrame(waveAnimId);
+      const m = missions[currentMissionIdx];
+      const stage = document.getElementById('oscStage');
+      const wavePath = document.getElementById('wavePath');
+      stage.classList.add('playing');
+      wavePath.setAttribute('stroke', '#FFE156');
+
+      const amp = m.volume === 'Loud' ? 38 : 13;
+      const cycles = m.pitch === 'High' ? 6.5 : 2.5;
+      const startTime = performance.now();
+
+      function frame(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(1, elapsed / durationMs);
+        const envelope = Math.sin(progress * Math.PI);
+        const phase = elapsed * (m.pitch === 'High' ? 0.022 : 0.011);
+        wavePath.setAttribute('d', buildWavePath(Math.max(4, amp * envelope), cycles, phase));
+
+        if (elapsed < durationMs) {
+          waveAnimId = requestAnimationFrame(frame);
+        } else {
+          waveAnimId = null;
+          stage.classList.remove('playing');
+          updateOscillatorDisplay();
+        }
+      }
+      waveAnimId = requestAnimationFrame(frame);
     }
 
     function renderMission() {
+      if (waveAnimId) {
+        cancelAnimationFrame(waveAnimId);
+        waveAnimId = null;
+      }
+      document.getElementById('oscStage').classList.remove('playing');
+
       const m = missions[currentMissionIdx];
+      missionSolved = false;
+      selectedVolume = null;
+      selectedPitch = null;
+      selectedPurposeIdx = null;
+
       document.getElementById('missionBadge').textContent = `🎯 Mission ${currentMissionIdx + 1} / ${missions.length}`;
       document.getElementById('scoreBadge').textContent = `⭐ Score: ${score}`;
       document.getElementById('scenarioCategory').textContent = m.category;
       document.getElementById('scenarioTitle').textContent = m.title;
       document.getElementById('scenarioDesc').textContent = m.desc;
 
-      selectedVolume = null;
-      selectedPitch = null;
-      selectedPurposeIdx = null;
-
-      document.querySelectorAll('#volumeGroup .choice-btn').forEach(btn => btn.classList.remove('active'));
-      document.querySelectorAll('#pitchGroup .choice-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('#volumeGroup .choice-btn').forEach((btn) => {
+        btn.classList.remove('active');
+        btn.disabled = false;
+      });
+      document.querySelectorAll('#pitchGroup .choice-btn').forEach((btn) => {
+        btn.classList.remove('active');
+        btn.disabled = false;
+      });
 
       const purposeGroup = document.getElementById('purposeGroup');
       purposeGroup.innerHTML = '';
-
-      // Randomize purpose options so correct answer is not always first
       m.currentPurposeOptions = [...m.purposeOptions].sort(() => Math.random() - 0.5);
 
       m.currentPurposeOptions.forEach((opt, idx) => {
@@ -988,7 +1203,9 @@
         btn.type = 'button';
         btn.textContent = opt.text;
         btn.addEventListener('click', () => {
-          purposeGroup.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('active'));
+          if (missionSolved) return;
+          soundAudio.playClick();
+          purposeGroup.querySelectorAll('.choice-btn').forEach((b) => b.classList.remove('active'));
           btn.classList.add('active');
           selectedPurposeIdx = idx;
         });
@@ -998,40 +1215,63 @@
       const feedback = document.getElementById('feedbackBanner');
       feedback.className = 'feedback-banner';
       feedback.textContent = '';
-      document.getElementById('btnSubmitCheck').textContent = 'Check My Science Answers 🔎';
 
-      updateWaveform(m.volume, m.pitch);
+      const submitBtn = document.getElementById('btnSubmitCheck');
+      submitBtn.textContent = 'Check My Science Answers 🔎';
+      submitBtn.classList.remove('next-ready');
+
+      updateOscillatorDisplay();
     }
 
-    // Button event listeners
-    document.querySelectorAll('#volumeGroup .choice-btn').forEach(btn => {
+    // Choice button listeners (with Click SFX + live oscillator guess display)
+    document.querySelectorAll('#volumeGroup .choice-btn').forEach((btn) => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('#volumeGroup .choice-btn').forEach(b => b.classList.remove('active'));
+        if (missionSolved) return;
+        soundAudio.playClick();
+        document.querySelectorAll('#volumeGroup .choice-btn').forEach((b) => b.classList.remove('active'));
         btn.classList.add('active');
         selectedVolume = btn.dataset.val;
+        updateOscillatorDisplay();
       });
     });
 
-    document.querySelectorAll('#pitchGroup .choice-btn').forEach(btn => {
+    document.querySelectorAll('#pitchGroup .choice-btn').forEach((btn) => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('#pitchGroup .choice-btn').forEach(b => b.classList.remove('active'));
+        if (missionSolved) return;
+        soundAudio.playClick();
+        document.querySelectorAll('#pitchGroup .choice-btn').forEach((b) => b.classList.remove('active'));
         btn.classList.add('active');
         selectedPitch = btn.dataset.val;
+        updateOscillatorDisplay();
       });
     });
 
     document.getElementById('btnPlaySound').addEventListener('click', () => {
       const m = missions[currentMissionIdx];
-      soundAudio.playScenarioSound(m.id);
+      const dur = soundAudio.playScenarioSound(m.id);
+      animatePlaybackWave(dur);
     });
 
+    // Clean single click listener using missionSolved boolean (NO onclick clobbering!)
     document.getElementById('btnSubmitCheck').addEventListener('click', () => {
+      if (missionSolved) {
+        soundAudio.playClick();
+        if (currentMissionIdx + 1 < missions.length) {
+          currentMissionIdx++;
+          renderMission();
+        } else {
+          document.getElementById('winModal').classList.add('open');
+        }
+        return;
+      }
+
       const m = missions[currentMissionIdx];
       const feedback = document.getElementById('feedbackBanner');
 
       if (!selectedVolume || !selectedPitch || selectedPurposeIdx === null) {
+        soundAudio.playWrong();
         feedback.className = 'feedback-banner error';
-        feedback.textContent = 'Please choose all 3 properties: Volume, Pitch, and Purpose!';
+        feedback.textContent = 'Please choose all 3 properties: Volume, Pitch, and Message!';
         return;
       }
 
@@ -1040,53 +1280,84 @@
       const isPurposeCorrect = m.currentPurposeOptions[selectedPurposeIdx].correct;
 
       if (isVolCorrect && isPitchCorrect && isPurposeCorrect) {
+        missionSolved = true;
         soundAudio.playCorrect();
         score += 10;
-        feedback.className = 'feedback-banner success';
-        feedback.textContent = `Excellent inquiry! ${m.title} is indeed ${m.volume} and ${m.pitch} pitch to ${m.currentPurposeOptions[selectedPurposeIdx].text}`;
         document.getElementById('scoreBadge').textContent = `⭐ Score: ${score}`;
 
+        const rawPurpose = m.currentPurposeOptions[selectedPurposeIdx].text;
+        const lowerPurpose = rawPurpose.charAt(0).toLowerCase() + rawPurpose.slice(1);
+        feedback.className = 'feedback-banner success';
+        feedback.textContent = `Excellent inquiry! ${m.title} is ${m.volume.toLowerCase()} and ${m.pitch.toLowerCase()}-pitched to ${lowerPurpose}`;
+
+        document.querySelectorAll('.choice-btn').forEach((b) => (b.disabled = true));
+        updateOscillatorDisplay();
+
         const submitBtn = document.getElementById('btnSubmitCheck');
-        submitBtn.textContent = 'Next Sound Mission ➔';
-        submitBtn.onclick = () => {
-          soundAudio.playClick();
-          submitBtn.onclick = null;
-          if (currentMissionIdx + 1 < missions.length) {
-            currentMissionIdx++;
-            renderMission();
-          } else {
-            document.getElementById('winModal').style.display = 'flex';
-          }
-        };
+        submitBtn.classList.add('next-ready');
+        submitBtn.textContent = currentMissionIdx + 1 < missions.length
+          ? 'Next Sound Mission ➔'
+          : 'Finish Sound Lab 🏆';
       } else {
         soundAudio.playWrong();
         feedback.className = 'feedback-banner error';
         let hint = 'Hint: ';
-        if (!isVolCorrect) hint += `Check volume (is it soft like a whisper or strong and loud?). `;
-        if (!isPitchCorrect) hint += `Check pitch (is the sound high and sharp, or deep and low?). `;
-        if (!isPurposeCorrect) hint += `Think about the message this sound conveys.`;
-        feedback.textContent = hint;
+        if (!isVolCorrect) hint += 'Listen to the volume (is it soft and quiet, or strong and loud?). ';
+        if (!isPitchCorrect) hint += 'Listen to the pitch (is it high and bright, or deep and low?). ';
+        if (!isPurposeCorrect) hint += 'Think about what message this sound sends.';
+        feedback.textContent = hint.trim();
       }
     });
 
     document.getElementById('btnRestart').addEventListener('click', () => {
+      soundAudio.playClick();
       currentMissionIdx = 0;
       score = 0;
-      document.getElementById('winModal').style.display = 'none';
+      document.getElementById('winModal').classList.remove('open');
       renderMission();
     });
 
+    // IB PYP Reflection & Passport Stamp (Inquirer)
+    function saveInquirerStamp() {
+      soundAudio.playCorrect();
+      try {
+        const raw = localStorage.getItem('ib_pyp_passport');
+        const data = raw ? JSON.parse(raw) : { stamps: [], completed: [] };
+        const stamps = new Set(Array.isArray(data.stamps) ? data.stamps : []);
+        const completed = new Set(Array.isArray(data.completed) ? data.completed : []);
+        stamps.add('Inquirer');
+        completed.add('uoi/g2_sound_explorer.html');
+        localStorage.setItem('ib_pyp_passport', JSON.stringify({ stamps: [...stamps], completed: [...completed] }));
+        document.getElementById('pypStampStatus').textContent = '✅ Inquirer stamp saved to your IB PYP Passport!';
+        document.getElementById('winStampStatus').textContent = '✅ Inquirer stamp saved to your IB PYP Passport!';
+        document.getElementById('btnClaimStamp').textContent = '✅ Stamped!';
+        document.getElementById('btnWinClaimStamp').textContent = '✅ Stamped!';
+      } catch (_) {}
+    }
+
+    const reflectModal = document.getElementById('pypReflectModal');
+    document.getElementById('btnOpenReflect')?.addEventListener('click', () => {
+      soundAudio.playClick();
+      reflectModal.classList.add('open');
+    });
+    document.getElementById('btnCloseReflect')?.addEventListener('click', () => {
+      soundAudio.playClick();
+      reflectModal.classList.remove('open');
+    });
+    reflectModal?.addEventListener('click', (e) => {
+      if (e.target === reflectModal) reflectModal.classList.remove('open');
+    });
+    document.getElementById('btnClaimStamp')?.addEventListener('click', saveInquirerStamp);
+    document.getElementById('btnWinClaimStamp')?.addEventListener('click', saveInquirerStamp);
+
     // ----------------------------------------------------
-    // TTS MANAGER (Neobrutalism Radio Group Dropdown)
+    // TTS MANAGER (Neobrutalism Radio Group Dropdown + JOKE_VOICES)
     // ----------------------------------------------------
+    const JOKE_VOICES = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|hysterical|pipe organ|trinoids|whisper|zarvox|fred|junior|kathy|ralph|wobble/i;
+
     const TTS_MANAGER = {
       currentVoiceName: '',
-      wrap: null,
-      trigger: null,
-      menu: null,
-      flag: null,
-      label: null,
-      list: null,
+      wrap: null, trigger: null, menu: null, flag: null, label: null, list: null,
 
       init() {
         this.wrap = document.getElementById('ttsDropdownWrap');
@@ -1095,14 +1366,13 @@
         this.flag = document.getElementById('ttsFlag');
         this.label = document.getElementById('ttsLabel');
         this.list = document.getElementById('ttsRadioList');
-
         if (!this.trigger) return;
 
         this.trigger.addEventListener('click', (e) => {
           e.stopPropagation();
           soundAudio.playClick();
           this.wrap.classList.toggle('open');
-          this.trigger.setAttribute('aria-expanded', this.wrap.classList.contains('open'));
+          this.trigger.setAttribute('aria-expanded', String(this.wrap.classList.contains('open')));
         });
 
         document.addEventListener('click', (e) => {
@@ -1130,58 +1400,48 @@
       populateVoices() {
         if (!window.speechSynthesis || !this.list) return;
         const voices = window.speechSynthesis.getVoices();
-        let englishVoices = voices.filter(v => {
-          const lang = v.lang.toLowerCase().replace('_', '-');
-          return lang.startsWith('en');
+        let englishVoices = voices.filter((v) => {
+          const lang = (v.lang || '').toLowerCase().replace('_', '-');
+          return lang.startsWith('en') && !JOKE_VOICES.test(v.name);
         });
 
-        if (englishVoices.length === 0) englishVoices = voices;
+        if (englishVoices.length === 0) {
+          englishVoices = voices.filter((v) => !JOKE_VOICES.test(v.name));
+        }
         if (englishVoices.length === 0) return;
 
         englishVoices.sort((a, b) => {
-          const aName = a.name;
-          const bName = b.name;
-          const isA_UK_Fem = aName.includes('Google UK English Female') || (aName.includes('UK English') && aName.includes('Female'));
-          const isB_UK_Fem = bName.includes('Google UK English Female') || (bName.includes('UK English') && bName.includes('Female'));
-          if (isA_UK_Fem && !isB_UK_Fem) return -1;
-          if (!isA_UK_Fem && isB_UK_Fem) return 1;
+          const isA_UK_Fem = a.name.includes('Google UK English Female') || (a.name.includes('UK English') && a.name.includes('Female'));
+          const isB_UK_Fem = b.name.includes('Google UK English Female') || (b.name.includes('UK English') && b.name.includes('Female'));
+          if (isA_UK_Fem !== isB_UK_Fem) return isA_UK_Fem ? -1 : 1;
 
-          const isA_US = aName.includes('Google US English') || (aName.includes('US English') && aName.includes('Female'));
-          const isB_US = bName.includes('Google US English') || (bName.includes('US English') && bName.includes('Female'));
-          if (isA_US && !isB_US) return -1;
-          if (!isA_US && isB_US) return 1;
+          const isA_US = a.name.includes('Google US English') || (a.name.includes('US English') && a.name.includes('Female'));
+          const isB_US = b.name.includes('Google US English') || (b.name.includes('US English') && b.name.includes('Female'));
+          if (isA_US !== isB_US) return isA_US ? -1 : 1;
 
           const aUK = a.lang.toLowerCase().includes('gb');
           const bUK = b.lang.toLowerCase().includes('gb');
-          if (aUK && !bUK) return -1;
-          if (!aUK && bUK) return 1;
+          if (aUK !== bUK) return aUK ? -1 : 1;
 
-          const aUS = a.lang.toLowerCase().includes('us');
-          const bUS = b.lang.toLowerCase().includes('us');
-          if (aUS && !bUS) return -1;
-          if (!aUS && bUS) return 1;
-
-          return aName.localeCompare(bName);
+          return a.name.localeCompare(b.name);
         });
 
         const saved = localStorage.getItem('ib_pyp_voice_name');
-        let selected = null;
-        if (saved) selected = englishVoices.find(v => v.name === saved);
-        if (!selected) selected = englishVoices.find(v => v.name.includes('Google UK English Female') || (v.name.includes('UK English') && v.name.includes('Female')));
-        if (!selected) selected = englishVoices.find(v => v.name.includes('Google US English'));
-        if (!selected) selected = englishVoices.find(v => v.lang.toLowerCase().includes('gb'));
-        if (!selected) selected = englishVoices.find(v => v.lang.toLowerCase().includes('us'));
-        if (!selected) selected = englishVoices[0];
+        let selected = (saved && englishVoices.find((v) => v.name === saved))
+          || englishVoices.find((v) => v.name.includes('Google UK English Female'))
+          || englishVoices.find((v) => v.name.includes('Google US English'))
+          || englishVoices.find((v) => v.lang.toLowerCase().includes('gb'))
+          || englishVoices.find((v) => v.lang.toLowerCase().includes('us'))
+          || englishVoices[0];
 
         this.currentVoiceName = selected ? selected.name : '';
-
         this.renderMenu(englishVoices);
         this.updateTriggerUI(selected);
       },
 
       renderMenu(voices) {
         this.list.innerHTML = '';
-        voices.forEach(v => {
+        voices.forEach((v) => {
           const isUK = v.lang.toLowerCase().replace('_', '-').includes('gb');
           const flag = isUK ? '🇬🇧' : '🇺🇸';
           const region = isUK ? 'UK' : 'US';
@@ -1191,10 +1451,10 @@
           btn.type = 'button';
           btn.className = `tts-radio-item ${isActive ? 'active' : ''}`;
           btn.setAttribute('role', 'menuitemradio');
-          btn.setAttribute('aria-checked', isActive ? 'true' : 'false');
+          btn.setAttribute('aria-checked', String(isActive));
           btn.innerHTML = `
             <span class="tts-radio-circle"></span>
-            <span class="tts-item-flag">${flag}</span>
+            <span>${flag}</span>
             <span class="tts-item-name">${v.name} (${region})</span>
           `;
 
@@ -1212,12 +1472,12 @@
 
       selectVoice(v) {
         this.currentVoiceName = v.name;
-        localStorage.setItem('ib_pyp_voice_name', v.name);
+        try { localStorage.setItem('ib_pyp_voice_name', v.name); } catch (_) {}
         this.updateTriggerUI(v);
-        this.list.querySelectorAll('.tts-radio-item').forEach(btn => {
+        this.list.querySelectorAll('.tts-radio-item').forEach((btn) => {
           const isMatch = btn.querySelector('.tts-item-name').textContent.includes(v.name);
           btn.classList.toggle('active', isMatch);
-          btn.setAttribute('aria-checked', isMatch ? 'true' : 'false');
+          btn.setAttribute('aria-checked', String(isMatch));
         });
         if (window.speechSynthesis) window.speechSynthesis.cancel();
       },
@@ -1227,7 +1487,7 @@
         const isUK = v.lang.toLowerCase().replace('_', '-').includes('gb');
         this.flag.textContent = isUK ? '🇬🇧' : '🇺🇸';
         let shortName = v.name.replace(/^(Google|Microsoft|Apple)\s+/i, '');
-        if (shortName.length > 14) shortName = shortName.substring(0, 12) + '...';
+        if (shortName.length > 14) shortName = `${shortName.substring(0, 12)}...`;
         this.label.textContent = shortName;
       },
 
@@ -1240,7 +1500,7 @@
         const voices = window.speechSynthesis.getVoices();
         const voiceName = this.currentVoiceName || localStorage.getItem('ib_pyp_voice_name');
         if (voiceName) {
-          const match = voices.find(v => v.name === voiceName);
+          const match = voices.find((v) => v.name === voiceName);
           if (match) utterance.voice = match;
         }
         utterance.rate = 0.85;
@@ -1264,7 +1524,6 @@
       });
     }
 
-    // Initial render
     TTS_MANAGER.init();
     renderMission();
   </script>

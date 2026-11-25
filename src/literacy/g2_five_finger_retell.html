@@ -11,58 +11,75 @@
       --yellow: #FFE156;
       --coral: #FF6584;
       --green: #4ECDC4;
+      --mint: #86EFAC;
       --blue: #38B6FF;
       --purple: #B388FF;
       --white: #FFFFFF;
       --border: 3px solid var(--ink);
       --shadow: 4px 4px 0 var(--ink);
+      --shadow-sm: 2px 2px 0 var(--ink);
       --radius: 12px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
+    html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
+
     body {
       background-color: var(--bg);
-      background-image: 
+      background-image:
         radial-gradient(circle at 12% 15%, rgba(255, 225, 86, 0.15) 0%, transparent 35%),
         radial-gradient(circle at 88% 85%, rgba(78, 205, 196, 0.15) 0%, transparent 35%),
         repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(17, 17, 17, 0.03) 28px);
       color: var(--ink);
-      font-family: ui-rounded, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      min-height: 100vh; min-height: 100dvh;
-      padding: 16px 16px 36px;
+      font-family: ui-rounded, "Avenir Next", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding: 10px 16px 16px;
     }
 
-    .container { max-width: 1060px; margin: 0 auto; }
+    .container { max-width: 1120px; margin: 0 auto; }
 
     /* Compact Top Bar */
     .top-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 14px;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .top-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
     .pyp-map-link {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
+      gap: 6px;
       background: var(--yellow);
       color: var(--ink);
       text-decoration: none;
       font-weight: 900;
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       border: var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 8px 16px;
+      padding: 6px 14px;
       min-height: 44px;
       cursor: pointer;
+      font-family: inherit;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
     }
 
     .pyp-map-link:active, .pyp-map-link:hover {
       transform: translate(2px, 2px);
-      box-shadow: 2px 2px 0 var(--ink);
+      box-shadow: var(--shadow-sm);
     }
 
     .unit-tag {
@@ -71,9 +88,9 @@
       border: var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 8px 14px;
-      font-weight: 800;
-      font-size: 0.9rem;
+      padding: 6px 14px;
+      font-weight: 900;
+      font-size: 0.88rem;
       min-height: 44px;
       display: inline-flex;
       align-items: center;
@@ -85,23 +102,34 @@
       border: var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 12px 18px;
-      margin-bottom: 16px;
+      padding: 10px 16px;
+      margin-bottom: 12px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 8px;
     }
 
-    .hero-strip h1 { font-size: clamp(1.2rem, 2.5vw, 1.6rem); font-weight: 900; }
+    .hero-strip h1 { font-size: clamp(1.15rem, 2.2vw, 1.45rem); font-weight: 900; line-height: 1.2; }
+    .hero-strip p { font-weight: 700; color: #4B5563; font-size: 0.86rem; margin-top: 2px; }
 
-    /* iPad Landscape 2-Column Board */
+    .framework-pill {
+      background: #FEF9C3;
+      border: 2px solid var(--ink);
+      border-radius: 999px;
+      padding: 5px 12px;
+      font-weight: 900;
+      font-size: 0.8rem;
+      color: var(--ink);
+    }
+
+    /* iPad Landscape 2-Column Board (fits 1180x820 zero-scroll) */
     .retell-layout {
       display: grid;
-      grid-template-columns: 380px 1fr;
-      gap: 18px;
-      align-items: start;
+      grid-template-columns: 400px 1fr;
+      gap: 14px;
+      align-items: stretch;
     }
 
     /* Left Column: Interactive Story Card */
@@ -110,76 +138,344 @@
       border: var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 20px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .story-selector {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .story-chip {
+      padding: 5px 9px;
+      font-size: 0.78rem;
+      font-family: inherit;
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      box-shadow: 2px 2px 0 var(--ink);
+      cursor: pointer;
+      font-weight: 800;
+      background: #F3F4F6;
+      color: var(--ink);
+      min-height: 34px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: transform 0.1s ease, background-color 0.1s ease;
+    }
+
+    .story-chip:active {
+      transform: translate(1px, 1px);
+      box-shadow: 1px 1px 0 var(--ink);
+    }
+
+    .story-chip.active {
+      background: var(--yellow);
+      font-weight: 900;
+    }
+
+    .story-chip.completed {
+      background: #D1FAE5;
+      border-color: #059669;
+    }
+
+    .story-chip.active.completed {
+      background: var(--mint);
+    }
+
+    .story-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
     }
 
     .story-title {
-      font-size: 1.25rem;
+      font-size: 1.15rem;
       font-weight: 900;
-      margin-bottom: 8px;
       color: #1E3A8A;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
+      line-height: 1.25;
+    }
+
+    .spelling-notice {
+      display: none;
+      background: #FEF3C7;
+      border: 2px solid #D97706;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 0.79rem;
+      font-weight: 800;
+      color: #92400E;
+      line-height: 1.35;
     }
 
     .story-text {
       background: #EFF6FF;
       border: 2px solid var(--ink);
-      border-radius: 8px;
-      padding: 14px;
-      font-size: 1.05rem;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 0.98rem;
       font-weight: 700;
-      line-height: 1.6;
+      line-height: 1.55;
       color: #1F2937;
-      margin-bottom: 16px;
+      flex: 1;
     }
 
     .retell-tracker {
       background: #F3F4F6;
       border: 2px solid var(--ink);
       border-radius: 8px;
-      padding: 10px;
+      padding: 8px 12px;
       font-weight: 800;
-      font-size: 0.95rem;
+      font-size: 0.88rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
 
-    /* Right Column: Hand Canvas with Interactive Slots */
+    /* Compact IB PYP Reflection & Passport Strip */
+    .passport-strip {
+      background: #FAF5FF;
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
+      padding: 9px 11px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .passport-strip-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 0.8rem;
+      font-weight: 900;
+      color: #4C1D95;
+    }
+
+    .reflect-choices {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .reflect-chip {
+      background: var(--white);
+      border: 2px solid var(--ink);
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-family: inherit;
+      font-size: 0.75rem;
+      font-weight: 800;
+      cursor: pointer;
+      color: var(--ink);
+      transition: background-color 0.1s ease;
+    }
+
+    .reflect-chip.selected {
+      background: var(--purple);
+      color: var(--white);
+    }
+
+    .passport-btn-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .btn-stamp {
+      background: var(--yellow);
+      color: var(--ink);
+      border: 2.5px solid var(--ink);
+      border-radius: 8px;
+      box-shadow: 2px 2px 0 var(--ink);
+      padding: 6px 12px;
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 900;
+      cursor: pointer;
+      min-height: 36px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .btn-stamp:active {
+      transform: translate(1px, 1px);
+      box-shadow: 1px 1px 0 var(--ink);
+    }
+
+    .btn-stamp.stamped {
+      background: var(--mint);
+    }
+
+    .passport-status {
+      font-size: 0.76rem;
+      font-weight: 800;
+      color: #065F46;
+    }
+
+    /* Right Column: Interactive SVG Hand + Compact Active Finger Panel */
     .hand-board {
       background: var(--white);
       border: var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 20px;
-      min-height: 520px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
 
     .hand-header {
-      font-size: 1.15rem;
+      font-size: 1.02rem;
       font-weight: 900;
-      margin-bottom: 12px;
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 8px;
+      flex-wrap: wrap;
     }
 
-    .fingers-list {
-      display: grid;
-      gap: 12px;
-    }
-
-    .finger-card {
-      background: #FFFDF0;
+    .hand-tip {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: #4B5563;
+      background: #FEF9C3;
       border: 2px solid var(--ink);
-      border-radius: 10px;
+      border-radius: 999px;
+      padding: 3px 10px;
+    }
+
+    /* Inline SVG Five-Finger Hand Stage */
+    .svg-hand-stage {
+      background: #FFFDF0;
+      border: 2.5px solid var(--ink);
+      border-radius: 12px;
+      padding: 8px 10px 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .hand-svg {
+      width: 100%;
+      max-width: 470px;
+      height: 220px;
+      display: block;
+      overflow: visible;
+    }
+
+    .svg-finger {
+      cursor: pointer;
+      transition: transform 0.14s ease, filter 0.14s ease;
+      transform-origin: 220px 185px;
+    }
+
+    .svg-finger:hover .finger-shape {
+      filter: brightness(0.97);
+    }
+
+    .svg-finger .finger-shape {
+      fill: #FFFFFF;
+      stroke: #111111;
+      stroke-width: 3.5;
+      stroke-linejoin: round;
+      transition: fill 0.15s ease, stroke-width 0.15s ease;
+    }
+
+    .svg-finger.active .finger-shape {
+      fill: #FFE156;
+      stroke-width: 4.5;
+    }
+
+    .svg-finger.complete .finger-shape {
+      fill: #86EFAC;
+    }
+
+    .svg-finger.active.complete .finger-shape {
+      fill: #4ECDC4;
+      stroke-width: 4.5;
+    }
+
+    .svg-finger:focus-visible {
+      outline: none;
+    }
+
+    .svg-finger:focus-visible .finger-shape {
+      stroke: #2563EB;
+      stroke-width: 5;
+    }
+
+    .finger-pill-strip {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+      width: 100%;
+      margin-top: 6px;
+    }
+
+    .finger-pill {
+      background: #FFFFFF;
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      box-shadow: 2px 2px 0 var(--ink);
+      padding: 5px 4px;
+      font-family: inherit;
+      font-size: 0.74rem;
+      font-weight: 900;
+      cursor: pointer;
+      color: var(--ink);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+      min-height: 44px;
+      justify-content: center;
+      transition: transform 0.1s ease, background-color 0.1s ease;
+    }
+
+    .finger-pill:active {
+      transform: translate(1px, 1px);
+      box-shadow: 1px 1px 0 var(--ink);
+    }
+
+    .finger-pill.active {
+      background: var(--yellow);
+    }
+
+    .finger-pill.complete {
+      background: #D1FAE5;
+      border-color: #059669;
+    }
+
+    .finger-pill.active.complete {
+      background: var(--green);
+    }
+
+    /* Compact Active Finger Choice Panel */
+    .active-finger-panel {
+      background: #FFFDF0;
+      border: 2.5px solid var(--ink);
+      border-radius: 12px;
       padding: 12px 14px;
       box-shadow: 3px 3px 0 var(--ink);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
     }
 
-    .finger-card.complete {
+    .active-finger-panel.complete {
       background: #ECFDF5;
       border-color: #059669;
     }
@@ -188,12 +484,13 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 8px;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
     .finger-name {
       font-weight: 900;
-      font-size: 0.95rem;
+      font-size: 1rem;
       display: flex;
       align-items: center;
       gap: 6px;
@@ -202,31 +499,33 @@
     .finger-element-tag {
       background: var(--yellow);
       border: 2px solid var(--ink);
-      border-radius: 6px;
-      padding: 2px 8px;
-      font-size: 0.8rem;
+      border-radius: 8px;
+      padding: 3px 10px;
+      font-size: 0.82rem;
       font-weight: 900;
     }
 
     .finger-options-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      grid-template-columns: 1fr;
       gap: 8px;
     }
 
     .token-btn {
       background: var(--white);
-      border: 2px solid var(--ink);
-      border-radius: 8px;
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
       box-shadow: 2px 2px 0 var(--ink);
-      padding: 8px 12px;
+      padding: 10px 14px;
       font-family: inherit;
-      font-size: 0.9rem;
+      font-size: 0.92rem;
       font-weight: 800;
       text-align: left;
       cursor: pointer;
-      min-height: 44px;
-      transition: all 0.12s ease;
+      min-height: 46px;
+      color: var(--ink);
+      line-height: 1.35;
+      transition: transform 0.1s ease, background-color 0.1s ease;
     }
 
     .token-btn:hover {
@@ -234,8 +533,13 @@
       transform: translate(-1px, -1px);
     }
 
+    .token-btn:active {
+      transform: translate(1px, 1px);
+      box-shadow: 1px 1px 0 var(--ink);
+    }
+
     .token-btn.correct-slot {
-      background: var(--green);
+      background: var(--mint);
       color: var(--ink);
       box-shadow: 1px 1px 0 var(--ink);
       cursor: default;
@@ -243,18 +547,29 @@
 
     .token-btn.wrong-slot {
       background: #FEE2E2;
+      border-color: #DC2626;
     }
 
-    /* Victory Card */
+    .panel-feedback {
+      font-size: 0.85rem;
+      font-weight: 900;
+      min-height: 20px;
+      color: #065F46;
+    }
+
+    .panel-feedback.error {
+      color: #B91C1C;
+    }
+
+    /* Victory Card (compact inside hand-board) */
     .victory-card {
       display: none;
       background: #ECFDF5;
       border: var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 24px;
+      padding: 16px;
       text-align: center;
-      margin-top: 20px;
     }
 
     .victory-card.active { display: block; }
@@ -280,7 +595,7 @@
       font-weight: 800;
       color: var(--ink);
       cursor: pointer;
-      min-height: 38px;
+      min-height: 44px;
       transition: transform 0.1s, box-shadow 0.1s;
     }
     .tts-trigger:hover {
@@ -379,9 +694,7 @@
       border-radius: 50%;
       background: var(--ink);
     }
-    .tts-item-flag {
-      font-size: 1rem;
-    }
+    .tts-item-flag { font-size: 1rem; }
     .tts-item-name {
       white-space: nowrap;
       overflow: hidden;
@@ -397,10 +710,10 @@
       border: 2px solid var(--ink);
       box-shadow: 2px 2px 0 var(--ink);
       border-radius: 8px;
-      width: 34px;
-      height: 34px;
+      width: 38px;
+      height: 38px;
       cursor: pointer;
-      font-size: 1rem;
+      font-size: 1.05rem;
       line-height: 1;
       flex-shrink: 0;
       transition: transform 0.1s, box-shadow 0.1s, background-color 0.1s;
@@ -423,17 +736,15 @@
       to { transform: scale(1.1); }
     }
 
-    @media (max-width: 820px) {
+    @media (max-width: 900px) {
       .retell-layout { grid-template-columns: 1fr; }
     }
-  
-    html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
   </style>
 </head>
 <body>
   <div class="container">
     <nav class="top-bar">
-      <div style="display: flex; align-items: center; gap: 10px;">
+      <div class="top-bar-left">
         <a class="pyp-map-link" href="../index.html">← PYP Map</a>
         <span class="unit-tag">🖐️ Grade 2 · Five Finger Retell</span>
       </div>
@@ -453,53 +764,131 @@
     <header class="hero-strip">
       <div>
         <h1>Five Finger Story Retell Map 📖</h1>
-        <p style="font-weight:700; color:#4B5563; font-size:0.9rem;">
-          Read the short narrative, then match each finger to the correct story element!
-        </p>
+        <p>Read the story, tap each finger on the hand, and match all 5 story elements!</p>
       </div>
-      <div style="font-weight:900; font-size:0.85rem; color:#4B5563;">
-        Framework: Characters · Setting · Time · Problem · Solution
-      </div>
+      <span class="framework-pill">Characters · Setting · Time · Problem · Solution</span>
     </header>
 
     <div class="retell-layout">
-      <!-- Left: Story Reader -->
+      <!-- Left: Story Reader & Reflection -->
       <aside class="story-card">
-        <div style="margin-bottom: 10px; display: flex; gap: 6px; flex-wrap: wrap;" id="storySelectorWrap"></div>
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-          <h2 class="story-title" style="margin-bottom: 0;">
-            <span id="storyTitleText">🐻 Goldilocks and the Three Bears</span>
+        <div class="story-selector" id="storySelectorWrap"></div>
+
+        <div class="story-header-row">
+          <h2 class="story-title">
+            <span id="storyTitleText">🐻 Goldilocks &amp; Three Bears</span>
           </h2>
           <button type="button" class="btn-speaker" id="btnSpeakStory" title="Read story aloud" aria-label="Read story aloud">🔊</button>
         </div>
-        <div id="spellingNotice" style="display:none; background:#FEF3C7; border:2px solid #D97706; border-radius:8px; padding:6px 10px; font-size:0.82rem; font-weight:800; color:#92400E; margin-bottom:10px;"></div>
-        <div class="story-text" id="storyBodyText">
-          Loading story...
-        </div>
+
+        <div id="spellingNotice" class="spelling-notice"></div>
+
+        <div class="story-text" id="storyBodyText">Loading story...</div>
+
         <div class="retell-tracker">
           <span>Hand Retell Progress:</span>
           <strong id="progressText">0 / 5 Fingers Matched</strong>
         </div>
+
+        <div class="passport-strip">
+          <div class="passport-strip-top">
+            <span>🏅 IB PYP Communicator Reflection</span>
+            <span class="passport-status" id="passportStatusText"></span>
+          </div>
+          <div class="reflect-choices" id="reflectChoices">
+            <button type="button" class="reflect-chip" data-reflect="characters">👤 Characters</button>
+            <button type="button" class="reflect-chip" data-reflect="setting">🏡 Setting</button>
+            <button type="button" class="reflect-chip" data-reflect="problem">⚡ Problem</button>
+            <button type="button" class="reflect-chip" data-reflect="solution">🌟 Solution</button>
+          </div>
+          <div class="passport-btn-row">
+            <span style="font-size:0.75rem; font-weight:700; color:#4B5563;" id="reflectPromptText">Which clue helped you retell best?</span>
+            <button type="button" class="btn-stamp" id="btnStampPassport">🏅 Stamp Passport</button>
+          </div>
+        </div>
       </aside>
 
-      <!-- Right: Five Finger Board -->
+      <!-- Right: Interactive Five-Finger SVG Hand & Active Choice Panel -->
       <main class="hand-board">
         <div class="hand-header">
-          <span>🖐️ Five Finger Narrative Matching Map:</span>
+          <span>🖐️ Tap a Finger to Match Its Story Element</span>
+          <span class="hand-tip" id="handTipBadge">Active: Thumb · Characters</span>
         </div>
 
-        <div class="fingers-list" id="fingersList">
-          <!-- Injected by JS -->
+        <div class="svg-hand-stage">
+          <svg class="hand-svg" id="fiveFingerSvg" viewBox="0 0 440 230" role="img" aria-label="Interactive Five Finger Retell Hand">
+            <!-- Soft background glow -->
+            <ellipse cx="220" cy="196" rx="140" ry="22" fill="rgba(17,17,17,0.06)" />
+
+            <!-- Palm Base -->
+            <path d="M 136 132 C 132 184, 156 214, 218 214 C 280 214, 306 184, 302 132 L 298 112 C 296 102, 142 102, 140 112 Z"
+              fill="#FEF3C7" stroke="#111111" stroke-width="3.5" stroke-linejoin="round" />
+
+            <!-- Finger 0: Thumb (Characters) -->
+            <g class="svg-finger" data-finger-idx="0" role="button" tabindex="0" aria-label="Thumb: Who (Characters)">
+              <path class="finger-shape" d="M 142 162 L 86 122 C 74 113, 74 96, 86 88 C 98 80, 113 84, 123 93 L 154 126 Z" />
+              <text x="103" y="109" text-anchor="middle" font-size="17" font-weight="900">👤</text>
+              <text x="64" y="76" text-anchor="middle" font-size="11.5" font-weight="900" fill="#111111">1. Thumb</text>
+              <text x="64" y="89" text-anchor="middle" font-size="10.5" font-weight="800" fill="#4B5563">Who</text>
+              <text class="finger-check" x="115" y="128" text-anchor="middle" font-size="13" font-weight="900" fill="#065F46"></text>
+            </g>
+
+            <!-- Finger 1: Index (Setting) -->
+            <g class="svg-finger" data-finger-idx="1" role="button" tabindex="0" aria-label="Index Finger: Where (Setting)">
+              <path class="finger-shape" d="M 144 126 L 136 42 C 135 28, 147 18, 160 19 C 173 20, 182 30, 182 44 L 184 122 Z" />
+              <text x="160" y="54" text-anchor="middle" font-size="17" font-weight="900">🏡</text>
+              <text x="158" y="12" text-anchor="middle" font-size="11.5" font-weight="900" fill="#111111">2. Index · Where</text>
+              <text class="finger-check" x="161" y="96" text-anchor="middle" font-size="14" font-weight="900" fill="#065F46"></text>
+            </g>
+
+            <!-- Finger 2: Middle (Time) -->
+            <g class="svg-finger" data-finger-idx="2" role="button" tabindex="0" aria-label="Middle Finger: When (Time)">
+              <path class="finger-shape" d="M 192 120 L 196 28 C 197 14, 208 6, 221 7 C 234 8, 243 18, 242 31 L 238 120 Z" />
+              <text x="219" y="42" text-anchor="middle" font-size="17" font-weight="900">⏰</text>
+              <text x="220" y="65" text-anchor="middle" font-size="10.5" font-weight="900" fill="#111111">3. When</text>
+              <text class="finger-check" x="217" y="96" text-anchor="middle" font-size="14" font-weight="900" fill="#065F46"></text>
+            </g>
+
+            <!-- Finger 3: Ring (Problem) -->
+            <g class="svg-finger" data-finger-idx="3" role="button" tabindex="0" aria-label="Ring Finger: What Happened (Problem)">
+              <path class="finger-shape" d="M 244 122 L 256 44 C 258 30, 270 22, 282 24 C 294 26, 302 37, 299 51 L 284 128 Z" />
+              <text x="276" y="58" text-anchor="middle" font-size="17" font-weight="900">⚡</text>
+              <text x="292" y="14" text-anchor="middle" font-size="11.5" font-weight="900" fill="#111111">4. Ring · Problem</text>
+              <text class="finger-check" x="268" y="98" text-anchor="middle" font-size="14" font-weight="900" fill="#065F46"></text>
+            </g>
+
+            <!-- Finger 4: Pinky (Solution) -->
+            <g class="svg-finger" data-finger-idx="4" role="button" tabindex="0" aria-label="Pinky Finger: How Resolved (Solution)">
+              <path class="finger-shape" d="M 288 140 L 324 82 C 331 71, 346 69, 356 77 C 366 85, 368 99, 360 110 L 314 166 Z" />
+              <text x="340" y="102" text-anchor="middle" font-size="17" font-weight="900">🌟</text>
+              <text x="378" y="66" text-anchor="middle" font-size="11.5" font-weight="900" fill="#111111">5. Pinky</text>
+              <text x="378" y="79" text-anchor="middle" font-size="10.5" font-weight="800" fill="#4B5563">Solution</text>
+              <text class="finger-check" x="319" y="135" text-anchor="middle" font-size="13" font-weight="900" fill="#065F46"></text>
+            </g>
+
+            <!-- Palm Label -->
+            <text x="219" y="162" text-anchor="middle" font-size="14" font-weight="900" fill="#111111" id="svgPalmCount">0 / 5 Matched</text>
+            <text x="219" y="182" text-anchor="middle" font-size="11" font-weight="800" fill="#4B5563">Tap any finger above!</text>
+          </svg>
+
+          <!-- Quick 5-Finger Selector Strip -->
+          <div class="finger-pill-strip" id="fingerPillStrip"></div>
         </div>
 
+        <!-- Compact Active Finger Choice Panel -->
+        <div class="active-finger-panel" id="activeFingerPanel">
+          <!-- Injected by JS for the selected finger -->
+        </div>
+
+        <!-- Victory Card -->
         <div class="victory-card" id="victoryCard">
-          <div style="font-size:3rem; margin-bottom:8px;">🌟🖐️</div>
-          <h2 style="font-size:1.6rem; font-weight:900; margin-bottom:6px;">Story Retell Master!</h2>
-          <p style="font-size:1rem; font-weight:700; color:#1F2937; margin-bottom:16px;">
-            You mastered the narrative structure: Who (Characters), Where (Setting), When (Time), What Happened (Problem), and How Resolved (Solution)!
+          <div style="font-size:2.2rem; margin-bottom:4px;">🌟🖐️🏅</div>
+          <h2 style="font-size:1.35rem; font-weight:900; margin-bottom:4px;">Story Retell Master!</h2>
+          <p style="font-size:0.9rem; font-weight:700; color:#1F2937; margin-bottom:12px;">
+            You matched all 5 story elements: Characters, Setting, Time, Problem, and Solution! Communicator stamp earned!
           </p>
-          <div style="display:flex; justify-content:center; gap:12px;">
-            <button class="pyp-map-link" id="btnPlayAgain" type="button" style="background:var(--green); border:2px solid #111;">Play Again 🔄</button>
+          <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
+            <button class="pyp-map-link" id="btnPlayAgain" type="button" style="background:var(--green);">Next Story 🔄</button>
             <a class="pyp-map-link" href="../index.html">Back to Learning Map 🗺️</a>
           </div>
         </div>
@@ -514,12 +903,13 @@
       init() {
         if (!this.ctx) {
           const AudioContext = window.AudioContext || window.webkitAudioContext;
-          this.ctx = new AudioContext();
+          if (AudioContext) this.ctx = new AudioContext();
         }
-        if (this.ctx.state === 'suspended') this.ctx.resume();
+        if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
       }
       playChime() {
         this.init();
+        if (!this.ctx) return;
         const now = this.ctx.currentTime;
         [587.33, 739.99, 880.00].forEach((freq, idx) => {
           const osc = this.ctx.createOscillator();
@@ -536,12 +926,14 @@
       }
       playBuzz() {
         this.init();
+        if (!this.ctx) return;
         const now = this.ctx.currentTime;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
-        osc.type = 'sawtooth';
+        osc.type = 'triangle';
         osc.frequency.setValueAtTime(190, now);
-        gain.gain.setValueAtTime(0.12, now);
+        osc.frequency.exponentialRampToValueAtTime(130, now + 0.2);
+        gain.gain.setValueAtTime(0.14, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
         osc.connect(gain);
         gain.connect(this.ctx.destination);
@@ -550,6 +942,7 @@
       }
       playClick() {
         this.init();
+        if (!this.ctx) return;
         const now = this.ctx.currentTime;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
@@ -564,39 +957,81 @@
     }
     const audio = new SoundFX();
 
+    // IB PYP Passport Helper
+    const PASSPORT_GAME_PATH = 'literacy/g2_five_finger_retell.html';
+    const PASSPORT_STAMPS = ['Communicator'];
+
+    function recordPypPassport(newStamps, gamePath) {
+      try {
+        const raw = localStorage.getItem('ib_pyp_passport');
+        const data = raw ? JSON.parse(raw) : {};
+        const stamps = Array.isArray(data.stamps) ? data.stamps : [];
+        const completed = Array.isArray(data.completed) ? data.completed : [];
+        newStamps.forEach(s => {
+          if (!stamps.includes(s)) stamps.push(s);
+        });
+        if (gamePath && !completed.includes(gamePath)) completed.push(gamePath);
+        data.stamps = stamps;
+        data.completed = completed;
+        localStorage.setItem('ib_pyp_passport', JSON.stringify(data));
+        return data;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function hasPassportStamp() {
+      try {
+        const raw = localStorage.getItem('ib_pyp_passport');
+        if (!raw) return false;
+        const data = JSON.parse(raw);
+        return Array.isArray(data.completed) && data.completed.includes(PASSPORT_GAME_PATH);
+      } catch (e) {
+        return false;
+      }
+    }
+
+    const FINGER_META = [
+      { shortName: "Thumb", icon: "👤", shortElement: "Characters" },
+      { shortName: "Index", icon: "🏡", shortElement: "Setting" },
+      { shortName: "Middle", icon: "⏰", shortElement: "Time" },
+      { shortName: "Ring", icon: "⚡", shortElement: "Problem" },
+      { shortName: "Pinky", icon: "🌟", shortElement: "Solution" }
+    ];
+
     const stories = [
       {
         id: 0,
         title: "🐻 Goldilocks & Three Bears",
-        spellingNotes: "Notice Key Spelling: food (not foot) · bed (not had) · scared (not scraed/sceed) · other's (not aths)",
+        spellingNotes: "✏️ Spelling Spotlight: food (oo) · bed (short e) · scared (scar + ed) · other people's (apostrophe + s)",
         text: "Once upon a time on a sunny morning, Goldilocks wandered into the Three Bears' forest cottage without asking. Hungry and tired, she ate up Baby Bear's porridge food, broke his little wooden chair, and fell fast asleep in his cozy bed! When the Three Bears returned home, Goldilocks woke up, felt terrified and scared, leaped out the open window, and promised never to enter other people's houses without permission.",
         fingerData: [
           {
-            finger: "Thumb 👍",
+            finger: "Thumb · 👤",
             element: "Who (Characters)",
             correct: "Goldilocks, Papa Bear, Mama Bear, and Baby Bear",
             options: ["Goldilocks, Papa Bear, Mama Bear, and Baby Bear", "A friendly rabbit and two birds", "A king and queen in a castle"]
           },
           {
-            finger: "Index Finger ☝️",
+            finger: "Index Finger · 🏡",
             element: "Where (Setting)",
             correct: "The Three Bears' cozy cottage in the deep forest",
             options: ["The Three Bears' cozy cottage in the deep forest", "At a crowded city train station", "Inside an empty desert tent"]
           },
           {
-            finger: "Middle Finger 🖕",
+            finger: "Middle Finger · ⏰",
             element: "When (Time)",
             correct: "Once upon a time on a sunny morning",
             options: ["Once upon a time on a sunny morning", "Last night during midnight sleep", "Five years in the future"]
           },
           {
-            finger: "Ring Finger 💍",
+            finger: "Ring Finger · ⚡",
             element: "What Happened (Problem)",
             correct: "Goldilocks ate Baby Bear's food, broke his chair, and slept in his bed.",
             options: ["Goldilocks ate Baby Bear's food, broke his chair, and slept in his bed.", "The bears forgot to lock their front door.", "A stormy wind blew the cottage roof away."]
           },
           {
-            finger: "Pinky Finger 🤙",
+            finger: "Pinky Finger · 🌟",
             element: "How Resolved (Solution & Ending)",
             correct: "The bears returned; Goldilocks felt scared, escaped through the window, and learned never to enter other people's houses.",
             options: ["The bears returned; Goldilocks felt scared, escaped through the window, and learned never to enter other people's houses.", "Papa Bear cooked pancakes and hot cocoa for everyone.", "Goldilocks stayed to wash the porridge bowls."]
@@ -609,31 +1044,31 @@
         text: "On a chilly Monday morning, Hilson arrived at the sunny SGA playground. Suddenly, he noticed his red lunchbox was missing! He searched the room, asked his teacher Ms. Green, and together they checked the lost-and-found shelf. Hilson found his lunchbox safe and smiled happily with relief.",
         fingerData: [
           {
-            finger: "Thumb 👍",
+            finger: "Thumb · 👤",
             element: "Who (Characters)",
             correct: "Hilson & Ms. Green (Teacher)",
             options: ["Hilson & Ms. Green (Teacher)", "A barking street puppy", "The yellow school bus driver"]
           },
           {
-            finger: "Index Finger ☝️",
+            finger: "Index Finger · 🏡",
             element: "Where (Setting)",
             correct: "Sunny SGA playground & classroom",
             options: ["Inside a deep jungle", "Sunny SGA playground & classroom", "At an airport terminal"]
           },
           {
-            finger: "Middle Finger 🖕",
+            finger: "Middle Finger · ⏰",
             element: "When (Time)",
             correct: "On a chilly Monday morning",
             options: ["On a chilly Monday morning", "Saturday at midnight", "Three years ago"]
           },
           {
-            finger: "Ring Finger 💍",
+            finger: "Ring Finger · ⚡",
             element: "What Happened (Problem)",
             correct: "Hilson's red lunchbox was missing.",
             options: ["Hilson forgot his shoes.", "Hilson's red lunchbox was missing.", "It rained inside the hallway."]
           },
           {
-            finger: "Pinky Finger 🤙",
+            finger: "Pinky Finger · 🌟",
             element: "How Resolved (Solution)",
             correct: "Found it safe on the lost-and-found shelf.",
             options: ["Ordered pizza for everyone.", "Found it safe on the lost-and-found shelf.", "Waited until school ended."]
@@ -646,31 +1081,31 @@
         text: "On a bright Wednesday afternoon, Leo sprinted across the grassy school soccer field. The school team lined up eagerly, but their practice soccer ball had rolled into a thorny bush and popped! Coach Dave hurried to the sports shed, grabbed a shiny new checkered ball, and kicked off an exciting friendly game.",
         fingerData: [
           {
-            finger: "Thumb 👍",
+            finger: "Thumb · 👤",
             element: "Who (Characters)",
             correct: "Leo & Coach Dave",
             options: ["Leo & Coach Dave", "Two sleepy kittens", "A supermarket cashier"]
           },
           {
-            finger: "Index Finger ☝️",
+            finger: "Index Finger · 🏡",
             element: "Where (Setting)",
             correct: "The grassy school soccer field",
             options: ["A submarine underwater", "The grassy school soccer field", "Inside the science lab"]
           },
           {
-            finger: "Middle Finger 🖕",
+            finger: "Middle Finger · ⏰",
             element: "When (Time)",
             correct: "On a bright Wednesday afternoon",
             options: ["On a bright Wednesday afternoon", "During midnight sleep", "In the winter holiday"]
           },
           {
-            finger: "Ring Finger 💍",
+            finger: "Ring Finger · ⚡",
             element: "What Happened (Problem)",
             correct: "Their soccer ball popped on thorny bushes.",
             options: ["Their soccer ball popped on thorny bushes.", "The grass was painted blue.", "Nobody came to school."]
           },
           {
-            finger: "Pinky Finger 🤙",
+            finger: "Pinky Finger · 🌟",
             element: "How Resolved (Solution)",
             correct: "Coach Dave brought a new shiny ball from the shed.",
             options: ["They went home early.", "Coach Dave brought a new shiny ball from the shed.", "They practiced swimming instead."]
@@ -683,31 +1118,31 @@
         text: "During Thursday morning recess, Maya hurried into the quiet school library to finish her project. She looked all over her desk, but her favorite dragon storybook was nowhere to be seen! Kind librarian Mr. Henderson guided her to retrace her steps. Behind the oversized reading cushion, they found the dragon book tucked neatly away.",
         fingerData: [
           {
-            finger: "Thumb 👍",
+            finger: "Thumb · 👤",
             element: "Who (Characters)",
             correct: "Maya & librarian Mr. Henderson",
             options: ["Maya & librarian Mr. Henderson", "A police officer and dog", "An astronaut on Mars"]
           },
           {
-            finger: "Index Finger ☝️",
+            finger: "Index Finger · 🏡",
             element: "Where (Setting)",
             correct: "The quiet school library",
             options: ["The quiet school library", "At a crowded swimming pool", "On top of a snowy mountain"]
           },
           {
-            finger: "Middle Finger 🖕",
+            finger: "Middle Finger · ⏰",
             element: "When (Time)",
             correct: "During Thursday morning recess",
             options: ["During Thursday morning recess", "Sunday at dinner time", "Late at night"]
           },
           {
-            finger: "Ring Finger 💍",
+            finger: "Ring Finger · ⚡",
             element: "What Happened (Problem)",
             correct: "Maya could not find her dragon storybook.",
             options: ["The library ran out of chairs.", "Maya could not find her dragon storybook.", "The lights turned off."]
           },
           {
-            finger: "Pinky Finger 🤙",
+            finger: "Pinky Finger · 🌟",
             element: "How Resolved (Solution)",
             correct: "Retraced steps and found it behind the reading cushion.",
             options: ["Bought a book online.", "Retraced steps and found it behind the reading cushion.", "Gave up reading."]
@@ -720,31 +1155,31 @@
         text: "On a rainy Friday morning, Sam was painting a colorful sunset in the school art room. While reaching for a brush, his elbow accidentally knocked over a jar of blue paint onto the wooden table! Art teacher Mrs. Rivera smiled calmly, handed him absorbent sponges, and showed him how to turn the spill into a wonderful ocean wave masterpiece.",
         fingerData: [
           {
-            finger: "Thumb 👍",
+            finger: "Thumb · 👤",
             element: "Who (Characters)",
             correct: "Sam & art teacher Mrs. Rivera",
             options: ["Sam & art teacher Mrs. Rivera", "A train conductor", "A lost robot"]
           },
           {
-            finger: "Index Finger ☝️",
+            finger: "Index Finger · 🏡",
             element: "Where (Setting)",
             correct: "The school art room",
             options: ["The school art room", "Inside a grocery store", "At a railway station"]
           },
           {
-            finger: "Middle Finger 🖕",
+            finger: "Middle Finger · ⏰",
             element: "When (Time)",
             correct: "On a rainy Friday morning",
             options: ["On a rainy Friday morning", "Summer vacation midnight", "Ten years ago"]
           },
           {
-            finger: "Ring Finger 💍",
+            finger: "Ring Finger · ⚡",
             element: "What Happened (Problem)",
             correct: "Sam accidentally knocked over a jar of blue paint.",
             options: ["Sam lost his school shoes.", "Sam accidentally knocked over a jar of blue paint.", "The roof started leaking."]
           },
           {
-            finger: "Pinky Finger 🤙",
+            finger: "Pinky Finger · 🌟",
             element: "How Resolved (Solution)",
             correct: "Cleaned with sponges and transformed the spill into wave art.",
             options: ["Left the classroom crying.", "Cleaned with sponges and transformed the spill into wave art.", "Threw away the table."]
@@ -757,31 +1192,31 @@
         text: "Early Tuesday morning before classes, Emma visited the sunny SGA vegetable garden. She noticed that the baby tomato seedlings were wilting under the dry soil because the automatic sprinkler was unplugged! She told gardener Mr. Chen right away. Together they plugged in the water hose and gave the thirsty green seedlings a fresh morning shower.",
         fingerData: [
           {
-            finger: "Thumb 👍",
+            finger: "Thumb · 👤",
             element: "Who (Characters)",
             correct: "Emma & gardener Mr. Chen",
             options: ["Emma & gardener Mr. Chen", "A flock of seagulls", "A race car driver"]
           },
           {
-            finger: "Index Finger ☝️",
+            finger: "Index Finger · 🏡",
             element: "Where (Setting)",
             correct: "The sunny SGA vegetable garden",
             options: ["The sunny SGA vegetable garden", "Inside a bakery oven", "At a movie theater"]
           },
           {
-            finger: "Middle Finger 🖕",
+            finger: "Middle Finger · ⏰",
             element: "When (Time)",
             correct: "Early Tuesday morning before classes",
             options: ["Early Tuesday morning before classes", "Saturday night at 11 PM", "During lunch yesterday"]
           },
           {
-            finger: "Ring Finger 💍",
+            finger: "Ring Finger · ⚡",
             element: "What Happened (Problem)",
             correct: "Tomato seedlings were wilting from unplugged sprinklers.",
             options: ["Crows ate all the apples.", "Tomato seedlings were wilting from unplugged sprinklers.", "It started snowing."]
           },
           {
-            finger: "Pinky Finger 🤙",
+            finger: "Pinky Finger · 🌟",
             element: "How Resolved (Solution)",
             correct: "Plugged in the hose and gave the plants a fresh morning shower.",
             options: ["Pulled out all the plants.", "Plugged in the hose and gave the plants a fresh morning shower.", "Waited for heavy rain."]
@@ -791,15 +1226,48 @@
     ];
 
     let currentStory = null;
-    let solved = 0;
-    const fingersList = document.getElementById('fingersList');
+    let activeFingerIdx = 0;
+    let solvedFingers = [false, false, false, false, false];
+    let shuffledOptionsByFinger = [];
+    const completedStories = new Set();
+    let autoAdvanceTimer = null;
+
     const progressText = document.getElementById('progressText');
+    const svgPalmCount = document.getElementById('svgPalmCount');
+    const handTipBadge = document.getElementById('handTipBadge');
+    const fingerPillStrip = document.getElementById('fingerPillStrip');
+    const activeFingerPanel = document.getElementById('activeFingerPanel');
     const victoryCard = document.getElementById('victoryCard');
     const btnPlayAgain = document.getElementById('btnPlayAgain');
     const btnSpeakStory = document.getElementById('btnSpeakStory');
+    const btnStampPassport = document.getElementById('btnStampPassport');
+    const passportStatusText = document.getElementById('passportStatusText');
+    const reflectPromptText = document.getElementById('reflectPromptText');
+
+    function updatePassportUI() {
+      if (hasPassportStamp()) {
+        btnStampPassport.classList.add('stamped');
+        btnStampPassport.textContent = '✅ Communicator Stamped';
+        passportStatusText.textContent = 'Saved in Passport!';
+      } else {
+        btnStampPassport.classList.remove('stamped');
+        btnStampPassport.textContent = '🏅 Stamp Passport';
+        passportStatusText.textContent = '';
+      }
+    }
 
     function selectStory(idx) {
+      if (autoAdvanceTimer) {
+        clearTimeout(autoAdvanceTimer);
+        autoAdvanceTimer = null;
+      }
       currentStory = stories[idx];
+      activeFingerIdx = 0;
+      solvedFingers = [false, false, false, false, false];
+      shuffledOptionsByFinger = currentStory.fingerData.map(item =>
+        [...item.options].sort(() => Math.random() - 0.5)
+      );
+
       document.getElementById('storyTitleText').textContent = currentStory.title;
       document.getElementById('storyBodyText').textContent = currentStory.text;
 
@@ -811,12 +1279,7 @@
         notice.style.display = 'none';
       }
 
-      // Update active chip styling
-      const chips = document.querySelectorAll('.story-chip');
-      chips.forEach((c, i) => {
-        c.style.background = (i === idx) ? 'var(--yellow)' : '#F3F4F6';
-        c.style.fontWeight = (i === idx) ? '900' : '700';
-      });
+      updateStoryChipsUI();
       renderFingers();
     }
 
@@ -828,79 +1291,199 @@
         const chip = document.createElement('button');
         chip.type = 'button';
         chip.className = 'story-chip';
-        chip.textContent = s.title.split(' ')[0] + ' ' + (s.title.split(' ')[1] || '');
+        chip.dataset.storyIdx = idx;
         chip.title = s.title;
-        chip.style.cssText = "padding:5px 10px; font-size:0.8rem; border:2px solid var(--ink); border-radius:8px; cursor:pointer; font-weight:700; background:#F3F4F6;";
         chip.addEventListener('click', () => {
           audio.playClick();
           selectStory(idx);
         });
         wrap.appendChild(chip);
       });
+      updateStoryChipsUI();
     }
 
-    function pickRandomStory() {
-      selectStory(0); // Default to Goldilocks story first
-    }
+    const STORY_CHIP_LABELS = ['Goldilocks', 'Playground', 'Soccer', 'Library Book', 'Art Studio', 'Garden Patch'];
 
-    function renderFingers() {
-      fingersList.innerHTML = '';
-      solved = 0;
-      progressText.textContent = `0 / 5 Fingers Matched`;
-      victoryCard.classList.remove('active');
-
-      currentStory.fingerData.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'finger-card';
-        card.innerHTML = `
-          <div class="finger-top">
-            <span class="finger-name">${item.finger}</span>
-            <span class="finger-element-tag">${item.element}</span>
-          </div>
-          <div class="finger-options-grid"></div>
-        `;
-
-        const grid = card.querySelector('.finger-options-grid');
-        // Randomize options so the correct answer is never fixed
-        const shuffledOptions = [...item.options].sort(() => Math.random() - 0.5);
-
-        shuffledOptions.forEach(optText => {
-          const btn = document.createElement('button');
-          btn.type = 'button';
-          btn.className = 'token-btn';
-          btn.textContent = optText;
-          btn.addEventListener('click', () => {
-            if (card.classList.contains('complete')) return;
-            audio.playClick();
-
-            if (optText === item.correct) {
-              audio.playChime();
-              btn.classList.add('correct-slot');
-              card.classList.add('complete');
-              grid.querySelectorAll('.token-btn').forEach(b => {
-                if (b !== btn) b.style.display = 'none';
-              });
-              solved++;
-              progressText.textContent = `${solved} / 5 Fingers Matched`;
-              if (solved === currentStory.fingerData.length) {
-                victoryCard.classList.add('active');
-              }
-            } else {
-              audio.playBuzz();
-              btn.classList.add('wrong-slot');
-              setTimeout(() => btn.classList.remove('wrong-slot'), 600);
-            }
-          });
-          grid.appendChild(btn);
-        });
-
-        fingersList.appendChild(card);
+    function updateStoryChipsUI() {
+      const chips = document.querySelectorAll('.story-chip');
+      chips.forEach((chip, i) => {
+        const s = stories[i];
+        const emoji = s.title.split(' ')[0];
+        const shortLabel = `${emoji} ${STORY_CHIP_LABELS[i] || s.title}`;
+        const isDone = completedStories.has(s.id);
+        chip.textContent = isDone ? `✓ ${shortLabel}` : shortLabel;
+        chip.classList.toggle('active', currentStory && currentStory.id === s.id);
+        chip.classList.toggle('completed', isDone);
       });
     }
 
+    function pickRandomStory() {
+      if (!currentStory) {
+        selectStory(0);
+        return;
+      }
+      // Advance to the next unsolved story; if all are solved, cycle to the next story
+      const total = stories.length;
+      for (let offset = 1; offset <= total; offset++) {
+        const candidateIdx = (currentStory.id + offset) % total;
+        if (!completedStories.has(stories[candidateIdx].id)) {
+          selectStory(candidateIdx);
+          return;
+        }
+      }
+      selectStory((currentStory.id + 1) % total);
+    }
+
+    function updateHandVisuals() {
+      const solvedCount = solvedFingers.filter(Boolean).length;
+      progressText.textContent = `${solvedCount} / 5 Fingers Matched`;
+      svgPalmCount.textContent = `${solvedCount} / 5 Matched`;
+
+      const meta = FINGER_META[activeFingerIdx];
+      handTipBadge.textContent = `Active: ${meta.shortName} · ${meta.shortElement}`;
+
+      // Update SVG fingers
+      document.querySelectorAll('.svg-finger').forEach(group => {
+        const fIdx = parseInt(group.getAttribute('data-finger-idx'), 10);
+        group.classList.toggle('active', fIdx === activeFingerIdx);
+        group.classList.toggle('complete', solvedFingers[fIdx]);
+        const checkEl = group.querySelector('.finger-check');
+        if (checkEl) checkEl.textContent = solvedFingers[fIdx] ? '✓' : '';
+      });
+
+      // Update Quick Selector Pills
+      fingerPillStrip.innerHTML = '';
+      FINGER_META.forEach((m, fIdx) => {
+        const pill = document.createElement('button');
+        pill.type = 'button';
+        pill.className = 'finger-pill';
+        if (fIdx === activeFingerIdx) pill.classList.add('active');
+        if (solvedFingers[fIdx]) pill.classList.add('complete');
+        pill.innerHTML = `<span>${solvedFingers[fIdx] ? '✅' : m.icon} ${m.shortName}</span><span style="font-size:0.68rem; font-weight:800; opacity:0.85;">${m.shortElement}</span>`;
+        pill.addEventListener('click', () => {
+          audio.playClick();
+          activeFingerIdx = fIdx;
+          renderActiveFingerPanel();
+          updateHandVisuals();
+        });
+        fingerPillStrip.appendChild(pill);
+      });
+    }
+
+    function renderActiveFingerPanel() {
+      const item = currentStory.fingerData[activeFingerIdx];
+      const isSolved = solvedFingers[activeFingerIdx];
+      const allSolved = solvedFingers.every(Boolean);
+
+      activeFingerPanel.style.display = allSolved ? 'none' : 'flex';
+      victoryCard.classList.toggle('active', allSolved);
+      if (allSolved) return;
+
+      activeFingerPanel.classList.toggle('complete', isSolved);
+      activeFingerPanel.innerHTML = `
+        <div class="finger-top">
+          <span class="finger-name">${item.finger}</span>
+          <span class="finger-element-tag">${item.element}</span>
+        </div>
+        <div class="finger-options-grid" id="activeOptionsGrid"></div>
+        <div class="panel-feedback" id="panelFeedback">
+          ${isSolved ? '✅ Matched! Tap another finger on the hand to continue.' : 'Choose the sentence that matches this finger:'}
+        </div>
+      `;
+
+      const grid = document.getElementById('activeOptionsGrid');
+      const feedback = document.getElementById('panelFeedback');
+      const options = shuffledOptionsByFinger[activeFingerIdx];
+
+      options.forEach(optText => {
+        if (isSolved && optText !== item.correct) return;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'token-btn' + (isSolved ? ' correct-slot' : '');
+        btn.textContent = (isSolved ? '✅ ' : '') + optText;
+        btn.addEventListener('click', () => {
+          if (solvedFingers[activeFingerIdx]) return;
+          audio.playClick();
+
+          if (optText === item.correct) {
+            audio.playChime();
+            solvedFingers[activeFingerIdx] = true;
+            updateHandVisuals();
+
+            if (solvedFingers.every(Boolean)) {
+              completedStories.add(currentStory.id);
+              updateStoryChipsUI();
+              recordPypPassport(PASSPORT_STAMPS, PASSPORT_GAME_PATH);
+              updatePassportUI();
+              renderActiveFingerPanel();
+            } else {
+              renderActiveFingerPanel();
+              // Gently move to next unsolved finger after a brief pause
+              if (autoAdvanceTimer) clearTimeout(autoAdvanceTimer);
+              autoAdvanceTimer = setTimeout(() => {
+                const nextUnsolved = solvedFingers.findIndex(done => !done);
+                if (nextUnsolved !== -1) {
+                  activeFingerIdx = nextUnsolved;
+                  updateHandVisuals();
+                  renderActiveFingerPanel();
+                }
+              }, 750);
+            }
+          } else {
+            audio.playBuzz();
+            btn.classList.add('wrong-slot');
+            feedback.className = 'panel-feedback error';
+            feedback.textContent = 'Not quite! Check the story on the left and try another choice.';
+            setTimeout(() => btn.classList.remove('wrong-slot'), 550);
+          }
+        });
+        grid.appendChild(btn);
+      });
+    }
+
+    function renderFingers() {
+      updateHandVisuals();
+      renderActiveFingerPanel();
+    }
+
+    // Bind SVG Finger Clicks & Keyboard Activation
+    document.querySelectorAll('.svg-finger').forEach(group => {
+      const handleSelect = () => {
+        audio.playClick();
+        activeFingerIdx = parseInt(group.getAttribute('data-finger-idx'), 10);
+        updateHandVisuals();
+        renderActiveFingerPanel();
+      };
+      group.addEventListener('click', handleSelect);
+      group.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleSelect();
+        }
+      });
+    });
+
+    // Reflection & Passport Stamp Hook
+    document.querySelectorAll('.reflect-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        audio.playClick();
+        document.querySelectorAll('.reflect-chip').forEach(c => c.classList.remove('selected'));
+        chip.classList.add('selected');
+        reflectPromptText.textContent = `Great reflection: ${chip.textContent.trim()} helped you retell!`;
+      });
+    });
+
+    btnStampPassport.addEventListener('click', () => {
+      audio.playChime();
+      recordPypPassport(PASSPORT_STAMPS, PASSPORT_GAME_PATH);
+      updatePassportUI();
+    });
+
     // ----------------------------------------------------
-    // TTS MANAGER (Neobrutalism Radio Group Dropdown)
+    // TTS MANAGER (Neobrutalism Radio Group Dropdown + JOKE_VOICES filter)
     // ----------------------------------------------------
+    const JOKE_VOICES = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|hysterical|pipe organ|trinoids|whisper|zarvox|fred|junior|kathy|ralph|wobble/i;
+
     const TTS_MANAGER = {
       currentVoiceName: '',
       wrap: null,
@@ -953,10 +1536,13 @@
         if (!window.speechSynthesis || !this.list) return;
         const voices = window.speechSynthesis.getVoices();
         let englishVoices = voices.filter(v => {
-          const lang = v.lang.toLowerCase().replace('_', '-');
-          return lang.startsWith('en');
+          const lang = (v.lang || '').toLowerCase().replace('_', '-');
+          return lang.startsWith('en') && !JOKE_VOICES.test(v.name);
         });
 
+        if (englishVoices.length === 0) {
+          englishVoices = voices.filter(v => !JOKE_VOICES.test(v.name));
+        }
         if (englishVoices.length === 0) englishVoices = voices;
         if (englishVoices.length === 0) return;
 
@@ -1003,10 +1589,12 @@
 
       renderMenu(voices) {
         this.list.innerHTML = '';
-        voices.forEach(v => {
-          const isUK = v.lang.toLowerCase().replace('_', '-').includes('gb');
-          const flag = isUK ? '🇬🇧' : '🇺🇸';
-          const region = isUK ? 'UK' : 'US';
+        voices.slice(0, 15).forEach(v => {
+          const lang = (v.lang || '').toLowerCase().replace('_', '-');
+          const isUK = lang.includes('gb');
+          const isAU = lang.includes('au');
+          const flag = isAU ? '🇦🇺' : isUK ? '🇬🇧' : '🇺🇸';
+          const region = isAU ? 'AU' : isUK ? 'UK' : 'US';
           const isActive = v.name === this.currentVoiceName;
 
           const btn = document.createElement('button');
@@ -1046,8 +1634,10 @@
 
       updateTriggerUI(v) {
         if (!v) return;
-        const isUK = v.lang.toLowerCase().replace('_', '-').includes('gb');
-        this.flag.textContent = isUK ? '🇬🇧' : '🇺🇸';
+        const lang = (v.lang || '').toLowerCase().replace('_', '-');
+        const isUK = lang.includes('gb');
+        const isAU = lang.includes('au');
+        this.flag.textContent = isAU ? '🇦🇺' : isUK ? '🇬🇧' : '🇺🇸';
         let shortName = v.name.replace(/^(Google|Microsoft|Apple)\s+/i, '');
         if (shortName.length > 14) shortName = shortName.substring(0, 12) + '...';
         this.label.textContent = shortName;
@@ -1087,14 +1677,13 @@
     btnPlayAgain.addEventListener('click', () => {
       audio.playClick();
       pickRandomStory();
-      renderFingers();
     });
 
-    // Start
+    // Start (single selectStory -> renderFingers flow, no duplicates)
     TTS_MANAGER.init();
     renderStoryChips();
+    updatePassportUI();
     pickRandomStory();
-    renderFingers();
   </script>
 </body>
 </html>

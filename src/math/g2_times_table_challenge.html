@@ -39,7 +39,7 @@
     }
 
     .container {
-      max-width: 900px;
+      max-width: 1120px;
       margin: 0 auto;
     }
 
@@ -249,6 +249,88 @@
       font-size: 1rem;
       font-weight: 800;
       min-height: 28px;
+    }
+
+    .hint-visual-box {
+      display: none;
+      margin-top: 12px;
+      background: #FEF9C3;
+      border: 2.5px solid var(--ink);
+      border-radius: 12px;
+      box-shadow: 3px 3px 0 var(--ink);
+      padding: 12px 16px;
+      width: 100%;
+      max-width: 480px;
+      text-align: center;
+    }
+
+    .hint-visual-box.open {
+      display: block;
+    }
+
+    .hint-dot-grid {
+      display: inline-flex;
+      flex-direction: column;
+      gap: 6px;
+      margin: 8px 0;
+      align-items: center;
+    }
+
+    .hint-dot-row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      background: #FFFFFF;
+      border: 1.5px solid var(--ink);
+      border-radius: 999px;
+      padding: 4px 10px;
+    }
+
+    .hint-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--blue);
+      border: 1.5px solid var(--ink);
+    }
+
+    .hint-skip-text {
+      font-size: 0.88rem;
+      font-weight: 900;
+      color: #713F12;
+      margin-top: 4px;
+    }
+
+    .pyp-reflect-card {
+      background: #FFFDE8;
+      border: 2.5px solid var(--ink);
+      border-radius: 12px;
+      box-shadow: 3px 3px 0 var(--ink);
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      text-align: left;
+    }
+
+    .pyp-reflect-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--coral);
+      color: var(--white);
+      border: 2px solid var(--ink);
+      border-radius: 999px;
+      padding: 3px 12px;
+      font-size: 0.78rem;
+      font-weight: 900;
+      margin-bottom: 6px;
+    }
+
+    .pyp-stamp-status {
+      font-size: 0.88rem;
+      font-weight: 900;
+      color: #047857;
+      margin-top: 8px;
+      min-height: 20px;
     }
 
     /* Win Modal */
@@ -554,6 +636,7 @@
       </div>
 
       <div class="feedback-banner" id="feedbackText">Choose the correct product as quickly as you can!</div>
+      <div class="hint-visual-box" id="hintVisualBox" aria-live="polite"></div>
     </main>
   </div>
 
@@ -563,9 +646,20 @@
       <div class="modal-badge">⚡</div>
       <h2 class="modal-title">Times Table Champion!</h2>
       <p class="modal-desc" id="winDesc">
-        Incredible speed! You recalled the multiplication facts with swift accuracy. Hilson's times tables goal is unlocked!
+        Incredible speed! You recalled the multiplication facts with swift accuracy. Your times tables mastery badge is unlocked!
       </p>
-      <button class="btn-action-primary" id="btnRestart" type="button">Play Again 🔄</button>
+      <div class="pyp-reflect-card">
+        <div class="pyp-reflect-badge">🧭 IB PYP Learner Profile · Risk-Taker</div>
+        <p style="font-size: 0.9rem; font-weight: 700; color: #374151; line-height: 1.45;">
+          <strong>Reflection:</strong> Practicing tricky times tables bravely—even after a wrong guess—builds speed, confidence, and automatic recall!
+        </p>
+        <div class="pyp-stamp-status" id="pypStampStatus"></div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <button class="btn-action-primary" id="btnClaimStamp" type="button" style="background: var(--purple); color: var(--white);">🧭 Stamp My Passport!</button>
+        <button class="btn-action-primary" id="btnRestart" type="button">Play Again 🔄</button>
+        <a class="pyp-map-link" href="../index.html" style="justify-content: center;">🗺️ View Passport on PYP Map</a>
+      </div>
     </div>
   </div>
 
@@ -610,6 +704,19 @@
         osc.start(now);
         osc.stop(now + 0.2);
       }
+      playClick() {
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.frequency.setValueAtTime(520, now);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.06);
+      }
     }
     const audio = new TimesAudio();
 
@@ -618,7 +725,39 @@
     const maxQuestions = 10;
     let score = 0;
     let streak = 0;
+    let bestStreak = 0;
+    let firstTryCorrect = 0;
+    let currentHadWrong = false;
+    let isTransitioning = false;
+    let nextQuestionTimer = null;
+    let hasUserInteracted = false;
     let currentProblem = null;
+
+    const JOKE_VOICES = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|hysterical|pipe organ|trinoids|whisper|zarvox|fred|junior|kathy|ralph|wobble/i;
+
+    function markUserInteraction() {
+      hasUserInteracted = true;
+    }
+    document.addEventListener('pointerdown', markUserInteraction, { once: true });
+    document.addEventListener('keydown', markUserInteraction, { once: true });
+
+    function recordPassportStamp(silent) {
+      try {
+        const raw = localStorage.getItem('ib_pyp_passport');
+        const data = raw ? JSON.parse(raw) : { stamps: [], completed: [] };
+        const stamps = new Set(Array.isArray(data.stamps) ? data.stamps : []);
+        const completed = new Set(Array.isArray(data.completed) ? data.completed : []);
+        stamps.add('Risk-Taker');
+        completed.add('math/g2_times_table_challenge.html');
+        localStorage.setItem('ib_pyp_passport', JSON.stringify({ stamps: [...stamps], completed: [...completed] }));
+        if (!silent) {
+          const status = document.getElementById('pypStampStatus');
+          const claimBtn = document.getElementById('btnClaimStamp');
+          if (status) status.textContent = '✅ Risk-Taker stamp saved to your IB PYP Passport!';
+          if (claimBtn) claimBtn.textContent = '✅ Stamped!';
+        }
+      } catch (_) {}
+    }
 
     function randomInt(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -688,7 +827,7 @@
 
         this.trigger.addEventListener('click', (e) => {
           e.stopPropagation();
-          audio.init();
+          audio.playClick();
           this.wrap.classList.toggle('open');
           this.trigger.setAttribute('aria-expanded', this.wrap.classList.contains('open'));
         });
@@ -720,9 +859,10 @@
         const voices = window.speechSynthesis.getVoices();
         let englishVoices = voices.filter(v => {
           const lang = v.lang.toLowerCase().replace('_', '-');
-          return lang.startsWith('en');
+          return lang.startsWith('en') && !JOKE_VOICES.test(v.name);
         });
 
+        if (englishVoices.length === 0) englishVoices = voices.filter(v => !JOKE_VOICES.test(v.name));
         if (englishVoices.length === 0) englishVoices = voices;
         if (englishVoices.length === 0) return;
 
@@ -788,7 +928,7 @@
 
           btn.addEventListener('click', (e) => {
             e.stopPropagation();
-            audio.init();
+            audio.playClick();
             this.selectVoice(v);
             this.wrap.classList.remove('open');
             this.trigger.setAttribute('aria-expanded', 'false');
@@ -820,9 +960,15 @@
       },
 
       speak(text, onEnd) {
-        if (!window.speechSynthesis) return;
+        if (!window.speechSynthesis) {
+          if (onEnd) onEnd();
+          return;
+        }
         window.speechSynthesis.cancel();
-        if (!text || !text.trim()) return;
+        if (!text || !text.trim()) {
+          if (onEnd) onEnd();
+          return;
+        }
 
         const utterance = new SpeechSynthesisUtterance(text);
         const voices = window.speechSynthesis.getVoices();
@@ -853,15 +999,54 @@
     const btnSpeakEquation = document.getElementById('btnSpeakEquation');
     if (btnSpeakEquation) {
       btnSpeakEquation.addEventListener('click', () => {
-        audio.init();
+        hasUserInteracted = true;
+        audio.playClick();
         speakCurrentEquation();
       });
     }
 
+    function buildHintVisual(a, b) {
+      let rowsHtml = '';
+      for (let r = 0; r < a; r++) {
+        let dots = '';
+        for (let c = 0; c < b; c++) {
+          dots += '<span class="hint-dot"></span>';
+        }
+        rowsHtml += `<div class="hint-dot-row">${dots}</div>`;
+      }
+      // Show a skip-counting starter without revealing the final product
+      const skipSteps = [];
+      const revealCount = Math.max(1, Math.min(2, a - 1));
+      for (let i = 1; i <= revealCount; i++) {
+        skipSteps.push(i * b);
+      }
+      const skipHint = a === 1
+        ? `1 group of ${b} — count the dots!`
+        : `Skip-count ${a} rows of ${b}: ${skipSteps.join(', ')}, ...`;
+
+      return `
+        <div style="font-size:0.86rem; font-weight:900; color:#111;">👀 Visual Hint: ${a} groups of ${b}</div>
+        <div class="hint-dot-grid">${rowsHtml}</div>
+        <div class="hint-skip-text">${skipHint}</div>
+      `;
+    }
+
     function renderQuestion() {
+      if (nextQuestionTimer) {
+        clearTimeout(nextQuestionTimer);
+        nextQuestionTimer = null;
+      }
+      isTransitioning = false;
+      currentHadWrong = false;
+
       if (questionCount >= maxQuestions) {
         document.getElementById('winModal').style.display = 'flex';
-        document.getElementById('winDesc').textContent = `Final Score: ${score} points with a peak streak of ${streak}! Keep practicing daily to memorize all facts!`;
+        document.getElementById('winDesc').textContent = `Final Score: ${score} points · First-Try Accuracy: ${firstTryCorrect}/${maxQuestions} · Peak Streak: ${bestStreak}! Keep practicing daily to master all facts!`;
+        recordPassportStamp(true);
+        const status = document.getElementById('pypStampStatus');
+        const claimBtn = document.getElementById('btnClaimStamp');
+        if (status) status.textContent = '✨ Tap "Stamp My Passport!" to celebrate your Risk-Taker badge!';
+        if (claimBtn) claimBtn.textContent = '🧭 Stamp My Passport!';
         return;
       }
 
@@ -873,8 +1058,19 @@
       currentProblem = generateProblem();
       document.getElementById('equationBox').textContent = `${currentProblem.a} × ${currentProblem.b} = ?`;
 
-      // Read aloud the equation automatically when question is shown
-      speakCurrentEquation();
+      // Guard auto-TTS until after first user interaction so speaker never stalls on load
+      if (hasUserInteracted) {
+        speakCurrentEquation();
+      } else {
+        const btnSpeak = document.getElementById('btnSpeakEquation');
+        if (btnSpeak) btnSpeak.classList.remove('speaking');
+      }
+
+      const hintBox = document.getElementById('hintVisualBox');
+      if (hintBox) {
+        hintBox.classList.remove('open');
+        hintBox.innerHTML = '';
+      }
 
       const grid = document.getElementById('choicesGrid');
       grid.innerHTML = '';
@@ -893,49 +1089,88 @@
     }
 
     function handleAnswer(chosen, btnEl) {
+      if (isTransitioning || btnEl.disabled) return;
+      hasUserInteracted = true;
       const feedback = document.getElementById('feedbackText');
 
       if (chosen === currentProblem.answer) {
+        isTransitioning = true;
+        document.querySelectorAll('#choicesGrid .choice-btn').forEach(b => { b.disabled = true; });
         audio.playCorrect();
-        streak++;
-        score += (10 + streak * 2);
+
+        if (!currentHadWrong) {
+          firstTryCorrect++;
+          streak++;
+          if (streak > bestStreak) bestStreak = streak;
+          score += (10 + streak * 2);
+        } else {
+          score += 5;
+        }
+
+        document.getElementById('badgeScore').textContent = `⭐ Score: ${score}`;
+        document.getElementById('badgeStreak').textContent = `🔥 Streak: ${streak}`;
         feedback.textContent = `🎯 Correct! ${currentProblem.a} × ${currentProblem.b} = ${currentProblem.answer}`;
         feedback.style.color = '#059669';
-
         btnEl.style.background = '#86EFAC';
 
-        setTimeout(() => {
+        nextQuestionTimer = setTimeout(() => {
           renderQuestion();
         }, 600);
       } else {
         audio.playBuzz();
+        currentHadWrong = true;
         streak = 0;
+        btnEl.disabled = true;
         document.getElementById('badgeStreak').textContent = `🔥 Streak: ${streak}`;
-        feedback.textContent = `❌ Think: ${currentProblem.a} groups of ${currentProblem.b} is ${currentProblem.answer}.`;
+        feedback.textContent = `❌ Not quite! Use the dot array below to count ${currentProblem.a} groups of ${currentProblem.b}, then try again!`;
         feedback.style.color = '#DC2626';
         btnEl.style.opacity = '0.35';
+
+        const hintBox = document.getElementById('hintVisualBox');
+        if (hintBox && !hintBox.classList.contains('open')) {
+          hintBox.innerHTML = buildHintVisual(currentProblem.a, currentProblem.b);
+          hintBox.classList.add('open');
+        }
       }
+    }
+
+    function resetSession() {
+      if (nextQuestionTimer) {
+        clearTimeout(nextQuestionTimer);
+        nextQuestionTimer = null;
+      }
+      isTransitioning = false;
+      questionCount = 0;
+      score = 0;
+      streak = 0;
+      bestStreak = 0;
+      firstTryCorrect = 0;
+      currentHadWrong = false;
+      renderQuestion();
     }
 
     // Tabs
     document.querySelectorAll('#tableTabs .tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
+        hasUserInteracted = true;
+        audio.playClick();
         document.querySelectorAll('#tableTabs .tab-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         selectedTable = btn.dataset.tab;
-        questionCount = 0;
-        score = 0;
-        streak = 0;
-        renderQuestion();
+        resetSession();
       });
     });
 
+    document.getElementById('btnClaimStamp').addEventListener('click', () => {
+      audio.playCorrect();
+      recordPassportStamp(false);
+    });
+
     document.getElementById('btnRestart').addEventListener('click', () => {
+      hasUserInteracted = true;
+      audio.playClick();
       document.getElementById('winModal').style.display = 'none';
-      questionCount = 0;
-      score = 0;
-      streak = 0;
-      renderQuestion();
+      resetSession();
     });
 
     TTS_MANAGER.init();

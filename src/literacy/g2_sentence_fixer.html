@@ -123,6 +123,15 @@
       margin-bottom: 20px;
     }
 
+    .clinic-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
     .clinic-badge {
       display: inline-flex;
       align-items: center;
@@ -131,11 +140,113 @@
       color: var(--white);
       border: 2px solid var(--ink);
       border-radius: 6px;
-      padding: 4px 10px;
-      font-size: 0.82rem;
+      padding: 5px 12px;
+      font-size: 0.85rem;
       font-weight: 900;
-      margin-bottom: 12px;
       box-shadow: 2px 2px 0 var(--ink);
+    }
+
+    .clinic-tools {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-tool {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--yellow);
+      color: var(--ink);
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      box-shadow: 2px 2px 0 var(--ink);
+      padding: 6px 12px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 800;
+      cursor: pointer;
+      min-height: 38px;
+      transition: transform 0.1s, box-shadow 0.1s, background-color 0.15s;
+    }
+
+    .btn-tool:hover {
+      background: #FDE047;
+      transform: translate(-1px, -1px);
+      box-shadow: 3px 3px 0 var(--ink);
+    }
+
+    .btn-tool:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0 0 0 var(--ink);
+    }
+
+    .btn-tool.hint-btn {
+      background: #E0F2FE;
+    }
+
+    .btn-tool.hint-btn:hover {
+      background: #BAE6FD;
+    }
+
+    .btn-tool.speaking {
+      background: #86EFAC;
+      animation: ttsPulse 0.7s infinite alternate;
+    }
+
+    @keyframes ttsPulse {
+      from { transform: scale(1); }
+      to { transform: scale(1.05); }
+    }
+
+    .doctor-hint-box {
+      display: none;
+      background: #FEF9C3;
+      border: 2px dashed var(--ink);
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 14px;
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: #713F12;
+    }
+
+    .doctor-hint-box.open {
+      display: block;
+    }
+
+    .pyp-reflect-card {
+      background: #FFFDE8;
+      border: 2.5px solid var(--ink);
+      border-radius: 12px;
+      box-shadow: 3px 3px 0 var(--ink);
+      padding: 16px 18px;
+      max-width: 580px;
+      margin: 0 auto 20px;
+      text-align: left;
+    }
+
+    .pyp-reflect-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--purple);
+      color: var(--white);
+      border: 2px solid var(--ink);
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-size: 0.8rem;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .pyp-stamp-status {
+      font-size: 0.9rem;
+      font-weight: 900;
+      color: #047857;
+      margin-top: 8px;
+      min-height: 20px;
     }
 
     .patient-label {
@@ -453,13 +564,20 @@
     </header>
 
     <div class="status-strip">
-      <span>Patient Case: <strong id="caseNum">1</strong> of 5</span>
+      <span>Patient Case: <strong id="caseNum">1</strong> of <span id="caseTotal">9</span></span>
       <span>Doctor Badges: <strong id="scoreVal">0</strong> ⭐</span>
     </div>
 
     <!-- Active Clinic Board -->
     <main class="clinic-card" id="clinicBoard">
-      <div class="clinic-badge" id="caseBadge">Symptom: Missing Capitalization & Past Tense</div>
+      <div class="clinic-header-row">
+        <div class="clinic-badge" id="caseBadge">Stage 1: G1 Warm-up</div>
+        <div class="clinic-tools">
+          <button type="button" class="btn-tool" id="btnReadSentence" title="Hear how the healthy sentence should sound">🔊 Read Sentence</button>
+          <button type="button" class="btn-tool hint-btn" id="btnHintToggle" aria-expanded="false">💡 Doctor's Hint</button>
+        </div>
+      </div>
+      <div class="doctor-hint-box" id="doctorHintBox" role="region" aria-label="Doctor's Hint"></div>
       <div class="patient-label">Click a word token with a mistake:</div>
 
       <div class="sentence-container" id="tokensBox">
@@ -484,8 +602,16 @@
     <section class="finish-box" id="finishBox">
       <div style="font-size:4rem; margin-bottom:12px;">🏆🩺</div>
       <h2 style="font-size:2rem; font-weight:900; margin-bottom:8px;">Chief Grammar Surgeon!</h2>
-      <p id="finishDesc" style="font-size:1.15rem; font-weight:700; max-width:600px; margin:0 auto 24px; line-height:1.6;"></p>
+      <p id="finishDesc" style="font-size:1.15rem; font-weight:700; max-width:600px; margin:0 auto 18px; line-height:1.6;"></p>
+      <div class="pyp-reflect-card">
+        <div class="pyp-reflect-badge">🗣️ IB PYP Learner Profile · Communicator</div>
+        <p style="font-size:0.95rem; font-weight:800; line-height:1.45; color:#1F2937;">
+          <strong>Reflection:</strong> Careful editing with capital letters, past-tense verbs, and clear punctuation helps readers understand our ideas accurately.
+        </p>
+        <div class="pyp-stamp-status" id="pypStampStatus"></div>
+      </div>
       <div style="display:flex; justify-content:center; gap:14px; flex-wrap:wrap;">
+        <button class="btn-next" id="btnClaimStamp" type="button" style="background:var(--purple); color:var(--white);">🗣️ Stamp My Passport!</button>
         <button class="btn-next" id="btnRestart" type="button" style="background:var(--green); color:var(--ink);">Play Again 🔄</button>
         <a class="pyp-map-link" href="../index.html">Back to Learning Map 🗺️</a>
       </div>
@@ -549,11 +675,11 @@
     }
     const audio = new SoundFX();
 
-    const cases = [
+    const INITIAL_CASES = [
       {
         id: 1,
         stage: "Stage 1: G1 Warm-up",
-        symptom: "Missing starting capital letter, verb ending, and ending period.",
+        symptom: "Missing starting capital letter, past-tense verb ending, and ending period.",
         tokens: [
           { current: "yesterday", fixed: "Yesterday", mistake: true, fixes: ["Yesterday", "yesterdayed", "yesturday"] },
           { current: "sam", fixed: "Sam", mistake: true, fixes: ["Sam", "sammy", "SAm"] },
@@ -565,7 +691,7 @@
       {
         id: 2,
         stage: "Stage 2: Regular -ed Trap",
-        symptom: "Misspelled word, over-added -ed (saveed), and missing starting capital.",
+        symptom: "Misspelled word, doubled -ee in past tense (saveed), missing capital, and missing period.",
         tokens: [
           { current: "the", fixed: "The", mistake: true, fixes: ["The", "Teh", "THE"] },
           { current: "saniy", fixed: "fairy", mistake: true, fixes: ["fairy", "fary", "saniy"] },
@@ -576,7 +702,7 @@
       {
         id: 3,
         stage: "Stage 2: Past Tense & Pronoun Trap",
-        symptom: "Present tense 'don't' in a past story, wrong pronoun 'she', misspelled 'pyes'.",
+        symptom: "Present tense 'don't' in a past story, wrong pronoun 'she', and misspelled ending word.",
         tokens: [
           { current: "the", fixed: "The", mistake: true, fixes: ["The", "Teh", "THE"] },
           { current: "fairy", fixed: "fairy", mistake: false },
@@ -588,8 +714,8 @@
       },
       {
         id: 4,
-        stage: "Stage 3: Hilson Writing Error",
-        symptom: "Random capital letter mid-sentence on 'Want', missing past tense, missing capital on 'the'.",
+        stage: "Stage 3: Capitalization & Past Tense",
+        symptom: "Random capital letter mid-sentence on 'Want', missing past tense, missing starting capital, and missing period.",
         tokens: [
           { current: "the", fixed: "The", mistake: true, fixes: ["The", "Teh", "THE"] },
           { current: "witch", fixed: "witch", mistake: false },
@@ -603,7 +729,7 @@
       {
         id: 5,
         stage: "Stage 3: Irregular Verb & Spelling",
-        symptom: "Misspelled irregular past tense 'flet', misspelled 'scraed', missing capital and period.",
+        symptom: "Misspelled irregular past tense 'flet', misspelled 'scraed', missing capital, and missing period.",
         tokens: [
           { current: "the", fixed: "The", mistake: true, fixes: ["The", "Teh", "THE"] },
           { current: "man", fixed: "man", mistake: false },
@@ -616,7 +742,7 @@
       {
         id: 6,
         stage: "Stage 3: Comma Splice & Verb Flow",
-        symptom: "Misplaced comma separating verb from object ('caught, the man,').",
+        symptom: "Misplaced comma separating verb from object ('caught,') and comma instead of ending period.",
         tokens: [
           { current: "Next,", fixed: "Next,", mistake: false },
           { current: "the", fixed: "the", mistake: false },
@@ -629,7 +755,7 @@
       {
         id: 7,
         stage: "Stage 3: Math Word Problem Grammar",
-        symptom: "Subject-verb disagreement: 'The kids has' instead of 'The kids have'.",
+        symptom: "Subject-verb disagreement ('The kids has') and missing ending period.",
         tokens: [
           { current: "The", fixed: "The", mistake: false },
           { current: "kids", fixed: "kids", mistake: false },
@@ -642,39 +768,51 @@
       },
       {
         id: 8,
-        stage: "Stage 3: Math Word Problem Fused Sentence",
-        symptom: "Wrong verb 'have', misspelled 'beats', fused double verb ('are left').",
+        stage: "Stage 3: Math Word Problem Fused Verb",
+        symptom: "Subject-verb mismatch ('Zoe have') and redundant verb 'are' before 'left.'.",
         tokens: [
           { current: "Zoe", fixed: "Zoe", mistake: false },
-          { current: "have", fixed: "has", mistake: true, fixes: ["has", "have", "had"] },
+          { current: "have", fixed: "has", mistake: true, fixes: ["has", "have", "having"] },
           { current: "58", fixed: "58", mistake: false },
-          { current: "beats", fixed: "beads", mistake: true, fixes: ["beads", "beats", "bead"] },
-          { current: "are", fixed: "left.", mistake: true, fixes: ["left.", "are", "are left."] }
+          { current: "beads", fixed: "beads", mistake: false },
+          { current: "are left.", fixed: "left.", mistake: true, fixes: ["left.", "are left.", "is left."] }
         ]
       },
       {
         id: 9,
-        stage: "Stage 3: Math Word Problem Fused Sentence",
-        symptom: "Subject-verb mismatch 'Ethan have' and redundant 'are' in fused sentence.",
+        stage: "Stage 3: Math Word Problem Fused Verb",
+        symptom: "Subject-verb mismatch ('Ethan have') and redundant verb 'are' before 'left.'.",
         tokens: [
           { current: "Ethan", fixed: "Ethan", mistake: false },
-          { current: "have", fixed: "has", mistake: true, fixes: ["has", "have", "had"] },
+          { current: "have", fixed: "has", mistake: true, fixes: ["has", "have", "having"] },
           { current: "29", fixed: "29", mistake: false },
           { current: "puzzle", fixed: "puzzle", mistake: false },
           { current: "pieces", fixed: "pieces", mistake: false },
-          { current: "are", fixed: "left.", mistake: true, fixes: ["left.", "are", "is"] }
+          { current: "are left.", fixed: "left.", mistake: true, fixes: ["left.", "are left.", "is left."] }
         ]
       }
     ];
 
+    function cloneCases() {
+      return INITIAL_CASES.map(c => ({
+        ...c,
+        tokens: c.tokens.map(t => ({ ...t, fixes: t.fixes ? [...t.fixes] : undefined }))
+      }));
+    }
+
+    let cases = cloneCases();
     let currentCaseIdx = 0;
     let score = 0;
     let activeTokenObj = null;
     let activeTokenBtn = null;
 
     const caseNum = document.getElementById('caseNum');
+    const caseTotal = document.getElementById('caseTotal');
     const scoreVal = document.getElementById('scoreVal');
     const caseBadge = document.getElementById('caseBadge');
+    const btnReadSentence = document.getElementById('btnReadSentence');
+    const btnHintToggle = document.getElementById('btnHintToggle');
+    const doctorHintBox = document.getElementById('doctorHintBox');
     const tokensBox = document.getElementById('tokensBox');
     const drawerTitle = document.getElementById('drawerTitle');
     const prescriptionsBox = document.getElementById('prescriptionsBox');
@@ -684,11 +822,36 @@
     const finishBox = document.getElementById('finishBox');
     const finishDesc = document.getElementById('finishDesc');
     const btnRestart = document.getElementById('btnRestart');
+    const btnClaimStamp = document.getElementById('btnClaimStamp');
+    const pypStampStatus = document.getElementById('pypStampStatus');
+
+    if (caseTotal) caseTotal.textContent = cases.length;
+
+    function recordPassportStamp(silent) {
+      try {
+        const raw = localStorage.getItem('ib_pyp_passport');
+        const data = raw ? JSON.parse(raw) : { stamps: [], completed: [] };
+        const stamps = new Set(Array.isArray(data.stamps) ? data.stamps : []);
+        const completed = new Set(Array.isArray(data.completed) ? data.completed : []);
+        stamps.add('Communicator');
+        completed.add('literacy/g2_sentence_fixer.html');
+        localStorage.setItem('ib_pyp_passport', JSON.stringify({ stamps: [...stamps], completed: [...completed] }));
+        if (!silent && pypStampStatus && btnClaimStamp) {
+          pypStampStatus.textContent = '✅ Communicator stamp saved to your IB PYP Passport!';
+          btnClaimStamp.textContent = '✅ Stamped!';
+        }
+      } catch (_) {}
+    }
 
     function loadCase(idx) {
       const c = cases[idx];
       caseNum.textContent = idx + 1;
-      caseBadge.textContent = (c.stage ? `[${c.stage}] ` : '') + "Symptom: " + c.symptom;
+      if (caseTotal) caseTotal.textContent = cases.length;
+      caseBadge.textContent = c.stage || `Case ${idx + 1}`;
+      doctorHintBox.textContent = `🩺 Doctor's Hint: ${c.symptom}`;
+      doctorHintBox.classList.remove('open');
+      btnHintToggle.setAttribute('aria-expanded', 'false');
+      btnHintToggle.textContent = "💡 Doctor's Hint";
       tokensBox.innerHTML = '';
       btnNext.style.display = 'none';
       drawerTitle.textContent = "💡 Tap a sick word token above to examine it";
@@ -705,12 +868,29 @@
         btn.textContent = tok.current;
         btn.addEventListener('click', () => {
           audio.playClick();
-          TTS_MANAGER.speak(tok.current);
           selectToken(tok, btn);
         });
         tokensBox.appendChild(btn);
       });
     }
+
+    btnHintToggle.addEventListener('click', () => {
+      audio.playClick();
+      const isOpen = doctorHintBox.classList.toggle('open');
+      btnHintToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      btnHintToggle.textContent = isOpen ? "🙈 Hide Hint" : "💡 Doctor's Hint";
+    });
+
+    btnReadSentence.addEventListener('click', () => {
+      audio.playClick();
+      const c = cases[currentCaseIdx];
+      if (!c) return;
+      const intendedSentence = c.tokens.map(t => t.fixed).join(' ');
+      btnReadSentence.classList.add('speaking');
+      TTS_MANAGER.speak(intendedSentence, () => {
+        btnReadSentence.classList.remove('speaking');
+      });
+    });
 
     function selectToken(tok, btn) {
       tokensBox.querySelectorAll('.word-token').forEach(b => b.classList.remove('selected'));
@@ -777,6 +957,8 @@
 
     btnNext.addEventListener('click', () => {
       audio.playClick();
+      if (window.speechSynthesis) window.speechSynthesis.cancel();
+      btnReadSentence.classList.remove('speaking');
       currentCaseIdx++;
       if (currentCaseIdx < cases.length) {
         loadCase(currentCaseIdx);
@@ -784,20 +966,33 @@
         clinicBoard.style.display = 'none';
         finishBox.classList.add('active');
         audio.playCorrect();
-        finishDesc.textContent = `Incredible work! You cured all patient sentences with a top score of ${score} badges! You have mastered capital letters, past tense regular verbs, and proper ending periods!`;
+        finishDesc.textContent = `Incredible work! You cured all ${cases.length} patient sentences with a top score of ${score} badges! You have mastered capital letters, past-tense verbs, subject-verb agreement, and ending punctuation!`;
+        recordPassportStamp(true);
+        pypStampStatus.textContent = '✨ Tap "Stamp My Passport!" to celebrate your Communicator badge!';
+        btnClaimStamp.textContent = '🗣️ Stamp My Passport!';
       }
+    });
+
+    btnClaimStamp.addEventListener('click', () => {
+      audio.playCorrect();
+      recordPassportStamp(false);
     });
 
     btnRestart.addEventListener('click', () => {
       audio.playClick();
-      // Reset words
-      cases.forEach(c => {
-        c.tokens.forEach(t => {
-          if (t.mistake) t.current = t.fixes[0] === t.fixed ? t.fixes[1] || t.fixes[0] : t.current;
-        });
-      });
-      location.reload();
+      if (window.speechSynthesis) window.speechSynthesis.cancel();
+      cases = cloneCases();
+      currentCaseIdx = 0;
+      score = 0;
+      activeTokenObj = null;
+      activeTokenBtn = null;
+      scoreVal.textContent = '0';
+      finishBox.classList.remove('active');
+      clinicBoard.style.display = 'block';
+      loadCase(0);
     });
+
+    const JOKE_VOICES = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|hysterical|pipe organ|trinoids|whisper|zarvox|fred|junior|kathy|ralph|wobble/i;
 
     // ----------------------------------------------------
     // TTS MANAGER (Neobrutalism Radio Group Dropdown)
@@ -855,9 +1050,10 @@
         const voices = window.speechSynthesis.getVoices();
         let englishVoices = voices.filter(v => {
           const lang = v.lang.toLowerCase().replace('_', '-');
-          return lang.startsWith('en');
+          return lang.startsWith('en') && !JOKE_VOICES.test(v.name);
         });
 
+        if (englishVoices.length === 0) englishVoices = voices.filter(v => !JOKE_VOICES.test(v.name));
         if (englishVoices.length === 0) englishVoices = voices;
         if (englishVoices.length === 0) return;
 

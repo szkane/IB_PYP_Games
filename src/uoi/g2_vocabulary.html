@@ -43,14 +43,9 @@
     }
 
     .top-nav-bar {
-      position: sticky;
-      top: 0;
-      left: 0;
-      right: 0;
+      position: relative;
       width: 100%;
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background: rgba(255, 255, 255, 0.9);
       border-bottom: 2px solid rgba(0, 0, 0, 0.08);
       padding: 8px 16px;
       display: flex;
@@ -542,6 +537,53 @@
       border: 2px solid #e2e8f0;
     }
 
+    .quiz-svg .vocab-label {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .quiz-svg.revealed .vocab-label {
+      opacity: 1;
+    }
+
+    .pyp-reflect-card {
+      background: #fefce8;
+      border: 2px solid var(--text);
+      border-radius: 16px;
+      box-shadow: 3px 3px 0 var(--text);
+      padding: 14px 16px;
+      margin: 0 auto 20px;
+      max-width: 520px;
+      text-align: left;
+    }
+
+    .pyp-reflect-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent-uoi);
+      color: #ffffff;
+      border: 2px solid var(--text);
+      border-radius: 999px;
+      padding: 3px 12px;
+      font-size: 0.78rem;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    body.math-mode .pyp-reflect-badge {
+      background: var(--accent-math);
+    }
+
+    .pyp-stamp-status {
+      font-size: 0.88rem;
+      font-weight: 900;
+      color: #047857;
+      margin-top: 8px;
+      min-height: 20px;
+    }
+
     .quiz-prompt {
       font-size: 1.15rem;
       font-weight: 700;
@@ -767,11 +809,14 @@
     </header>
 
     <div class="toolbar" id="toolbar">
-      <div class="toolbar-group">
+      <div class="toolbar-group" id="langToolbarGroup">
         <span class="toolbar-label">Show Text:</span>
         <button class="option-pill" data-lang="both">Both</button>
         <button class="option-pill active" data-lang="en">English Only</button>
         <button class="option-pill" data-lang="zh">Chinese Only</button>
+      </div>
+      <div class="toolbar-group" id="quizToolbarHint" style="display: none;">
+        <span class="toolbar-label">🎯 Vocabulary Quiz Mode</span>
       </div>
 
       <div class="stars-badge">
@@ -806,28 +851,28 @@
           zh: "除数",
           definition: "A number that divides another number without leaving a remainder.",
           sentence: "In the equation 10 ÷ 2 = 5, 2 is the divisor.",
-          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><text x="80" y="45" font-size="24" font-weight="900" text-anchor="middle" fill="#1e293b">10 ÷ <tspan fill="#ef4444" font-size="30">2</tspan> = 5</text><path d="M 80 55 L 80 72" stroke="#ef4444" stroke-width="3" stroke-linecap="round" fill="none"/><text x="80" y="90" font-size="12" font-weight="800" text-anchor="middle" fill="#ef4444">divisor</text></svg>`
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><text x="80" y="45" font-size="24" font-weight="900" text-anchor="middle" fill="#1e293b">10 ÷ <tspan fill="#ef4444" font-size="30">2</tspan> = 5</text><path d="M 80 55 L 80 72" stroke="#ef4444" stroke-width="3" stroke-linecap="round" fill="none"/><text class="vocab-label" x="80" y="90" font-size="12" font-weight="800" text-anchor="middle" fill="#ef4444">divisor</text></svg>`
         },
         {
           word: "quotient",
           zh: "商",
           definition: "The result of dividing one number by another.",
           sentence: "In the equation 10 ÷ 2 = 5, 5 is the quotient.",
-          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><text x="80" y="45" font-size="24" font-weight="900" text-anchor="middle" fill="#1e293b">10 ÷ 2 = <tspan fill="#3b82f6" font-size="30">5</tspan></text><path d="M 115 55 L 115 72" stroke="#3b82f6" stroke-width="3" stroke-linecap="round" fill="none"/><text x="115" y="90" font-size="12" font-weight="800" text-anchor="middle" fill="#3b82f6">quotient</text></svg>`
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><text x="80" y="45" font-size="24" font-weight="900" text-anchor="middle" fill="#1e293b">10 ÷ 2 = <tspan fill="#3b82f6" font-size="30">5</tspan></text><path d="M 115 55 L 115 72" stroke="#3b82f6" stroke-width="3" stroke-linecap="round" fill="none"/><text class="vocab-label" x="115" y="90" font-size="12" font-weight="800" text-anchor="middle" fill="#3b82f6">quotient</text></svg>`
         },
         {
           word: "product",
           zh: "乘积",
           definition: "The answer you get when you multiply numbers together.",
           sentence: "The product of 7 and 2 is 14.",
-          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><text x="80" y="45" font-size="24" font-weight="900" text-anchor="middle" fill="#1e293b">7 × 2 = <tspan fill="#10b981" font-size="30">14</tspan></text><path d="M 118 55 L 118 72" stroke="#10b981" stroke-width="3" stroke-linecap="round" fill="none"/><text x="118" y="90" font-size="12" font-weight="800" text-anchor="middle" fill="#10b981">product</text></svg>`
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><text x="80" y="45" font-size="24" font-weight="900" text-anchor="middle" fill="#1e293b">7 × 2 = <tspan fill="#10b981" font-size="30">14</tspan></text><path d="M 118 55 L 118 72" stroke="#10b981" stroke-width="3" stroke-linecap="round" fill="none"/><text class="vocab-label" x="118" y="90" font-size="12" font-weight="800" text-anchor="middle" fill="#10b981">product</text></svg>`
         },
         {
           word: "factor",
           zh: "因数",
           definition: "A number that makes another number when multiplied.",
           sentence: "2 is a factor of 6 because 2 times 3 equals 6.",
-          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><text x="80" y="45" font-size="24" font-weight="900" text-anchor="middle" fill="#1e293b"><tspan fill="#f59e0b" font-size="28">2</tspan> × <tspan fill="#f59e0b" font-size="28">3</tspan> = 6</text><text x="65" y="82" font-size="12" font-weight="800" text-anchor="middle" fill="#f59e0b">factors</text><path d="M 48 55 Q 65 70 65 70" stroke="#f59e0b" stroke-width="2" fill="none"/><path d="M 82 55 Q 65 70 65 70" stroke="#f59e0b" stroke-width="2" fill="none"/></svg>`
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><text x="80" y="45" font-size="24" font-weight="900" text-anchor="middle" fill="#1e293b"><tspan fill="#f59e0b" font-size="28">2</tspan> × <tspan fill="#f59e0b" font-size="28">3</tspan> = 6</text><text class="vocab-label" x="65" y="82" font-size="12" font-weight="800" text-anchor="middle" fill="#f59e0b">factors</text><path d="M 48 55 Q 65 70 65 70" stroke="#f59e0b" stroke-width="2" fill="none"/><path d="M 82 55 Q 65 70 65 70" stroke="#f59e0b" stroke-width="2" fill="none"/></svg>`
         },
         {
           word: "multiplication",
@@ -841,14 +886,14 @@
           zh: "列",
           definition: "A column is a stack of items on top of each other, going up and down.",
           sentence: "In math class, we made a column of blocks to show our favorite colors.",
-          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><rect x="72" y="15" width="16" height="18" rx="3" fill="#10b981" stroke="#1e293b" stroke-width="3"/><rect x="72" y="38" width="16" height="18" rx="3" fill="#3b82f6" stroke="#1e293b" stroke-width="3"/><rect x="72" y="61" width="16" height="18" rx="3" fill="#ef4444" stroke="#1e293b" stroke-width="3"/><path d="M 45 20 L 45 75" stroke="#1e293b" stroke-width="3" stroke-linecap="round"/><path d="M 40 68 L 45 75 L 50 68" stroke="#1e293b" stroke-width="3" fill="none" stroke-linejoin="round"/><text x="115" y="55" font-size="12" font-weight="800" fill="#1e293b">Column</text></svg>`
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><rect x="72" y="15" width="16" height="18" rx="3" fill="#10b981" stroke="#1e293b" stroke-width="3"/><rect x="72" y="38" width="16" height="18" rx="3" fill="#3b82f6" stroke="#1e293b" stroke-width="3"/><rect x="72" y="61" width="16" height="18" rx="3" fill="#ef4444" stroke="#1e293b" stroke-width="3"/><path d="M 45 20 L 45 75" stroke="#1e293b" stroke-width="3" stroke-linecap="round"/><path d="M 40 68 L 45 75 L 50 68" stroke="#1e293b" stroke-width="3" fill="none" stroke-linejoin="round"/><text class="vocab-label" x="115" y="55" font-size="12" font-weight="800" fill="#1e293b">Column</text></svg>`
         },
         {
           word: "row",
           zh: "排",
           definition: "A row is a line of items standing next to each other, going side to side.",
           sentence: "There is one row of apples in the canteen.",
-          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><circle cx="45" cy="45" r="10" fill="#ef4444" stroke="#1e293b" stroke-width="3"/><circle cx="70" cy="45" r="10" fill="#ef4444" stroke="#1e293b" stroke-width="3"/><circle cx="95" cy="45" r="10" fill="#ef4444" stroke="#1e293b" stroke-width="3"/><path d="M 35 75 L 105 75" stroke="#1e293b" stroke-width="3" stroke-linecap="round"/><path d="M 98 70 L 105 75 L 98 80" stroke="#1e293b" stroke-width="3" fill="none" stroke-linejoin="round"/><text x="120" y="50" font-size="12" font-weight="800" fill="#1e293b">Row</text></svg>`
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><circle cx="45" cy="45" r="10" fill="#ef4444" stroke="#1e293b" stroke-width="3"/><circle cx="70" cy="45" r="10" fill="#ef4444" stroke="#1e293b" stroke-width="3"/><circle cx="95" cy="45" r="10" fill="#ef4444" stroke="#1e293b" stroke-width="3"/><path d="M 35 75 L 105 75" stroke="#1e293b" stroke-width="3" stroke-linecap="round"/><path d="M 98 70 L 105 75 L 98 80" stroke="#1e293b" stroke-width="3" fill="none" stroke-linejoin="round"/><text class="vocab-label" x="120" y="50" font-size="12" font-weight="800" fill="#1e293b">Row</text></svg>`
         },
         {
           word: "add",
@@ -883,14 +928,14 @@
           zh: "和",
           definition: "The total number you get when you add numbers together.",
           sentence: "The sum of 5 and 3 is 8.",
-          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><rect x="60" y="15" width="40" height="55" rx="8" fill="none" stroke="#10b981" stroke-width="4"/><rect x="68" y="8" width="24" height="7" rx="2" fill="#1e293b"/><circle cx="70" cy="58" r="6" fill="#ef4444"/><circle cx="82" cy="60" r="6" fill="#3b82f6"/><circle cx="90" cy="55" r="6" fill="#fbbf24"/><circle cx="75" cy="46" r="6" fill="#10b981"/><circle cx="86" cy="44" r="6" fill="#ec4899"/><text x="80" y="88" font-size="14" font-weight="900" fill="#10b981" text-anchor="middle">SUM (Total = 5)</text></svg>`
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><rect x="60" y="15" width="40" height="55" rx="8" fill="none" stroke="#10b981" stroke-width="4"/><rect x="68" y="8" width="24" height="7" rx="2" fill="#1e293b"/><circle cx="70" cy="58" r="6" fill="#ef4444"/><circle cx="82" cy="60" r="6" fill="#3b82f6"/><circle cx="90" cy="55" r="6" fill="#fbbf24"/><circle cx="75" cy="46" r="6" fill="#10b981"/><circle cx="86" cy="44" r="6" fill="#ec4899"/><text class="vocab-label" x="80" y="88" font-size="14" font-weight="900" fill="#10b981" text-anchor="middle">SUM (Total = 5)</text></svg>`
         },
         {
           word: "difference",
           zh: "差",
           definition: "The result of subtracting one number from another.",
           sentence: "The difference between 8 and 6 is 2.",
-          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><rect x="35" y="20" width="16" height="15" rx="2" fill="#3b82f6" stroke="#1e293b" stroke-width="2"/><rect x="35" y="35" width="16" height="15" rx="2" fill="#3b82f6" stroke="#1e293b" stroke-width="2"/><rect x="35" y="50" width="16" height="15" rx="2" fill="#3b82f6" stroke="#1e293b" stroke-width="2"/><rect x="35" y="65" width="16" height="15" rx="2" fill="#3b82f6" stroke="#1e293b" stroke-width="2"/><rect x="65" y="50" width="16" height="15" rx="2" fill="#10b981" stroke="#1e293b" stroke-width="2"/><rect x="65" y="65" width="16" height="15" rx="2" fill="#10b981" stroke="#1e293b" stroke-width="2"/><line x1="60" y1="50" x2="95" y2="50" stroke="#ef4444" stroke-width="2" stroke-dasharray="3,3"/><path d="M 90 20 L 95 20 M 95 20 L 95 50 M 95 50 L 90 50" stroke="#ef4444" stroke-width="2" fill="none"/><text x="102" y="39" font-size="11" font-weight="800" fill="#ef4444" text-anchor="start">Difference</text><text x="102" y="51" font-size="10" font-weight="700" fill="#1e293b" text-anchor="start">(2 blocks)</text></svg>`
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><rect x="35" y="20" width="16" height="15" rx="2" fill="#3b82f6" stroke="#1e293b" stroke-width="2"/><rect x="35" y="35" width="16" height="15" rx="2" fill="#3b82f6" stroke="#1e293b" stroke-width="2"/><rect x="35" y="50" width="16" height="15" rx="2" fill="#3b82f6" stroke="#1e293b" stroke-width="2"/><rect x="35" y="65" width="16" height="15" rx="2" fill="#3b82f6" stroke="#1e293b" stroke-width="2"/><rect x="65" y="50" width="16" height="15" rx="2" fill="#10b981" stroke="#1e293b" stroke-width="2"/><rect x="65" y="65" width="16" height="15" rx="2" fill="#10b981" stroke="#1e293b" stroke-width="2"/><line x1="60" y1="50" x2="95" y2="50" stroke="#ef4444" stroke-width="2" stroke-dasharray="3,3"/><path d="M 90 20 L 95 20 M 95 20 L 95 50 M 95 50 L 90 50" stroke="#ef4444" stroke-width="2" fill="none"/><text class="vocab-label" x="102" y="39" font-size="11" font-weight="800" fill="#ef4444" text-anchor="start">Difference</text><text x="102" y="51" font-size="10" font-weight="700" fill="#1e293b" text-anchor="start">(2 blocks)</text></svg>`
         },
         {
           word: "equal",
@@ -912,7 +957,7 @@
           word: "collect",
           zh: "收集",
           definition: "To gather things together in one place.",
-          sentence: "I collect many shells on the beach everyday.",
+          sentence: "I collect many shells on the beach every day.",
           svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><path d="M 45 40 L 115 40 L 105 80 L 55 80 Z" fill="#f59e0b" stroke="#1e293b" stroke-width="4"/><circle cx="60" cy="30" r="10" fill="#3b82f6" stroke="#1e293b" stroke-width="2"/><circle cx="80" cy="24" r="12" fill="#ef4444" stroke="#1e293b" stroke-width="2"/><circle cx="100" cy="32" r="9" fill="#10b981" stroke="#1e293b" stroke-width="2"/></svg>`
         },
         {
@@ -934,7 +979,7 @@
           zh: "服务",
           definition: "Actions that people do to help others, like teaching or fixing cars.",
           sentence: "The gardener offers a service by helping people take care of their plants.",
-          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><path d="M 72 65 L 88 65 L 84 82 L 76 82 Z" fill="#78350f" stroke="#1e293b" stroke-width="2"/><path d="M 80 65 Q 78 50 82 45" stroke="#10b981" stroke-width="3" fill="none"/><path d="M 82 45 Q 90 40 85 48" fill="#10b981"/><path d="M 78 56 Q 70 54 75 60" fill="#10b981"/><rect x="110" y="15" width="24" height="16" rx="4" fill="#3b82f6" stroke="#1e293b" stroke-width="2"/><path d="M 110 20 H 100 V 26" stroke="#1e293b" stroke-width="2" fill="none"/><path d="M 134 25 L 144 32" stroke="#1e293b" stroke-width="3"/><line x1="144" y1="36" x2="115" y2="52" stroke="#3b82f6" stroke-width="2" stroke-dasharray="3,3"/><line x1="140" y1="38" x2="95" y2="60" stroke="#3b82f6" stroke-width="2" stroke-dasharray="3,3"/><text x="25" y="52" font-size="12" font-weight="800" fill="#1e293b">Service</text><text x="25" y="66" font-size="10" font-weight="700" fill="#64748b">(Gardener)</text></svg>`
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><path d="M 72 65 L 88 65 L 84 82 L 76 82 Z" fill="#78350f" stroke="#1e293b" stroke-width="2"/><path d="M 80 65 Q 78 50 82 45" stroke="#10b981" stroke-width="3" fill="none"/><path d="M 82 45 Q 90 40 85 48" fill="#10b981"/><path d="M 78 56 Q 70 54 75 60" fill="#10b981"/><rect x="110" y="15" width="24" height="16" rx="4" fill="#3b82f6" stroke="#1e293b" stroke-width="2"/><path d="M 110 20 H 100 V 26" stroke="#1e293b" stroke-width="2" fill="none"/><path d="M 134 25 L 144 32" stroke="#1e293b" stroke-width="3"/><line x1="144" y1="36" x2="115" y2="52" stroke="#3b82f6" stroke-width="2" stroke-dasharray="3,3"/><line x1="140" y1="38" x2="95" y2="60" stroke="#3b82f6" stroke-width="2" stroke-dasharray="3,3"/><text class="vocab-label" x="25" y="52" font-size="12" font-weight="800" fill="#1e293b">Service</text><text x="25" y="66" font-size="10" font-weight="700" fill="#64748b">(Gardener)</text></svg>`
         },
         {
           word: "goods",
@@ -955,7 +1000,7 @@
           zh: "分享",
           definition: "To give part of something to someone else.",
           sentence: "When we share the cost of the pizza, everyone pays a little bit of money.",
-          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><circle cx="30" cy="45" r="8" fill="#a78bfa" stroke="#1e293b" stroke-width="2"/><path d="M 18 75 C 18 60 42 60 42 75 Z" fill="#c084fc" stroke="#1e293b" stroke-width="2"/><circle cx="130" cy="45" r="8" fill="#f472b6" stroke="#1e293b" stroke-width="2"/><path d="M 118 75 C 118 60 142 60 142 75 Z" fill="#fbcfe8" stroke="#1e293b" stroke-width="2"/><path d="M 72 50 A 18 18 0 0 1 72 14 Z" fill="#d97706" stroke="#1e293b" stroke-width="2"/><circle cx="64" cy="25" r="2" fill="#451a03"/><circle cx="68" cy="38" r="2" fill="#451a03"/><path d="M 88 14 A 18 18 0 0 1 88 50 Z" fill="#d97706" stroke="#1e293b" stroke-width="2"/><circle cx="96" cy="25" r="2" fill="#451a03"/><circle cx="92" cy="38" r="2" fill="#451a03"/><path d="M 52 50 L 64 45" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/><path d="M 108 50 L 96 45" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/><text x="80" y="78" font-size="12" font-weight="900" fill="#1e293b" text-anchor="middle">Share</text></svg>`
+          svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><circle cx="30" cy="45" r="8" fill="#a78bfa" stroke="#1e293b" stroke-width="2"/><path d="M 18 75 C 18 60 42 60 42 75 Z" fill="#c084fc" stroke="#1e293b" stroke-width="2"/><circle cx="130" cy="45" r="8" fill="#f472b6" stroke="#1e293b" stroke-width="2"/><path d="M 118 75 C 118 60 142 60 142 75 Z" fill="#fbcfe8" stroke="#1e293b" stroke-width="2"/><path d="M 72 50 A 18 18 0 0 1 72 14 Z" fill="#d97706" stroke="#1e293b" stroke-width="2"/><circle cx="64" cy="25" r="2" fill="#451a03"/><circle cx="68" cy="38" r="2" fill="#451a03"/><path d="M 88 14 A 18 18 0 0 1 88 50 Z" fill="#d97706" stroke="#1e293b" stroke-width="2"/><circle cx="96" cy="25" r="2" fill="#451a03"/><circle cx="92" cy="38" r="2" fill="#451a03"/><path d="M 52 50 L 64 45" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/><path d="M 108 50 L 96 45" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/><text class="vocab-label" x="80" y="78" font-size="12" font-weight="900" fill="#1e293b" text-anchor="middle">Share</text></svg>`
         },
         {
           word: "value",
@@ -968,7 +1013,7 @@
           word: "buyer",
           zh: "买家",
           definition: "A person who wants to buy something.",
-          sentence: "I have a buyer to buy my book.",
+          sentence: "A buyer came to our stand to purchase my book.",
           svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><path d="M 45 40 H 75 L 85 80 H 53 Z" fill="none" stroke="#1e293b" stroke-width="3"/><circle cx="57" cy="90" r="6" fill="#1e293b"/><circle cx="81" cy="90" r="6" fill="#1e293b"/><path d="M 70 25 L 78 33 L 70 41" fill="none" stroke="#10b981" stroke-width="3"/></svg>`
         },
         {
@@ -982,7 +1027,7 @@
           word: "spend",
           zh: "花钱",
           definition: "To pay money for goods or services.",
-          sentence: "I spent 10 yuan to buy a notebook.",
+          sentence: "I spend 10 yuan to buy a notebook at the shop.",
           svg: `<svg viewBox="0 0 160 100" width="100%" height="100%"><circle cx="80" cy="50" r="30" fill="#fbbf24" stroke="#1e293b" stroke-width="3"/><path d="M 80 25 V 75 M 65 38 H 95 V 50 H 65 V 62 H 95" fill="none" stroke="#1e293b" stroke-width="3"/><rect x="40" y="80" width="80" height="8" fill="#10b981" stroke="#1e293b" stroke-width="2"/></svg>`
         },
         {
@@ -1075,44 +1120,57 @@
       }
     };
 
-    // Audio setup
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    
-    // Play Web Audio sounds
-    function playSound(type) {
+    // Lazy Audio setup (unlocked on first user gesture)
+    let audioCtx = null;
+
+    function getAudioCtx() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return null;
+        audioCtx = new AudioContextClass();
+      }
       if (audioCtx.state === 'suspended') {
         audioCtx.resume();
       }
-      const osc = audioCtx.createOscillator();
-      const gainNode = audioCtx.createGain();
+      return audioCtx;
+    }
+
+    // Play Web Audio sounds
+    function playSound(type) {
+      const ctx = getAudioCtx();
+      if (!ctx) return;
+      const osc = ctx.createOscillator();
+      const gainNode = ctx.createGain();
       osc.connect(gainNode);
-      gainNode.connect(audioCtx.destination);
+      gainNode.connect(ctx.destination);
 
       if (type === 'correct') {
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
-        osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
-        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+        osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+        osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1); // E5
+        gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25);
         osc.start();
-        osc.stop(audioCtx.currentTime + 0.25);
+        osc.stop(ctx.currentTime + 0.25);
       } else if (type === 'wrong') {
         osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-        osc.frequency.linearRampToValueAtTime(100, audioCtx.currentTime + 0.35);
-        gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+        osc.frequency.setValueAtTime(150, ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(100, ctx.currentTime + 0.35);
+        gainNode.gain.setValueAtTime(0.15, ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
         osc.start();
-        osc.stop(audioCtx.currentTime + 0.4);
+        osc.stop(ctx.currentTime + 0.4);
       } else if (type === 'click') {
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-        gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
+        osc.frequency.setValueAtTime(800, ctx.currentTime);
+        gainNode.gain.setValueAtTime(0.05, ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
         osc.start();
-        osc.stop(audioCtx.currentTime + 0.08);
+        osc.stop(ctx.currentTime + 0.08);
       }
     }
+
+    const JOKE_VOICES = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|hysterical|pipe organ|trinoids|whisper|zarvox|fred|junior|kathy|ralph|wobble/i;
 
     // ----------------------------------------------------
     // TTS MANAGER (Neobrutalism Radio Group Dropdown)
@@ -1170,9 +1228,10 @@
         const voices = window.speechSynthesis.getVoices();
         let englishVoices = voices.filter(v => {
           const lang = v.lang.toLowerCase().replace('_', '-');
-          return lang.startsWith('en');
+          return lang.startsWith('en') && !JOKE_VOICES.test(v.name);
         });
 
+        if (englishVoices.length === 0) englishVoices = voices.filter(v => !JOKE_VOICES.test(v.name));
         if (englishVoices.length === 0) englishVoices = voices;
         if (englishVoices.length === 0) return;
 
@@ -1380,16 +1439,21 @@
       const learnEl = document.getElementById("learnView");
       const quizEl = document.getElementById("quizView");
       const toolbarEl = document.getElementById("toolbar");
+      const langGroup = document.getElementById("langToolbarGroup");
+      const quizHint = document.getElementById("quizToolbarHint");
 
+      toolbarEl.style.display = "flex";
       if (state.mode === "learn") {
         learnEl.style.display = "grid";
         quizEl.style.display = "none";
-        toolbarEl.style.display = "flex";
+        if (langGroup) langGroup.style.display = "flex";
+        if (quizHint) quizHint.style.display = "none";
         renderLearnGrid();
       } else {
         learnEl.style.display = "none";
         quizEl.style.display = "block";
-        toolbarEl.style.display = "none";
+        if (langGroup) langGroup.style.display = "none";
+        if (quizHint) quizHint.style.display = "flex";
         startQuiz();
       }
     }
@@ -1410,10 +1474,10 @@
 
         card.innerHTML = `
           <div class="card-svg-container">${item.svg}</div>
-          <div class="card-word" style="visibility: ${showEn ? 'visible' : 'hidden'}">${item.word}</div>
-          <div class="card-zh" style="visibility: ${showZh ? 'visible' : 'hidden'}">${item.zh}</div>
-          <div class="card-definition" style="visibility: ${showEn ? 'visible' : 'hidden'}">${item.definition}</div>
-          <div class="card-sentence" style="visibility: ${showEn ? 'visible' : 'hidden'}">${item.sentence}</div>
+          <div class="card-word" style="display: ${showEn ? 'block' : 'none'}">${item.word}</div>
+          <div class="card-zh" style="display: ${showZh ? 'block' : 'none'}">${item.zh}</div>
+          <div class="card-definition" style="display: ${showEn ? 'flex' : 'none'}">${item.definition}</div>
+          <div class="card-sentence" style="display: ${showEn ? 'block' : 'none'}">${item.sentence}</div>
           <div class="speak-indicator" aria-hidden="true">🔊</div>
         `;
 
@@ -1504,7 +1568,8 @@
             } else if (item.word === "collect") {
               promptText = "Gathering many pretty seashells from the beach and storing them in a box is to:";
             } else {
-              promptText = `Complete this sentence: "${item.sentence.replace(new RegExp(item.word, 'gi'), '_____')}"`;
+              const clozeRegex = item.word === "spend" ? /\bspen[dt]\b/gi : new RegExp(item.word, 'gi');
+              promptText = `Complete this sentence: "${item.sentence.replace(clozeRegex, '_____')}"`;
             }
             targetText = item.word;
           } else {
@@ -1548,10 +1613,10 @@
           <div class="progress-bar-bg">
             <div class="progress-bar-fill" style="width: ${percent}%"></div>
           </div>
-          <span>Score: ${state.quiz.correctAnswers}/${qIndex}</span>
+          <span id="quizScoreLabel">Score: ${state.quiz.correctAnswers}/${totalQuestions}</span>
         </div>
         <div class="quiz-question-card">
-          <div class="quiz-svg">${q.item.svg}</div>
+          <div class="quiz-svg" id="quizSvgBox">${q.item.svg}</div>
           <p class="quiz-prompt">${q.prompt}</p>
           <!-- Quiz voice icon to trigger TTS playback of the corresponding question prompt when clicked -->
           <button id="quizSpeakBtn" class="option-pill" style="margin-top: 12px; display: inline-flex; align-items: center; gap: 6px; min-height: 44px;" title="Listen to question">
@@ -1589,6 +1654,8 @@
       const optionsEl = document.getElementById("quizOptions");
       const feedbackEl = document.getElementById("quizFeedback");
       const nextBtn = document.getElementById("quizNextBtn");
+      const svgBox = document.getElementById("quizSvgBox");
+      if (svgBox) svgBox.classList.add("revealed");
 
       if (selectedOption === q.answer) {
         playSound('correct');
@@ -1598,6 +1665,10 @@
         state.quiz.correctAnswers++;
         state.stars += 10;
         document.getElementById("starCount").textContent = state.stars;
+        const scoreLabel = document.getElementById("quizScoreLabel");
+        if (scoreLabel) {
+          scoreLabel.textContent = `Score: ${state.quiz.correctAnswers}/${state.quiz.questions.length}`;
+        }
       } else {
         playSound('wrong');
         buttonEl.classList.add("wrong");
@@ -1623,6 +1694,24 @@
           showQuizResults();
         }
       });
+    }
+
+    function recordPassportStamp(silent) {
+      try {
+        const raw = localStorage.getItem("ib_pyp_passport");
+        const data = raw ? JSON.parse(raw) : { stamps: [], completed: [] };
+        const stamps = new Set(Array.isArray(data.stamps) ? data.stamps : []);
+        const completed = new Set(Array.isArray(data.completed) ? data.completed : []);
+        stamps.add("Communicator");
+        completed.add("uoi/g2_vocabulary.html");
+        localStorage.setItem("ib_pyp_passport", JSON.stringify({ stamps: [...stamps], completed: [...completed] }));
+        if (!silent) {
+          const statusEl = document.getElementById("pypStampStatus");
+          const claimBtn = document.getElementById("btnClaimStamp");
+          if (statusEl) statusEl.textContent = "✅ Communicator stamp saved to your IB PYP Passport!";
+          if (claimBtn) claimBtn.textContent = "✅ Stamped!";
+        }
+      } catch (_) {}
     }
 
     function showQuizResults() {
@@ -1651,15 +1740,30 @@
         <div class="quiz-results">
           <span class="results-emoji">${emoji}</span>
           <h2 style="font-size: 2rem; font-weight:900; margin-bottom:10px;">${titleMsg}</h2>
-          <p style="font-size: 1.15rem; margin-bottom:24px;">${subMsg}</p>
-          <div style="display: flex; justify-content: center; gap: 12px;">
+          <p style="font-size: 1.15rem; margin-bottom:18px;">${subMsg}</p>
+          <div class="pyp-reflect-card">
+            <div class="pyp-reflect-badge">🗣️ IB PYP Learner Profile · Communicator</div>
+            <p style="font-size: 0.92rem; font-weight: 700; line-height: 1.45; color: #334155;">
+              <strong>Reflection:</strong> Using accurate UOI and Math vocabulary lets you explain your thinking clearly in class discussions and projects.
+            </p>
+            <div class="pyp-stamp-status" id="pypStampStatus">✨ Tap "Stamp My Passport!" to celebrate your Communicator badge!</div>
+          </div>
+          <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
+            <button class="btn-action" id="btnClaimStamp" style="background:#f59e0b; color:#111;">🗣️ Stamp My Passport!</button>
             <button class="btn-action" id="retryQuizBtn">Play Again</button>
             <button class="btn-action" id="backToCardsBtn" style="background:#e2e8f0; color:var(--text)">Study Cards</button>
+            <a class="map-link" href="../index.html" style="border-radius:24px; padding:10px 20px;">🗺️ View Passport</a>
           </div>
         </div>
       `;
 
       quizEl.innerHTML = resultsHtml;
+      recordPassportStamp(true);
+
+      document.getElementById("btnClaimStamp").addEventListener("click", () => {
+        playSound('correct');
+        recordPassportStamp(false);
+      });
 
       document.getElementById("retryQuizBtn").addEventListener("click", () => {
         playSound('click');
@@ -1678,13 +1782,20 @@
 
     // Confetti effect
     let confettiActive = false;
+    function resizeConfettiCanvas() {
+      const canvas = document.getElementById("confetti");
+      if (!canvas) return;
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resizeConfettiCanvas);
+
     function triggerConfetti() {
       const canvas = document.getElementById("confetti");
       const ctx = canvas.getContext("2d");
-      
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      
+
+      resizeConfettiCanvas();
+
       const particles = [];
       const colors = ["#7c3aed", "#10b981", "#fbbf24", "#3b82f6", "#ef4444", "#ec4899"];
 
@@ -1702,16 +1813,15 @@
       }
 
       confettiActive = true;
-      let animationFrame;
 
       function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
+
         particles.forEach((p, idx) => {
           p.tiltAngle += p.tiltAngleIncremental;
           p.y += (Math.cos(p.d) + 3 + p.r / 2) / 2;
           p.x += Math.sin(p.tiltAngle);
-          p.tilt = Math.sin(p.tiltAngle - idx/3) * 15;
+          p.tilt = Math.sin(p.tiltAngle - idx / 3) * 15;
 
           ctx.beginPath();
           ctx.lineWidth = p.r;
@@ -1733,20 +1843,15 @@
         });
 
         if (remaining > 0 && confettiActive) {
-          animationFrame = requestAnimationFrame(draw);
+          requestAnimationFrame(draw);
         } else {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           confettiActive = false;
         }
       }
 
-      window.addEventListener("resize", () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-      });
-
       draw();
-      
+
       setTimeout(() => {
         confettiActive = false;
       }, 5000);

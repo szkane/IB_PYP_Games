@@ -11,7 +11,7 @@
 import { router } from './router.js';
 import { screens, destroyCurrentGame } from './screens.js';
 import { speech, sfx } from './audio.js';
-import { initVoiceControl, showVoiceControl } from './voice-control.js';
+import { initVoiceControl } from './voice-control.js';
 
 /** @type {HTMLElement} */
 const app = document.getElementById('app');
@@ -64,9 +64,6 @@ function handleRouteChange(route, query) {
     router.navigate('#/g/' + qGrade);
     return;
   }
-
-  // Toggle voice switcher vs PYP Map link based on route
-  showVoiceControl(route.action === 'play');
 
   // Render the screen matching the route action
   switch (route.action) {

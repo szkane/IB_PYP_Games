@@ -78,6 +78,7 @@ class SetupScene extends Phaser.Scene {
     // Listen for hand updates from game manager
     this.game.events.on('handUpdate', this.onHandUpdate, this);
     this.game.events.on('handStateChange', this.onHandStateChange, this);
+    this.events.once('shutdown', this.shutdown, this);
   }
   
   createBackgroundParticles() {
@@ -209,7 +210,8 @@ class SetupScene extends Phaser.Scene {
     }).setOrigin(0.5);
     this.contentGroup.add(instruction);
     
-    const subtext = this.add.text(0, -140, 'Hover over a portal for 1.5 seconds to select', {
+    const isTouchMode = this.game.registry.get('playMode') === 'touch';
+    const subtext = this.add.text(0, -140, isTouchMode ? 'Tap or click a portal to select' : 'Tap a portal or hover your hand for 1.5s', {
       fontSize: '16px',
       fontFamily: 'Nunito, sans-serif',
       color: '#aabbcc'
@@ -231,10 +233,19 @@ class SetupScene extends Phaser.Scene {
     // Background (dark navy fill, thick black border)
     const bg = this.add.rectangle(0, 0, 250, 300, 0x1a2238, 0.95);
     bg.setStrokeStyle(3, 0x17211f, 1);
-    bg.setInteractive();
+    bg.setInteractive({ useHandCursor: true });
     bg.setData('value', value);
     bg.setData('type', 'theme');
     bg.setData('defaultStroke', 0x17211f);
+    bg.on('pointerdown', () => this.selectTarget(bg));
+    bg.on('pointerover', () => {
+      bg.setStrokeStyle(4, 0xf2b84b, 1);
+      container.setScale(1.04);
+    });
+    bg.on('pointerout', () => {
+      bg.setStrokeStyle(3, 0x17211f, 1);
+      container.setScale(1);
+    });
     container.add(bg);
     
     // Icon
@@ -288,7 +299,8 @@ class SetupScene extends Phaser.Scene {
     }).setOrigin(0.5);
     this.contentGroup.add(instruction);
     
-    const subtext = this.add.text(0, -140, 'Grab a badge to hear the voice', {
+    const isTouchMode = this.game.registry.get('playMode') === 'touch';
+    const subtext = this.add.text(0, -140, isTouchMode ? 'Tap a badge to hear and pick your voice' : 'Tap or grab a badge to hear the voice', {
       fontSize: '16px',
       fontFamily: 'Nunito, sans-serif',
       color: '#aabbcc'
@@ -310,10 +322,19 @@ class SetupScene extends Phaser.Scene {
     // Background circle (dark navy, thick dark line)
     const bg = this.add.circle(0, 0, 80, 0x1a2238, 0.95);
     bg.setStrokeStyle(3, 0x17211f, 1);
-    bg.setInteractive();
+    bg.setInteractive({ useHandCursor: true });
     bg.setData('value', value);
     bg.setData('type', 'accent');
     bg.setData('defaultStroke', 0x17211f);
+    bg.on('pointerdown', () => this.selectTarget(bg));
+    bg.on('pointerover', () => {
+      bg.setStrokeStyle(4, 0xf2b84b, 1);
+      container.setScale(1.06);
+    });
+    bg.on('pointerout', () => {
+      bg.setStrokeStyle(3, 0x17211f, 1);
+      container.setScale(1);
+    });
     container.add(bg);
     
     // Flag
@@ -412,9 +433,19 @@ class SetupScene extends Phaser.Scene {
     // Main card (warm cream, colored border)
     const bg = this.add.rectangle(0, 0, cardWidth, cardHeight, 0xfffaf0, 0.95);
     bg.setStrokeStyle(4, color);
-    bg.setInteractive();
+    bg.setInteractive({ useHandCursor: true });
     bg.setData('value', value);
     bg.setData('type', 'difficulty');
+    bg.setData('defaultStroke', color);
+    bg.on('pointerdown', () => this.selectTarget(bg));
+    bg.on('pointerover', () => {
+      bg.setStrokeStyle(5, 0xf2b84b, 1);
+      container.setScale(1.05);
+    });
+    bg.on('pointerout', () => {
+      bg.setStrokeStyle(4, color, 1);
+      container.setScale(1);
+    });
     container.add(bg);
     
     // Big emoji at top
@@ -625,12 +656,21 @@ class SetupScene extends Phaser.Scene {
     // Main card background (dark navy fill, thick dark border)
     const bg = this.add.rectangle(0, 0, cardWidth, cardHeight, 0x1a2238, 0.95);
     bg.setStrokeStyle(3, defaultStroke, 1);
-    bg.setInteractive();
+    bg.setInteractive({ useHandCursor: true });
     bg.setData('selectType', selectData.type);
     bg.setData('value', selectData.value);
     bg.setData('data', selectData.data);
     bg.setData('type', 'content');
     bg.setData('defaultStroke', defaultStroke);
+    bg.on('pointerdown', () => this.selectTarget(bg));
+    bg.on('pointerover', () => {
+      bg.setStrokeStyle(4, 0xf2b84b, 1);
+      container.setScale(1.04);
+    });
+    bg.on('pointerout', () => {
+      bg.setStrokeStyle(3, defaultStroke, 1);
+      container.setScale(1);
+    });
     container.add(bg);
     
     const hasSubtitle = subtitle && subtitle.length > 0;

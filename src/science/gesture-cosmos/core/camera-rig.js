@@ -21,6 +21,35 @@ export class CameraRig {
     this.orbitControls.minDistance     = this.minZoom;
     this.orbitControls.maxDistance     = this.maxZoom;
     this.orbitControls.target.copy(this.target);
+
+    this.isUserDragging = false;
+    this._dragListeners = new Set();
+    this.orbitControls.addEventListener('start', () => {
+      this.isUserDragging = true;
+      this._dragListeners.forEach(fn => {
+        try { fn(); } catch (_) {}
+      });
+    });
+    this.orbitControls.addEventListener('end', () => {
+      this.isUserDragging = false;
+    });
+  }
+
+  /**
+   * Register a callback invoked when the user drags/interacts with OrbitControls.
+   * Returns an unsubscribe function.
+   */
+  onUserDragStart(fn) {
+    this._dragListeners.add(fn);
+    return () => this._dragListeners.delete(fn);
+  }
+
+  /**
+   * Shift camera and orbit target together by a delta vector (used to smoothly follow moving planets).
+   */
+  followDelta(delta) {
+    this.orbitControls.target.add(delta);
+    this.camera.position.add(delta);
   }
 
   /**

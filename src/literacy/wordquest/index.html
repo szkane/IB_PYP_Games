@@ -3,17 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WordQuest - Word Search & Crossword</title>
+  <title>WordQuest - Word Search &amp; Crossword</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <a class="pyp-map-link" href="../../index.html" aria-label="Back to PYP curriculum map">PYP Map</a>
-  <div class="voice-switcher" id="voice-switcher" style="display:none">
-    <button class="accent-btn active" data-accent="default" title="Default voice">🔊</button>
-    <button class="accent-btn" data-accent="us" title="American English">🇺🇸</button>
-    <button class="accent-btn" data-accent="uk" title="British English">🇬🇧</button>
-    <select class="voice-select" aria-label="Voice selection"></select>
-  </div>
+  <header class="wq-top-nav" id="wq-top-nav">
+    <div class="wq-nav-left">
+      <a class="pyp-map-link" href="../../index.html" aria-label="Back to PYP curriculum map">← PYP Map</a>
+      <span class="wq-brand">✨ WordQuest</span>
+    </div>
+    <div class="wq-nav-right">
+      <div class="tts-dropdown-wrap" id="ttsDropdownWrap">
+        <button type="button" class="tts-trigger" id="ttsTrigger" aria-haspopup="menu" aria-expanded="false" title="Choose read-aloud voice">
+          <span id="ttsFlag">🇺🇸</span>
+          <span id="ttsLabel">Voice</span>
+          <span class="tts-arrow">▼</span>
+        </button>
+        <div class="tts-menu" id="ttsMenu" role="menu">
+          <div class="tts-menu-header">Read-Aloud Voice</div>
+          <div class="tts-radio-group" id="ttsRadioList"></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
   <div id="app"></div>
   <script type="module" src="js/main.js"></script>
 </body>

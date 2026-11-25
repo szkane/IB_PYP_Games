@@ -52,19 +52,40 @@ class AudioManager {
   }
   
   /**
-   * Load available voices
+   * Load available voices and sync with shared IB PYP voice preference
    */
   loadVoices() {
-    this.voices = this.synth.getVoices();
-    this.selectVoiceForAccent(this.accent);
+    const JOKE_VOICES = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|hysterical|pipe organ|trinoids|whisper|zarvox|fred|junior|kathy|ralph|wobble/i;
+    const raw = this.synth.getVoices() || [];
+    const filtered = raw.filter(v => !JOKE_VOICES.test(v.name));
+    this.voices = filtered.length ? filtered : raw;
+
+    let savedVoiceName = null;
+    try {
+      savedVoiceName = localStorage.getItem('ib_pyp_voice_name');
+    } catch (_) {}
+
+    if (savedVoiceName) {
+      const savedVoice = this.voices.find(v => v.name === savedVoiceName);
+      if (savedVoice) {
+        this.currentVoice = savedVoice;
+        const lang = (savedVoice.lang || '').toLowerCase();
+        this.accent = lang.includes('gb') ? 'UK' : 'US';
+        console.log(`[AudioManager] Synced saved voice: ${savedVoice.name}`);
+        return;
+      }
+    }
+
+    this.selectVoiceForAccent(this.accent, false);
     console.log(`[AudioManager] Loaded ${this.voices.length} voices`);
   }
   
   /**
    * Select the best voice for the current accent
    * @param {String} accent - 'US' or 'UK'
+   * @param {Boolean} persist - Whether to sync choice to localStorage['ib_pyp_voice_name']
    */
-  selectVoiceForAccent(accent) {
+  selectVoiceForAccent(accent, persist = false) {
     this.accent = accent;
     const preferences = this.voicePreferences[accent] || this.voicePreferences.US;
     
@@ -75,6 +96,9 @@ class AudioManager {
       );
       if (voice) {
         this.currentVoice = voice;
+        if (persist) {
+          try { localStorage.setItem('ib_pyp_voice_name', voice.name); } catch (_) {}
+        }
         console.log(`[AudioManager] Selected voice: ${voice.name}`);
         return;
       }
@@ -94,17 +118,20 @@ class AudioManager {
     }
     
     if (this.currentVoice) {
+      if (persist) {
+        try { localStorage.setItem('ib_pyp_voice_name', this.currentVoice.name); } catch (_) {}
+      }
       console.log(`[AudioManager] Fallback voice: ${this.currentVoice.name}`);
     }
   }
   
   /**
-   * Set the accent (US or UK)
+   * Set the accent (US or UK) and persist to shared IB PYP voice preference
    * @param {String} accent - 'US' or 'UK'
    */
   setAccent(accent) {
     if (accent === 'US' || accent === 'UK') {
-      this.selectVoiceForAccent(accent);
+      this.selectVoiceForAccent(accent, true);
     }
   }
   

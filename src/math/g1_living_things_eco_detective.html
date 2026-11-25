@@ -6,65 +6,268 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>UOI4 Living Things - Eco Detective Mission</title>
   <link
-    href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@500;700;800&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800;900&display=swap"
     rel="stylesheet" />
   <style>
     :root {
-      --bg-a: #e9fff2;
-      --bg-b: #e6f7ff;
-      --panel: #ffffff;
-      --ink: #1f2937;
-      --mint: #22c55e;
-      --teal: #0ea5a4;
-      --amber: #f59e0b;
-      --sky: #38bdf8;
-      --rose: #fb7185;
-      --line: #d1fae5;
+      --bg: #FFFDF0;
+      --ink: #111111;
+      --yellow: #FFE156;
+      --mint: #86EFAC;
+      --teal: #4ECDC4;
+      --sky: #7DD3FC;
+      --coral: #FF6584;
+      --purple: #DDD6FE;
+      --white: #FFFFFF;
+      --border: 3px solid var(--ink);
+      --shadow: 4px 4px 0 var(--ink);
+      --shadow-sm: 2px 2px 0 var(--ink);
+      --radius: 14px;
     }
 
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      -webkit-tap-highlight-color: transparent;
+      -webkit-text-size-adjust: 100%;
     }
 
     body {
-      margin: 0;
-      min-height: 100vh; min-height: 100dvh;
-      font-family: "Nunito", sans-serif;
+      min-height: 100vh;
+      min-height: 100dvh;
+      font-family: "Nunito", system-ui, -apple-system, sans-serif;
       color: var(--ink);
-      background:
-        radial-gradient(circle at 10% 10%, rgba(34, 197, 94, 0.22), transparent 28%),
-        radial-gradient(circle at 90% 90%, rgba(56, 189, 248, 0.2), transparent 30%),
-        linear-gradient(140deg, var(--bg-a), var(--bg-b));
+      background: var(--bg);
+      background-image:
+        radial-gradient(circle at 12% 14%, rgba(134, 239, 172, 0.35), transparent 28%),
+        radial-gradient(circle at 88% 85%, rgba(125, 211, 252, 0.3), transparent 30%);
+      padding: 12px 16px 24px;
+    }
+
+    .container {
+      max-width: 1020px;
+      margin: 0 auto;
+    }
+
+    /* Top Nav */
+    .nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .nav-left {
       display: flex;
       align-items: center;
-      justify-content: center;
-      padding: 16px;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
-    .app {
-      width: min(980px, 100%);
-      background: var(--panel);
-      border: 4px solid var(--line);
-      border-radius: 24px;
-      box-shadow: 0 18px 44px rgba(14, 165, 164, 0.2);
-      padding: 16px;
-      position: relative;
-      overflow: hidden;
+    .pyp-map-link {
+      display: inline-flex;
+      align-items: center;
+      background: var(--yellow);
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 900;
+      font-size: 0.9rem;
+      border: var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+      padding: 6px 14px;
+      min-height: 44px;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
     }
 
-    .lang-btn {
-      position: absolute;
-      top: 10px;
-      right: 12px;
-      border: 2px solid #86efac;
-      border-radius: 999px;
-      background: #f0fdf4;
-      min-height: 42px;
-      min-width: 42px;
-      padding: 0 12px;
-      font-weight: 800;
+    .pyp-map-link:hover {
+      transform: translate(-1px, -1px);
+      box-shadow: var(--shadow);
+    }
+
+    .pyp-map-link:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0 0 0 var(--ink);
+    }
+
+    .unit-tag {
+      background: var(--mint);
+      border: var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+      padding: 6px 12px;
+      font-weight: 900;
+      font-size: 0.85rem;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .btn-reflect-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 44px;
+      padding: 6px 13px;
+      border: var(--border);
+      border-radius: 12px;
+      background: var(--purple);
+      color: var(--ink);
+      font-family: inherit;
+      font-weight: 900;
+      font-size: 0.85rem;
+      box-shadow: var(--shadow-sm);
       cursor: pointer;
-      z-index: 2;
+    }
+
+    .btn-reflect-pill:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0 0 0 var(--ink);
+    }
+
+    /* TTS Dropdown */
+    .tts-dropdown-wrap {
+      position: relative;
+      display: inline-block;
+      user-select: none;
+    }
+
+    .tts-trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--white);
+      border: var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+      padding: 6px 12px;
+      font-family: inherit;
+      font-size: 0.84rem;
+      font-weight: 900;
+      color: var(--ink);
+      cursor: pointer;
+      min-height: 44px;
+    }
+
+    .tts-trigger:hover {
+      background: #FEF08A;
+    }
+
+    .tts-arrow {
+      font-size: 0.75rem;
+      transition: transform 0.15s ease;
+    }
+
+    .tts-dropdown-wrap.open .tts-arrow {
+      transform: rotate(180deg);
+    }
+
+    .tts-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      min-width: 245px;
+      max-width: 310px;
+      max-height: 270px;
+      overflow-y: auto;
+      background: var(--white);
+      border: var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      padding: 6px;
+      z-index: 1000;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .tts-dropdown-wrap.open .tts-menu {
+      display: flex;
+    }
+
+    .tts-menu-header {
+      font-size: 0.72rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      color: #4B5563;
+      padding: 4px 8px 6px;
+      border-bottom: 2px solid #E5E7EB;
+      margin-bottom: 3px;
+    }
+
+    .tts-radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .tts-radio-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border: 2px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--ink);
+      text-align: left;
+      width: 100%;
+    }
+
+    .tts-radio-item:hover {
+      background: #FEF9C3;
+      border-color: var(--ink);
+    }
+
+    .tts-radio-item.active {
+      background: #E0F2FE;
+      border-color: var(--ink);
+    }
+
+    .tts-radio-circle {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid var(--ink);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background: var(--white);
+    }
+
+    .tts-radio-item.active .tts-radio-circle::after {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--ink);
+    }
+
+    .tts-item-name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+    }
+
+    /* Main Card */
+    .app {
+      background: var(--white);
+      border: var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 16px 18px;
     }
 
     .hidden {
@@ -72,206 +275,390 @@
     }
 
     .center-screen {
-      min-height: 65vh;
+      min-height: 460px;
       display: grid;
       place-items: center;
       text-align: center;
-      padding: 14px;
+      padding: 16px;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      padding: 5px 14px;
+      border: 2.5px solid var(--ink);
+      border-radius: 999px;
+      background: var(--yellow);
+      font-weight: 900;
+      font-size: 0.85rem;
+      margin-bottom: 10px;
     }
 
     .title {
       font-family: "Baloo 2", sans-serif;
-      margin: 0 0 10px;
-      font-size: clamp(1.8rem, 4vw, 2.6rem);
-      color: #047857;
+      margin-bottom: 8px;
+      font-size: clamp(1.75rem, 3.4vw, 2.35rem);
+      line-height: 1.1;
+      color: var(--ink);
     }
 
     .subtitle {
-      margin: 0 0 8px;
-      font-size: clamp(1rem, 2.2vw, 1.2rem);
+      margin-bottom: 10px;
+      font-size: 1.05rem;
       font-weight: 800;
+      color: #374151;
     }
 
     .mission-note {
-      margin: 0 0 18px;
-      font-weight: 700;
-      color: #0f766e;
+      margin: 0 auto 18px;
+      max-width: 580px;
+      padding: 10px 14px;
+      border: 2.5px solid var(--ink);
+      border-radius: 12px;
+      background: #ECFDF5;
+      font-weight: 800;
+      font-size: 0.94rem;
+      color: #065F46;
     }
 
-    .primary {
-      border: none;
-      border-radius: 999px;
-      min-height: 48px;
-      padding: 0 20px;
+    .btn {
+      border: var(--border);
+      border-radius: 12px;
+      min-height: 46px;
+      padding: 8px 20px;
       font-family: "Baloo 2", sans-serif;
-      font-size: 1.05rem;
+      font-size: 1.04rem;
       font-weight: 800;
-      color: white;
-      background: linear-gradient(130deg, var(--mint), var(--teal));
+      color: var(--ink);
       cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
     }
 
-    .secondary {
-      border: none;
-      border-radius: 999px;
-      min-height: 44px;
-      padding: 0 16px;
-      font-weight: 800;
-      color: white;
-      background: linear-gradient(130deg, var(--amber), #fb923c);
-      cursor: pointer;
+    .btn:hover:not(:disabled) {
+      transform: translate(-1px, -1px);
+      box-shadow: var(--shadow);
     }
 
-    .hud {
-      display: grid;
-      grid-template-columns: 1fr auto auto auto;
-      gap: 8px;
+    .btn:active:not(:disabled) {
+      transform: translate(2px, 2px);
+      box-shadow: 0 0 0 var(--ink);
+    }
+
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .btn.primary {
+      background: var(--mint);
+    }
+
+    .btn.secondary {
+      background: var(--yellow);
+    }
+
+    .btn.coral {
+      background: var(--coral);
+      color: var(--white);
+    }
+
+    .btn-speaker {
+      display: inline-flex;
       align-items: center;
-      padding-right: 112px;
+      justify-content: center;
+      background: var(--yellow);
+      border: 2.5px solid var(--ink);
+      box-shadow: var(--shadow-sm);
+      border-radius: 10px;
+      width: 40px;
+      height: 40px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .btn-speaker.speaking {
+      background: var(--mint);
+    }
+
+    /* HUD */
+    .hud {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
       margin-bottom: 10px;
+      flex-wrap: wrap;
     }
 
     .hud-title {
-      margin: 0;
       font-family: "Baloo 2", sans-serif;
-      color: #0f766e;
-      font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+      font-size: 1.3rem;
+      color: var(--ink);
+    }
+
+    .hud-chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
     .chip {
-      border: 2px solid #a7f3d0;
-      border-radius: 999px;
-      background: #ecfdf5;
-      padding: 6px 10px;
-      font-weight: 800;
-      white-space: nowrap;
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
+      background: #FEF9C3;
+      padding: 5px 11px;
+      font-weight: 900;
+      font-size: 0.85rem;
+      box-shadow: 2px 2px 0 var(--ink);
+    }
+
+    .chip.mode {
+      background: #E0F2FE;
+    }
+
+    .chip.score {
+      background: var(--mint);
     }
 
     .progress {
       height: 12px;
+      border: 2.5px solid var(--ink);
       border-radius: 999px;
-      background: #e5e7eb;
+      background: #F1F5F9;
       overflow: hidden;
       margin-bottom: 12px;
     }
 
-    .progress>div {
+    .progress > div {
       width: 0;
       height: 100%;
-      background: linear-gradient(90deg, var(--sky), var(--teal));
+      background: linear-gradient(90deg, var(--teal), #22C55E);
       transition: width 0.3s ease;
     }
 
+    /* Question Card */
     .card {
-      border: 2px solid #d1fae5;
-      border-radius: 16px;
-      background: #fafffd;
-      padding: 14px;
+      border: var(--border);
+      border-radius: 14px;
+      background: #FFFDF8;
+      padding: 14px 16px;
+    }
+
+    .prompt-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
       margin-bottom: 10px;
     }
 
     .prompt {
-      margin: 0 0 10px;
-      font-size: clamp(1.05rem, 2.3vw, 1.3rem);
-      font-weight: 800;
+      font-size: clamp(1rem, 2vw, 1.22rem);
+      font-weight: 900;
+      line-height: 1.3;
     }
 
+    .key-badge {
+      display: inline-block;
+      margin-bottom: 8px;
+      padding: 4px 10px;
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      background: #FEF9C3;
+      font-size: 0.8rem;
+      font-weight: 900;
+    }
+
+    /* Classification Scene */
     .scene {
-      border: 2px dashed #a7f3d0;
+      border: 2.5px dashed var(--ink);
       border-radius: 12px;
-      background: #f0fdf4;
-      padding: 10px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      justify-content: center;
-      min-height: 62px;
+      background: #F0FDF4;
+      padding: 12px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
       margin-bottom: 10px;
     }
 
     .emoji-chip {
-      min-width: 44px;
-      min-height: 44px;
-      border: 2px solid #bbf7d0;
-      background: white;
+      min-height: 76px;
+      padding: 8px 6px;
+      border: 2.5px solid var(--ink);
+      background: var(--white);
       border-radius: 12px;
-      font-size: 1.6rem;
       cursor: pointer;
-      display: grid;
-      place-items: center;
-      user-select: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      box-shadow: 3px 3px 0 var(--ink);
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.12s ease;
+      position: relative;
+      color: var(--ink);
+      font-family: inherit;
+    }
+
+    .emoji-chip:hover:not(:disabled) {
+      background: #FEF9C3;
+      transform: translate(-1px, -1px);
+    }
+
+    .emoji-chip .chip-emoji {
+      font-size: 1.9rem;
+      line-height: 1;
+    }
+
+    .emoji-chip .chip-name {
+      font-size: 0.78rem;
+      font-weight: 900;
     }
 
     .emoji-chip.selected {
-      border-color: var(--teal);
-      box-shadow: inset 0 0 0 2px rgba(14, 165, 164, 0.2);
-      transform: translateY(-1px);
+      background: #BAE6FD;
+      border-color: #0369A1;
+      box-shadow: 0 0 0 var(--ink);
+      transform: translate(2px, 2px);
     }
 
+    .emoji-chip.correct {
+      background: #BBF7D0;
+      border-color: #15803D;
+      box-shadow: 0 0 0 #15803D;
+    }
+
+    .emoji-chip.correct::after {
+      content: "✓";
+      position: absolute;
+      top: 4px;
+      right: 6px;
+      font-size: 0.85rem;
+      font-weight: 900;
+      color: #15803D;
+    }
+
+    .emoji-chip.wrong {
+      background: #FECDD3;
+      border-color: #BE123C;
+      box-shadow: 0 0 0 #BE123C;
+    }
+
+    .emoji-chip.wrong::after {
+      content: "✕";
+      position: absolute;
+      top: 4px;
+      right: 6px;
+      font-size: 0.85rem;
+      font-weight: 900;
+      color: #BE123C;
+    }
+
+    /* Mixed Data Chart */
     .chart {
       display: grid;
       gap: 8px;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
     .row {
       display: grid;
-      grid-template-columns: 100px 1fr;
+      grid-template-columns: 150px 1fr;
       gap: 8px;
       align-items: center;
     }
 
     .row-label {
-      font-weight: 800;
+      font-weight: 900;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 8px;
+      border: 2px solid var(--ink);
+      border-radius: 10px;
+      background: #FFFFFF;
     }
 
     .row-value {
-      border: 2px solid #d1fae5;
+      border: 2.5px solid var(--ink);
       border-radius: 10px;
-      background: #f0fdf4;
-      min-height: 42px;
-      padding: 6px 8px;
+      background: #F0FDF4;
+      min-height: 46px;
+      padding: 5px 8px;
       display: flex;
       align-items: center;
       flex-wrap: wrap;
       gap: 6px;
+    }
+
+    .picto-cell {
+      width: 34px;
+      height: 34px;
+      border: 2px solid #86EFAC;
+      border-radius: 8px;
+      background: #FFFFFF;
+      display: grid;
+      place-items: center;
       font-size: 1.3rem;
     }
 
-    .tally {
-      font-size: 1.2rem;
-      font-weight: 900;
-      letter-spacing: 2px;
+    .tally-svg-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
+    .tally-svg {
+      height: 32px;
+      width: auto;
+      display: block;
+    }
+
+    /* Instant Choice Grid */
     .choices {
       display: grid;
-      gap: 8px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
     }
 
     .choice {
-      min-height: 48px;
+      min-height: 52px;
       border-radius: 12px;
-      border: 3px solid #bfdbfe;
-      background: #f8fafc;
-      font-size: 1rem;
+      border: var(--border);
+      background: #F8FAFC;
+      font-family: "Baloo 2", sans-serif;
+      font-size: 1.25rem;
       font-weight: 800;
       cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      color: var(--ink);
+      transition: transform 0.1s ease;
+    }
+
+    .choice:hover:not(:disabled) {
+      background: #FEF9C3;
+      transform: translate(-1px, -1px);
     }
 
     .choice.correct {
-      border-color: #86efac;
-      background: #dcfce7;
+      border-color: #15803D;
+      background: #BBF7D0;
+      box-shadow: 0 0 0 var(--ink);
     }
 
     .choice.wrong {
-      border-color: #fda4af;
-      background: #ffe4e6;
+      border-color: #BE123C;
+      background: #FECDD3;
+      box-shadow: 0 0 0 var(--ink);
     }
 
+    /* Tally Builder */
     .builder {
       display: flex;
-      gap: 8px;
+      gap: 10px;
       align-items: center;
       justify-content: center;
       margin: 10px 0;
@@ -279,175 +666,465 @@
     }
 
     .counter {
-      border: 2px solid #a7f3d0;
-      background: #f0fdf4;
-      border-radius: 10px;
-      min-width: 120px;
-      min-height: 44px;
-      display: grid;
-      place-items: center;
+      border: var(--border);
+      background: #FFF9D2;
+      border-radius: 12px;
+      min-width: 240px;
+      min-height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
       font-weight: 900;
-      padding: 0 8px;
+      padding: 6px 14px;
     }
 
     .feedback {
-      min-height: 28px;
-      margin-top: 8px;
+      min-height: 44px;
+      margin-top: 10px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 2.5px solid transparent;
       font-weight: 800;
+      font-size: 0.92rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       text-align: center;
     }
 
     .feedback.good {
-      color: #166534;
+      background: #DCFCE7;
+      border-color: #15803D;
+      color: #14532D;
     }
 
     .feedback.bad {
-      color: #9f1239;
+      background: #FFE4E6;
+      border-color: #BE123C;
+      color: #881337;
     }
 
     .actions {
       display: flex;
-      justify-content: space-between;
-      gap: 8px;
+      justify-content: flex-end;
+      gap: 10px;
       margin-top: 10px;
       flex-wrap: wrap;
     }
 
     .stars {
-      font-size: 2rem;
-      margin: 8px 0;
+      font-size: 2.2rem;
+      margin: 6px 0;
+    }
+
+    .end-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* IB PYP Reflection Modal */
+    .pyp-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      background: rgba(15, 23, 42, 0.72);
+      backdrop-filter: blur(5px);
+      display: none;
+      place-items: center;
+      padding: 16px;
+    }
+
+    .pyp-modal-backdrop.open {
+      display: grid;
+    }
+
+    .pyp-modal-card {
+      width: min(540px, 100%);
+      background: #FFFDF0;
+      color: var(--ink);
+      border: 4px solid var(--ink);
+      border-radius: 20px;
+      box-shadow: 8px 8px 0 var(--ink);
+      padding: 20px 22px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .pyp-modal-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: fit-content;
+      padding: 6px 14px;
+      background: var(--yellow);
+      border: 3px solid var(--ink);
+      border-radius: 999px;
+      font-weight: 900;
+      font-size: 0.9rem;
+    }
+
+    .pyp-modal-box {
+      background: var(--white);
+      border: 2.5px solid var(--ink);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      line-height: 1.42;
+    }
+
+    .pyp-modal-box strong {
+      display: block;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      color: #0F766E;
+      margin-bottom: 3px;
+    }
+
+    .pyp-modal-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .pyp-modal-btn {
+      flex: 1;
+      min-height: 46px;
+      padding: 10px 14px;
+      border: 3px solid var(--ink);
+      border-radius: 12px;
+      box-shadow: 3px 3px 0 var(--ink);
+      font-family: inherit;
+      font-weight: 900;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--ink);
+      background: var(--white);
+    }
+
+    .pyp-modal-btn.primary {
+      background: var(--mint);
     }
 
     @media (max-width: 760px) {
-      .hud {
-        grid-template-columns: 1fr;
-        padding-right: 0;
-        margin-top: 44px;
+      .scene {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
       .row {
         grid-template-columns: 1fr;
       }
-    }
 
-  
-    html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
+      .choices {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 
 <body>
-  <main class="app">
-    <button id="langBtn" class="lang-btn">🌐 EN</button>
-
-    <section id="startScreen" class="center-screen">
-      <div>
-        <h1 id="startTitle" class="title"></h1>
-        <p id="startSubtitle" class="subtitle"></p>
-        <p id="startNote" class="mission-note"></p>
-        <button id="startBtn" class="primary"></button>
+  <div class="container">
+    <nav class="nav-bar">
+      <div class="nav-left">
+        <a class="pyp-map-link" href="../index.html" aria-label="Back to PYP curriculum map">← PYP Map</a>
+        <span class="unit-tag">🌱 Grade 1 · Unit 4: Sharing the Planet</span>
+        <button type="button" class="btn-reflect-pill" id="btnOpenReflect">💛 Reflect &amp; Stamp</button>
       </div>
-    </section>
-
-    <section id="gameScreen" class="hidden">
-      <div class="hud">
-        <h2 id="hudTitle" class="hud-title"></h2>
-        <div id="modeChip" class="chip"></div>
-        <div id="progressChip" class="chip"></div>
-        <div id="scoreChip" class="chip"></div>
-      </div>
-
-      <div class="progress">
-        <div id="progressFill"></div>
-      </div>
-
-      <article class="card">
-        <p id="prompt" class="prompt"></p>
-        <div id="scene" class="scene"></div>
-        <div id="dynamicArea"></div>
-        <p id="feedback" class="feedback"></p>
-
-        <div class="actions">
-          <button id="submitBtn" class="secondary"></button>
-          <button id="nextBtn" class="primary hidden"></button>
+      <div class="tts-dropdown-wrap" id="ttsDropdownWrap">
+        <button type="button" class="tts-trigger" id="ttsTrigger" aria-haspopup="menu" aria-expanded="false">
+          <span id="ttsFlag">🇬🇧</span>
+          <span id="ttsLabel">Voice</span>
+          <span class="tts-arrow">▾</span>
+        </button>
+        <div class="tts-menu" id="ttsMenu" role="menu">
+          <div class="tts-menu-header">Select Voice Accent</div>
+          <div class="tts-radio-group" id="ttsRadioList" role="radiogroup"></div>
         </div>
-      </article>
-    </section>
-
-    <section id="endScreen" class="center-screen hidden">
-      <div>
-        <h2 id="endTitle" class="title"></h2>
-        <div id="stars" class="stars">⭐</div>
-        <p id="endScore" class="subtitle"></p>
-        <p id="endText" class="mission-note"></p>
-        <button id="replayBtn" class="primary"></button>
       </div>
-    </section>
-  </main>
+    </nav>
+
+    <main class="app">
+      <section id="startScreen" class="center-screen">
+        <div>
+          <span class="hero-badge">🔍 IB PYP Unit 4 Eco Inquiry</span>
+          <h1 class="title">Eco Detective Mission 🌿</h1>
+          <p class="subtitle">Classify living things, then count them with pictographs and 5-gate tallies.</p>
+          <p class="mission-note">
+            Living things grow and need food, water, and air. Complete 10 detective rounds to help protect our park habitat!
+          </p>
+          <button id="startBtn" type="button" class="btn primary">Start Eco Mission ➔</button>
+        </div>
+      </section>
+
+      <section id="gameScreen" class="hidden">
+        <div class="hud">
+          <h2 class="hud-title">🌿 Living Things Lab</h2>
+          <div class="hud-chips">
+            <div id="modeChip" class="chip mode">Mode: Classify</div>
+            <div id="progressChip" class="chip">Round 1 / 10</div>
+            <div id="scoreChip" class="chip score">⭐ Score: 0</div>
+          </div>
+        </div>
+
+        <div class="progress">
+          <div id="progressFill"></div>
+        </div>
+
+        <article class="card">
+          <div class="prompt-row">
+            <p id="prompt" class="prompt"></p>
+            <button type="button" class="btn-speaker" id="btnSpeakPrompt" title="Read question aloud" aria-label="Read question aloud">🔊</button>
+          </div>
+          <div id="keyWrap" class="hidden">
+            <span class="key-badge" id="keyBadge">Key: 1 icon = 1 item · Count only LIVING things!</span>
+          </div>
+          <div id="scene" class="scene"></div>
+          <div id="dynamicArea"></div>
+          <p id="feedback" class="feedback" aria-live="polite"></p>
+
+          <div class="actions">
+            <button id="submitBtn" type="button" class="btn secondary">Check Answer 🔎</button>
+            <button id="nextBtn" type="button" class="btn primary hidden">Next Round ➔</button>
+          </div>
+        </article>
+      </section>
+
+      <section id="endScreen" class="center-screen hidden">
+        <div>
+          <span class="hero-badge">🏅 Unit 4 Eco Protector</span>
+          <h2 class="title">Mission Complete!</h2>
+          <div id="stars" class="stars">⭐ ⭐ ⭐</div>
+          <p id="endScore" class="subtitle"></p>
+          <p class="mission-note">
+            Awesome detective work! Living things grow and need food, water, and air. Tracking living things with charts and tallies helps us care for every plant and animal in our habitat.
+          </p>
+          <div class="end-actions">
+            <button id="replayBtn" type="button" class="btn primary">Play Again 🔄</button>
+            <button id="endReflectBtn" type="button" class="btn secondary">💛 Claim Caring Stamp</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- IB PYP Reflection & Passport Modal -->
+  <div class="pyp-modal-backdrop" id="pypReflectModal" role="dialog" aria-modal="true" aria-labelledby="pypModalTitle">
+    <div class="pyp-modal-card">
+      <div class="pyp-modal-badge">💛 Learner Profile Stamp: Caring</div>
+      <h2 id="pypModalTitle" style="font-size:1.3rem;">🌟 IB PYP Reflection &amp; Action</h2>
+      <div class="pyp-modal-box">
+        <strong>Key Concept · Responsibility &amp; Data</strong>
+        <span>Living things grow and need food, water, and air. Counting living things with tallies and charts helps us notice when nature needs our care.</span>
+      </div>
+      <div class="pyp-modal-box" style="background:#ECFDF5;">
+        <strong>🚀 Take Action in Real Life</strong>
+        <span>Go on a mini nature walk outside! Tally how many different plants and animals you spot, and leave their habitat clean and safe.</span>
+      </div>
+      <div id="pypStampStatus" style="font-weight:900; font-size:0.88rem; color:#15803D;"></div>
+      <div class="pyp-modal-actions">
+        <button type="button" class="pyp-modal-btn primary" id="btnClaimStamp">💛 Stamp My Passport!</button>
+        <a class="pyp-modal-btn" href="../index.html">🗺️ View Passport</a>
+        <button type="button" class="pyp-modal-btn" id="btnCloseReflect">Keep Exploring</button>
+      </div>
+    </div>
+  </div>
 
   <script>
-    const text = {
-      en: {
-        startTitle: "Eco Detective Mission",
-        startSubtitle: "Classify living things, then count them with charts and tallies.",
-        startNote: "10 rounds: 5 classify + 5 count",
-        startBtn: "Start Mission",
-        hudTitle: "Living Things Lab",
-        modeClassify: "Mode: Classify",
-        modePictograph: "Mode: Count (Pictograph)",
-        modeTallyRead: "Mode: Count (Tally Read)",
-        modeTallyBuild: "Mode: Count (Tally Build)",
-        progress: "Round",
-        score: "Score",
-        promptClassify: "Tap all living things.",
-        promptPictograph: "In this mixed chart, how many living items are there in total?",
-        promptTallyRead: "Read the living tally from this mixed chart. What is the total?",
-        promptTallyBuild: "Build a tally for the total number of living items in this mixed chart.",
-        submit: "Check",
-        next: "Next",
-        plus: "+",
-        minus: "-",
-        builtTally: "Your tally",
-        great: "Great detective work!",
-        tryAgain: "Good try. Check the highlighted answer.",
-        correctTally: "Correct tally",
-        endTitle: "Mission Complete!",
-        endText: "You can classify and count living things.",
-        replay: "Play Again",
-        finalScore: "Final Score"
+    class SoundFX {
+      constructor() { this.ctx = null; }
+      init() {
+        try {
+          if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+          if (this.ctx.state === "suspended") this.ctx.resume();
+        } catch (_) {}
+      }
+      playClick() {
+        this.init();
+        if (!this.ctx) return;
+        const t = this.ctx.currentTime;
+        const o = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        o.type = "triangle";
+        o.frequency.setValueAtTime(560, t);
+        o.frequency.exponentialRampToValueAtTime(340, t + 0.05);
+        g.gain.setValueAtTime(0.11, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.055);
+        o.connect(g);
+        g.connect(this.ctx.destination);
+        o.start(t);
+        o.stop(t + 0.06);
+      }
+      playCorrect() {
+        this.init();
+        if (!this.ctx) return;
+        const t = this.ctx.currentTime;
+        [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
+          const o = this.ctx.createOscillator();
+          const g = this.ctx.createGain();
+          o.type = "triangle";
+          o.frequency.setValueAtTime(f, t + i * 0.06);
+          g.gain.setValueAtTime(0.15, t + i * 0.06);
+          g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.06 + 0.24);
+          o.connect(g);
+          g.connect(this.ctx.destination);
+          o.start(t + i * 0.06);
+          o.stop(t + i * 0.06 + 0.26);
+        });
+      }
+      playBuzz() {
+        this.init();
+        if (!this.ctx) return;
+        const t = this.ctx.currentTime;
+        const o = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        o.type = "triangle";
+        o.frequency.setValueAtTime(180, t);
+        o.frequency.linearRampToValueAtTime(135, t + 0.16);
+        g.gain.setValueAtTime(0.13, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.19);
+        o.connect(g);
+        g.connect(this.ctx.destination);
+        o.start(t);
+        o.stop(t + 0.2);
+      }
+    }
+    const sfx = new SoundFX();
+
+    const JOKE_VOICES = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|hysterical|pipe organ|trinoids|whisper|zarvox|fred|junior|kathy|ralph|wobble/i;
+
+    const TTS_MANAGER = {
+      currentVoiceName: "",
+      wrap: null, trigger: null, flag: null, label: null, list: null,
+      init() {
+        this.wrap = document.getElementById("ttsDropdownWrap");
+        this.trigger = document.getElementById("ttsTrigger");
+        this.flag = document.getElementById("ttsFlag");
+        this.label = document.getElementById("ttsLabel");
+        this.list = document.getElementById("ttsRadioList");
+        if (!this.trigger) return;
+
+        this.trigger.addEventListener("click", (e) => {
+          e.stopPropagation();
+          sfx.playClick();
+          this.wrap.classList.toggle("open");
+          this.trigger.setAttribute("aria-expanded", String(this.wrap.classList.contains("open")));
+        });
+        document.addEventListener("click", (e) => {
+          if (this.wrap && !this.wrap.contains(e.target)) {
+            this.wrap.classList.remove("open");
+            this.trigger.setAttribute("aria-expanded", "false");
+          }
+        });
+        if (window.speechSynthesis) {
+          this.populateVoices();
+          if (window.speechSynthesis.onvoiceschanged !== undefined) {
+            window.speechSynthesis.onvoiceschanged = () => this.populateVoices();
+          }
+        }
       },
-      zh: {
-        startTitle: "生态小侦探任务",
-        startSubtitle: "先分类生物与非生物，再用图表和计数线统计。",
-        startNote: "共 10 回合：5 次分类 + 5 次计数",
-        startBtn: "开始任务",
-        hudTitle: "生物统计实验室",
-        modeClassify: "模式：分类",
-        modePictograph: "模式：计数（象形图）",
-        modeTallyRead: "模式：计数（读计数线）",
-        modeTallyBuild: "模式：计数（搭计数线）",
-        progress: "回合",
-        score: "分数",
-        promptClassify: "点选所有生物。",
-        promptPictograph: "在这个混合图表中，生物总数是多少？",
-        promptTallyRead: "根据这个混合图表读取生物计数线，总数是多少？",
-        promptTallyBuild: "根据这个混合图表，搭出生物总数对应的计数线。",
-        submit: "检查",
-        next: "下一题",
-        plus: "+",
-        minus: "-",
-        builtTally: "你的计数线",
-        great: "太棒了，小侦探！",
-        tryAgain: "做得不错，再看看高亮答案。",
-        correctTally: "正确计数线",
-        endTitle: "任务完成！",
-        endText: "你会分类并统计生物了。",
-        replay: "再玩一次",
-        finalScore: "最终分数"
+      populateVoices() {
+        if (!window.speechSynthesis || !this.list) return;
+        const voices = window.speechSynthesis.getVoices();
+        let available = voices.filter((v) => (v.lang || "").toLowerCase().replace("_", "-").startsWith("en") && !JOKE_VOICES.test(v.name));
+        if (!available.length) available = voices.filter((v) => !JOKE_VOICES.test(v.name));
+        if (!available.length) return;
+
+        available.sort((a, b) => {
+          const aUK = a.lang.toLowerCase().includes("gb");
+          const bUK = b.lang.toLowerCase().includes("gb");
+          if (aUK !== bUK) return aUK ? -1 : 1;
+          return a.name.localeCompare(b.name);
+        });
+
+        const saved = localStorage.getItem("ib_pyp_voice_name");
+        const selected = (saved && available.find((v) => v.name === saved))
+          || available.find((v) => v.lang.toLowerCase().includes("gb"))
+          || available.find((v) => v.lang.toLowerCase().includes("us"))
+          || available[0];
+        this.currentVoiceName = selected ? selected.name : "";
+        this.list.innerHTML = "";
+
+        available.forEach((v) => {
+          const isUK = v.lang.toLowerCase().replace("_", "-").includes("gb");
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = `tts-radio-item ${v.name === this.currentVoiceName ? "active" : ""}`;
+          btn.setAttribute("role", "menuitemradio");
+          btn.setAttribute("aria-checked", String(v.name === this.currentVoiceName));
+          btn.innerHTML = `<span class="tts-radio-circle"></span><span>${isUK ? "🇬🇧" : "🇺🇸"}</span><span class="tts-item-name">${v.name} (${isUK ? "UK" : "US"})</span>`;
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            sfx.playClick();
+            this.currentVoiceName = v.name;
+            try { localStorage.setItem("ib_pyp_voice_name", v.name); } catch (_) {}
+            this.updateUI(v);
+            this.list.querySelectorAll(".tts-radio-item").forEach((el) => {
+              const active = el === btn;
+              el.classList.toggle("active", active);
+              el.setAttribute("aria-checked", String(active));
+            });
+            this.wrap.classList.remove("open");
+            this.trigger.setAttribute("aria-expanded", "false");
+          });
+          this.list.appendChild(btn);
+        });
+        this.updateUI(selected);
+      },
+      updateUI(v) {
+        if (!v) return;
+        const isUK = v.lang.toLowerCase().replace("_", "-").includes("gb");
+        this.flag.textContent = isUK ? "🇬🇧" : "🇺🇸";
+        let shortName = v.name.replace(/^(Google|Microsoft|Apple)\s+/i, "");
+        if (shortName.length > 13) shortName = `${shortName.slice(0, 11)}...`;
+        this.label.textContent = shortName;
+      },
+      speak(text, triggerBtn = null) {
+        if (!window.speechSynthesis || !text || !text.trim()) return;
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        const voices = window.speechSynthesis.getVoices();
+        const match = voices.find((v) => v.name === (this.currentVoiceName || localStorage.getItem("ib_pyp_voice_name")));
+        if (match) u.voice = match;
+        u.rate = 0.86;
+        if (triggerBtn) {
+          triggerBtn.classList.add("speaking");
+          const done = () => triggerBtn.classList.remove("speaking");
+          u.onend = done;
+          u.onerror = done;
+        }
+        window.speechSynthesis.speak(u);
       }
     };
 
-    const livingPool = ["🐶", "🐟", "🐦", "🐢", "🐝", "🌳", "🌻", "🍄", "🌱"];
-    const nonLivingPool = ["🚗", "🪑", "⚽", "📘", "🧱", "⌛", "✏️", "🧸", "🧢"];
+    const livingPool = [
+      { emoji: "🐶", name: "Dog" },
+      { emoji: "🐟", name: "Fish" },
+      { emoji: "🐦", name: "Bird" },
+      { emoji: "🐢", name: "Turtle" },
+      { emoji: "🐝", name: "Bee" },
+      { emoji: "🌳", name: "Tree" },
+      { emoji: "🌻", name: "Sunflower" },
+      { emoji: "🍄", name: "Mushroom" },
+      { emoji: "🌱", name: "Sprout" }
+    ];
+
+    const nonLivingPool = [
+      { emoji: "🚗", name: "Car" },
+      { emoji: "🪑", name: "Chair" },
+      { emoji: "⚽", name: "Ball" },
+      { emoji: "📘", name: "Book" },
+      { emoji: "🧱", name: "Brick" },
+      { emoji: "⌛", name: "Hourglass" },
+      { emoji: "✏️", name: "Pencil" },
+      { emoji: "🧸", name: "Toy Bear" },
+      { emoji: "🧢", name: "Cap" }
+    ];
 
     const plan = [
       "classify",
@@ -459,11 +1136,10 @@
       "classify",
       "tally-build",
       "classify",
-      "pictograph"
+      "protect-tally"
     ];
 
     const state = {
-      lang: "en",
       idx: 0,
       score: 0,
       streak: 0,
@@ -476,45 +1152,68 @@
     const startScreen = document.getElementById("startScreen");
     const gameScreen = document.getElementById("gameScreen");
     const endScreen = document.getElementById("endScreen");
-    const langBtn = document.getElementById("langBtn");
     const modeChip = document.getElementById("modeChip");
     const progressChip = document.getElementById("progressChip");
     const scoreChip = document.getElementById("scoreChip");
     const progressFill = document.getElementById("progressFill");
     const promptEl = document.getElementById("prompt");
+    const keyWrap = document.getElementById("keyWrap");
+    const keyBadge = document.getElementById("keyBadge");
     const sceneEl = document.getElementById("scene");
     const dynamicArea = document.getElementById("dynamicArea");
     const feedbackEl = document.getElementById("feedback");
     const submitBtn = document.getElementById("submitBtn");
     const nextBtn = document.getElementById("nextBtn");
 
-    function t(key) {
-      return text[state.lang][key];
-    }
-
     function sample(pool, n) {
-      const copy = [...pool].sort(() => Math.random() - 0.5);
-      return copy.slice(0, n);
+      return [...pool].sort(() => Math.random() - 0.5).slice(0, n);
     }
 
     function shuffle(arr) {
       return [...arr].sort(() => Math.random() - 0.5);
     }
 
-    function formatTally(n) {
+    // Crisp Inline SVG 5-Gate Tally Bundle Renderer
+    function renderTallySVG(n) {
+      if (n <= 0) {
+        return `<span style="font-weight:900; color:#64748B;">0</span>`;
+      }
       const groups = Math.floor(n / 5);
       const rem = n % 5;
-      const chunks = [];
-      for (let i = 0; i < groups; i++) chunks.push("||||/");
-      if (rem > 0) chunks.push("|".repeat(rem));
-      return chunks.join(" ");
+      const parts = [];
+
+      for (let g = 0; g < groups; g++) {
+        parts.push(`
+          <svg class="tally-svg" viewBox="0 0 46 34" aria-hidden="true">
+            <line x1="8" y1="4" x2="8" y2="30" stroke="#111111" stroke-width="3.6" stroke-linecap="round"/>
+            <line x1="17" y1="4" x2="17" y2="30" stroke="#111111" stroke-width="3.6" stroke-linecap="round"/>
+            <line x1="26" y1="4" x2="26" y2="30" stroke="#111111" stroke-width="3.6" stroke-linecap="round"/>
+            <line x1="35" y1="4" x2="35" y2="30" stroke="#111111" stroke-width="3.6" stroke-linecap="round"/>
+            <line x1="3" y1="27" x2="41" y2="7" stroke="#DC2626" stroke-width="3.8" stroke-linecap="round"/>
+          </svg>
+        `);
+      }
+
+      if (rem > 0) {
+        const width = rem * 9 + 6;
+        let lines = "";
+        for (let r = 0; r < rem; r++) {
+          const x = 6 + r * 9;
+          lines += `<line x1="${x}" y1="4" x2="${x}" y2="30" stroke="#111111" stroke-width="3.6" stroke-linecap="round"/>`;
+        }
+        parts.push(`<svg class="tally-svg" viewBox="0 0 ${width} 34" aria-hidden="true">${lines}</svg>`);
+      }
+
+      return `<span class="tally-svg-wrap" role="img" aria-label="${n} tally marks">${parts.join("")}</span>`;
     }
 
-    function uniqueOptions(answer, min = 0, max = 15) {
+    function uniqueOptions(answer, min = 2, max = 20) {
       const s = new Set([answer]);
+      const offsets = [-3, -2, -1, 1, 2, 3, 4];
       while (s.size < 3) {
-        const candidate = Math.max(min, Math.min(max, answer + Math.floor(Math.random() * 7) - 3));
-        s.add(candidate);
+        const delta = offsets[Math.floor(Math.random() * offsets.length)];
+        const candidate = Math.max(min, Math.min(max, answer + delta));
+        if (candidate !== answer) s.add(candidate);
       }
       return shuffle([...s]);
     }
@@ -524,74 +1223,80 @@
       const nonLivingCount = total - livingCount;
       const living = sample(livingPool, Math.min(livingCount, livingPool.length));
       const nonLiving = sample(nonLivingPool, Math.min(nonLivingCount, nonLivingPool.length));
-      const items = [
-        ...living.map((emoji) => ({ emoji, living: true })),
-        ...nonLiving.map((emoji) => ({ emoji, living: false }))
-      ];
-      return shuffle(items);
+      return shuffle([
+        ...living.map((item) => ({ ...item, living: true })),
+        ...nonLiving.map((item) => ({ ...item, living: false }))
+      ]);
     }
 
     function buildMixedCountGroups() {
       for (let i = 0; i < 40; i++) {
         const livingKinds = 2 + Math.floor(Math.random() * 2);
         const nonLivingKinds = 1 + Math.floor(Math.random() * 2);
-        const living = sample(livingPool, livingKinds).map((emoji) => ({
-          emoji,
+        const living = sample(livingPool, livingKinds).map((item) => ({
+          ...item,
           living: true,
-          count: 2 + Math.floor(Math.random() * 6)
+          count: 2 + Math.floor(Math.random() * 5)
         }));
-        const nonLiving = sample(nonLivingPool, nonLivingKinds).map((emoji) => ({
-          emoji,
+        const nonLiving = sample(nonLivingPool, nonLivingKinds).map((item) => ({
+          ...item,
           living: false,
-          count: 1 + Math.floor(Math.random() * 6)
+          count: 1 + Math.floor(Math.random() * 5)
         }));
         const groups = shuffle([...living, ...nonLiving]);
         const livingTotal = living.reduce((sum, item) => sum + item.count, 0);
-        if (livingTotal >= 6 && livingTotal <= 20) {
+        if (livingTotal >= 6 && livingTotal <= 16) {
           return { groups, livingTotal };
         }
       }
-
-      const fallback = [
-        { emoji: "🐝", living: true, count: 5 },
-        { emoji: "🌱", living: true, count: 3 },
-        { emoji: "📘", living: false, count: 5 }
-      ];
-      return { groups: fallback, livingTotal: 8 };
-    }
-
-    function buildClassificationRound() {
-      const scene = createMixedScene(8);
-      return { type: "classify", scene };
-    }
-
-    function buildPictographRound() {
-      const { groups, livingTotal } = buildMixedCountGroups();
       return {
-        type: "pictograph",
-        groups,
-        answer: livingTotal,
-        options: uniqueOptions(livingTotal, 3, 20)
+        groups: [
+          { emoji: "🐝", name: "Bee", living: true, count: 5 },
+          { emoji: "🌱", name: "Sprout", living: true, count: 4 },
+          { emoji: "🧸", name: "Toy Bear", living: false, count: 4 }
+        ],
+        livingTotal: 9
       };
     }
 
-    function buildTallyReadRound() {
-      const { groups, livingTotal } = buildMixedCountGroups();
+    function buildProtectTallyRound() {
+      // Genuine culminating Round 10: Eco Park Protection Tally Mission
+      const parkLiving = sample(livingPool, 3).map((item) => ({
+        ...item,
+        living: true,
+        count: 2 + Math.floor(Math.random() * 4)
+      }));
+      const parkLitter = sample(nonLivingPool, 1).map((item) => ({
+        ...item,
+        living: false,
+        count: 2 + Math.floor(Math.random() * 3)
+      }));
+      const groups = shuffle([...parkLiving, ...parkLitter]);
+      const livingTotal = parkLiving.reduce((sum, item) => sum + item.count, 0);
       return {
-        type: "tally-read",
-        groups,
-        answer: livingTotal,
-        options: uniqueOptions(livingTotal, 3, 20)
-      };
-    }
-
-    function buildTallyBuildRound() {
-      const { groups, livingTotal } = buildMixedCountGroups();
-      return {
-        type: "tally-build",
+        type: "protect-tally",
         groups,
         answer: livingTotal
       };
+    }
+
+    function buildRounds() {
+      return plan.map((type) => {
+        if (type === "classify") return { type: "classify", scene: createMixedScene(8) };
+        if (type === "pictograph") {
+          const { groups, livingTotal } = buildMixedCountGroups();
+          return { type: "pictograph", groups, answer: livingTotal, options: uniqueOptions(livingTotal, 3, 18) };
+        }
+        if (type === "tally-read") {
+          const { groups, livingTotal } = buildMixedCountGroups();
+          return { type: "tally-read", groups, answer: livingTotal, options: uniqueOptions(livingTotal, 3, 18) };
+        }
+        if (type === "tally-build") {
+          const { groups, livingTotal } = buildMixedCountGroups();
+          return { type: "tally-build", groups, answer: livingTotal };
+        }
+        return buildProtectTallyRound();
+      });
     }
 
     function renderMixedGroupChart(groups, mode = "pictograph") {
@@ -600,15 +1305,22 @@
       groups.forEach((entry) => {
         const row = document.createElement("div");
         row.className = "row";
+
         const label = document.createElement("div");
         label.className = "row-label";
-        label.textContent = entry.emoji;
+        label.innerHTML = `<span style="font-size:1.3rem;">${entry.emoji}</span><span>${entry.name}</span>`;
+
         const value = document.createElement("div");
         value.className = "row-value";
         if (mode === "tally") {
-          value.innerHTML = `<span class="tally">${formatTally(entry.count)}</span>`;
+          value.innerHTML = renderTallySVG(entry.count);
         } else {
-          value.textContent = entry.emoji.repeat(entry.count);
+          for (let i = 0; i < entry.count; i++) {
+            const cell = document.createElement("span");
+            cell.className = "picto-cell";
+            cell.textContent = entry.emoji;
+            value.appendChild(cell);
+          }
         }
         row.appendChild(label);
         row.appendChild(value);
@@ -617,31 +1329,12 @@
       return chart;
     }
 
-    function buildRounds() {
-      const rounds = plan.map((type) => {
-        if (type === "classify") return buildClassificationRound();
-        if (type === "pictograph") return buildPictographRound();
-        if (type === "tally-read") return buildTallyReadRound();
-        return buildTallyBuildRound();
-      });
-
-      // Round 10 reuses Round 8 answer/data so learners rebuild the same living total with tallies.
-      if (rounds[7] && rounds[7].type === "tally-build") {
-        rounds[9] = {
-          type: "tally-build",
-          groups: rounds[7].groups.map((entry) => ({ ...entry })),
-          answer: rounds[7].answer
-        };
-      }
-
-      return rounds;
-    }
-
     function getModeLabel(type) {
-      if (type === "classify") return t("modeClassify");
-      if (type === "pictograph") return t("modePictograph");
-      if (type === "tally-read") return t("modeTallyRead");
-      return t("modeTallyBuild");
+      if (type === "classify") return "Mode: Classify";
+      if (type === "pictograph") return "Mode: Pictograph Count";
+      if (type === "tally-read") return "Mode: Tally Read";
+      if (type === "tally-build") return "Mode: Tally Build";
+      return "Finale: Protect & Tally";
     }
 
     function resetTransient() {
@@ -654,35 +1347,21 @@
       submitBtn.disabled = false;
     }
 
-    function renderStaticText() {
-      document.getElementById("startTitle").textContent = t("startTitle");
-      document.getElementById("startSubtitle").textContent = t("startSubtitle");
-      document.getElementById("startNote").textContent = t("startNote");
-      document.getElementById("startBtn").textContent = t("startBtn");
-      document.getElementById("hudTitle").textContent = t("hudTitle");
-      document.getElementById("endTitle").textContent = t("endTitle");
-      document.getElementById("endText").textContent = t("endText");
-      document.getElementById("replayBtn").textContent = t("replay");
-      submitBtn.textContent = t("submit");
-      nextBtn.textContent = t("next");
-      langBtn.textContent = state.lang === "en" ? "🌐 EN" : "🌐 中文";
-    }
-
-    function renderScene(scene, clickable = false) {
+    function renderScene(scene) {
       sceneEl.innerHTML = "";
       scene.forEach((item, idx) => {
-        const btn = document.createElement(clickable ? "button" : "div");
+        const btn = document.createElement("button");
+        btn.type = "button";
         btn.className = "emoji-chip";
-        btn.textContent = item.emoji;
-        if (clickable) {
-          if (state.selected.has(idx)) btn.classList.add("selected");
-          btn.addEventListener("click", () => {
-            if (state.answered) return;
-            if (state.selected.has(idx)) state.selected.delete(idx);
-            else state.selected.add(idx);
-            renderCurrentRound();
-          });
-        }
+        btn.innerHTML = `<span class="chip-emoji">${item.emoji}</span><span class="chip-name">${item.name}</span>`;
+        if (state.selected.has(idx)) btn.classList.add("selected");
+        btn.addEventListener("click", () => {
+          if (state.answered) return;
+          sfx.playClick();
+          if (state.selected.has(idx)) state.selected.delete(idx);
+          else state.selected.add(idx);
+          btn.classList.toggle("selected", state.selected.has(idx));
+        });
         sceneEl.appendChild(btn);
       });
     }
@@ -691,35 +1370,37 @@
       const round = state.rounds[state.idx];
       if (!round) return;
 
-      sceneEl.classList.remove("hidden");
-
       modeChip.textContent = getModeLabel(round.type);
-      progressChip.textContent = `${t("progress")}: ${state.idx + 1}/10`;
-      scoreChip.textContent = `${t("score")}: ${state.score}`;
+      progressChip.textContent = `Round ${state.idx + 1} / 10`;
+      scoreChip.textContent = `⭐ Score: ${state.score}`;
       progressFill.style.width = `${((state.idx + 1) / 10) * 100}%`;
 
       dynamicArea.innerHTML = "";
+      sceneEl.classList.add("hidden");
+      keyWrap.classList.add("hidden");
 
       if (round.type === "classify") {
-        promptEl.textContent = t("promptClassify");
-        renderScene(round.scene, true);
+        promptEl.textContent = "Tap ALL the living things below! (Remember: living things grow and need food, water, and air.)";
+        sceneEl.classList.remove("hidden");
+        submitBtn.classList.remove("hidden");
+        renderScene(round.scene);
         return;
       }
 
       if (round.type === "pictograph") {
-        promptEl.textContent = t("promptPictograph");
-        sceneEl.classList.add("hidden");
-        sceneEl.innerHTML = "";
-
+        promptEl.textContent = "Look at this mixed pictograph. How many LIVING things are there in total?";
+        keyWrap.classList.remove("hidden");
+        keyBadge.textContent = "Key: 1 icon = 1 item · Count only LIVING things!";
+        submitBtn.classList.add("hidden"); // Hide Check button on instant-choice rounds!
         dynamicArea.appendChild(renderMixedGroupChart(round.groups, "pictograph"));
 
         const choices = document.createElement("div");
         choices.className = "choices";
         round.options.forEach((opt) => {
           const btn = document.createElement("button");
+          btn.type = "button";
           btn.className = "choice";
           btn.textContent = String(opt);
-          btn.disabled = state.answered;
           btn.addEventListener("click", () => {
             if (state.answered) return;
             submitCountingAnswer(opt, btn, round.answer, choices);
@@ -731,20 +1412,19 @@
       }
 
       if (round.type === "tally-read") {
-        promptEl.textContent = t("promptTallyRead");
-        sceneEl.classList.add("hidden");
-        sceneEl.innerHTML = "";
-
+        promptEl.textContent = "Read the 5-gate tally marks carefully. How many LIVING things are there in total?";
+        keyWrap.classList.remove("hidden");
+        keyBadge.textContent = "Key: 1 crossed gate = 5 items · Count only LIVING things!";
+        submitBtn.classList.add("hidden"); // Hide Check button on instant-choice rounds!
         dynamicArea.appendChild(renderMixedGroupChart(round.groups, "tally"));
 
         const choices = document.createElement("div");
         choices.className = "choices";
-        choices.style.marginTop = "10px";
         round.options.forEach((opt) => {
           const btn = document.createElement("button");
+          btn.type = "button";
           btn.className = "choice";
           btn.textContent = String(opt);
-          btn.disabled = state.answered;
           btn.addEventListener("click", () => {
             if (state.answered) return;
             submitCountingAnswer(opt, btn, round.answer, choices);
@@ -755,39 +1435,57 @@
         return;
       }
 
-      promptEl.textContent = t("promptTallyBuild");
-      sceneEl.classList.add("hidden");
-      sceneEl.innerHTML = "";
-
+      // tally-build or finale protect-tally
+      if (round.type === "protect-tally") {
+        promptEl.textContent = "Final Eco Care Survey! Build a tally for all LIVING things in the park that need clean water and safe shelter.";
+      } else {
+        promptEl.textContent = "Build a 5-gate tally for the total number of LIVING things shown in this mixed chart.";
+      }
+      keyWrap.classList.remove("hidden");
+      keyBadge.textContent = "Key: 1 icon = 1 item · Skip non-living objects and tally the living things!";
+      submitBtn.classList.remove("hidden");
       dynamicArea.appendChild(renderMixedGroupChart(round.groups, "pictograph"));
 
       const builder = document.createElement("div");
       builder.className = "builder";
+
       const minus = document.createElement("button");
-      minus.className = "secondary";
-      minus.textContent = t("minus");
-      minus.disabled = state.answered;
+      minus.type = "button";
+      minus.className = "btn coral";
+      minus.textContent = "− 1";
       minus.addEventListener("click", () => {
         if (state.answered) return;
+        sfx.playClick();
         state.tallyBuild = Math.max(0, state.tallyBuild - 1);
-        renderCurrentRound();
+        updateTallyCounter();
       });
+
+      const counter = document.createElement("div");
+      counter.className = "counter";
+      counter.id = "tallyCounter";
+
       const plus = document.createElement("button");
-      plus.className = "secondary";
-      plus.textContent = t("plus");
-      plus.disabled = state.answered;
+      plus.type = "button";
+      plus.className = "btn primary";
+      plus.textContent = "+ 1";
       plus.addEventListener("click", () => {
         if (state.answered) return;
+        sfx.playClick();
         state.tallyBuild = Math.min(20, state.tallyBuild + 1);
-        renderCurrentRound();
+        updateTallyCounter();
       });
-      const tally = document.createElement("div");
-      tally.className = "counter";
-      tally.innerHTML = `${t("builtTally")}: <span class="tally">${formatTally(state.tallyBuild) || "-"}</span>`;
+
       builder.appendChild(minus);
-      builder.appendChild(tally);
+      builder.appendChild(counter);
       builder.appendChild(plus);
       dynamicArea.appendChild(builder);
+      updateTallyCounter();
+    }
+
+    function updateTallyCounter() {
+      const counter = document.getElementById("tallyCounter");
+      if (!counter) return;
+      counter.innerHTML = `<span>Your Tally (${state.tallyBuild}):</span> ${renderTallySVG(state.tallyBuild)}`;
     }
 
     function addScore(correct) {
@@ -795,7 +1493,6 @@
         state.streak = 0;
         return;
       }
-
       state.streak += 1;
       const bonus = state.streak >= 2 ? 2 : 0;
       state.score += 10 + bonus;
@@ -812,67 +1509,93 @@
       });
       if (!correct) clickedButton.classList.add("wrong");
 
-      feedbackEl.textContent = correct ? t("great") : t("tryAgain");
+      if (correct) {
+        sfx.playCorrect();
+        feedbackEl.textContent = `🎉 Great detective work! Counting the ${answer} living things helps us care for every plant and animal.`;
+      } else {
+        sfx.playBuzz();
+        feedbackEl.textContent = `🤔 Good try! There are ${answer} living things in total. Remember: living things grow and need food, water, and air.`;
+      }
       feedbackEl.className = `feedback ${correct ? "good" : "bad"}`;
-      scoreChip.textContent = `${t("score")}: ${state.score}`;
-      submitBtn.disabled = true;
+      scoreChip.textContent = `⭐ Score: ${state.score}`;
       nextBtn.classList.remove("hidden");
     }
 
     function submitRound() {
       if (state.answered) return;
       const round = state.rounds[state.idx];
-      let correct = false;
 
       if (round.type === "classify") {
+        if (state.selected.size === 0) {
+          sfx.playBuzz();
+          feedbackEl.textContent = "👆 Tap the living things first before checking!";
+          feedbackEl.className = "feedback bad";
+          return;
+        }
         const livingIndexes = new Set(
           round.scene
             .map((item, idx) => ({ item, idx }))
             .filter((x) => x.item.living)
             .map((x) => x.idx)
         );
-        correct = livingIndexes.size === state.selected.size && [...livingIndexes].every((idx) => state.selected.has(idx));
+        const correct = livingIndexes.size === state.selected.size && [...livingIndexes].every((idx) => state.selected.has(idx));
 
         addScore(correct);
         state.answered = true;
 
         [...sceneEl.children].forEach((el, idx) => {
+          el.disabled = true;
+          el.classList.remove("selected");
           if (livingIndexes.has(idx)) el.classList.add("correct");
           if (state.selected.has(idx) && !livingIndexes.has(idx)) el.classList.add("wrong");
         });
 
-        feedbackEl.textContent = correct ? t("great") : t("tryAgain");
+        if (correct) {
+          sfx.playCorrect();
+          feedbackEl.textContent = "🎉 Spot on! Living things grow and need food, water, and air — non-living objects do not.";
+        } else {
+          sfx.playBuzz();
+          feedbackEl.textContent = "🤔 Check the green ✓ cards! Living things grow and need food, water, and air (toys and tools are non-living).";
+        }
         feedbackEl.className = `feedback ${correct ? "good" : "bad"}`;
-        submitBtn.disabled = true;
+        submitBtn.classList.add("hidden");
         nextBtn.classList.remove("hidden");
-        scoreChip.textContent = `${t("score")}: ${state.score}`;
+        scoreChip.textContent = `⭐ Score: ${state.score}`;
         return;
       }
 
-      if (round.type === "tally-build") {
-        correct = state.tallyBuild === round.answer;
+      if (round.type === "tally-build" || round.type === "protect-tally") {
+        const correct = state.tallyBuild === round.answer;
         addScore(correct);
         state.answered = true;
-        feedbackEl.textContent = correct
-          ? t("great")
-          : `${t("tryAgain")} ${t("correctTally")}: ${formatTally(round.answer)}`;
+        if (correct) {
+          sfx.playCorrect();
+          feedbackEl.textContent = round.type === "protect-tally"
+            ? `🌿 Habitat Survey Complete! Your tally of ${round.answer} living things helps park rangers protect food, water, and shelter!`
+            : `🎉 Accurate 5-gate tally! You counted all ${round.answer} living things and skipped the non-living objects.`;
+        } else {
+          sfx.playBuzz();
+          feedbackEl.textContent = `🤔 Good try! The living things add up to ${round.answer}. Remember to count only living things that grow and need food, water, and air.`;
+        }
         feedbackEl.className = `feedback ${correct ? "good" : "bad"}`;
-        submitBtn.disabled = true;
+        submitBtn.classList.add("hidden");
         nextBtn.classList.remove("hidden");
-        scoreChip.textContent = `${t("score")}: ${state.score}`;
+        scoreChip.textContent = `⭐ Score: ${state.score}`;
       }
     }
 
     function showEnd() {
+      sfx.playCorrect();
       gameScreen.classList.add("hidden");
       endScreen.classList.remove("hidden");
-      const ratio = state.score / 120;
-      const stars = ratio >= 0.9 ? "⭐ ⭐ ⭐" : ratio >= 0.6 ? "⭐ ⭐" : "⭐";
+      const ratio = state.score / 118;
+      const stars = ratio >= 0.85 ? "⭐ ⭐ ⭐" : ratio >= 0.55 ? "⭐ ⭐" : "⭐";
       document.getElementById("stars").textContent = stars;
-      document.getElementById("endScore").textContent = `${t("finalScore")}: ${state.score}`;
+      document.getElementById("endScore").textContent = `Final Score: ${state.score}`;
     }
 
     function nextRound() {
+      sfx.playClick();
       state.idx += 1;
       if (state.idx >= state.rounds.length) {
         showEnd();
@@ -883,6 +1606,7 @@
     }
 
     function startMission() {
+      sfx.playClick();
       state.idx = 0;
       state.score = 0;
       state.streak = 0;
@@ -894,34 +1618,52 @@
       renderCurrentRound();
     }
 
-    function applyLanguage() {
-      renderStaticText();
-      if (!gameScreen.classList.contains("hidden") && state.rounds.length > 0) {
-        renderCurrentRound();
-      }
-      if (!endScreen.classList.contains("hidden")) {
-        document.getElementById("endScore").textContent = `${t("finalScore")}: ${state.score}`;
-      }
-    }
-
     document.getElementById("startBtn").addEventListener("click", startMission);
     document.getElementById("replayBtn").addEventListener("click", startMission);
     submitBtn.addEventListener("click", submitRound);
     nextBtn.addEventListener("click", nextRound);
-    langBtn.addEventListener("click", () => {
-      state.lang = state.lang === "en" ? "zh" : "en";
-      applyLanguage();
+
+    document.getElementById("btnSpeakPrompt").addEventListener("click", (e) => {
+      sfx.playClick();
+      TTS_MANAGER.speak(promptEl.textContent, e.currentTarget);
     });
 
-    applyLanguage();
-  </script>
+    // IB PYP Reflection & Passport Stamp (Caring)
+    const modal = document.getElementById("pypReflectModal");
+    const stampStatus = document.getElementById("pypStampStatus");
+    const claimBtn = document.getElementById("btnClaimStamp");
 
-  <a class="pyp-map-link" href="../index.html" aria-label="Back to PYP curriculum map">PYP Map</a>
-  <style>
-    .pyp-map-link { position: fixed; top: 12px; right: 12px; z-index: 9999; min-height: 44px; display: inline-flex; align-items: center; border: 2px solid #17211f; border-radius: 8px; padding: 8px 12px; background: #fffaf0; color: #17211f; text-decoration: none; font: 900 14px/1 ui-rounded, "Avenir Next", "Segoe UI", sans-serif; box-shadow: 3px 3px 0 #17211f; letter-spacing: 0; }
-    .pyp-map-link:focus-visible { outline: 3px solid #f2b84b; outline-offset: 2px; }
-    @media print { .pyp-map-link { display: none; } }
-  </style>
+    function openReflect() {
+      sfx.playClick();
+      modal.classList.add("open");
+    }
+
+    document.getElementById("btnOpenReflect")?.addEventListener("click", openReflect);
+    document.getElementById("endReflectBtn")?.addEventListener("click", openReflect);
+    document.getElementById("btnCloseReflect")?.addEventListener("click", () => {
+      sfx.playClick();
+      modal.classList.remove("open");
+    });
+    modal?.addEventListener("click", (e) => {
+      if (e.target === modal) modal.classList.remove("open");
+    });
+    claimBtn?.addEventListener("click", () => {
+      sfx.playCorrect();
+      try {
+        const raw = localStorage.getItem("ib_pyp_passport");
+        const data = raw ? JSON.parse(raw) : { stamps: [], completed: [] };
+        const stamps = new Set(Array.isArray(data.stamps) ? data.stamps : []);
+        const completed = new Set(Array.isArray(data.completed) ? data.completed : []);
+        stamps.add("Caring");
+        completed.add("math/g1_living_things_eco_detective.html");
+        localStorage.setItem("ib_pyp_passport", JSON.stringify({ stamps: [...stamps], completed: [...completed] }));
+        stampStatus.textContent = "✅ Caring stamp saved to your IB PYP Passport!";
+        claimBtn.textContent = "✅ Stamped!";
+      } catch (_) {}
+    });
+
+    TTS_MANAGER.init();
+  </script>
 </body>
 
 </html>

@@ -324,13 +324,53 @@
       to { transform: scale(1); opacity: 1; }
     }
 
+    .reflection-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
     .reflection-title {
       font-size: 1.1rem;
       font-weight: 900;
-      margin-bottom: 6px;
       display: flex;
       align-items: center;
       gap: 6px;
+    }
+
+    .pyp-reflect-card {
+      background: #FFFDE8;
+      border: 2.5px solid var(--ink);
+      border-radius: 12px;
+      box-shadow: 3px 3px 0 var(--ink);
+      padding: 16px 18px;
+      max-width: 600px;
+      margin: 0 auto 20px;
+      text-align: left;
+    }
+
+    .pyp-reflect-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--teal);
+      color: var(--ink);
+      border: 2px solid var(--ink);
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-size: 0.8rem;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .pyp-stamp-status {
+      font-size: 0.9rem;
+      font-weight: 900;
+      color: #047857;
+      margin-top: 8px;
+      min-height: 20px;
     }
 
     .reflection-text {
@@ -622,30 +662,30 @@
         <div class="meter-item">
           <div class="meter-label">
             <span>💪 Physical Energy</span>
-            <span id="valPhysical">70%</span>
+            <span id="valPhysical">65%</span>
           </div>
           <div class="meter-bar">
-            <div class="meter-fill" id="fillPhysical" style="width: 70%; background: var(--teal);"></div>
+            <div class="meter-fill" id="fillPhysical" style="width: 65%; background: var(--teal);"></div>
           </div>
         </div>
 
         <div class="meter-item">
           <div class="meter-label">
             <span>😊 Emotional Calm</span>
-            <span id="valEmotional">70%</span>
+            <span id="valEmotional">65%</span>
           </div>
           <div class="meter-bar">
-            <div class="meter-fill" id="fillEmotional" style="width: 70%; background: var(--yellow);"></div>
+            <div class="meter-fill" id="fillEmotional" style="width: 65%; background: var(--yellow);"></div>
           </div>
         </div>
 
         <div class="meter-item">
           <div class="meter-label">
             <span>🧠 Mind & Focus</span>
-            <span id="valFocus">70%</span>
+            <span id="valFocus">65%</span>
           </div>
           <div class="meter-bar">
-            <div class="meter-fill" id="fillFocus" style="width: 70%; background: var(--purple);"></div>
+            <div class="meter-fill" id="fillFocus" style="width: 65%; background: var(--purple);"></div>
           </div>
         </div>
       </aside>
@@ -654,7 +694,7 @@
       <main class="scenario-panel">
         <div>
           <div class="scenario-meta">
-            <span class="badge-step" id="stepBadge">Scenario 1 of 5</span>
+            <span class="badge-step" id="stepBadge">Scenario 1 of 7</span>
             <span style="font-weight:800; font-size:0.85rem;" id="timeOfDay">Morning: 07:15 AM</span>
           </div>
           <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
@@ -670,7 +710,10 @@
 
         <!-- Reflection Box -->
         <div class="reflection-box" id="reflectionBox">
-          <div class="reflection-title" id="reflectionTitle">Impact Reflection</div>
+          <div class="reflection-header">
+            <div class="reflection-title" id="reflectionTitle">Impact Reflection</div>
+            <button type="button" class="btn-speaker" id="btnSpeakReflection" title="Read reflection aloud" aria-label="Read reflection aloud">🔊</button>
+          </div>
           <p class="reflection-text" id="reflectionText"></p>
           <div style="display:flex; justify-content:flex-end;">
             <button class="btn-next" id="btnNext" type="button">Next Scenario →</button>
@@ -683,8 +726,16 @@
     <section class="final-screen" id="finalScreen">
       <div style="font-size: 4rem; margin-bottom: 10px;">🏅</div>
       <h2 style="font-size: 2rem; font-weight: 900; margin-bottom: 8px;">Master of Balanced Choices!</h2>
-      <p id="finalSummary" style="font-size: 1.1rem; font-weight: 700; max-width: 620px; margin: 0 auto 20px; line-height: 1.6;"></p>
+      <p id="finalSummary" style="font-size: 1.1rem; font-weight: 700; max-width: 620px; margin: 0 auto 18px; line-height: 1.6;"></p>
+      <div class="pyp-reflect-card">
+        <div class="pyp-reflect-badge">⚖️ IB PYP Learner Profile · Balanced</div>
+        <p style="font-size: 0.95rem; font-weight: 800; line-height: 1.45; color: #1F2937;">
+          <strong>IB PYP Reflection:</strong> Caring for our body, our emotions, and our mind together keeps our daily scale level and strong. What balanced choice will you make today?
+        </p>
+        <div class="pyp-stamp-status" id="pypStampStatus"></div>
+      </div>
       <div style="display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;">
+        <button class="btn-next" id="btnClaimStamp" type="button" style="background:var(--purple); color:var(--white);">⚖️ Stamp My Passport!</button>
         <button class="btn-next" id="btnRestart" type="button" style="background:var(--teal); color:var(--ink);">Play Again 🔄</button>
         <a class="pyp-map-link" href="../index.html">Back to Learning Map 🗺️</a>
       </div>
@@ -1031,6 +1082,25 @@
     const finalScreen = document.getElementById('finalScreen');
     const finalSummary = document.getElementById('finalSummary');
     const btnRestart = document.getElementById('btnRestart');
+    const btnClaimStamp = document.getElementById('btnClaimStamp');
+    const pypStampStatus = document.getElementById('pypStampStatus');
+    const btnSpeakReflection = document.getElementById('btnSpeakReflection');
+
+    function recordPassportStamp(silent) {
+      try {
+        const raw = localStorage.getItem('ib_pyp_passport');
+        const data = raw ? JSON.parse(raw) : { stamps: [], completed: [] };
+        const stamps = new Set(Array.isArray(data.stamps) ? data.stamps : []);
+        const completed = new Set(Array.isArray(data.completed) ? data.completed : []);
+        stamps.add('Balanced');
+        completed.add('uoi/g2_balanced_choices.html');
+        localStorage.setItem('ib_pyp_passport', JSON.stringify({ stamps: [...stamps], completed: [...completed] }));
+        if (!silent && pypStampStatus && btnClaimStamp) {
+          pypStampStatus.textContent = '✅ Balanced stamp saved to your IB PYP Passport!';
+          btnClaimStamp.textContent = '✅ Stamped!';
+        }
+      } catch (_) {}
+    }
 
     function clamp(n) {
       return Math.min(100, Math.max(10, n));
@@ -1045,19 +1115,31 @@
       fillFocus.style.width = stats.focus + '%';
 
       const avg = (stats.physical + stats.emotional + stats.focus) / 3;
-      // Tilt beam between -12deg (unbalanced) and +12deg (balanced)
-      const tilt = ((avg - 50) / 50) * 12;
-      scaleBeam.style.transform = `rotate(${tilt}deg)`;
+      const spread = Math.max(stats.physical, stats.emotional, stats.focus) - Math.min(stats.physical, stats.emotional, stats.focus);
+      const deficit = Math.max(0, 75 - avg);
 
-      if (avg >= 70) {
-        scaleLabel.textContent = "Harmonious & Energetic";
+      // High, even wellbeing sits level (0deg); low or uneven pillars visibly tip the scale!
+      let tilt = 0;
+      if (deficit > 0) {
+        tilt = -Math.min(14, (deficit / 65) * 14);
+      } else if (spread > 12) {
+        const direction = (stats.physical - stats.emotional) >= 0 ? 1 : -1;
+        tilt = direction * Math.min(10, (spread - 12) * 0.25);
+      }
+      scaleBeam.style.transform = `rotate(${tilt.toFixed(1)}deg)`;
+
+      if (avg >= 75 && spread <= 15) {
+        scaleLabel.textContent = "Level & Harmonious Balance";
         overallState.textContent = "Balanced ⚖️";
-      } else if (avg >= 50) {
-        scaleLabel.textContent = "Moderate Balance";
+      } else if (avg >= 75 && spread > 15) {
+        scaleLabel.textContent = "Slightly Uneven Pillars";
+        overallState.textContent = "Rebalance ⚖️";
+      } else if (avg >= 55) {
+        scaleLabel.textContent = "Steady — Keep Building";
         overallState.textContent = "Steady ⚖️";
       } else {
-        scaleLabel.textContent = "Leaning Unbalanced";
-        overallState.textContent = "Needs Rest ⚠️";
+        scaleLabel.textContent = "Tipped Unbalanced";
+        overallState.textContent = "Needs Care ⚠️";
       }
     }
 
@@ -1069,15 +1151,23 @@
       scenarioDesc.textContent = s.desc;
       cardsGrid.innerHTML = '';
       reflectionBox.classList.remove('active');
+      if (window.speechSynthesis) window.speechSynthesis.cancel();
+      if (btnSpeakReflection) btnSpeakReflection.classList.remove('speaking');
+      const speakBtn = document.getElementById('btnSpeakScenario');
+      if (speakBtn) speakBtn.classList.remove('speaking');
 
-      s.options.forEach(opt => {
+      const letters = ['A', 'B', 'C'];
+      const shuffledOptions = [...s.options].sort(() => Math.random() - 0.5);
+
+      shuffledOptions.forEach((opt, i) => {
+        const displayLetter = letters[i] || String.fromCharCode(65 + i);
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'choice-card';
         btn.innerHTML = `
           <div class="card-icon-svg">${opt.svg}</div>
           <div class="card-text-box">
-            <div class="card-letter">Option ${opt.letter}</div>
+            <div class="card-letter">Option ${displayLetter}</div>
             <div class="card-title">${opt.title}</div>
           </div>
         `;
@@ -1130,6 +1220,7 @@
     });
 
     function showFinal() {
+      if (window.speechSynthesis) window.speechSynthesis.cancel();
       mainBoard.style.display = 'none';
       finalScreen.classList.add('active');
       const avg = Math.round((stats.physical + stats.emotional + stats.focus) / 3);
@@ -1140,6 +1231,16 @@
       } else {
         finalSummary.textContent = `Good inquiry effort! Your score is ${avg}%. Even when choices lead to tiredness, reflecting on causation helps us build stronger daily habits tomorrow.`;
       }
+      recordPassportStamp(true);
+      if (pypStampStatus) pypStampStatus.textContent = '✨ Tap "Stamp My Passport!" to celebrate your Balanced badge!';
+      if (btnClaimStamp) btnClaimStamp.textContent = '⚖️ Stamp My Passport!';
+    }
+
+    if (btnClaimStamp) {
+      btnClaimStamp.addEventListener('click', () => {
+        audio.playSuccess();
+        recordPassportStamp(false);
+      });
     }
 
     btnRestart.addEventListener('click', () => {
@@ -1151,6 +1252,8 @@
       finalScreen.classList.remove('active');
       renderScenario(0);
     });
+
+    const JOKE_VOICES = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|hysterical|pipe organ|trinoids|whisper|zarvox|fred|junior|kathy|ralph|wobble/i;
 
     // ----------------------------------------------------
     // TTS MANAGER (Neobrutalism Radio Group Dropdown)
@@ -1208,9 +1311,10 @@
         const voices = window.speechSynthesis.getVoices();
         let englishVoices = voices.filter(v => {
           const lang = v.lang.toLowerCase().replace('_', '-');
-          return lang.startsWith('en');
+          return lang.startsWith('en') && !JOKE_VOICES.test(v.name);
         });
 
+        if (englishVoices.length === 0) englishVoices = voices.filter(v => !JOKE_VOICES.test(v.name));
         if (englishVoices.length === 0) englishVoices = voices;
         if (englishVoices.length === 0) return;
 
@@ -1332,10 +1436,23 @@
     if (btnSpeakScenario) {
       btnSpeakScenario.addEventListener('click', () => {
         audio.playClick();
+        if (btnSpeakReflection) btnSpeakReflection.classList.remove('speaking');
         btnSpeakScenario.classList.add('speaking');
         const textToSpeak = `${scenarioTitle.textContent}. ${scenarioDesc.textContent}`;
         TTS_MANAGER.speak(textToSpeak, () => {
           btnSpeakScenario.classList.remove('speaking');
+        });
+      });
+    }
+
+    if (btnSpeakReflection) {
+      btnSpeakReflection.addEventListener('click', () => {
+        audio.playClick();
+        if (btnSpeakScenario) btnSpeakScenario.classList.remove('speaking');
+        btnSpeakReflection.classList.add('speaking');
+        const textToSpeak = `${reflectionTitle.textContent}. ${reflectionText.textContent}`;
+        TTS_MANAGER.speak(textToSpeak, () => {
+          btnSpeakReflection.classList.remove('speaking');
         });
       });
     }

@@ -39,7 +39,7 @@
     }
 
     .container {
-      max-width: 1000px;
+      max-width: 1200px;
       margin: 0 auto;
     }
 
@@ -116,6 +116,12 @@
       color: #4B5563;
     }
 
+    .score-tray {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
     .score-badge {
       border: 2.5px solid var(--ink);
       border-radius: 10px;
@@ -154,6 +160,13 @@
       margin-bottom: 12px;
       display: flex;
       align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .card-title-left {
+      display: inline-flex;
+      align-items: center;
       gap: 8px;
     }
 
@@ -168,8 +181,9 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
       position: relative;
+      gap: 10px;
     }
 
     .matrix-container {
@@ -181,11 +195,52 @@
 
     .matrix-row {
       display: flex;
+      align-items: center;
       gap: 10px;
       background: #E2E8F0;
       padding: 6px 10px;
       border-radius: 8px;
       border: 2px dashed #94A3B8;
+      cursor: pointer;
+      transition: background-color 0.15s, border-color 0.15s, transform 0.12s;
+    }
+
+    .matrix-row:hover {
+      background: #FEF9C3;
+      border-color: var(--ink);
+    }
+
+    .matrix-row.counted {
+      background: #D1FAE5;
+      border: 2.5px solid var(--ink);
+      box-shadow: 2px 2px 0 var(--ink);
+      transform: translateX(3px);
+    }
+
+    .row-skip-badge {
+      min-width: 38px;
+      height: 32px;
+      padding: 0 8px;
+      border-radius: 999px;
+      border: 2px solid var(--ink);
+      background: var(--yellow);
+      color: var(--ink);
+      font-size: 0.85rem;
+      font-weight: 900;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .matrix-row.counted .row-skip-badge {
+      display: inline-flex;
+    }
+
+    .skip-count-tip {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: #475569;
+      text-align: center;
     }
 
     .matrix-item {
@@ -289,6 +344,264 @@
       text-align: center;
       box-shadow: var(--shadow-sm);
       background: #FFFFFF;
+      transition: background-color 0.15s, border-color 0.15s;
+    }
+
+    .input-box.input-error {
+      background: #FEE2E2;
+      border-color: #DC2626;
+      color: #991B1B;
+    }
+
+    .input-box.input-ok {
+      background: #D1FAE5;
+      border-color: #059669;
+      color: #065F46;
+    }
+
+    .hint-area {
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-start;
+    }
+
+    .btn-hint-toggle {
+      font-family: inherit;
+      background: #E0F2FE;
+      color: var(--ink);
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
+      box-shadow: 2px 2px 0 var(--ink);
+      padding: 7px 14px;
+      font-size: 0.86rem;
+      font-weight: 800;
+      cursor: pointer;
+      min-height: 40px;
+      transition: transform 0.1s, box-shadow 0.1s, background-color 0.15s;
+    }
+
+    .btn-hint-toggle:hover {
+      background: #BAE6FD;
+      transform: translate(-1px, -1px);
+      box-shadow: 3px 3px 0 var(--ink);
+    }
+
+    .btn-hint-toggle:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0 0 0 var(--ink);
+    }
+
+    .repeated-addition-box {
+      display: none;
+      width: 100%;
+      background: #FEF9C3;
+      border: 2px dashed var(--ink);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: #713F12;
+    }
+
+    .repeated-addition-box.open {
+      display: block;
+    }
+
+    /* Neobrutalism TTS Radio Dropdown */
+    .tts-dropdown-wrap {
+      position: relative;
+      display: inline-block;
+      user-select: none;
+      font-family: inherit;
+    }
+    .tts-trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #FFF;
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
+      box-shadow: 3px 3px 0 var(--ink);
+      padding: 6px 12px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--ink);
+      cursor: pointer;
+      min-height: 40px;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .tts-trigger:hover {
+      background: #FEF08A;
+      transform: translate(-1px, -1px);
+      box-shadow: 4px 4px 0 var(--ink);
+    }
+    .tts-trigger:active {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0 var(--ink);
+    }
+    .tts-arrow {
+      font-size: 0.75rem;
+      transition: transform 0.15s ease;
+    }
+    .tts-dropdown-wrap.open .tts-arrow {
+      transform: rotate(180deg);
+    }
+    .tts-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      min-width: 250px;
+      max-width: 320px;
+      max-height: 290px;
+      overflow-y: auto;
+      background: #FFF;
+      border: 3px solid var(--ink);
+      border-radius: 12px;
+      box-shadow: 4px 4px 0 var(--ink);
+      padding: 6px;
+      z-index: 1000;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .tts-dropdown-wrap.open .tts-menu {
+      display: flex;
+    }
+    .tts-menu-header {
+      font-size: 0.72rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: #6B7280;
+      padding: 4px 8px 6px;
+      border-bottom: 2px solid #E5E7EB;
+      margin-bottom: 3px;
+    }
+    .tts-radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .tts-radio-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border: 2px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--ink);
+      text-align: left;
+      width: 100%;
+      transition: background 0.1s, border-color 0.1s;
+    }
+    .tts-radio-item:hover {
+      background: #FEF9C3;
+      border-color: var(--ink);
+    }
+    .tts-radio-item.active {
+      background: #E0F2FE;
+      border-color: var(--ink);
+      font-weight: 800;
+    }
+    .tts-radio-circle {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      border: 2px solid var(--ink);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background: #FFF;
+    }
+    .tts-radio-item.active .tts-radio-circle::after {
+      content: '';
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--ink);
+    }
+    .tts-item-flag { font-size: 1rem; }
+    .tts-item-name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+    }
+
+    .btn-speaker {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #FEF08A;
+      border: 2.5px solid var(--ink);
+      box-shadow: 2px 2px 0 var(--ink);
+      border-radius: 8px;
+      min-width: 38px;
+      height: 38px;
+      padding: 0 10px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 800;
+      gap: 5px;
+      flex-shrink: 0;
+      transition: transform 0.1s, box-shadow 0.1s, background-color 0.1s;
+    }
+    .btn-speaker:hover {
+      background: #FDE047;
+      transform: translate(-1px, -1px);
+      box-shadow: 3px 3px 0 var(--ink);
+    }
+    .btn-speaker:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0 0 0 var(--ink);
+    }
+    .btn-speaker.speaking {
+      background: #86EFAC;
+      animation: ttsPulse 0.7s infinite alternate;
+    }
+    @keyframes ttsPulse {
+      from { transform: scale(1); }
+      to { transform: scale(1.06); }
+    }
+
+    .pyp-reflect-card {
+      background: #FFFDE8;
+      border: 2.5px solid var(--ink);
+      border-radius: 12px;
+      box-shadow: 3px 3px 0 var(--ink);
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      text-align: left;
+    }
+    .pyp-reflect-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--yellow);
+      color: var(--ink);
+      border: 2px solid var(--ink);
+      border-radius: 999px;
+      padding: 3px 12px;
+      font-size: 0.78rem;
+      font-weight: 900;
+      margin-bottom: 6px;
+    }
+    .pyp-stamp-status {
+      font-size: 0.88rem;
+      font-weight: 900;
+      color: #047857;
+      margin-top: 8px;
+      min-height: 20px;
     }
 
     /* Feedback Box */
@@ -423,8 +736,21 @@
 <body>
   <div class="container">
     <nav class="nav-bar">
-      <a class="pyp-map-link" href="../index.html">← PYP Map</a>
-      <span class="unit-tag">✖️ Grade 2 · Unit 2: Multiplication Arrays</span>
+      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <a class="pyp-map-link" href="../index.html">← PYP Map</a>
+        <span class="unit-tag">✖️ Grade 2 · Unit 2: Multiplication Arrays</span>
+      </div>
+      <div class="tts-dropdown-wrap" id="ttsDropdownWrap">
+        <button type="button" class="tts-trigger" id="ttsTrigger" aria-haspopup="menu" aria-expanded="false" title="Select Voice Accent">
+          <span class="tts-trigger-flag" id="ttsFlag">🇬🇧</span>
+          <span class="tts-trigger-label" id="ttsLabel">Voice</span>
+          <span class="tts-arrow">▾</span>
+        </button>
+        <div class="tts-menu" id="ttsMenu" role="menu">
+          <div class="tts-menu-header">Select Voice Accent</div>
+          <div class="tts-radio-group" id="ttsRadioList" role="radiogroup"></div>
+        </div>
+      </div>
     </nav>
 
     <header class="hero-card">
@@ -441,7 +767,10 @@
     <main class="math-grid">
       <!-- Left Column: Visual Array Board -->
       <section class="card">
-        <h2 class="card-title"><span>📦</span> Visual Array Matrix</h2>
+        <h2 class="card-title">
+          <span class="card-title-left"><span>📦</span> Visual Array Matrix</span>
+          <button type="button" class="btn-speaker" id="btnSpeakArray" title="Read aloud prompt or multiplication sentence">🔊 Read Aloud</button>
+        </h2>
         <div class="array-board" id="arrayBoard">
           <!-- Rendered by JS -->
         </div>
@@ -453,7 +782,7 @@
 
       <!-- Right Column: Group, Each, Total Inquiry -->
       <section class="card">
-        <h2 class="card-title"><span>🔢</span> Multiplication Reasoning</h2>
+        <h2 class="card-title"><span class="card-title-left"><span>🔢</span> Multiplication Reasoning</span></h2>
 
         <div class="question-block">
           <div class="input-row">
@@ -484,8 +813,9 @@
           </div>
         </div>
 
-        <div style="font-size: 0.88rem; font-weight: 700; color: #4B5563; margin-bottom: 12px;" id="repeatedAdditionText">
-          Repeated Addition: ?
+        <div class="hint-area">
+          <button type="button" class="btn-hint-toggle" id="btnToggleHint" aria-expanded="false">💡 Show Repeated Addition Hint</button>
+          <div class="repeated-addition-box" id="repeatedAdditionText">Repeated Addition: ?</div>
         </div>
 
         <div class="feedback-box" id="feedbackBox"></div>
@@ -506,7 +836,18 @@
       <p class="modal-desc">
         Brilliant! You mastered arrays, equal groups, and repeated addition. You are ready for fast times tables!
       </p>
-      <button class="btn-submit" id="btnRestart" type="button">Build New Arrays 🔄</button>
+      <div class="pyp-reflect-card">
+        <div class="pyp-reflect-badge">💡 IB PYP Learner Profile · Thinker</div>
+        <p style="font-size: 0.9rem; font-weight: 700; color: #374151; line-height: 1.45;">
+          <strong>Reflection:</strong> Organizing items into equal rows lets us skip-count and multiply instead of counting one by one!
+        </p>
+        <div class="pyp-stamp-status" id="pypStampStatus"></div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <button class="btn-next-quest" id="btnClaimStamp" type="button" style="background: var(--purple); color: var(--white);">💡 Stamp My Passport!</button>
+        <button class="btn-submit" id="btnRestart" type="button">Build New Arrays 🔄</button>
+        <a class="pyp-map-link" href="../index.html" style="justify-content: center;">🗺️ View Passport on PYP Map</a>
+      </div>
     </div>
   </div>
 
@@ -551,21 +892,185 @@
         osc.start(now);
         osc.stop(now + 0.2);
       }
-      playClick() {
+      playClick(pitch = 500) {
         this.init();
         const now = this.ctx.currentTime;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
-        osc.frequency.setValueAtTime(500, now);
+        osc.frequency.setValueAtTime(pitch, now);
         gain.gain.setValueAtTime(0.08, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
         osc.connect(gain);
         gain.connect(this.ctx.destination);
         osc.start(now);
-        osc.stop(now + 0.06);
+        osc.stop(now + 0.07);
       }
     }
     const audio = new ArrayAudio();
+
+    const JOKE_VOICES = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|hysterical|pipe organ|trinoids|whisper|zarvox|fred|junior|kathy|ralph|wobble/i;
+
+    const TTS_MANAGER = {
+      currentVoiceName: '',
+      wrap: null,
+      trigger: null,
+      menu: null,
+      flag: null,
+      label: null,
+      list: null,
+
+      init() {
+        this.wrap = document.getElementById('ttsDropdownWrap');
+        this.trigger = document.getElementById('ttsTrigger');
+        this.menu = document.getElementById('ttsMenu');
+        this.flag = document.getElementById('ttsFlag');
+        this.label = document.getElementById('ttsLabel');
+        this.list = document.getElementById('ttsRadioList');
+        if (!this.trigger) return;
+
+        this.trigger.addEventListener('click', (e) => {
+          e.stopPropagation();
+          audio.playClick();
+          this.wrap.classList.toggle('open');
+          this.trigger.setAttribute('aria-expanded', this.wrap.classList.contains('open'));
+        });
+
+        document.addEventListener('click', (e) => {
+          if (this.wrap && !this.wrap.contains(e.target)) {
+            this.wrap.classList.remove('open');
+            this.trigger.setAttribute('aria-expanded', 'false');
+          }
+        });
+
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && this.wrap) {
+            this.wrap.classList.remove('open');
+            this.trigger.setAttribute('aria-expanded', 'false');
+          }
+        });
+
+        if (window.speechSynthesis) {
+          this.populateVoices();
+          if (window.speechSynthesis.onvoiceschanged !== undefined) {
+            window.speechSynthesis.onvoiceschanged = () => this.populateVoices();
+          }
+        }
+      },
+
+      populateVoices() {
+        if (!window.speechSynthesis || !this.list) return;
+        const voices = window.speechSynthesis.getVoices();
+        let englishVoices = voices.filter(v => {
+          const lang = v.lang.toLowerCase().replace('_', '-');
+          return lang.startsWith('en') && !JOKE_VOICES.test(v.name);
+        });
+        if (englishVoices.length === 0) englishVoices = voices.filter(v => !JOKE_VOICES.test(v.name));
+        if (englishVoices.length === 0) englishVoices = voices;
+        if (englishVoices.length === 0) return;
+
+        englishVoices.sort((a, b) => {
+          const aName = a.name;
+          const bName = b.name;
+          const isA_UK_Fem = aName.includes('Google UK English Female') || (aName.includes('UK English') && aName.includes('Female'));
+          const isB_UK_Fem = bName.includes('Google UK English Female') || (bName.includes('UK English') && bName.includes('Female'));
+          if (isA_UK_Fem && !isB_UK_Fem) return -1;
+          if (!isA_UK_Fem && isB_UK_Fem) return 1;
+          const isA_US = aName.includes('Google US English') || (aName.includes('US English') && aName.includes('Female'));
+          const isB_US = bName.includes('Google US English') || (bName.includes('US English') && bName.includes('Female'));
+          if (isA_US && !isB_US) return -1;
+          if (!isA_US && isB_US) return 1;
+          const aUK = a.lang.toLowerCase().includes('gb');
+          const bUK = b.lang.toLowerCase().includes('gb');
+          if (aUK && !bUK) return -1;
+          if (!aUK && bUK) return 1;
+          return aName.localeCompare(bName);
+        });
+
+        const saved = localStorage.getItem('ib_pyp_voice_name');
+        let selected = saved ? englishVoices.find(v => v.name === saved) : null;
+        if (!selected) selected = englishVoices.find(v => v.name.includes('Google UK English Female') || (v.name.includes('UK English') && v.name.includes('Female')));
+        if (!selected) selected = englishVoices.find(v => v.name.includes('Google US English'));
+        if (!selected) selected = englishVoices[0];
+
+        this.currentVoiceName = selected ? selected.name : '';
+        this.renderMenu(englishVoices);
+        this.updateTriggerUI(selected);
+      },
+
+      renderMenu(voices) {
+        this.list.innerHTML = '';
+        voices.forEach(v => {
+          const isUK = v.lang.toLowerCase().replace('_', '-').includes('gb');
+          const flag = isUK ? '🇬🇧' : '🇺🇸';
+          const region = isUK ? 'UK' : 'US';
+          const isActive = v.name === this.currentVoiceName;
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = `tts-radio-item ${isActive ? 'active' : ''}`;
+          btn.setAttribute('role', 'menuitemradio');
+          btn.setAttribute('aria-checked', isActive ? 'true' : 'false');
+          btn.innerHTML = `
+            <span class="tts-radio-circle"></span>
+            <span class="tts-item-flag">${flag}</span>
+            <span class="tts-item-name">${v.name} (${region})</span>
+          `;
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            audio.playClick();
+            this.selectVoice(v);
+            this.wrap.classList.remove('open');
+            this.trigger.setAttribute('aria-expanded', 'false');
+          });
+          this.list.appendChild(btn);
+        });
+      },
+
+      selectVoice(v) {
+        this.currentVoiceName = v.name;
+        localStorage.setItem('ib_pyp_voice_name', v.name);
+        this.updateTriggerUI(v);
+        this.list.querySelectorAll('.tts-radio-item').forEach(btn => {
+          const isMatch = btn.querySelector('.tts-item-name').textContent.includes(v.name);
+          btn.classList.toggle('active', isMatch);
+          btn.setAttribute('aria-checked', isMatch ? 'true' : 'false');
+        });
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
+      },
+
+      updateTriggerUI(v) {
+        if (!v) return;
+        const isUK = v.lang.toLowerCase().replace('_', '-').includes('gb');
+        this.flag.textContent = isUK ? '🇬🇧' : '🇺🇸';
+        let shortName = v.name.replace(/^(Google|Microsoft|Apple)\s+/i, '');
+        if (shortName.length > 14) shortName = shortName.substring(0, 12) + '...';
+        this.label.textContent = shortName;
+      },
+
+      speak(text, onEnd) {
+        if (!window.speechSynthesis) {
+          if (onEnd) onEnd();
+          return;
+        }
+        window.speechSynthesis.cancel();
+        if (!text || !text.trim()) {
+          if (onEnd) onEnd();
+          return;
+        }
+        const utterance = new SpeechSynthesisUtterance(text);
+        const voices = window.speechSynthesis.getVoices();
+        const voiceName = this.currentVoiceName || localStorage.getItem('ib_pyp_voice_name');
+        if (voiceName) {
+          const match = voices.find(v => v.name === voiceName);
+          if (match) utterance.voice = match;
+        }
+        utterance.rate = 0.85;
+        if (onEnd) {
+          utterance.onend = onEnd;
+          utterance.onerror = onEnd;
+        }
+        window.speechSynthesis.speak(utterance);
+      }
+    };
 
     // 6 Array Configurations (Minecraft items & fruits)
     const challenges = [
@@ -579,13 +1084,62 @@
 
     let currentIdx = 0;
     let score = 0;
+    let isSolved = false;
+    let countedUpTo = 0;
+
+    function recordPassportStamp(silent) {
+      try {
+        const raw = localStorage.getItem('ib_pyp_passport');
+        const data = raw ? JSON.parse(raw) : { stamps: [], completed: [] };
+        const stamps = new Set(Array.isArray(data.stamps) ? data.stamps : []);
+        const completed = new Set(Array.isArray(data.completed) ? data.completed : []);
+        stamps.add('Thinker');
+        completed.add('math/g2_array_equal_groups.html');
+        localStorage.setItem('ib_pyp_passport', JSON.stringify({ stamps: [...stamps], completed: [...completed] }));
+        if (!silent) {
+          const status = document.getElementById('pypStampStatus');
+          const claimBtn = document.getElementById('btnClaimStamp');
+          if (status) status.textContent = '✅ Thinker stamp saved to your IB PYP Passport!';
+          if (claimBtn) claimBtn.textContent = '✅ Stamped!';
+        }
+      } catch (_) {}
+    }
+
+    function clearInputStates() {
+      ['inpGroups', 'inpEach', 'inpTotal'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('input-error', 'input-ok');
+      });
+    }
+
+    function updateSkipCountVisuals(ch) {
+      const rows = document.querySelectorAll('#arrayBoard .matrix-row');
+      const tip = document.getElementById('skipCountTip');
+      const counts = [];
+      rows.forEach((rowDiv, idx) => {
+        const active = idx < countedUpTo;
+        rowDiv.classList.toggle('counted', active);
+        if (active) counts.push((idx + 1) * ch.cols);
+      });
+      if (tip) {
+        tip.textContent = counts.length > 0
+          ? `Skip-counting rows: ${counts.join(', ')}`
+          : '💡 Tap any row above to highlight and skip-count!';
+      }
+    }
 
     function renderChallenge() {
       const ch = challenges[currentIdx];
+      isSolved = false;
+      countedUpTo = 0;
+      if (window.speechSynthesis) window.speechSynthesis.cancel();
+      const speakBtn = document.getElementById('btnSpeakArray');
+      if (speakBtn) speakBtn.classList.remove('speaking');
+
       document.getElementById('badgeRound').textContent = `🎯 Challenge ${currentIdx + 1} / ${challenges.length}`;
       document.getElementById('badgeScore').textContent = `⭐ Score: ${score}`;
 
-      // Build visual array
+      // Build interactive tap-to-skip-count visual array
       const board = document.getElementById('arrayBoard');
       board.innerHTML = '';
       const matrix = document.createElement('div');
@@ -594,22 +1148,54 @@
       for (let r = 0; r < ch.rows; r++) {
         const rowDiv = document.createElement('div');
         rowDiv.className = 'matrix-row';
+        rowDiv.setAttribute('role', 'button');
+        rowDiv.setAttribute('tabindex', '0');
+        rowDiv.setAttribute('aria-label', `Tap to skip-count up to row ${r + 1}`);
         for (let c = 0; c < ch.cols; c++) {
           const item = document.createElement('div');
           item.className = 'matrix-item';
           item.textContent = ch.icon;
           rowDiv.appendChild(item);
         }
+        const badge = document.createElement('span');
+        badge.className = 'row-skip-badge';
+        badge.textContent = String((r + 1) * ch.cols);
+        rowDiv.appendChild(badge);
+
+        const handleRowTap = () => {
+          countedUpTo = (countedUpTo === r + 1) ? r : (r + 1);
+          audio.playClick(420 + (r + 1) * 65);
+          updateSkipCountVisuals(ch);
+        };
+        rowDiv.addEventListener('click', handleRowTap);
+        rowDiv.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleRowTap();
+          }
+        });
         matrix.appendChild(rowDiv);
       }
       board.appendChild(matrix);
 
+      const tip = document.createElement('div');
+      tip.className = 'skip-count-tip';
+      tip.id = 'skipCountTip';
+      tip.textContent = '💡 Tap any row above to highlight and skip-count!';
+      board.appendChild(tip);
+
       document.getElementById('equationHint').textContent = `? groups × ? in each = ?`;
-      document.getElementById('repeatedAdditionText').textContent = `Repeated Addition: ${Array(ch.rows).fill(ch.cols).join(' + ')}`;
+      const hintBox = document.getElementById('repeatedAdditionText');
+      const hintBtn = document.getElementById('btnToggleHint');
+      hintBox.textContent = `Repeated Addition: ${Array(ch.rows).fill(ch.cols).join(' + ')}`;
+      hintBox.classList.remove('open');
+      hintBtn.setAttribute('aria-expanded', 'false');
+      hintBtn.textContent = '💡 Show Repeated Addition Hint';
 
       document.getElementById('inpGroups').value = '';
       document.getElementById('inpEach').value = '';
       document.getElementById('inpTotal').value = '';
+      clearInputStates();
 
       const feedback = document.getElementById('feedbackBox');
       feedback.className = 'feedback-box';
@@ -618,18 +1204,54 @@
       document.getElementById('btnNextArray').style.display = 'none';
     }
 
+    document.getElementById('btnToggleHint').addEventListener('click', () => {
+      audio.playClick();
+      const hintBox = document.getElementById('repeatedAdditionText');
+      const hintBtn = document.getElementById('btnToggleHint');
+      const isOpen = hintBox.classList.toggle('open');
+      hintBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      hintBtn.textContent = isOpen ? '🙈 Hide Repeated Addition Hint' : '💡 Show Repeated Addition Hint';
+    });
+
+    document.getElementById('btnSpeakArray').addEventListener('click', () => {
+      audio.playClick();
+      const ch = challenges[currentIdx];
+      const speakBtn = document.getElementById('btnSpeakArray');
+      speakBtn.classList.add('speaking');
+      const text = isSolved
+        ? `${ch.rows} groups of ${ch.cols} ${ch.name} equals ${ch.rows * ch.cols}. ${ch.rows} times ${ch.cols} equals ${ch.rows * ch.cols}.`
+        : `Look at the array of ${ch.name}. Count how many rows there are, how many items are in each row, and find the total.`;
+      TTS_MANAGER.speak(text, () => {
+        speakBtn.classList.remove('speaking');
+      });
+    });
+
+    ['inpGroups', 'inpEach', 'inpTotal'].forEach(id => {
+      document.getElementById(id).addEventListener('input', (e) => {
+        e.target.classList.remove('input-error', 'input-ok');
+      });
+    });
+
     document.getElementById('btnCheckArray').addEventListener('click', () => {
       audio.playClick();
       const ch = challenges[currentIdx];
       const feedback = document.getElementById('feedbackBox');
+      const inpGroups = document.getElementById('inpGroups');
+      const inpEach = document.getElementById('inpEach');
+      const inpTotal = document.getElementById('inpTotal');
 
-      const userGroups = parseInt(document.getElementById('inpGroups').value, 10);
-      const userEach = parseInt(document.getElementById('inpEach').value, 10);
-      const userTotal = parseInt(document.getElementById('inpTotal').value, 10);
+      const userGroups = parseInt(inpGroups.value, 10);
+      const userEach = parseInt(inpEach.value, 10);
+      const userTotal = parseInt(inpTotal.value, 10);
+
+      clearInputStates();
 
       if (isNaN(userGroups) || isNaN(userEach) || isNaN(userTotal)) {
+        if (isNaN(userGroups)) inpGroups.classList.add('input-error');
+        if (isNaN(userEach)) inpEach.classList.add('input-error');
+        if (isNaN(userTotal)) inpTotal.classList.add('input-error');
         feedback.className = 'feedback-box error';
-        feedback.textContent = 'Please fill in all three numbers: Groups, Each, and Total!';
+        feedback.textContent = 'Please fill in all three boxes: Groups, Each, and Total!';
         return;
       }
 
@@ -638,11 +1260,25 @@
       const isEachOk = (userEach === ch.cols);
       const isTotalOk = (userTotal === expectedTotal);
 
+      inpGroups.classList.add(isGroupsOk ? 'input-ok' : 'input-error');
+      inpEach.classList.add(isEachOk ? 'input-ok' : 'input-error');
+      inpTotal.classList.add(isTotalOk ? 'input-ok' : 'input-error');
+
       if (isGroupsOk && isEachOk && isTotalOk) {
+        isSolved = true;
+        countedUpTo = ch.rows;
+        updateSkipCountVisuals(ch);
         audio.playCorrect();
         score += 15;
         document.getElementById('badgeScore').textContent = `⭐ Score: ${score}`;
         document.getElementById('equationHint').textContent = `${ch.rows} × ${ch.cols} = ${expectedTotal}`;
+        const hintBox = document.getElementById('repeatedAdditionText');
+        const hintBtn = document.getElementById('btnToggleHint');
+        hintBox.textContent = `Repeated Addition: ${Array(ch.rows).fill(ch.cols).join(' + ')} = ${expectedTotal}`;
+        hintBox.classList.add('open');
+        hintBtn.setAttribute('aria-expanded', 'true');
+        hintBtn.textContent = '🙈 Hide Repeated Addition Hint';
+
         feedback.className = 'feedback-box success';
         feedback.textContent = `🎉 Spot on! ${ch.rows} groups with ${ch.cols} each gives ${expectedTotal} in total!`;
 
@@ -651,7 +1287,13 @@
       } else {
         audio.playBuzz();
         feedback.className = 'feedback-box error';
-        feedback.textContent = `Check your count: there are ${ch.rows} rows, each row has ${ch.cols} items.`;
+        if (!isGroupsOk) {
+          feedback.textContent = 'Look closely at Box 1 (Rows): count each horizontal row from top to bottom.';
+        } else if (!isEachOk) {
+          feedback.textContent = 'Rows look great! Now check Box 2 (Items in Each Group): count the items across one single row.';
+        } else {
+          feedback.textContent = 'Your rows and items per row are right! Now check Box 3 (Total) — try tapping each row to skip-count!';
+        }
       }
     });
 
@@ -663,7 +1305,17 @@
       } else {
         document.getElementById('winModal').style.display = 'flex';
         audio.playCorrect();
+        recordPassportStamp(true);
+        const status = document.getElementById('pypStampStatus');
+        const claimBtn = document.getElementById('btnClaimStamp');
+        if (status) status.textContent = '✨ Tap "Stamp My Passport!" to celebrate your Thinker badge!';
+        if (claimBtn) claimBtn.textContent = '💡 Stamp My Passport!';
       }
+    });
+
+    document.getElementById('btnClaimStamp').addEventListener('click', () => {
+      audio.playCorrect();
+      recordPassportStamp(false);
     });
 
     // Stepper buttons for iPad ease-of-use with playClick sound
@@ -688,6 +1340,7 @@
         if (val > max) val = max;
 
         input.value = val;
+        input.classList.remove('input-error', 'input-ok');
       });
     });
 
@@ -699,6 +1352,7 @@
       renderChallenge();
     });
 
+    TTS_MANAGER.init();
     renderChallenge();
   </script>
 </body>

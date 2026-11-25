@@ -7,9 +7,6 @@
   <title>G2 Time & Mental Math Quest</title>
   <meta name="description"
     content="Interactive digital clock reading, calendar inquiry, and 3-number mental math arcade for Grade 2 learners." />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:wght@600;700;800;900&display=swap"
-    rel="stylesheet" />
   <style>
     :root {
       --bg: #FFFDF0;
@@ -23,12 +20,13 @@
       --border: 3px solid var(--ink);
       --shadow: 4px 4px 0 var(--ink);
       --radius: 12px;
+      --font-rounded: ui-rounded, "SF Pro Rounded", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: "Nunito", sans-serif;
+      font-family: var(--font-rounded);
       background: var(--bg);
       background-image: 
         radial-gradient(circle at 10% 20%, rgba(78, 205, 196, 0.12) 0%, transparent 30%),
@@ -39,7 +37,7 @@
       color: var(--ink);
     }
 
-    .container { max-width: 980px; margin: 0 auto; }
+    .container { max-width: 1160px; margin: 0 auto; }
 
     /* Compact Top Nav */
     .nav-bar {
@@ -101,9 +99,9 @@
     }
 
     .hero-card h1 {
-      font-family: "Fredoka", sans-serif;
+      font-family: var(--font-rounded);
       font-size: clamp(1.2rem, 2.5vw, 1.6rem);
-      font-weight: 700;
+      font-weight: 900;
     }
 
     /* Scoreboard */
@@ -145,9 +143,9 @@
     }
 
     .quest-title {
-      font-family: "Fredoka", sans-serif;
+      font-family: var(--font-rounded);
       font-size: 1.45rem;
-      font-weight: 700;
+      font-weight: 900;
       margin-bottom: 6px;
     }
 
@@ -253,18 +251,58 @@
       border-radius: 4px;
     }
 
+    .cal-day-cell.in-range {
+      background: #E0F2FE;
+      color: #0369A1;
+      font-weight: 900;
+    }
+
     /* Number Line Math Display */
     .numberline-svg {
       width: 100%;
-      max-width: 520px;
-      height: 90px;
+      max-width: 560px;
+      height: 112px;
+      margin-top: 4px;
     }
 
     .equation-large {
-      font-family: "Fredoka", monospace;
+      font-family: var(--font-rounded);
       font-size: clamp(2rem, 5vw, 2.8rem);
-      font-weight: 700;
-      margin-bottom: 10px;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .pyp-reflect-card {
+      background: #FFFDE8;
+      border: 2.5px solid var(--ink);
+      border-radius: 12px;
+      box-shadow: 3px 3px 0 var(--ink);
+      padding: 16px 18px;
+      max-width: 600px;
+      margin: 0 auto 20px;
+      text-align: left;
+    }
+
+    .pyp-reflect-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--yellow);
+      color: var(--ink);
+      border: 2px solid var(--ink);
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-size: 0.8rem;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .pyp-stamp-status {
+      font-size: 0.9rem;
+      font-weight: 900;
+      color: #047857;
+      margin-top: 8px;
+      min-height: 20px;
     }
 
     /* Answer Choices */
@@ -561,8 +599,8 @@
     </header>
 
     <div class="status-bar" id="statusBar">
-      <span>Question <strong id="qNum">1</strong> of <span id="qTotal">12</span></span>
-      <span>Quest Score: <strong id="scoreVal">0</strong> / <span id="scoreMax">120</span> ⭐</span>
+      <span>Question <strong id="qNum">1</strong> of <span id="qTotal">13</span></span>
+      <span>Quest Score: <strong id="scoreVal">0</strong> / <span id="scoreMax">130</span> ⭐</span>
     </div>
 
     <!-- Active Quest Board -->
@@ -592,9 +630,17 @@
     <!-- Completion Screen -->
     <section class="finish-card" id="finishCard">
       <div style="font-size: 4rem; margin-bottom: 12px;">⏱️🌟</div>
-      <h2 style="font-family:'Fredoka', sans-serif; font-size: 2rem; margin-bottom: 8px;">Time & Math Quest Complete!</h2>
-      <p id="finishDesc" style="font-size: 1.15rem; font-weight: 700; max-width: 620px; margin: 0 auto 24px; line-height: 1.6;"></p>
+      <h2 style="font-family:var(--font-rounded); font-size: 2rem; font-weight: 900; margin-bottom: 8px;">Time & Math Quest Complete!</h2>
+      <p id="finishDesc" style="font-size: 1.15rem; font-weight: 700; max-width: 620px; margin: 0 auto 18px; line-height: 1.6;"></p>
+      <div class="pyp-reflect-card">
+        <div class="pyp-reflect-badge">💡 IB PYP Learner Profile · Thinker</div>
+        <p style="font-size: 0.95rem; font-weight: 800; line-height: 1.45; color: #1F2937;">
+          <strong>Reflection:</strong> Using clocks, calendars, and number-line jumps helps us break tricky problems into clear, logical steps!
+        </p>
+        <div class="pyp-stamp-status" id="pypStampStatus"></div>
+      </div>
       <div style="display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;">
+        <button class="btn-next-quest" id="btnClaimStamp" type="button" style="background:var(--purple); color:var(--white);">💡 Stamp My Passport!</button>
         <button class="btn-next-quest" id="btnRestart" type="button" style="background:var(--teal); color:var(--ink);">Play Again 🔄</button>
         <a class="pyp-map-link" href="../index.html">Back to Learning Map 🗺️</a>
       </div>
@@ -658,227 +704,344 @@
     }
     const audio = new SoundFX();
 
-    // Comprehensive Grade 2 Curriculum & Hilson Assessment Traps
+    // Visual Helpers: Accurate Trig Analog Clock, Calendar Mockup, Number Line Jumps
+    function renderAnalogClockSVG(hours, minutes) {
+      const cx = 60, cy = 60;
+      const hourAngleDeg = ((hours % 12) + minutes / 60) * 30;
+      const minAngleDeg = minutes * 6;
+      const toRad = (deg) => (deg - 90) * (Math.PI / 180);
+
+      const hourLen = 22;
+      const minLen = 30; // stops well clear of the numerals at r=38
+      const hx = (cx + hourLen * Math.cos(toRad(hourAngleDeg))).toFixed(1);
+      const hy = (cy + hourLen * Math.sin(toRad(hourAngleDeg))).toFixed(1);
+      const mx = (cx + minLen * Math.cos(toRad(minAngleDeg))).toFixed(1);
+      const my = (cy + minLen * Math.sin(toRad(minAngleDeg))).toFixed(1);
+
+      let ticks = '';
+      let numerals = '';
+      for (let i = 1; i <= 12; i++) {
+        const rad = toRad(i * 30);
+        const isCardinal = i % 3 === 0;
+        const rOuter = 50;
+        const rInner = isCardinal ? 45 : 47;
+        const x1 = (cx + rInner * Math.cos(rad)).toFixed(1);
+        const y1 = (cy + rInner * Math.sin(rad)).toFixed(1);
+        const x2 = (cx + rOuter * Math.cos(rad)).toFixed(1);
+        const y2 = (cy + rOuter * Math.sin(rad)).toFixed(1);
+        ticks += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#111111" stroke-width="${isCardinal ? 2.5 : 1.5}" stroke-linecap="round"/>`;
+
+        if (isCardinal) {
+          const rNum = 38;
+          const nx = (cx + rNum * Math.cos(rad)).toFixed(1);
+          const ny = (cy + rNum * Math.sin(rad) + 3.5).toFixed(1);
+          numerals += `<text x="${nx}" y="${ny}" font-size="10" font-weight="900" text-anchor="middle" fill="#111111">${i}</text>`;
+        }
+      }
+
+      return `
+        <svg class="analog-clock-svg" viewBox="0 0 120 120" aria-label="Analog clock showing ${hours}:${String(minutes).padStart(2, '0')}">
+          <circle cx="60" cy="60" r="54" fill="#FFFFFF" stroke="#111111" stroke-width="4"/>
+          ${ticks}
+          ${numerals}
+          <line x1="60" y1="60" x2="${hx}" y2="${hy}" stroke="#111111" stroke-width="4.5" stroke-linecap="round"/>
+          <line x1="60" y1="60" x2="${mx}" y2="${my}" stroke="#FF6584" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="60" cy="60" r="4" fill="#111111"/>
+        </svg>
+      `;
+    }
+
+    function renderCalendarMockup(monthLabel, startWeekday, totalDays, startDay, endDay) {
+      const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      let cells = '';
+      for (let i = 0; i < startWeekday; i++) {
+        cells += `<div class="cal-day-cell" style="background:#F9FAFB;"></div>`;
+      }
+      for (let d = 1; d <= totalDays; d++) {
+        let cls = 'cal-day-cell';
+        if (d === startDay || d === endDay) {
+          cls += ' highlight';
+        } else if (d > startDay && d < endDay) {
+          cls += ' in-range';
+        }
+        cells += `<div class="${cls}">${d}</div>`;
+      }
+      return `
+        <div class="calendar-mockup">
+          <div class="cal-header">${monthLabel}</div>
+          <div class="cal-weekdays">${weekdays.map(w => `<div>${w}</div>`).join('')}</div>
+          <div class="cal-days-grid">${cells}</div>
+        </div>
+      `;
+    }
+
+    function renderNumberLineSVG(startVal, step1Label, midVal, step2Label, direction1, direction2) {
+      // Positions on SVG x-axis so jumps flow clearly left-to-right or right-to-left
+      const isBothForward = direction1 === '+' && direction2 === '+';
+      const isBothBack = direction1 === '-' && direction2 === '-';
+      let x0, x1, x2;
+      if (isBothForward) {
+        x0 = 70; x1 = 270; x2 = 450;
+      } else if (isBothBack) {
+        x0 = 450; x1 = 260; x2 = 80;
+      } else if (direction1 === '+' && direction2 === '-') {
+        x0 = 90; x1 = 440; x2 = 280;
+      } else {
+        x0 = 430; x1 = 100; x2 = 280;
+      }
+      const midArc1X = (x0 + x1) / 2;
+      const midArc2X = (x1 + x2) / 2;
+      const arc1Y = 20;
+      const arc2Y = (direction1 !== direction2) ? 94 : 20;
+      const label2Y = (direction1 !== direction2) ? 106 : 16;
+
+      return `
+        <svg class="numberline-svg" viewBox="0 0 520 112" aria-label="Number line showing two mental math jumps">
+          <line x1="30" y1="64" x2="490" y2="64" stroke="#111111" stroke-width="3.5" stroke-linecap="round"/>
+          <polygon points="490,64 480,58 480,70" fill="#111111"/>
+          <polygon points="30,64 40,58 40,70" fill="#111111"/>
+
+          <!-- Jump 1 -->
+          <path d="M ${x0} 60 Q ${midArc1X} ${arc1Y} ${x1} 60" fill="none" stroke="#38B6FF" stroke-width="3.5" stroke-dasharray="6,4"/>
+          <text x="${midArc1X}" y="18" font-size="14" font-weight="900" text-anchor="middle" fill="#0369A1">${step1Label}</text>
+
+          <!-- Jump 2 -->
+          <path d="M ${x1} 60 Q ${midArc2X} ${arc2Y} ${x2} 60" fill="none" stroke="#FF6584" stroke-width="3.5"/>
+          <text x="${midArc2X}" y="${label2Y}" font-size="14" font-weight="900" text-anchor="middle" fill="#BE123C">${step2Label}</text>
+
+          <!-- Nodes -->
+          <circle cx="${x0}" cy="64" r="6" fill="#111111"/>
+          <text x="${x0}" y="86" font-size="14" font-weight="900" text-anchor="middle" fill="#111111">${startVal}</text>
+
+          <circle cx="${x1}" cy="64" r="6" fill="#38B6FF" stroke="#111111" stroke-width="2"/>
+          <text x="${x1}" y="86" font-size="14" font-weight="900" text-anchor="middle" fill="#0369A1">${midVal}</text>
+
+          <circle cx="${x2}" cy="64" r="7" fill="#FFE156" stroke="#111111" stroke-width="2.5"/>
+          <text x="${x2}" y="86" font-size="15" font-weight="900" text-anchor="middle" fill="#BE123C">?</text>
+        </svg>
+      `;
+    }
+
+    // Comprehensive Grade 2 Curriculum Quest (Pure grammatical English options, zero spoilers)
     const questions = [
-      // Stage 1: Time & Clocks
+      // Stage 1: Time, Clocks & Calendars
       {
-        type: "Stage 1: Digital Clock English",
+        type: "Stage 1: Digital & Analogue Clocks",
         render: () => `
           <div class="clock-duo">
+            ${renderAnalogClockSVG(7, 8)}
             <div class="digital-clock-lcd">07:08</div>
           </div>
         `,
         title: "Morning Routine: Eating Breakfast",
-        desc: "Hilson is eating breakfast at 07:08. What is the correct English phrase to state this time?",
+        desc: "Maya is eating breakfast at 07:08. What is the correct English phrase to state this time?",
         options: [
-          { text: "It's seven oh eight (07:08).", correct: true },
-          { text: "It's seven of Eight.", correct: false },
-          { text: "It's seventy-eight.", correct: false }
+          { text: "It's seven oh eight.", correct: true },
+          { text: "It's eight oh seven.", correct: false },
+          { text: "It's seven eighteen.", correct: false }
         ],
         hint: "When digital minutes are between 01 and 09, pronounce the leading zero as 'oh': 'seven oh eight'."
       },
       {
-        type: "Stage 1: Clock Reading & Spelling",
+        type: "Stage 1: Exact Hour Clocks",
         render: () => `
           <div class="clock-duo">
-            <svg class="analog-clock-svg" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="46" fill="#FFFFFF" stroke="#111111" stroke-width="4"/>
-              <line x1="50" y1="50" x2="30" y2="34" stroke="#111111" stroke-width="4" stroke-linecap="round"/>
-              <line x1="50" y1="50" x2="50" y2="14" stroke="#FF6584" stroke-width="3" stroke-linecap="round"/>
-              <circle cx="50" cy="50" r="4" fill="#111111"/>
-              <text x="50" y="16" font-size="10" font-weight="900" text-anchor="middle">12</text>
-              <text x="86" y="53" font-size="10" font-weight="900" text-anchor="middle">3</text>
-              <text x="50" y="90" font-size="10" font-weight="900" text-anchor="middle">6</text>
-              <text x="14" y="53" font-size="10" font-weight="900" text-anchor="middle">9</text>
-            </svg>
+            ${renderAnalogClockSVG(10, 0)}
             <div class="digital-clock-lcd">10:00</div>
           </div>
         `,
         title: "Morning Recess Hour",
-        desc: "The morning bell rings at 10:00 sharp. How do we write and say this exact hour in English?",
+        desc: "The morning recess bell rings at 10:00 sharp. How do we say this exact hour in English?",
         options: [
-          { text: "Ten o'clock (10:00).", correct: true },
-          { text: "Ten o'clod.", correct: false },
-          { text: "Ten clock zero.", correct: false }
+          { text: "Ten o'clock.", correct: true },
+          { text: "Twelve o'clock.", correct: false },
+          { text: "Ten thirty.", correct: false }
         ],
-        hint: "Exact hours end with 'o'clock' (spelled with -ck at the end, not -d!)."
+        hint: "When the short hour hand points to 10 and the long minute hand points straight up to 12, it is ten o'clock."
       },
       {
         type: "Stage 1: 12-Hour ⇄ 24-Hour Conversion",
         render: () => `
           <div style="background:#FFFFFF; border:3px solid #111; border-radius:12px; padding:16px; text-align:center; max-width:380px; margin:0 auto; box-shadow:3px 3px 0 #111;">
             <div style="font-weight:900; font-size:1.1rem; margin-bottom:8px; color:#1E3A8A;">School Schedule Conversion</div>
-            <div style="display:flex; justify-content:space-around; font-weight:800; font-size:1.2rem;">
+            <div style="display:flex; justify-content:space-around; gap:12px; font-weight:800; font-size:1.2rem;">
               <span style="background:#FEF08A; padding:4px 10px; border:2px solid #111; border-radius:8px;">09:00 AM</span>
               <span style="background:#BAE6FD; padding:4px 10px; border:2px solid #111; border-radius:8px;">04:00 PM</span>
             </div>
           </div>
         `,
         title: "24-Hour Digital Clock Conversion",
-        desc: "How do 09:00 AM (morning assembly) and 04:00 PM (school dismissal) write in 24-hour format?",
+        desc: "How are 09:00 AM (morning assembly) and 04:00 PM (school dismissal) written in 24-hour format?",
         options: [
           { text: "09:00 AM is 09:00, and 04:00 PM is 16:00.", correct: true },
           { text: "09:00 AM is 19:00, and 04:00 PM is 04:00.", correct: false },
           { text: "09:00 AM is 09:00, and 04:00 PM is 14:00.", correct: false }
         ],
-        hint: "AM hours stay the same with leading zeros (09:00). For PM hours, add 12 to the hour: 4 + 12 = 16:00."
+        hint: "AM hours stay the same with a leading zero (09:00). For PM hours, add 12 to the hour: 4 + 12 = 16:00."
       },
       {
-        type: "Stage 1: Time Units & Duration",
+        type: "Stage 1: Time Duration by Minutes",
         render: () => `
-          <div style="text-align:center; background:#F0FDFA; border:3px solid #111; border-radius:12px; padding:14px; max-width:400px; margin:0 auto; box-shadow:3px 3px 0 #111;">
+          <div style="text-align:center; background:#F0FDFA; border:3px solid #111; border-radius:12px; padding:14px; max-width:420px; margin:0 auto; box-shadow:3px 3px 0 #111;">
             <div style="font-weight:900; font-size:1.05rem; color:#0F766E;">Swimming Practice Duration</div>
             <p style="font-weight:800; margin-top:6px;">Start: <strong>02:15 PM</strong> ➔ Finish: <strong>02:50 PM</strong></p>
           </div>
         `,
-        title: "Duration Calculation by Minutes",
-        desc: "Hilson's swim training started at 02:15 PM and ended at 02:50 PM. How many minutes did he swim?",
+        title: "Elapsed Minutes Challenge",
+        desc: "Leo's swim training started at 02:15 PM and ended at 02:50 PM. How many minutes did he swim?",
         options: [
-          { text: "35 minutes (50 - 15 = 35).", correct: true },
+          { text: "35 minutes.", correct: true },
           { text: "25 minutes.", correct: false },
           { text: "45 minutes.", correct: false }
         ],
         hint: "Subtract the start minutes from the end minutes: 50 minus 15 equals 35 minutes."
       },
+      {
+        type: "Stage 1: Calendar Duration Inquiry",
+        render: () => renderCalendarMockup('April · Science Plant Journal', 2, 30, 6, 20),
+        title: "Counting Weeks on a Calendar",
+        desc: "Maya plants a bean sprout on April 6 and shares her journal on April 20. How many days pass from April 6 to April 20?",
+        options: [
+          { text: "14 days (2 weeks).", correct: true },
+          { text: "10 days.", correct: false },
+          { text: "20 days.", correct: false }
+        ],
+        hint: "April 6 to April 13 is 1 week (7 days), and April 13 to April 20 is 1 more week: 20 - 6 = 14 days (2 weeks)."
+      },
+      {
+        type: "Stage 1: Calendar Duration Inquiry",
+        render: () => renderCalendarMockup('May · Reading Challenge Week', 4, 31, 5, 14),
+        title: "Measuring Days Between Dates",
+        desc: "Sam starts his reading challenge on May 5 and finishes his book on May 14. How many days later does he finish?",
+        options: [
+          { text: "9 days.", correct: true },
+          { text: "7 days.", correct: false },
+          { text: "11 days.", correct: false }
+        ],
+        hint: "Count forward from May 5 to May 14: 14 minus 5 equals 9 days."
+      },
 
-      // Stage 2: 3-Number Arithmetic with Carrying & Borrowing Traps
+      // Stage 2: 3-Number Mental Math with Number Line Jump Visuals
       {
-        type: "Stage 2: 3-Number Addition with Carrying",
+        type: "Stage 2: Number Line Carrying Addition",
         render: () => `
-          <div style="text-align:center;">
+          <div style="text-align:center; width:100%;">
             <div class="equation-large">24 + 28 + 13 = ?</div>
-            <div style="font-weight:800; color:#1E40AF; margin-top:6px;">Step 1: 24 + 28 = 52. Now compute Step 2: 52 + 13!</div>
+            ${renderNumberLineSVG(24, '+28', 52, '+13', '+', '+')}
           </div>
         `,
         title: "Two-Step Carrying Addition",
-        desc: "Calculate in two stages. First, 24 + 28 = 52. Next, calculate 52 + 13. What is the final sum?",
+        desc: "Follow the number line jumps. First, 24 + 28 = 52. Next, jump +13 from 52. Where do you land?",
         options: [
-          { text: "65 (52 + 13 = 65).", correct: true },
-          { text: "64 (Carrying calculation slip).", correct: false },
-          { text: "75.", correct: false }
+          { text: "65", correct: true },
+          { text: "64", correct: false },
+          { text: "75", correct: false }
         ],
-        hint: "In the ones column: 2 + 3 = 5. In the tens column: 5 + 1 = 6. The answer is 65 (not 64)."
+        hint: "In the ones column: 2 + 3 = 5. In the tens column: 5 + 1 = 6. The final sum is 65."
       },
       {
-        type: "Stage 2: 3-Number Addition with Carrying",
+        type: "Stage 2: Number Line Carrying Addition",
         render: () => `
-          <div style="text-align:center;">
+          <div style="text-align:center; width:100%;">
             <div class="equation-large">27 + 37 + 25 = ?</div>
-            <div style="font-weight:800; color:#065F46; margin-top:6px;">Step 1: 27 + 37 = 64 (7+7=14, carry 1). Now add 25!</div>
+            ${renderNumberLineSVG(27, '+37', 64, '+25', '+', '+')}
           </div>
         `,
         title: "Two-Step Carrying Addition",
-        desc: "Step 1: 27 + 37 = 64. Step 2: Now add 25 (64 + 25). What is the total sum?",
+        desc: "Step 1 lands on 64 (27 + 37 = 64). Now make the second jump of +25. What is the final sum?",
         options: [
-          { text: "89 (64 + 25 = 89).", correct: true },
-          { text: "90 (from miscalculating 27+37 as 65).", correct: false },
-          { text: "87.", correct: false }
+          { text: "89", correct: true },
+          { text: "90", correct: false },
+          { text: "87", correct: false }
         ],
-        hint: "27 + 37 = 64. Then 64 + 25 gives 4 + 5 = 9 in ones, and 6 + 2 = 8 in tens: 89."
+        hint: "Add ones (4 + 5 = 9) and tens (6 + 2 = 8): 64 + 25 = 89."
       },
       {
-        type: "Stage 2: Subtraction with Borrowing",
+        type: "Stage 2: Number Line Subtraction",
         render: () => `
-          <div style="text-align:center;">
+          <div style="text-align:center; width:100%;">
             <div class="equation-large">60 - 25 - 26 = ?</div>
-            <div style="font-weight:800; color:#991B1B; margin-top:6px;">Step 1: 60 - 25 = 35 (borrow 1 ten: 10-5=5, 5-2=3). Step 2: 35 - 26 = ?</div>
+            ${renderNumberLineSVG(60, '-25', 35, '-26', '-', '-')}
           </div>
         `,
         title: "Sequential Subtraction with Borrowing",
-        desc: "Step 1: 60 - 25 leaves 35. Step 2: Now calculate 35 - 26 with borrowing.",
+        desc: "Step 1 jumps back 25 from 60 to reach 35. Now jump back 26 more from 35. What number is left?",
         options: [
-          { text: "9 (35 - 26 = 9).", correct: true },
-          { text: "15 (from borrowing slip 41-26).", correct: false },
-          { text: "11.", correct: false }
+          { text: "9", correct: true },
+          { text: "15", correct: false },
+          { text: "11", correct: false }
         ],
-        hint: "60 - 25 = 35. Then in 35 - 26, borrow 1 ten: 15 - 6 = 9, and 2 - 2 = 0. The result is 9."
+        hint: "In 35 - 26, borrow 1 ten: 15 - 6 = 9, and 2 - 2 = 0. The result is 9."
       },
       {
-        type: "Stage 2: 3-Number Subtraction",
+        type: "Stage 2: Mixed Number Line Strategy",
         render: () => `
-          <div style="text-align:center;">
-            <div class="equation-large">76 - 35 - 30 = ?</div>
-            <div style="font-weight:800; color:#374151; margin-top:6px;">Step 1: 76 - 35 = 41. Step 2: 41 - 30 = ?</div>
-          </div>
-        `,
-        title: "Sequential Subtraction Accuracy",
-        desc: "First, compute 76 - 35 = 41. Next, subtract the final 30 from 41.",
-        options: [
-          { text: "11 (41 - 30 = 11).", correct: true },
-          { text: "22 (Calculation slip).", correct: false },
-          { text: "1 (Tens subtraction slip).", correct: false }
-        ],
-        hint: "In 41 - 30: 1 - 0 = 1 in the ones column, and 4 - 3 = 1 in the tens column: 11."
-      },
-
-      // Stage 3: Word Problems & Standard Sentence Structure
-      {
-        type: "Stage 3: Word Problem Sentence Stems",
-        render: () => `
-          <div style="background:#FFF9D2; border:3px solid #111; border-radius:12px; padding:16px; text-align:center; max-width:420px; margin:0 auto; box-shadow:3px 3px 0 #111;">
-            <div style="font-weight:900; font-size:1.15rem; color:#B45309;">Zoe's Art Project</div>
-            <p style="font-weight:800; margin-top:6px;">25 blue beads + 33 yellow beads = 58 beads</p>
-          </div>
-        `,
-        title: "Standard Math Answer Sentence",
-        desc: "Zoe has 25 blue beads and 33 yellow beads (25 + 33 = 58). What is the grammatically correct written answer sentence?",
-        options: [
-          { text: "Zoe has 58 beads in total.", correct: true },
-          { text: "Zoe have 58 beats are left.", correct: false },
-          { text: "The kids has 58 beads in total.", correct: false }
-        ],
-        hint: "Use singular verb 'has' for Zoe, spell 'beads' with a d, and write 'in total' (avoid fused 'have ... are left')."
-      },
-      {
-        type: "Stage 3: Word Problem Sentence Stems",
-        render: () => `
-          <div style="background:#FEF2F2; border:3px solid #111; border-radius:12px; padding:16px; text-align:center; max-width:420px; margin:0 auto; box-shadow:3px 3px 0 #111;">
-            <div style="font-weight:900; font-size:1.15rem; color:#991B1B;">Ethan's Puzzle Pieces</div>
-            <p style="font-weight:800; margin-top:6px;">50 pieces - 21 given away = 29 pieces</p>
-          </div>
-        `,
-        title: "Standard Subtraction Answer Sentence",
-        desc: "Ethan had 50 puzzle pieces and gave 21 pieces to a classmate (50 - 21 = 29). How should his answer sentence be written?",
-        options: [
-          { text: "Ethan has 29 puzzle pieces left.", correct: true },
-          { text: "Ethan have 29 puzzle pieces are left!", correct: false },
-          { text: "Ethan has 29 puzzle pieces are left.", correct: false }
-        ],
-        hint: "Write: 'Ethan has 29 puzzle pieces left.' Do NOT include the redundant verb 'are' before 'left'!"
-      },
-      {
-        type: "Stage 3: Create Math Story",
-        render: () => `
-          <div style="background:#F0FDF4; border:3px solid #111; border-radius:12px; padding:16px; text-align:center; max-width:420px; margin:0 auto; box-shadow:3px 3px 0 #111;">
-            <div style="font-weight:900; font-size:1.15rem; color:#166534;">Robot Bank Account</div>
-            <p style="font-weight:800; margin-top:6px;">$22 in bank + $87 received = $109</p>
-          </div>
-        `,
-        title: "Math Story Writing & Vocabulary",
-        desc: "A robot has 22 dollars, and another robot gives him 87 dollars. What is the correct question and mathematical answer sentence?",
-        options: [
-          { text: "The robot has 109 dollars in the sum.", correct: true },
-          { text: "The robot have 109 dollars in the sun?", correct: false },
-          { text: "A robot give 109 dollars are left.", correct: false }
-        ],
-        hint: "Use 'has' (singular robot) and spell mathematical 'sum' (s-u-m), not the 'sun' in the sky!"
-      },
-      {
-        type: "Stage 3: Mixed Operations Challenge",
-        render: () => `
-          <div style="text-align:center;">
+          <div style="text-align:center; width:100%;">
             <div class="equation-large">36 + 24 - 15 = ?</div>
-            <div style="font-weight:800; color:#4338CA; margin-top:6px;">Step 1: 36 + 24 = 60. Step 2: 60 - 15 = ?</div>
+            ${renderNumberLineSVG(36, '+24', 60, '-15', '+', '-')}
           </div>
         `,
         title: "Continuous Mixed Operation (+ and -)",
-        desc: "Solve the mixed operation in two stages: First compute 36 + 24 = 60. Then subtract 15 from 60.",
+        desc: "Jump forward +24 from 36 to reach 60. Then jump backward -15 from 60. Where do you land?",
         options: [
-          { text: "45 (36 + 24 = 60; 60 - 15 = 45).", correct: true },
-          { text: "55.", correct: false },
-          { text: "35.", correct: false }
+          { text: "45", correct: true },
+          { text: "55", correct: false },
+          { text: "35", correct: false }
         ],
-        hint: "36 + 24 = 60. Then in 60 - 15, borrow 1 ten: 10 - 5 = 5, and 5 - 1 = 4: 45."
+        hint: "36 + 24 = 60. Then in 60 - 15, borrow 1 ten: 10 - 5 = 5, and 5 - 1 = 4, giving 45."
+      },
+
+      // Stage 3: Word Problems & Complete Math Answer Sentences
+      {
+        type: "Stage 3: Math Word Problem Reasoning",
+        render: () => `
+          <div style="background:#FFF9D2; border:3px solid #111; border-radius:12px; padding:16px; text-align:center; max-width:420px; margin:0 auto; box-shadow:3px 3px 0 #111;">
+            <div style="font-weight:900; font-size:1.15rem; color:#B45309;">Zoe's Art Project</div>
+            <p style="font-weight:800; margin-top:6px;">25 blue beads and 33 yellow beads</p>
+          </div>
+        `,
+        title: "Finding the Total in a Word Problem",
+        desc: "Zoe uses 25 blue beads and 33 yellow beads for her bracelet. Which complete answer sentence matches the problem?",
+        options: [
+          { text: "Zoe has 58 beads in total.", correct: true },
+          { text: "Zoe has 48 beads in total.", correct: false },
+          { text: "Zoe has 8 beads left.", correct: false }
+        ],
+        hint: "Joining two groups uses addition: 25 + 33 = 58. Zoe has 58 beads in total."
+      },
+      {
+        type: "Stage 3: Math Word Problem Reasoning",
+        render: () => `
+          <div style="background:#FEF2F2; border:3px solid #111; border-radius:12px; padding:16px; text-align:center; max-width:420px; margin:0 auto; box-shadow:3px 3px 0 #111;">
+            <div style="font-weight:900; font-size:1.15rem; color:#991B1B;">Ethan's Puzzle Pieces</div>
+            <p style="font-weight:800; margin-top:6px;">Started with 50 pieces · Shared 21 pieces</p>
+          </div>
+        `,
+        title: "Subtraction Word Problem Sentence",
+        desc: "Ethan had 50 puzzle pieces and gave 21 pieces to a classmate. Which complete answer sentence is correct?",
+        options: [
+          { text: "Ethan has 29 puzzle pieces left.", correct: true },
+          { text: "Ethan has 31 puzzle pieces left.", correct: false },
+          { text: "Ethan has 71 puzzle pieces in total.", correct: false }
+        ],
+        hint: "Giving pieces away uses subtraction with borrowing: 50 - 21 = 29. Ethan has 29 puzzle pieces left."
+      },
+      {
+        type: "Stage 3: Math Story & Place Value",
+        render: () => `
+          <div style="background:#F0FDF4; border:3px solid #111; border-radius:12px; padding:16px; text-align:center; max-width:420px; margin:0 auto; box-shadow:3px 3px 0 #111;">
+            <div style="font-weight:900; font-size:1.15rem; color:#166534;">Robot Bank Account</div>
+            <p style="font-weight:800; margin-top:6px;">$22 saved + $87 earned</p>
+          </div>
+        `,
+        title: "Crossing 100 in a Math Story",
+        desc: "A robot has 22 dollars in its bank and earns 87 more dollars. Which complete answer sentence is correct?",
+        options: [
+          { text: "The robot has 109 dollars in total.", correct: true },
+          { text: "The robot has 99 dollars in total.", correct: false },
+          { text: "The robot has 65 dollars left.", correct: false }
+        ],
+        hint: "Add ones (2 + 7 = 9) and tens (20 + 80 = 100): 100 + 9 = 109 dollars in total."
       }
     ];
 
@@ -900,6 +1063,24 @@
     const finishCard = document.getElementById('finishCard');
     const finishDesc = document.getElementById('finishDesc');
     const btnRestart = document.getElementById('btnRestart');
+    const btnClaimStamp = document.getElementById('btnClaimStamp');
+    const pypStampStatus = document.getElementById('pypStampStatus');
+
+    function recordPassportStamp(silent) {
+      try {
+        const raw = localStorage.getItem('ib_pyp_passport');
+        const data = raw ? JSON.parse(raw) : { stamps: [], completed: [] };
+        const stamps = new Set(Array.isArray(data.stamps) ? data.stamps : []);
+        const completed = new Set(Array.isArray(data.completed) ? data.completed : []);
+        stamps.add('Thinker');
+        completed.add('math/g2_time_and_math_quest.html');
+        localStorage.setItem('ib_pyp_passport', JSON.stringify({ stamps: [...stamps], completed: [...completed] }));
+        if (!silent && pypStampStatus && btnClaimStamp) {
+          pypStampStatus.textContent = '✅ Thinker stamp saved to your IB PYP Passport!';
+          btnClaimStamp.textContent = '✅ Stamped!';
+        }
+      } catch (_) {}
+    }
 
     if (qTotal) qTotal.textContent = questions.length;
     if (scoreMax) scoreMax.textContent = questions.length * 10;
@@ -955,6 +1136,7 @@
 
     btnNext.addEventListener('click', () => {
       audio.playClick();
+      if (window.speechSynthesis) window.speechSynthesis.cancel();
       currentQ++;
       if (currentQ < questions.length) {
         loadQuestion(currentQ);
@@ -962,9 +1144,19 @@
         questBoard.style.display = 'none';
         finishCard.classList.add('active');
         audio.playCorrect();
-        finishDesc.textContent = `Congratulations! You scored ${score} out of ${questions.length * 10} points! You have mastered 07:08 & 10:00 time expressions, 12h/24h conversions, duration calculations, multi-step carrying & borrowing arithmetic, and complete mathematical answer sentences!`;
+        finishDesc.textContent = `Congratulations! You scored ${score} out of ${questions.length * 10} points! You mastered analogue and digital clocks, calendar durations, number-line mental math, and complete word problem answers!`;
+        recordPassportStamp(true);
+        if (pypStampStatus) pypStampStatus.textContent = '✨ Tap "Stamp My Passport!" to celebrate your Thinker badge!';
+        if (btnClaimStamp) btnClaimStamp.textContent = '💡 Stamp My Passport!';
       }
     });
+
+    if (btnClaimStamp) {
+      btnClaimStamp.addEventListener('click', () => {
+        audio.playCorrect();
+        recordPassportStamp(false);
+      });
+    }
 
     btnRestart.addEventListener('click', () => {
       audio.playClick();
@@ -975,6 +1167,8 @@
       finishCard.classList.remove('active');
       loadQuestion(0);
     });
+
+    const JOKE_VOICES = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|hysterical|pipe organ|trinoids|whisper|zarvox|fred|junior|kathy|ralph|wobble/i;
 
     // ----------------------------------------------------
     // TTS MANAGER (Neobrutalism Radio Group Dropdown)
@@ -1032,9 +1226,10 @@
         const voices = window.speechSynthesis.getVoices();
         let englishVoices = voices.filter(v => {
           const lang = v.lang.toLowerCase().replace('_', '-');
-          return lang.startsWith('en');
+          return lang.startsWith('en') && !JOKE_VOICES.test(v.name);
         });
 
+        if (englishVoices.length === 0) englishVoices = voices.filter(v => !JOKE_VOICES.test(v.name));
         if (englishVoices.length === 0) englishVoices = voices;
         if (englishVoices.length === 0) return;
 

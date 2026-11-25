@@ -417,6 +417,28 @@ export const screens = {
     stars.appendChild(el('span', 'star' + (catProg.starCW ? '' : ' empty'), '\u2B50'));
     card.appendChild(stars);
 
+    // Stamp IB PYP Passport (Communicator) and display PYP Reflection line
+    try {
+      const raw = localStorage.getItem('ib_pyp_passport');
+      const data = raw ? JSON.parse(raw) : { stamps: [], completed: [] };
+      const stamps = new Set(Array.isArray(data.stamps) ? data.stamps : []);
+      const completed = new Set(Array.isArray(data.completed) ? data.completed : []);
+      stamps.add('Communicator');
+      completed.add('literacy/wordquest/index.html');
+      localStorage.setItem('ib_pyp_passport', JSON.stringify({ stamps: [...stamps], completed: [...completed] }));
+    } catch (_) { /* non-critical */ }
+
+    const reflBox = el('div', 'pyp-reflection-box');
+    reflBox.appendChild(el('div', 'pyp-reflection-badge', '🏅 IB PYP Passport Stamped: Communicator'));
+    reflBox.appendChild(el(
+      'p',
+      'pyp-reflection-text',
+      mode === 'cw'
+        ? 'PYP Reflection: I listened carefully to word sounds and connected crossing letters to spell each word accurately.'
+        : 'PYP Reflection: I scanned for spelling patterns across rows, columns, and diagonals to discover every vocabulary word.'
+    ));
+    card.appendChild(reflBox);
+
     // Buttons
     const btnRow = el('div');
     btnRow.style.cssText = 'display:flex;gap:10px;justify-content:center;flex-wrap:wrap;';

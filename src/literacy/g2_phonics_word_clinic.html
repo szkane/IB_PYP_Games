@@ -4,12 +4,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>G2 Phonics & High-Frequency Word Clinic</title>
+  <title>G2 Phonics &amp; High-Frequency Word Clinic</title>
   <meta name="description"
     content="Grade 2 Phonics, FLSZ Doubling, -ed Past Tense vs Irregular Verbs, and High-Frequency Spelling Word Clinic." />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:wght@600;700;800;900&display=swap"
-    rel="stylesheet" />
   <style>
     :root {
       --bg: #FFFDF0;
@@ -20,11 +17,13 @@
       --blue: #38B6FF;
       --purple: #B388FF;
       --green: #6BCB77;
+      --mint: #86EFAC;
       --white: #FFFFFF;
-      --border: 3.5px solid var(--ink);
+      --border: 3px solid var(--ink);
       --shadow: 4px 4px 0 var(--ink);
       --shadow-sm: 2px 2px 0 var(--ink);
       --radius: 14px;
+      --font-round: ui-rounded, "Avenir Next", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
     * {
@@ -33,20 +32,26 @@
       padding: 0;
     }
 
+    html {
+      -webkit-tap-highlight-color: transparent;
+      -webkit-text-size-adjust: 100%;
+    }
+
     body {
-      font-family: "Nunito", system-ui, -apple-system, sans-serif;
+      font-family: var(--font-round);
       background: var(--bg);
       background-image:
         radial-gradient(circle at 10% 15%, rgba(255, 101, 132, 0.12) 0%, transparent 28%),
         radial-gradient(circle at 90% 85%, rgba(56, 182, 255, 0.12) 0%, transparent 28%),
         repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(17, 17, 17, 0.03) 28px);
       color: var(--ink);
-      min-height: 100vh; min-height: 100dvh;
-      padding: 14px 16px 36px;
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding: 10px 16px 18px;
     }
 
     .container {
-      max-width: 1040px;
+      max-width: 1060px;
       margin: 0 auto;
     }
 
@@ -55,23 +60,32 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 14px;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
       flex-wrap: wrap;
     }
 
     .pyp-map-link {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
+      gap: 6px;
       background: var(--yellow);
       color: var(--ink);
       text-decoration: none;
       font-weight: 900;
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       border: var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 8px 16px;
+      padding: 6px 14px;
       min-height: 44px;
       cursor: pointer;
       transition: transform 0.1s ease, box-shadow 0.1s ease;
@@ -89,7 +103,7 @@
       border: var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 8px 14px;
+      padding: 6px 14px;
       font-weight: 800;
       font-size: 0.88rem;
       min-height: 44px;
@@ -98,25 +112,169 @@
       gap: 6px;
     }
 
+    /* Neobrutalism TTS Radio Dropdown */
+    .tts-dropdown-wrap {
+      position: relative;
+      display: inline-block;
+      user-select: none;
+      font-family: inherit;
+    }
+
+    .tts-trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #FFF;
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
+      box-shadow: 3px 3px 0 var(--ink);
+      padding: 6px 12px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--ink);
+      cursor: pointer;
+      min-height: 44px;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    .tts-trigger:hover {
+      background: #FEF08A;
+      transform: translate(-1px, -1px);
+      box-shadow: 4px 4px 0 var(--ink);
+    }
+
+    .tts-trigger:active {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0 var(--ink);
+    }
+
+    .tts-arrow {
+      font-size: 0.75rem;
+      transition: transform 0.15s ease;
+    }
+
+    .tts-dropdown-wrap.open .tts-arrow {
+      transform: rotate(180deg);
+    }
+
+    .tts-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      min-width: 250px;
+      max-width: 320px;
+      max-height: 290px;
+      overflow-y: auto;
+      background: #FFF;
+      border: 3px solid var(--ink);
+      border-radius: 12px;
+      box-shadow: 4px 4px 0 var(--ink);
+      padding: 6px;
+      z-index: 1000;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .tts-dropdown-wrap.open .tts-menu {
+      display: flex;
+    }
+
+    .tts-menu-header {
+      font-size: 0.72rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: #6B7280;
+      padding: 4px 8px 6px;
+      border-bottom: 2px solid #E5E7EB;
+      margin-bottom: 3px;
+    }
+
+    .tts-radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .tts-radio-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border: 2px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--ink);
+      text-align: left;
+      width: 100%;
+      transition: background 0.1s, border-color 0.1s;
+    }
+
+    .tts-radio-item:hover {
+      background: #FEF9C3;
+      border-color: var(--ink);
+    }
+
+    .tts-radio-item.active {
+      background: #E0F2FE;
+      border-color: var(--ink);
+      font-weight: 800;
+    }
+
+    .tts-radio-circle {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      border: 2px solid var(--ink);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background: #FFF;
+    }
+
+    .tts-radio-item.active .tts-radio-circle::after {
+      content: '';
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--ink);
+    }
+
+    .tts-item-flag { font-size: 1rem; }
+
+    .tts-item-name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+    }
+
     /* Hero Strip */
     .hero-card {
       background: var(--white);
       border: var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 14px 20px;
-      margin-bottom: 16px;
+      padding: 10px 18px;
+      margin-bottom: 12px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 10px;
     }
 
     .hero-card h1 {
-      font-family: "Fredoka", sans-serif;
-      font-size: clamp(1.25rem, 2.8vw, 1.7rem);
-      font-weight: 700;
+      font-family: var(--font-round);
+      font-size: clamp(1.2rem, 2.5vw, 1.55rem);
+      font-weight: 900;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -125,8 +283,15 @@
     .hero-card p {
       font-weight: 700;
       color: #4B5563;
-      font-size: 0.9rem;
-      margin-top: 3px;
+      font-size: 0.86rem;
+      margin-top: 2px;
+    }
+
+    .hero-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
     .stats-pill {
@@ -134,44 +299,65 @@
       border: var(--border);
       border-radius: 999px;
       box-shadow: var(--shadow-sm);
-      padding: 6px 14px;
+      padding: 5px 14px;
       font-weight: 900;
-      font-size: 0.92rem;
-      display: flex;
+      font-size: 0.9rem;
+      display: inline-flex;
       align-items: center;
       gap: 6px;
+    }
+
+    .passport-pill {
+      background: #FAF5FF;
+      border: 2.5px solid var(--ink);
+      border-radius: 999px;
+      box-shadow: var(--shadow-sm);
+      padding: 5px 12px;
+      font-family: inherit;
+      font-weight: 900;
+      font-size: 0.82rem;
+      color: #4C1D95;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .passport-pill.stamped {
+      background: var(--mint);
+      color: #065F46;
     }
 
     /* Mode Navigation Tabs */
     .tab-bar {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin-bottom: 18px;
+      gap: 10px;
+      margin-bottom: 12px;
     }
 
     .tab-btn {
-      font-family: "Fredoka", sans-serif;
+      font-family: var(--font-round);
       background: var(--white);
       border: var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 12px 10px;
-      font-size: 1rem;
-      font-weight: 700;
+      padding: 9px 10px;
+      font-size: 0.96rem;
+      font-weight: 900;
+      color: var(--ink);
       cursor: pointer;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 4px;
+      gap: 3px;
       transition: all 0.12s ease;
-      min-height: 72px;
+      min-height: 62px;
       text-align: center;
     }
 
     .tab-btn span.tab-sub {
-      font-family: "Nunito", sans-serif;
-      font-size: 0.76rem;
+      font-size: 0.74rem;
       font-weight: 800;
       color: #4B5563;
     }
@@ -194,6 +380,7 @@
       background: var(--coral);
       color: var(--white);
     }
+
     .tab-btn[data-station="doctor"].active span.tab-sub {
       color: #FFE6EC;
     }
@@ -204,9 +391,15 @@
       border: var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 22px 20px;
-      min-height: 420px;
+      padding: 16px 20px;
+      min-height: 430px;
       position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #stationContent {
+      flex: 1;
     }
 
     /* Stage Pill Bar */
@@ -214,8 +407,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
-      padding-bottom: 12px;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
       border-bottom: 2px dashed #E5E7EB;
       flex-wrap: wrap;
       gap: 8px;
@@ -238,9 +431,11 @@
       border-radius: 999px;
       box-shadow: var(--shadow-sm);
       padding: 6px 14px;
-      font-size: 0.88rem;
+      font-family: inherit;
+      font-size: 0.86rem;
       font-weight: 800;
       cursor: pointer;
+      min-height: 38px;
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -256,16 +451,16 @@
       background: #FFF9D2;
       border: 3px dashed var(--ink);
       border-radius: var(--radius);
-      padding: 20px;
+      padding: 14px 18px;
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 14px;
       position: relative;
     }
 
     .target-word {
-      font-family: "Fredoka", sans-serif;
-      font-size: clamp(2rem, 5vw, 3rem);
-      font-weight: 700;
+      font-family: var(--font-round);
+      font-size: clamp(1.9rem, 4.5vw, 2.7rem);
+      font-weight: 900;
       letter-spacing: 2px;
       display: inline-flex;
       align-items: center;
@@ -273,17 +468,17 @@
     }
 
     .word-hint {
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       font-weight: 700;
       color: #4B5563;
-      margin-top: 6px;
+      margin-top: 4px;
     }
 
     .bins-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 14px;
-      margin-top: 14px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 10px;
     }
 
     .bin-card {
@@ -291,14 +486,14 @@
       border: var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 16px 14px;
+      padding: 14px 12px;
       text-align: center;
       cursor: pointer;
       transition: all 0.12s ease;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      min-height: 120px;
+      min-height: 112px;
     }
 
     .bin-card:hover {
@@ -312,13 +507,12 @@
     }
 
     .bin-title {
-      font-family: "Fredoka", sans-serif;
-      font-size: 1.15rem;
-      font-weight: 700;
+      font-size: 1.08rem;
+      font-weight: 900;
     }
 
     .bin-desc {
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       font-weight: 800;
       color: #6B7280;
       margin-top: 4px;
@@ -330,7 +524,7 @@
       border: 1.5px solid var(--ink);
       border-radius: 6px;
       padding: 3px 8px;
-      font-size: 0.78rem;
+      font-size: 0.76rem;
       font-weight: 900;
       align-self: center;
     }
@@ -341,15 +535,15 @@
       border: var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow-sm);
-      padding: 18px;
-      margin-bottom: 20px;
+      padding: 16px;
+      margin-bottom: 16px;
     }
 
     .past-story-prompt {
       font-size: 1.15rem;
       font-weight: 800;
-      line-height: 1.6;
-      margin-bottom: 10px;
+      line-height: 1.55;
+      margin-bottom: 8px;
     }
 
     .past-story-prompt .verb-slot {
@@ -365,32 +559,27 @@
 
     .past-options-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-template-columns: repeat(4, 1fr);
       gap: 12px;
     }
 
     .verb-opt-btn {
-      font-family: "Fredoka", sans-serif;
+      font-family: var(--font-round);
       background: var(--white);
       border: var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 14px;
-      font-size: 1.15rem;
-      font-weight: 700;
+      padding: 16px 12px;
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: var(--ink);
       cursor: pointer;
       transition: all 0.12s ease;
       text-align: center;
+      min-height: 64px;
       display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .verb-opt-btn span.verb-sub {
-      font-family: "Nunito", sans-serif;
-      font-size: 0.76rem;
-      font-weight: 800;
-      color: #6B7280;
+      align-items: center;
+      justify-content: center;
     }
 
     .verb-opt-btn:hover {
@@ -410,18 +599,18 @@
       border: var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow-sm);
-      padding: 18px;
-      margin-bottom: 18px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
       flex-wrap: wrap;
     }
 
     .chart-info h3 {
-      font-family: "Fredoka", sans-serif;
-      font-size: 1.25rem;
+      font-size: 1.15rem;
+      font-weight: 900;
       color: #BE123C;
       display: flex;
       align-items: center;
@@ -432,6 +621,7 @@
       font-weight: 800;
       color: #4B5563;
       margin-top: 4px;
+      font-size: 0.88rem;
     }
 
     .word-slots-container {
@@ -439,22 +629,21 @@
       gap: 8px;
       justify-content: center;
       flex-wrap: wrap;
-      margin: 24px 0 20px;
+      margin: 16px 0 14px;
     }
 
     .letter-slot {
-      width: 52px;
-      height: 58px;
+      width: 50px;
+      height: 54px;
       background: var(--white);
-      border: 3.5px solid var(--ink);
+      border: 3px solid var(--ink);
       border-radius: 10px;
       box-shadow: var(--shadow-sm);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: "Fredoka", sans-serif;
-      font-size: 1.8rem;
-      font-weight: 700;
+      font-size: 1.65rem;
+      font-weight: 900;
       text-transform: lowercase;
       cursor: pointer;
       user-select: none;
@@ -465,29 +654,25 @@
       background: #FEF08A;
     }
 
-    .letter-slot.active-cursor {
-      border-color: var(--blue);
-      outline: 3px solid #93C5FD;
-    }
-
     .letter-bank {
       display: flex;
       gap: 8px;
       justify-content: center;
       flex-wrap: wrap;
-      margin-top: 10px;
+      margin-top: 8px;
     }
 
     .tile-btn {
-      font-family: "Fredoka", sans-serif;
+      font-family: var(--font-round);
       width: 46px;
-      height: 50px;
+      height: 48px;
       background: var(--yellow);
       border: 3px solid var(--ink);
       border-radius: 10px;
       box-shadow: var(--shadow-sm);
-      font-size: 1.45rem;
-      font-weight: 700;
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: var(--ink);
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -516,22 +701,23 @@
       display: flex;
       justify-content: center;
       gap: 12px;
-      margin-top: 18px;
+      margin-top: 14px;
       flex-wrap: wrap;
     }
 
     .pill-btn {
-      font-family: "Fredoka", sans-serif;
-      padding: 10px 22px;
+      font-family: var(--font-round);
+      padding: 9px 20px;
       border: var(--border);
       border-radius: 999px;
       box-shadow: var(--shadow);
-      font-size: 1rem;
-      font-weight: 700;
+      font-size: 0.96rem;
+      font-weight: 900;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      min-height: 44px;
       transition: all 0.1s ease;
     }
 
@@ -547,7 +733,7 @@
 
     .btn-check {
       background: var(--green);
-      color: var(--white);
+      color: var(--ink);
     }
 
     .btn-clear {
@@ -555,10 +741,10 @@
       color: var(--ink);
     }
 
-    /* Explanation Banner */
+    /* Explanation Banner INSIDE arena-card so it stays visible at 1180x820 */
     .rule-feedback-banner {
-      margin-top: 18px;
-      padding: 14px 18px;
+      margin-top: 14px;
+      padding: 12px 16px;
       border: var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow-sm);
@@ -581,20 +767,20 @@
     }
 
     .banner-icon {
-      font-size: 1.6rem;
+      font-size: 1.5rem;
       flex-shrink: 0;
     }
 
     .banner-text h4 {
-      font-family: "Fredoka", sans-serif;
-      font-size: 1.1rem;
-      margin-bottom: 4px;
+      font-size: 1.02rem;
+      font-weight: 900;
+      margin-bottom: 3px;
     }
 
     .banner-text p {
-      font-size: 0.92rem;
+      font-size: 0.88rem;
       font-weight: 700;
-      line-height: 1.45;
+      line-height: 1.4;
     }
 
     /* Victory Modal / Celebration */
@@ -616,21 +802,32 @@
       box-shadow: 8px 8px 0 var(--ink);
       max-width: 520px;
       width: 100%;
-      padding: 28px 24px;
+      padding: 26px 24px;
       text-align: center;
       animation: popIn 0.25s ease-out;
     }
 
     .modal-card h2 {
-      font-family: "Fredoka", sans-serif;
-      font-size: 2rem;
+      font-size: 1.85rem;
+      font-weight: 900;
       margin-bottom: 8px;
     }
 
     .modal-card p {
       font-weight: 700;
       color: #4B5563;
-      margin-bottom: 20px;
+      margin-bottom: 14px;
+    }
+
+    .modal-passport-banner {
+      background: #DCFCE7;
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 0.86rem;
+      font-weight: 900;
+      color: #14532D;
+      margin-bottom: 18px;
     }
 
     .confetti-canvas {
@@ -644,26 +841,15 @@
     }
 
     @keyframes popIn {
-      0% {
-        transform: scale(0.92);
-        opacity: 0;
-      }
-      100% {
-        transform: scale(1);
-        opacity: 1;
-      }
+      0% { transform: scale(0.92); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
     }
 
-    @media (max-width: 768px) {
-      .tab-bar {
-        grid-template-columns: 1fr;
-      }
-      .bins-grid {
-        grid-template-columns: 1fr;
-      }
+    @media (max-width: 820px) {
+      .tab-bar { grid-template-columns: 1fr; }
+      .bins-grid { grid-template-columns: repeat(2, 1fr); }
+      .past-options-grid { grid-template-columns: repeat(2, 1fr); }
     }
-  
-    html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
   </style>
 </head>
 
@@ -673,19 +859,37 @@
   <div class="container">
     <!-- Nav Bar -->
     <nav class="nav-bar">
-      <a class="pyp-map-link" href="../index.html">← PYP Map</a>
-      <span class="unit-badge">📚 Grade 2 · Literacy Unit 1</span>
+      <div class="nav-left">
+        <a class="pyp-map-link" href="../index.html">← PYP Map</a>
+        <span class="unit-badge">📚 Grade 2 · Literacy Unit 1</span>
+      </div>
+      <div class="tts-dropdown-wrap" id="ttsDropdownWrap">
+        <button type="button" class="tts-trigger" id="ttsTrigger" aria-haspopup="menu" aria-expanded="false" title="Select Voice Accent">
+          <span class="tts-trigger-flag" id="ttsFlag">🇬🇧</span>
+          <span class="tts-trigger-label" id="ttsLabel">Voice</span>
+          <span class="tts-arrow">▾</span>
+        </button>
+        <div class="tts-menu" id="ttsMenu" role="menu">
+          <div class="tts-menu-header">Select Voice Accent</div>
+          <div class="tts-radio-group" id="ttsRadioList" role="radiogroup"></div>
+        </div>
+      </div>
     </nav>
 
     <!-- Hero Card -->
     <header class="hero-card">
       <div>
-        <h1>💊 Phonics & Word Clinic 🔬</h1>
+        <h1>💊 Phonics &amp; Word Clinic 🔬</h1>
         <p>Master the FLSZ rule, regular -ed vs irregular verbs, and heal tricky spelling words!</p>
       </div>
-      <div class="stats-pill">
-        <span>⭐ Stars:</span>
-        <span id="starCounter" style="font-size: 1.15rem; color: #B45309;">0</span>
+      <div class="hero-right">
+        <div class="stats-pill">
+          <span>⭐ Stars:</span>
+          <span id="starCounter" style="font-size: 1.1rem; color: #B45309;">0</span>
+        </div>
+        <button type="button" class="passport-pill" id="btnClinicPassport" title="Record IB PYP Communicator Stamp">
+          🏅 Communicator Stamp
+        </button>
       </div>
     </header>
 
@@ -693,7 +897,7 @@
     <div class="tab-bar">
       <button class="tab-btn active" data-station="sorter" id="tabSorter" type="button">
         <span>1. Sound Sorter 🗄️</span>
-        <span class="tab-sub">FLSZ & Welded Sounds (-all, -ck, -sh)</span>
+        <span class="tab-sub">FLSZ &amp; Welded Sounds (-all, -ck, -sh)</span>
       </button>
       <button class="tab-btn" data-station="past" id="tabPast" type="button">
         <span>2. Past-Tense Lab 🧪</span>
@@ -701,32 +905,33 @@
       </button>
       <button class="tab-btn" data-station="doctor" id="tabDoctor" type="button">
         <span>3. Spell Doctor 🩺</span>
-        <span class="tab-sub">Fix Hilson's Tricky Word Bank</span>
+        <span class="tab-sub">Fix the Tricky Word Bank</span>
       </button>
     </div>
 
-    <!-- Main Active Station Area -->
+    <!-- Main Active Station Area (Feedback Banner lives INSIDE arena-card) -->
     <main class="arena-card" id="arenaCard">
-      <!-- Injected via JavaScript based on active station -->
-    </main>
+      <div id="stationContent"></div>
 
-    <!-- Rule Feedback Banner -->
-    <div class="rule-feedback-banner" id="feedbackBanner">
-      <div class="banner-icon" id="feedbackIcon">💡</div>
-      <div class="banner-text">
-        <h4 id="feedbackTitle">Phonics Rule Check</h4>
-        <p id="feedbackDetail">Rule explanation appears here.</p>
+      <!-- Rule Feedback Banner -->
+      <div class="rule-feedback-banner" id="feedbackBanner">
+        <div class="banner-icon" id="feedbackIcon">💡</div>
+        <div class="banner-text">
+          <h4 id="feedbackTitle">Phonics Rule Check</h4>
+          <p id="feedbackDetail">Rule explanation appears here.</p>
+        </div>
       </div>
-    </div>
+    </main>
   </div>
 
   <!-- Modal Completion Dialogue -->
   <div class="modal-overlay" id="victoryModal">
     <div class="modal-card">
-      <div style="font-size: 3.5rem; margin-bottom: 10px;">🏆🎉</div>
+      <div style="font-size: 3.2rem; margin-bottom: 8px;">🏆🎉</div>
       <h2>Clinic Master Badge!</h2>
       <p id="modalSummary">You diagnosed and mastered all targeted phonics patterns, verb past tenses, and spelling words!</p>
-      <div style="display: flex; justify-content: center; gap: 12px;">
+      <div class="modal-passport-banner">✅ Communicator Stamp Saved to Your IB PYP Passport!</div>
+      <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
         <button class="pill-btn btn-check" id="btnRestartStation" type="button">🔄 Practice Again</button>
         <a class="pyp-map-link" href="../index.html">🗺️ Back to PYP Map</a>
       </div>
@@ -744,14 +949,15 @@
       init() {
         if (!this.ctx) {
           const AudioContext = window.AudioContext || window.webkitAudioContext;
-          this.ctx = new AudioContext();
+          if (AudioContext) this.ctx = new AudioContext();
         }
-        if (this.ctx.state === 'suspended') {
+        if (this.ctx && this.ctx.state === 'suspended') {
           this.ctx.resume();
         }
       }
       playCorrect() {
         this.init();
+        if (!this.ctx) return;
         const now = this.ctx.currentTime;
         [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
           const osc = this.ctx.createOscillator();
@@ -768,21 +974,23 @@
       }
       playWrong() {
         this.init();
+        if (!this.ctx) return;
         const now = this.ctx.currentTime;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(160, now);
-        osc.frequency.linearRampToValueAtTime(110, now + 0.25);
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(180, now);
+        osc.frequency.linearRampToValueAtTime(120, now + 0.24);
         gain.gain.setValueAtTime(0.16, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.26);
         osc.connect(gain);
         gain.connect(this.ctx.destination);
         osc.start(now);
-        osc.stop(now + 0.3);
+        osc.stop(now + 0.28);
       }
       playPop() {
         this.init();
+        if (!this.ctx) return;
         const now = this.ctx.currentTime;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
@@ -797,6 +1005,7 @@
       }
       playFanfare() {
         this.init();
+        if (!this.ctx) return;
         const now = this.ctx.currentTime;
         [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((freq, i) => {
           const osc = this.ctx.createOscillator();
@@ -812,17 +1021,209 @@
         });
       }
       speak(text) {
-        if ('speechSynthesis' in window) {
-          window.speechSynthesis.cancel();
-          const utter = new SpeechSynthesisUtterance(text);
-          utter.lang = 'en-US';
-          utter.rate = 0.9;
-          window.speechSynthesis.speak(utter);
-        }
+        TTS_MANAGER.speak(text);
       }
     }
 
     const sound = new AudioEngine();
+
+    /* ==========================================================================
+       TTS Manager (Neobrutalism Radio Dropdown + JOKE_VOICES filter)
+       ========================================================================== */
+    const JOKE_VOICES = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|hysterical|pipe organ|trinoids|whisper|zarvox|fred|junior|kathy|ralph|wobble/i;
+
+    const TTS_MANAGER = {
+      currentVoiceName: '',
+      wrap: null,
+      trigger: null,
+      menu: null,
+      flag: null,
+      label: null,
+      list: null,
+
+      init() {
+        this.wrap = document.getElementById('ttsDropdownWrap');
+        this.trigger = document.getElementById('ttsTrigger');
+        this.menu = document.getElementById('ttsMenu');
+        this.flag = document.getElementById('ttsFlag');
+        this.label = document.getElementById('ttsLabel');
+        this.list = document.getElementById('ttsRadioList');
+
+        if (!this.trigger) return;
+
+        this.trigger.addEventListener('click', (e) => {
+          e.stopPropagation();
+          sound.playPop();
+          this.wrap.classList.toggle('open');
+          this.trigger.setAttribute('aria-expanded', this.wrap.classList.contains('open'));
+        });
+
+        document.addEventListener('click', (e) => {
+          if (this.wrap && !this.wrap.contains(e.target)) {
+            this.wrap.classList.remove('open');
+            this.trigger.setAttribute('aria-expanded', 'false');
+          }
+        });
+
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && this.wrap) {
+            this.wrap.classList.remove('open');
+            this.trigger.setAttribute('aria-expanded', 'false');
+          }
+        });
+
+        if (window.speechSynthesis) {
+          this.populateVoices();
+          if (window.speechSynthesis.onvoiceschanged !== undefined) {
+            window.speechSynthesis.onvoiceschanged = () => this.populateVoices();
+          }
+        }
+      },
+
+      populateVoices() {
+        if (!window.speechSynthesis || !this.list) return;
+        const voices = window.speechSynthesis.getVoices();
+        if (!voices || voices.length === 0) return;
+
+        let englishVoices = voices.filter(v => {
+          const lang = (v.lang || '').toLowerCase().replace('_', '-');
+          return lang.startsWith('en') && !JOKE_VOICES.test(v.name);
+        });
+
+        if (englishVoices.length === 0) {
+          englishVoices = voices.filter(v => !JOKE_VOICES.test(v.name));
+        }
+        if (englishVoices.length === 0) englishVoices = voices;
+
+        const PREFERRED = ['samantha', 'daniel', 'google uk english female', 'google us english', 'karen', 'serena', 'oliver', 'ava', 'kate'];
+        englishVoices.sort((a, b) => {
+          const aIdx = PREFERRED.findIndex(p => a.name.toLowerCase().includes(p));
+          const bIdx = PREFERRED.findIndex(p => b.name.toLowerCase().includes(p));
+          const aRank = aIdx === -1 ? 999 : aIdx;
+          const bRank = bIdx === -1 ? 999 : bIdx;
+          if (aRank !== bRank) return aRank - bRank;
+          return a.name.localeCompare(b.name);
+        });
+
+        const saved = localStorage.getItem('ib_pyp_voice_name');
+        let selected = saved ? englishVoices.find(v => v.name === saved) : null;
+        if (!selected) selected = englishVoices.find(v => v.default) || englishVoices[0];
+
+        this.currentVoiceName = selected ? selected.name : '';
+        this.renderMenu(englishVoices);
+        this.updateTriggerUI(selected);
+      },
+
+      renderMenu(voices) {
+        this.list.innerHTML = '';
+        voices.slice(0, 15).forEach(v => {
+          const lang = (v.lang || '').toLowerCase().replace('_', '-');
+          const isUK = lang.includes('gb');
+          const isAU = lang.includes('au');
+          const flag = isAU ? '🇦🇺' : isUK ? '🇬🇧' : '🇺🇸';
+          const region = isAU ? 'AU' : isUK ? 'UK' : 'US';
+          const isActive = v.name === this.currentVoiceName;
+
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = `tts-radio-item ${isActive ? 'active' : ''}`;
+          btn.setAttribute('role', 'menuitemradio');
+          btn.setAttribute('aria-checked', isActive ? 'true' : 'false');
+          btn.innerHTML = `
+            <span class="tts-radio-circle"></span>
+            <span class="tts-item-flag">${flag}</span>
+            <span class="tts-item-name">${v.name} (${region})</span>
+          `;
+
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            sound.playPop();
+            this.selectVoice(v);
+            this.wrap.classList.remove('open');
+            this.trigger.setAttribute('aria-expanded', 'false');
+          });
+
+          this.list.appendChild(btn);
+        });
+      },
+
+      selectVoice(v) {
+        this.currentVoiceName = v.name;
+        localStorage.setItem('ib_pyp_voice_name', v.name);
+        this.updateTriggerUI(v);
+        this.list.querySelectorAll('.tts-radio-item').forEach(btn => {
+          const isMatch = btn.querySelector('.tts-item-name').textContent.includes(v.name);
+          btn.classList.toggle('active', isMatch);
+          btn.setAttribute('aria-checked', isMatch ? 'true' : 'false');
+        });
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
+      },
+
+      updateTriggerUI(v) {
+        if (!v) return;
+        const lang = (v.lang || '').toLowerCase().replace('_', '-');
+        const isUK = lang.includes('gb');
+        const isAU = lang.includes('au');
+        this.flag.textContent = isAU ? '🇦🇺' : isUK ? '🇬🇧' : '🇺🇸';
+        let shortName = v.name.replace(/^(Google|Microsoft|Apple)\s+/i, '');
+        if (shortName.length > 14) shortName = shortName.substring(0, 12) + '...';
+        this.label.textContent = shortName;
+      },
+
+      speak(text) {
+        if (!('speechSynthesis' in window) || !text || !text.trim()) return;
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(text);
+        const voices = window.speechSynthesis.getVoices();
+        const voiceName = this.currentVoiceName || localStorage.getItem('ib_pyp_voice_name');
+        if (voiceName && voices && voices.length > 0) {
+          const match = voices.find(v => v.name === voiceName);
+          if (match) utter.voice = match;
+        }
+        utter.lang = utter.voice ? utter.voice.lang : 'en-US';
+        utter.rate = 0.88;
+        window.speechSynthesis.speak(utter);
+      }
+    };
+
+    /* ==========================================================================
+       IB PYP Passport Helper
+       ========================================================================== */
+    const PASSPORT_GAME_PATH = 'literacy/g2_phonics_word_clinic.html';
+    const PASSPORT_STAMPS = ['Communicator'];
+
+    function recordPypPassport(newStamps, gamePath) {
+      try {
+        const raw = localStorage.getItem('ib_pyp_passport');
+        const data = raw ? JSON.parse(raw) : {};
+        const stamps = Array.isArray(data.stamps) ? data.stamps : [];
+        const completed = Array.isArray(data.completed) ? data.completed : [];
+        newStamps.forEach(s => {
+          if (!stamps.includes(s)) stamps.push(s);
+        });
+        if (gamePath && !completed.includes(gamePath)) completed.push(gamePath);
+        data.stamps = stamps;
+        data.completed = completed;
+        localStorage.setItem('ib_pyp_passport', JSON.stringify(data));
+        return data;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function updatePassportBadge() {
+      const btn = document.getElementById('btnClinicPassport');
+      if (!btn) return;
+      try {
+        const raw = localStorage.getItem('ib_pyp_passport');
+        const data = raw ? JSON.parse(raw) : null;
+        const done = data && Array.isArray(data.completed) && data.completed.includes(PASSPORT_GAME_PATH);
+        if (done) {
+          btn.classList.add('stamped');
+          btn.textContent = '✅ Communicator Stamped';
+        }
+      } catch (e) {}
+    }
 
     /* ==========================================================================
        Curriculum Datasets (FLSZ, Welded Sounds, Past Tense, Spelling Clinic)
@@ -835,16 +1236,16 @@
       { word: "bell", ruleId: "flsz_l", ruleName: "FLSZ Rule (-ll)", hint: "One syllable, short vowel, ends in l ➔ double the l!", stage: "Stage 1: Foundation" },
       { word: "miss", ruleId: "flsz_s", ruleName: "FLSZ Rule (-ss)", hint: "One syllable, short vowel, ends in s ➔ double the s!", stage: "Stage 1: Foundation" },
       { word: "buzz", ruleId: "flsz_z", ruleName: "FLSZ Rule (-zz)", hint: "One syllable, short vowel, ends in z ➔ double the z!", stage: "Stage 1: Foundation" },
-      // Stage 2: Welded Sounds (-all, -oll, -ull, -ck, -sh)
+      // Stage 2: Welded Sounds (-all, -oll/-ull, -ck, -sh)
       { word: "small", ruleId: "welded_all", ruleName: "Welded Sound (-all)", hint: "The sound /all/ sticks together as in ball and call.", stage: "Stage 2: Welded Sounds" },
-      { word: "roll", ruleId: "welded_oll", ruleName: "Welded Sound (-oll)", hint: "The sound /oll/ as in roll and toll.", stage: "Stage 2: Welded Sounds" },
-      { word: "pull", ruleId: "welded_ull", ruleName: "Welded Sound (-ull)", hint: "The sound /ull/ as in bull and pull.", stage: "Stage 2: Welded Sounds" },
+      { word: "roll", ruleId: "welded_oll", ruleName: "Welded Sound (-oll / -ull)", hint: "The sound /oll/ as in roll and toll.", stage: "Stage 2: Welded Sounds" },
+      { word: "pull", ruleId: "welded_oll", ruleName: "Welded Sound (-oll / -ull)", hint: "The sound /ull/ sticks together as in bull and pull.", stage: "Stage 2: Welded Sounds" },
       { word: "duck", ruleId: "welded_ck", ruleName: "Digraph (-ck)", hint: "Use -ck right after a short vowel at the end of a syllable.", stage: "Stage 2: Welded Sounds" },
       { word: "brush", ruleId: "welded_sh", ruleName: "Digraph (-sh)", hint: "The quiet /sh/ sound can start or finish a word.", stage: "Stage 2: Welded Sounds" },
-      // Stage 3: Hilson Challenge
-      { word: "grass", ruleId: "flsz_s", ruleName: "FLSZ Rule (-ss)", hint: "Short vowel a + ends in s ➔ double the s!", stage: "Stage 3: Hilson Challenge" },
-      { word: "snack", ruleId: "welded_ck", ruleName: "Digraph (-ck)", hint: "Short vowel a + final /k/ sound ➔ spells -ck!", stage: "Stage 3: Hilson Challenge" },
-      { word: "wish", ruleId: "welded_sh", ruleName: "Digraph (-sh)", hint: "Short vowel i + /sh/ sound ➔ spells -sh!", stage: "Stage 3: Hilson Challenge" }
+      // Stage 3: Master Challenge
+      { word: "grass", ruleId: "flsz_s", ruleName: "FLSZ Rule (-ss)", hint: "Short vowel a + ends in s ➔ double the s!", stage: "Stage 3: Master Challenge" },
+      { word: "snack", ruleId: "welded_ck", ruleName: "Digraph (-ck)", hint: "Short vowel a + final /k/ sound ➔ spells -ck!", stage: "Stage 3: Master Challenge" },
+      { word: "wish", ruleId: "welded_sh", ruleName: "Digraph (-sh)", hint: "Short vowel i + /sh/ sound ➔ spells -sh!", stage: "Stage 3: Master Challenge" }
     ];
 
     const sorterBins = [
@@ -870,7 +1271,7 @@
       },
       {
         stage: "Stage 1: Regular -ed Rule",
-        sentence: "Hilson ___ soccer with his classmates after school.",
+        sentence: "Sam ___ soccer with his classmates after school.",
         baseVerb: "play",
         correct: "played",
         distractors: ["playyed", "plaied", "plays"],
@@ -882,7 +1283,7 @@
         baseVerb: "feel",
         correct: "felt",
         distractors: ["flet", "feeled", "feeling"],
-        explanation: "Rule: 'Feel' is an irregular verb! In the past tense, it changes to 'felt' (f-e-l-t). Never write 'flet' or 'feeled'!"
+        explanation: "Rule: 'Feel' is an irregular verb! In the past tense, it changes to 'felt' (f-e-l-t)."
       },
       {
         stage: "Stage 2: Irregular Verb Trap",
@@ -890,10 +1291,10 @@
         baseVerb: "swim",
         correct: "swam",
         distractors: ["swand", "swimed", "swimmed"],
-        explanation: "Rule: 'Swim' is irregular! Past tense is 'swam' (s-w-a-m). Avoid writing 'swand' or 'swimed'!"
+        explanation: "Rule: 'Swim' is irregular! Past tense is 'swam' (s-w-a-m)."
       },
       {
-        stage: "Stage 3: Hilson Story Grammar",
+        stage: "Stage 3: Story Grammar",
         sentence: "The kind fairy smiled and ___: 'Thank you for your help!'",
         baseVerb: "say",
         correct: "said",
@@ -901,7 +1302,7 @@
         explanation: "Rule: Past tense of 'say' is 'said' (s-a-i-d). Do not keep present tense 'say' or invent 'sayed'."
       },
       {
-        stage: "Stage 3: Hilson Story Grammar",
+        stage: "Stage 3: Story Grammar",
         sentence: "In the dark forest, the fairy ___ not open her eyes.",
         baseVerb: "do not",
         correct: "did",
@@ -909,7 +1310,7 @@
         explanation: "Rule: In past narratives, use 'did not' instead of 'don't open'!"
       },
       {
-        stage: "Stage 3: Hilson Story Grammar",
+        stage: "Stage 3: Story Grammar",
         sentence: "After the big lesson, the clever witch ___ a change of heart.",
         baseVerb: "have",
         correct: "had",
@@ -918,7 +1319,7 @@
       }
     ];
 
-    // Station 3: Spell Doctor (Hilson's exact high-frequency words)
+    // Station 3: Spell Doctor (Grade 2 high-frequency words)
     const spellDataset = [
       {
         word: "witch",
@@ -999,6 +1400,8 @@
        ========================================================================== */
     let currentStation = "sorter"; // sorter | past | doctor
     let stars = 0;
+    let isLocked = false;
+    let advanceTimerId = null;
 
     // Station 1 State
     let sorterIndex = 0;
@@ -1008,13 +1411,14 @@
 
     // Station 3 State
     let spellIndex = 0;
+    let spellAttempts = 0;
     let spellUserLetters = [];
     let spellAvailableLetters = [];
 
     /* ==========================================================================
        UI Renderer & Controllers
        ========================================================================== */
-    const arenaCard = document.getElementById('arenaCard');
+    const stationContent = document.getElementById('stationContent');
     const feedbackBanner = document.getElementById('feedbackBanner');
     const feedbackIcon = document.getElementById('feedbackIcon');
     const feedbackTitle = document.getElementById('feedbackTitle');
@@ -1022,6 +1426,14 @@
     const starCounter = document.getElementById('starCounter');
     const victoryModal = document.getElementById('victoryModal');
     const modalSummary = document.getElementById('modalSummary');
+
+    function clearAdvanceTimer() {
+      if (advanceTimerId !== null) {
+        clearTimeout(advanceTimerId);
+        advanceTimerId = null;
+      }
+      isLocked = false;
+    }
 
     function updateStars(delta) {
       stars = Math.max(0, stars + delta);
@@ -1044,16 +1456,19 @@
        Render Station 1: Sound Sorter
        -------------------------------------------------------------------------- */
     function renderStationSorter() {
+      clearAdvanceTimer();
       hideBanner();
       const item = sorterDataset[sorterIndex];
 
-      // Filter available bins: show 4 relevant choices for clean layout
-      const activeBins = [
-        sorterBins.find(b => b.id === item.ruleId),
-        ...sorterBins.filter(b => b.id !== item.ruleId).slice(0, 3)
-      ].sort(() => Math.random() - 0.5);
+      // Pick the matching bin + 3 randomly shuffled distractors
+      const correctBin = sorterBins.find(b => b.id === item.ruleId) || sorterBins[0];
+      const distractors = sorterBins
+        .filter(b => b.id !== correctBin.id)
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 3);
+      const activeBins = [correctBin, ...distractors].sort(() => Math.random() - 0.5);
 
-      arenaCard.innerHTML = `
+      stationContent.innerHTML = `
         <div class="stage-bar">
           <span class="stage-badge">${item.stage} (${sorterIndex + 1} / ${sorterDataset.length})</span>
           <button class="sound-btn" id="btnSpeakWord" type="button">🔊 Listen Word</button>
@@ -1084,25 +1499,28 @@
       });
 
       // Bind bin clicks
-      arenaCard.querySelectorAll('.bin-card').forEach(card => {
+      stationContent.querySelectorAll('.bin-card').forEach(card => {
         card.addEventListener('click', () => {
+          if (isLocked) return;
           const selectedId = card.getAttribute('data-bin-id');
-          if (selectedId === item.ruleId) {
+          if (selectedId === correctBin.id) {
+            isLocked = true;
             sound.playCorrect();
             updateStars(1);
             showBanner(true, `Correct! ${item.ruleName}`, item.hint);
-            setTimeout(() => {
+            advanceTimerId = setTimeout(() => {
+              advanceTimerId = null;
               if (sorterIndex < sorterDataset.length - 1) {
                 sorterIndex++;
                 renderStationSorter();
               } else {
+                isLocked = false;
                 showVictory("Sound Sorter Completed!", `You classified all ${sorterDataset.length} FLSZ and welded sound targets like a phonics master!`);
               }
-            }, 1400);
+            }, 1300);
           } else {
             sound.playWrong();
-            const correctBin = sorterBins.find(b => b.id === item.ruleId);
-            showBanner(false, "Try Again!", `Take a close look at the ending of "${item.word}". Hint: ${correctBin.label} (${correctBin.tag}).`);
+            showBanner(false, "Try Again!", `Take a close look at the ending letters of "${item.word}" and check which pattern matches.`);
           }
         });
       });
@@ -1112,11 +1530,12 @@
        Render Station 2: Past-Tense Lab
        -------------------------------------------------------------------------- */
     function renderStationPast() {
+      clearAdvanceTimer();
       hideBanner();
       const item = pastDataset[pastIndex];
       const allChoices = [item.correct, ...item.distractors].sort(() => Math.random() - 0.5);
 
-      arenaCard.innerHTML = `
+      stationContent.innerHTML = `
         <div class="stage-bar">
           <span class="stage-badge">${item.stage} (${pastIndex + 1} / ${pastDataset.length})</span>
           <button class="sound-btn" id="btnSpeakPastPrompt" type="button">🔊 Read Sentence</button>
@@ -1135,34 +1554,37 @@
           ${allChoices.map(choice => `
             <button class="verb-opt-btn" data-verb="${choice}" type="button">
               <span>${choice}</span>
-              <span class="verb-sub">${choice === item.correct ? 'Target Past Tense' : 'Check ending trap'}</span>
             </button>
           `).join('')}
         </div>
       `;
 
       document.getElementById('btnSpeakPastPrompt').addEventListener('click', () => {
-        sound.speak(item.sentence.replace('___', item.correct));
+        sound.speak(item.sentence.replace('___', 'blank'));
       });
 
-      arenaCard.querySelectorAll('.verb-opt-btn').forEach(btn => {
+      stationContent.querySelectorAll('.verb-opt-btn').forEach(btn => {
         btn.addEventListener('click', () => {
+          if (isLocked) return;
           const selected = btn.getAttribute('data-verb');
           if (selected === item.correct) {
+            isLocked = true;
             sound.playCorrect();
             updateStars(1);
             showBanner(true, "Excellent Grammar!", item.explanation);
-            setTimeout(() => {
+            advanceTimerId = setTimeout(() => {
+              advanceTimerId = null;
               if (pastIndex < pastDataset.length - 1) {
                 pastIndex++;
                 renderStationPast();
               } else {
+                isLocked = false;
                 showVictory("Past-Tense Lab Complete!", `You mastered regular -ed additions and irregular verbs like felt, swam, and had!`);
               }
-            }, 1600);
+            }, 1500);
           } else {
             sound.playWrong();
-            showBanner(false, `Not quite: "${selected}"`, item.explanation);
+            showBanner(false, `Not quite: "${selected}"`, `Think about the past tense of "${item.baseVerb}". Does it use regular -ed or an irregular past form? Try again!`);
           }
         });
       });
@@ -1186,15 +1608,35 @@
     }
 
     function renderStationDoctor() {
+      clearAdvanceTimer();
       hideBanner();
+      spellAttempts = 0;
       const item = spellDataset[spellIndex];
       setupSpellLetters(item.word);
       drawSpellBoard();
     }
 
+    function getProgressiveSpellHint(item, attemptedWord, attemptNum) {
+      const target = item.word.toLowerCase();
+      const guess = attemptedWord.toLowerCase();
+      let matchCount = 0;
+      for (let i = 0; i < target.length; i++) {
+        if (guess[i] === target[i]) matchCount++;
+      }
+
+      if (attemptNum === 1) {
+        return `You have ${matchCount} of ${target.length} letters in the exact right spot! Hint 1: The word starts with "${target[0]}" and has ${target.length} letters. Tap "Hear Target Word" and try again.`;
+      }
+      if (attemptNum === 2) {
+        const clueOnly = item.rule.split('Spell:')[0].trim();
+        return `Getting closer (${matchCount} right)! Hint 2: Starts with "${target[0]}", ends with "${target[target.length - 1]}". ${clueOnly}`;
+      }
+      return item.rule;
+    }
+
     function drawSpellBoard() {
       const item = spellDataset[spellIndex];
-      arenaCard.innerHTML = `
+      stationContent.innerHTML = `
         <div class="stage-bar">
           <span class="stage-badge">Word Diagnostic (${spellIndex + 1} / ${spellDataset.length})</span>
           <button class="sound-btn" id="btnSpeakSpellWord" type="button">🔊 Hear Target Word</button>
@@ -1203,9 +1645,9 @@
         <div class="patient-chart">
           <div class="chart-info">
             <h3>🩺 Patient Chart: "${item.clue}"</h3>
-            <p>Common writing trap avoided: <s style="color: #DC2626;">${item.trap}</s></p>
+            <p>Listen carefully and tap the letter tiles in order to build the word.</p>
           </div>
-          <div style="font-weight: 900; font-size: 0.95rem; color: #1E3A8A;">
+          <div style="font-weight: 900; font-size: 0.92rem; color: #1E3A8A;">
             Word Length: ${item.word.length} letters
           </div>
         </div>
@@ -1228,7 +1670,7 @@
 
         <div class="action-controls">
           <button class="pill-btn btn-clear" id="btnClearWord" type="button">🔄 Clear Letters</button>
-          <button class="pill-btn btn-check" id="btnCheckSpell" type="button">✅ Diagnose & Submit</button>
+          <button class="pill-btn btn-check" id="btnCheckSpell" type="button">✅ Diagnose &amp; Submit</button>
         </div>
       `;
 
@@ -1237,14 +1679,14 @@
       });
 
       // Bind slot click to remove
-      arenaCard.querySelectorAll('.letter-slot').forEach(slot => {
+      stationContent.querySelectorAll('.letter-slot').forEach(slot => {
         slot.addEventListener('click', () => {
+          if (isLocked) return;
           const idx = parseInt(slot.getAttribute('data-slot-idx'), 10);
           if (spellUserLetters[idx]) {
             sound.playPop();
             const removedChar = spellUserLetters[idx];
             spellUserLetters[idx] = '';
-            // Return to bank
             const returnTile = spellAvailableLetters.find(t => t.char === removedChar && t.used);
             if (returnTile) returnTile.used = false;
             drawSpellBoard();
@@ -1253,11 +1695,11 @@
       });
 
       // Bind letter bank clicks
-      arenaCard.querySelectorAll('.tile-btn:not(.used)').forEach(btn => {
+      stationContent.querySelectorAll('.tile-btn:not(.used)').forEach(btn => {
         btn.addEventListener('click', () => {
+          if (isLocked) return;
           const tileId = parseInt(btn.getAttribute('data-tile-id'), 10);
           const tile = spellAvailableLetters.find(t => t.id === tileId);
-          // Find first empty slot
           const emptySlotIndex = spellUserLetters.findIndex(ch => !ch);
           if (emptySlotIndex !== -1 && tile) {
             sound.playPop();
@@ -1269,12 +1711,14 @@
       });
 
       document.getElementById('btnClearWord').addEventListener('click', () => {
+        if (isLocked) return;
         sound.playPop();
         setupSpellLetters(item.word);
         drawSpellBoard();
       });
 
       document.getElementById('btnCheckSpell').addEventListener('click', () => {
+        if (isLocked) return;
         const attemptedWord = spellUserLetters.join('');
         if (attemptedWord.length < item.word.length) {
           sound.playWrong();
@@ -1283,20 +1727,25 @@
         }
 
         if (attemptedWord.toLowerCase() === item.word.toLowerCase()) {
+          isLocked = true;
           sound.playCorrect();
           updateStars(2);
           showBanner(true, `Perfect: "${item.word}"!`, item.rule);
-          setTimeout(() => {
+          advanceTimerId = setTimeout(() => {
+            advanceTimerId = null;
             if (spellIndex < spellDataset.length - 1) {
               spellIndex++;
               renderStationDoctor();
             } else {
-              showVictory("Word Doctor Certification!", `Hilson has successfully cured and correctly spelled all ${spellDataset.length} targeted high-frequency words!`);
+              isLocked = false;
+              showVictory("Word Doctor Certification!", `You successfully cured and correctly spelled all ${spellDataset.length} targeted high-frequency words!`);
             }
-          }, 1600);
+          }, 1500);
         } else {
+          spellAttempts++;
           sound.playWrong();
-          showBanner(false, `Spelling Slip: "${attemptedWord}"`, item.rule);
+          const progressiveHint = getProgressiveSpellHint(item, attemptedWord, spellAttempts);
+          showBanner(false, `Keep Trying: "${attemptedWord}"`, progressiveHint);
         }
       });
     }
@@ -1307,16 +1756,25 @@
     function showVictory(title, desc) {
       sound.playFanfare();
       launchConfetti();
+      recordPypPassport(PASSPORT_STAMPS, PASSPORT_GAME_PATH);
+      updatePassportBadge();
       document.querySelector('#victoryModal h2').textContent = title;
       modalSummary.textContent = desc;
       victoryModal.style.display = 'flex';
     }
 
     document.getElementById('btnRestartStation').addEventListener('click', () => {
+      clearAdvanceTimer();
       victoryModal.style.display = 'none';
       if (currentStation === 'sorter') { sorterIndex = 0; renderStationSorter(); }
       else if (currentStation === 'past') { pastIndex = 0; renderStationPast(); }
       else if (currentStation === 'doctor') { spellIndex = 0; renderStationDoctor(); }
+    });
+
+    document.getElementById('btnClinicPassport').addEventListener('click', () => {
+      sound.playCorrect();
+      recordPypPassport(PASSPORT_STAMPS, PASSPORT_GAME_PATH);
+      updatePassportBadge();
     });
 
     /* --------------------------------------------------------------------------
@@ -1327,6 +1785,7 @@
     const tabDoctor = document.getElementById('tabDoctor');
 
     function switchStation(stationName) {
+      clearAdvanceTimer();
       sound.playPop();
       currentStation = stationName;
       [tabSorter, tabPast, tabDoctor].forEach(btn => {
@@ -1372,7 +1831,7 @@
         particles.forEach(p => {
           p.x += p.vx;
           p.y += p.vy;
-          p.vy += 0.35; // Gravity
+          p.vy += 0.35;
           p.rotation += p.vRot;
           ctx.save();
           ctx.translate(p.x, p.y);
@@ -1392,6 +1851,8 @@
     }
 
     // Initial Load
+    TTS_MANAGER.init();
+    updatePassportBadge();
     renderStationSorter();
   </script>
 </body>

@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description"
-    content="MoveSpell - A gesture-based spelling game for kids. Learn to spell with magic hand movements!" />
+    content="MoveSpell - A gesture and touch-friendly spelling game for kids. Learn to spell with hand movements or drag-and-drop!" />
   <title>MoveSpell - Magic Hand Edition</title>
 
   <!-- Stylesheets -->
@@ -24,47 +24,49 @@
     <p class="loading-text">Loading game...</p>
   </div>
 
-  <!-- Landing Page / Camera Permission Overlay -->
+  <!-- Landing Page / Play Mode Selection Overlay -->
   <div id="permission-overlay">
-    <div class="landing-header">
-      <img src="assets/logo_movespell.png" alt="MoveSpell Logo" class="landing-logo" />
-      <h1 class="landing-title">MoveSpell</h1>
-      <p class="landing-tagline">Magic Hand Edition</p>
-    </div>
-
-    <div class="features-grid">
-      <div class="feature-card">
-        <div class="feature-icon">🖐️</div>
-        <h3>Zero-Touch</h3>
-        <p>Use "Grab & Drop" gestures to play. No mouse needed!</p>
+    <div class="permission-inner">
+      <div class="landing-header">
+        <img src="assets/logo_movespell.png" alt="MoveSpell Logo" class="landing-logo" />
+        <h1 class="landing-title">MoveSpell</h1>
+        <p class="landing-tagline">Magic Hand &amp; Touch Edition</p>
       </div>
-      <div class="feature-card">
-        <div class="feature-icon">📸</div>
-        <h3>Immersive</h3>
-        <p>See yourself in a magic world with real-time tracking.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">🔒</div>
-        <h3>Privacy First</h3>
-        <p>All AI runs locally. No video is ever recorded or uploaded.</p>
-      </div>
-    </div>
 
-    <div class="landing-action">
-      <button id="permission-btn" class="permission-btn">
-        Start with Camera 🎮
-      </button>
-      <p class="privacy-warning">
-        * Camera access is required for hand tracking. Your privacy is fully protected.
-      </p>
-    </div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🖐️</div>
+          <h3>Hand Gestures</h3>
+          <p>Use Grab &amp; Drop hand movements in mid-air with your camera!</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">👆</div>
+          <h3>Touch &amp; Mouse</h3>
+          <p>No webcam? Drag and drop glowing letter orbs with finger or mouse.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔒</div>
+          <h3>Privacy First</h3>
+          <p>All AI runs locally on your device. No video is ever recorded.</p>
+        </div>
+      </div>
 
-    <div class="landing-footer">
-      <p>© 2025 MoveSpell. Open Source under Apache 2.0</p>
-      <div class="footer-links">
-        <a href="https://github.com/szkane/MoveSpelling" target="_blank" rel="noopener">GitHub</a>
-        <span class="footer-dot">•</span>
-        <a href="https://x.com/szkane" target="_blank" rel="noopener">X (Twitter)</a>
+      <div class="landing-action">
+        <div class="cta-row">
+          <button id="permission-btn" type="button" class="permission-btn">
+            ✋ Start with Camera
+          </button>
+          <button id="touch-mode-btn" type="button" class="permission-btn permission-btn-touch">
+            👆 Play with Touch / Mouse
+          </button>
+        </div>
+        <p class="privacy-warning">
+          Camera access is optional — choose Touch / Mouse to play immediately with zero camera prompt!
+        </p>
+      </div>
+
+      <div class="landing-footer">
+        <p>© 2025 MoveSpell · IB PYP Literacy Practice</p>
       </div>
     </div>
   </div>
@@ -83,9 +85,6 @@
     <!-- Phaser canvas will be inserted here -->
   </div>
 
-  <!-- Hand Cursor (CSS-based for smooth rendering) -->
-  <div id="hand-cursor" class="hidden"></div>
-
   <!-- External Libraries (CDN) -->
   <!-- MediaPipe Hands -->
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
@@ -94,24 +93,25 @@
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
 
   <!-- Core Modules -->
-  <script src="js/core/hand-tracker.js?v=202607021052"></script>
-  <script src="js/core/audio-manager.js?v=202607021052"></script>
+  <script src="js/core/hand-tracker.js?v=20261125"></script>
+  <script src="js/core/audio-manager.js?v=20261125"></script>
 
   <!-- Game Modules -->
-  <script src="js/game/spawner.js?v=202607021052"></script>
-  <script src="js/game/scene-setup.js?v=202607021052"></script>
-  <script src="js/game/scene-play.js?v=202607021052"></script>
-  <script src="js/game/scene-results.js?v=202607021052"></script>
+  <script src="js/game/spawner.js?v=20261125"></script>
+  <script src="js/game/scene-setup.js?v=20261125"></script>
+  <script src="js/game/scene-play.js?v=20261125"></script>
+  <script src="js/game/scene-results.js?v=20261125"></script>
 
   <!-- Main Entry Point -->
-  <script src="js/main.js?v=202607021052"></script>
+  <script src="js/main.js?v=20261125"></script>
 
-  <a class="pyp-map-link" href="../../index.html" aria-label="Back to PYP curriculum map">PYP Map</a>
+  <a class="pyp-map-link" href="../../index.html" aria-label="Back to PYP curriculum map">← PYP Map</a>
   <style>
-    .pyp-map-link { position: fixed; top: 12px; right: 12px; z-index: 9999; min-height: 44px; display: inline-flex; align-items: center; border: 2px solid #17211f; border-radius: 8px; padding: 8px 12px; background: #fffaf0; color: #17211f; text-decoration: none; font: 900 14px/1 ui-rounded, "Avenir Next", "Segoe UI", sans-serif; box-shadow: 3px 3px 0 #17211f; letter-spacing: 0; }
+    .pyp-map-link { position: fixed; top: 12px; right: 12px; z-index: 9999; min-height: 44px; display: inline-flex; align-items: center; border: 2.5px solid #17211f; border-radius: 10px; padding: 8px 14px; background: #ffe156; color: #17211f; text-decoration: none; font: 900 14px/1 ui-rounded, "Avenir Next", "Segoe UI", sans-serif; box-shadow: 3px 3px 0 #17211f; letter-spacing: 0; }
+    .pyp-map-link:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #17211f; }
     .pyp-map-link:focus-visible { outline: 3px solid #f2b84b; outline-offset: 2px; }
     @media print { .pyp-map-link { display: none; } }
-  
+
     html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
   </style>
 </body>

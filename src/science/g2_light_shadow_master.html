@@ -38,7 +38,7 @@
     }
 
     .container {
-      max-width: 1100px;
+      max-width: 1320px;
       margin: 0 auto;
     }
 
@@ -159,7 +159,7 @@
       border: var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      height: 480px;
+      height: clamp(380px, 56dvh, 620px);
       position: relative;
       overflow: hidden;
     }
@@ -315,7 +315,104 @@
       font-size: 0.82rem;
       line-height: 1.35;
       color: #E5E7EB;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
     }
+
+    .btn-speaker {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #FEF08A;
+      color: var(--ink);
+      border: 2px solid var(--ink);
+      box-shadow: 2px 2px 0 var(--ink);
+      border-radius: 8px;
+      width: 34px;
+      height: 34px;
+      cursor: pointer;
+      font-size: 1rem;
+      line-height: 1;
+      flex-shrink: 0;
+      transition: transform 0.1s, box-shadow 0.1s, background-color 0.1s;
+    }
+    .btn-speaker:hover { background: #FDE047; transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--ink); }
+    .btn-speaker:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--ink); }
+    .btn-speaker.speaking { background: #86EFAC; animation: ttsPulse 0.7s infinite alternate; }
+    @keyframes ttsPulse { from { transform: scale(1); } to { transform: scale(1.1); } }
+
+    .missions-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .mission-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #1E1E2E;
+      color: #D1D5DB;
+      border: 2px solid #4B5563;
+      border-radius: 999px;
+      padding: 5px 12px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      transition: all 0.15s ease;
+    }
+    .mission-chip.done {
+      background: #DCFCE7;
+      color: #111111;
+      border-color: #111111;
+      box-shadow: 2px 2px 0 #111111;
+    }
+
+    .btn-reflect-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #DCFCE7;
+      color: var(--ink);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 8px 14px;
+      font-family: inherit;
+      font-weight: 900;
+      font-size: 0.88rem;
+      min-height: 44px;
+      cursor: pointer;
+      transition: transform 0.1s ease;
+    }
+    .btn-reflect-pill:active { transform: translate(2px, 2px); box-shadow: var(--shadow-sm); }
+
+    .pyp-modal-backdrop {
+      position: fixed; inset: 0; z-index: 2000; background: rgba(15, 23, 42, 0.72);
+      backdrop-filter: blur(6px); display: none; place-items: center; padding: 16px;
+    }
+    .pyp-modal-backdrop.open { display: grid; }
+    .pyp-modal-card {
+      width: min(540px, 100%); background: #FFFDF0; color: #111111; border: 4px solid #111111;
+      border-radius: 20px; box-shadow: 8px 8px 0 #111111; padding: 20px 22px; display: grid; gap: 12px;
+    }
+    .pyp-modal-badge {
+      display: inline-flex; align-items: center; gap: 8px; width: fit-content; padding: 6px 14px;
+      background: #FFE156; border: 3px solid #111111; border-radius: 999px; font-weight: 900; font-size: 0.88rem;
+    }
+    .pyp-modal-box {
+      background: #FFFFFF; border: 2.5px solid #111111; border-radius: 12px; padding: 10px 14px;
+      font-size: 0.9rem; line-height: 1.45; font-weight: 700; color: #111111;
+    }
+    .pyp-modal-box strong { display: block; font-size: 0.76rem; text-transform: uppercase; color: #0F766E; margin-bottom: 3px; }
+    .pyp-modal-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+    .pyp-modal-btn {
+      flex: 1; min-height: 46px; padding: 10px 14px; border: 3px solid #111111; border-radius: 12px;
+      box-shadow: 3px 3px 0 #111111; font: inherit; font-weight: 900; cursor: pointer; text-decoration: none;
+      display: inline-flex; align-items: center; justify-content: center; color: #111111; background: #FFFFFF;
+    }
+    .pyp-modal-btn.primary { background: #86EFAC; }
 
     .action-btn {
       font-family: inherit;
@@ -486,9 +583,10 @@
 <body>
   <div class="container">
     <nav class="nav-bar">
-      <div style="display: flex; align-items: center; gap: 10px;">
+      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
         <a class="pyp-map-link" href="../index.html">← PYP Map</a>
         <span class="unit-tag">💡 Grade 2 · Unit 2: Science 3D</span>
+        <button type="button" class="btn-reflect-pill" id="btnOpenReflect">🔍 Reflect &amp; Stamp</button>
       </div>
       <div class="tts-dropdown-wrap" id="ttsDropdownWrap">
         <button type="button" class="tts-trigger" id="ttsTrigger" aria-haspopup="menu" aria-expanded="false" title="Select Voice Accent">
@@ -514,6 +612,12 @@
         <button class="mode-btn" data-mode="reflection" type="button">🪞 Mirror Reflection</button>
       </div>
     </header>
+
+    <div class="missions-bar" aria-label="Inquiry Missions">
+      <span class="mission-chip" id="missionGiantShadow">⬜ Mission 1: Make a Giant Shadow (&le; 3.4 m)</span>
+      <span class="mission-chip" id="missionMaterial">⬜ Mission 2: Test Translucent or Transparent</span>
+      <span class="mission-chip" id="missionBeacon">⬜ Mission 3: Energize the Redstone Beacon (45°)</span>
+    </div>
 
     <main class="stage-layout">
       <!-- 3D Interactive WebGL Stage -->
@@ -584,9 +688,9 @@
           </div>
 
           <!-- Real-time Guidance Box -->
-          <div id="reflectionStatusBox" style="background:#FFFDE8; border:2px solid var(--ink); border-radius:10px; padding:10px; margin-top:10px; box-shadow:2px 2px 0 var(--ink);">
-            <div style="font-size:0.75rem; font-weight:900; text-transform:uppercase; color:#6B7280; margin-bottom:4px;">Reflection Target Guidance</div>
-            <div id="reflectionStatusText" style="font-size:0.88rem; font-weight:800; line-height:1.4;">
+          <div id="reflectionStatusBox" style="background:#FFFDE8; color: var(--ink); border:2px solid var(--ink); border-radius:10px; padding:10px; margin-top:10px; box-shadow:2px 2px 0 var(--ink);">
+            <div style="font-size:0.75rem; font-weight:900; text-transform:uppercase; color:#374151; margin-bottom:4px;">Reflection Target Guidance</div>
+            <div id="reflectionStatusText" style="font-size:0.88rem; font-weight:800; line-height:1.4; color: var(--ink);">
               ➡️ Laser aiming too far right (25°)! Slide to the right toward 45° to hit the Beacon!
             </div>
           </div>
@@ -595,11 +699,36 @@
         </div>
 
         <!-- Inquiry Science Observation -->
-        <div class="observation-memo" id="memoText">
-          🔍 <strong>Science Law</strong>: Light travels in straight lines. When an opaque block blocks the rays, a dark shadow forms on the back wall. Moving closer to the light source makes the shadow <strong>BIGGER</strong>!
+        <div class="observation-memo">
+          <div id="memoText">
+            🔍 <strong>Science Law</strong>: Light travels in straight lines. When an opaque block blocks the rays, a dark shadow forms on the back wall. Moving closer to the light source makes the shadow <strong>BIGGER</strong>!
+          </div>
+          <button type="button" class="btn-speaker" id="btnSpeakMemo" title="Read observation aloud" aria-label="Read science observation aloud">🔊</button>
         </div>
       </aside>
     </main>
+  </div>
+
+  <!-- IB PYP Reflection & Passport Modal -->
+  <div class="pyp-modal-backdrop" id="pypReflectModal" role="dialog" aria-modal="true" aria-labelledby="pypModalTitle">
+    <div class="pyp-modal-card">
+      <div class="pyp-modal-badge">🔍 Learner Profile Stamp: Inquirer</div>
+      <h2 id="pypModalTitle" style="font-size:1.35rem; font-weight:900;">🌟 IB PYP Reflection &amp; Action</h2>
+      <div class="pyp-modal-box">
+        <strong>Key Concept · Causation &amp; Function</strong>
+        <span>Light travels in straight lines. Opaque objects block light to cast shadows, while smooth mirrors reflect light so the angle of incidence equals the angle of reflection (θ<sub>i</sub> = θ<sub>r</sub>).</span>
+      </div>
+      <div class="pyp-modal-box" style="background:#ECFDF5;">
+        <strong>🚀 Take Action in Real Life</strong>
+        <span>Try shining a flashlight on your hand near a wall, then move closer to the flashlight — watch how your shadow grows!</span>
+      </div>
+      <div id="pypStampStatus" style="font-weight:900; font-size:0.88rem; color:#15803D;"></div>
+      <div class="pyp-modal-actions">
+        <button type="button" class="pyp-modal-btn primary" id="btnClaimStamp">🔍 Stamp My Passport!</button>
+        <a class="pyp-modal-btn" href="../index.html">🗺️ View Passport</a>
+        <button type="button" class="pyp-modal-btn" id="btnCloseReflect">Keep Exploring</button>
+      </div>
+    </div>
   </div>
 
   <!-- ES Module Import of Three.js & OrbitControls -->
@@ -709,15 +838,27 @@
     const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.25);
     scene.add(ambientLight);
 
+    // Dedicated Reflection Mode lighting (bright, clear mirror & lab visibility)
+    const reflectionHemiLight = new THREE.HemisphereLight(0xE0F2FE, 0x334155, 1.35);
+    reflectionHemiLight.visible = false;
+    scene.add(reflectionHemiLight);
+
+    const reflectionDirLight = new THREE.DirectionalLight(0xFFFFFF, 1.65);
+    reflectionDirLight.position.set(6, 12, 8);
+    reflectionDirLight.visible = false;
+    scene.add(reflectionDirLight);
+
     // Torch Light (SpotLight that casts crisp shadow)
     const torchLight = new THREE.SpotLight(0xFFDD66, 150, 40, Math.PI / 4, 0.35, 1.2);
     torchLight.position.set(0, 4, 8);
+    torchLight.target.position.set(0, 1.0, 0);
     torchLight.castShadow = true;
     torchLight.shadow.mapSize.width = 1024;
     torchLight.shadow.mapSize.height = 1024;
     torchLight.shadow.camera.near = 0.5;
     torchLight.shadow.camera.far = 30;
     scene.add(torchLight);
+    scene.add(torchLight.target);
 
     // Torch Visual Mesh (Minecraft style torch)
     const torchGroup = new THREE.Group();
@@ -740,6 +881,27 @@
     const itemGroup = new THREE.Group();
     scene.add(itemGroup);
 
+    // Cached procedural Creeper texture so pixels never jitter on material toggle
+    let cachedCreeperTex = null;
+    function getCreeperTexture() {
+      if (cachedCreeperTex) return cachedCreeperTex;
+      const cvsCreeper = document.createElement('canvas');
+      cvsCreeper.width = 64; cvsCreeper.height = 64;
+      const ctxC = cvsCreeper.getContext('2d');
+      ctxC.fillStyle = '#388E3C';
+      ctxC.fillRect(0, 0, 64, 64);
+      for (let i = 0; i < 64; i += 8) {
+        for (let j = 0; j < 64; j += 8) {
+          const greenShade = ((i * 7 + j * 13) % 40);
+          ctxC.fillStyle = `rgb(${30 + greenShade}, ${110 + greenShade}, ${40 + greenShade})`;
+          ctxC.fillRect(i, j, 8, 8);
+        }
+      }
+      cachedCreeperTex = new THREE.CanvasTexture(cvsCreeper);
+      cachedCreeperTex.magFilter = THREE.NearestFilter;
+      return cachedCreeperTex;
+    }
+
     function clearGroup(group) {
       while (group.children.length > 0) {
         const child = group.children[0];
@@ -749,11 +911,11 @@
           if (c.material) {
             if (Array.isArray(c.material)) {
               c.material.forEach(m => {
-                if (m.map) m.map.dispose();
+                if (m.map && m.map !== cachedCreeperTex) m.map.dispose();
                 m.dispose();
               });
             } else {
-              if (c.material.map) c.material.map.dispose();
+              if (c.material.map && c.material.map !== cachedCreeperTex) c.material.map.dispose();
               c.material.dispose();
             }
           }
@@ -872,21 +1034,8 @@
         lampMesh.receiveShadow = true;
         itemGroup.add(lampMesh);
       } else {
-        // Creeper block
-        const cvsCreeper = document.createElement('canvas');
-        cvsCreeper.width = 64; cvsCreeper.height = 64;
-        const ctxC = cvsCreeper.getContext('2d');
-        ctxC.fillStyle = '#388E3C';
-        ctxC.fillRect(0, 0, 64, 64);
-        for (let i = 0; i < 64; i += 8) {
-          for (let j = 0; j < 64; j += 8) {
-            const greenShade = Math.floor(Math.random() * 40);
-            ctxC.fillStyle = `rgb(${30 + greenShade}, ${110 + greenShade}, ${40 + greenShade})`;
-            ctxC.fillRect(i, j, 8, 8);
-          }
-        }
-        const creeperTex = new THREE.CanvasTexture(cvsCreeper);
-        creeperTex.magFilter = THREE.NearestFilter;
+        // Creeper block (cached deterministic texture)
+        const creeperTex = getCreeperTexture();
 
         const mat = new THREE.MeshStandardMaterial({
           map: creeperTex,
@@ -931,11 +1080,11 @@
     const dispenserGroup = new THREE.Group();
     const dispenserBody = new THREE.Mesh(
       new THREE.BoxGeometry(1.4, 1.4, 1.4),
-      new THREE.MeshStandardMaterial({ color: 0x555560, roughness: 0.8 })
+      new THREE.MeshStandardMaterial({ color: 0x7A8294, roughness: 0.55, metalness: 0.15 })
     );
     const emitterNozzle = new THREE.Mesh(
       new THREE.CylinderGeometry(0.2, 0.28, 0.5, 16),
-      new THREE.MeshStandardMaterial({ color: 0xFF1744, emissive: 0x990022 })
+      new THREE.MeshStandardMaterial({ color: 0xFF1744, emissive: 0xBB0028, emissiveIntensity: 0.7 })
     );
     emitterNozzle.rotation.z = -Math.PI / 2;
     emitterNozzle.position.set(0.75, 0, 0);
@@ -960,20 +1109,28 @@
     // Stand Pedestal
     const mirrorStand = new THREE.Mesh(
       new THREE.CylinderGeometry(0.6, 0.7, 0.3, 16),
-      new THREE.MeshStandardMaterial({ color: 0x333344, roughness: 0.6 })
+      new THREE.MeshStandardMaterial({ color: 0x4B5563, roughness: 0.45, metalness: 0.25 })
     );
     mirrorStand.position.y = 0.15;
     mirrorGroup.add(mirrorStand);
 
-    // Rotating Mirror Frame & Silver Glass
+    // Rotating Mirror Frame & Crisp Reflective Glass
     const mirrorGeo = new THREE.BoxGeometry(2.8, 2.0, 0.2);
     const mirrorMat = new THREE.MeshStandardMaterial({
-      color: 0xD0E8FF,
-      metalness: 0.95,
-      roughness: 0.05
+      color: 0xBAE6FD,
+      emissive: 0x1E3A5F,
+      emissiveIntensity: 0.3,
+      metalness: 0.4,
+      roughness: 0.18
     });
     const mirrorMesh = new THREE.Mesh(mirrorGeo, mirrorMat);
     mirrorMesh.position.set(0, 1.2, 0);
+    const mirrorBorder = new THREE.Mesh(
+      new THREE.BoxGeometry(2.96, 2.16, 0.14),
+      new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.4, metalness: 0.3 })
+    );
+    mirrorBorder.position.z = -0.05;
+    mirrorMesh.add(mirrorBorder);
     mirrorGroup.add(mirrorMesh);
 
     // Normal Line Helper (yellow dashed line perpendicular to mirror face)
@@ -998,7 +1155,7 @@
     // Obsidian base
     const baseMesh = new THREE.Mesh(
       new THREE.BoxGeometry(1.8, 0.6, 1.8),
-      new THREE.MeshStandardMaterial({ color: 0x1A1423, roughness: 0.9 })
+      new THREE.MeshStandardMaterial({ color: 0x3B2D54, roughness: 0.6, metalness: 0.15 })
     );
     baseMesh.position.y = 0.3;
     targetBeaconGroup.add(baseMesh);
@@ -1047,19 +1204,55 @@
     beaconLight.position.y = 1.5;
     targetBeaconGroup.add(beaconLight);
 
-    // 4. Laser Rays container
+    // 4. Laser Rays container (Glowing 3D CylinderGeometry beams)
     const laserGroup = new THREE.Group();
     reflectionGroup.add(laserGroup);
 
     let isTargetHit = false;
+    const completedMissions = { giantShadow: false, material: false, beacon: false };
+
+    function completeMission(key, chipId, label) {
+      if (completedMissions[key]) return;
+      completedMissions[key] = true;
+      const chip = document.getElementById(chipId);
+      if (chip) {
+        chip.classList.add('done');
+        chip.textContent = `✅ ${label}`;
+      }
+    }
+
+    function addLaserBeamSegment(pStart, pEnd, colorHex) {
+      const diff = new THREE.Vector3().subVectors(pEnd, pStart);
+      const len = diff.length();
+      if (len < 0.001) return;
+      const mid = new THREE.Vector3().addVectors(pStart, pEnd).multiplyScalar(0.5);
+      const quat = new THREE.Quaternion().setFromUnitVectors(
+        new THREE.Vector3(0, 1, 0),
+        diff.clone().normalize()
+      );
+
+      const coreGeo = new THREE.CylinderGeometry(0.05, 0.05, len, 12);
+      const coreMat = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
+      const coreMesh = new THREE.Mesh(coreGeo, coreMat);
+      coreMesh.position.copy(mid);
+      coreMesh.quaternion.copy(quat);
+
+      const glowGeo = new THREE.CylinderGeometry(0.14, 0.14, len, 12);
+      const glowMat = new THREE.MeshBasicMaterial({
+        color: colorHex,
+        transparent: true,
+        opacity: 0.5
+      });
+      const glowMesh = new THREE.Mesh(glowGeo, glowMat);
+      glowMesh.position.copy(mid);
+      glowMesh.quaternion.copy(quat);
+
+      laserGroup.add(coreMesh, glowMesh);
+    }
 
     function updateLaser(mirrorAngleDeg) {
-      // Clear previous laser geometry
-      while (laserGroup.children.length > 0) {
-        const c = laserGroup.children[0];
-        laserGroup.remove(c);
-        if (c.geometry) c.geometry.dispose();
-      }
+      // Properly dispose previous laser geometries AND materials
+      clearGroup(laserGroup);
 
       // Rotate mirror around Y (physical angle)
       const rad = -THREE.MathUtils.degToRad(mirrorAngleDeg);
@@ -1071,14 +1264,10 @@
 
       // Hit range: exactly 45° with friendly tolerance (42° - 48°)
       const hit = (mirrorAngleDeg >= 42 && mirrorAngleDeg <= 48);
-
       const laserColor = hit ? 0x00FFAA : 0xFF1744;
-      const laserMat = new THREE.LineBasicMaterial({ color: laserColor, linewidth: 3 });
 
-      // Draw Incident Laser Line (West to Center)
-      const incidentGeo = new THREE.BufferGeometry().setFromPoints([pEmitter, pMirror]);
-      const incidentLine = new THREE.Line(incidentGeo, laserMat);
-      laserGroup.add(incidentLine);
+      // Draw Incident Glowing 3D Laser Beam (West to Center)
+      addLaserBeamSegment(pEmitter, pMirror, laserColor);
 
       // Reflected ray direction in X-Z plane: (cos(2*angle), 0, sin(2*angle))
       const angleRad = THREE.MathUtils.degToRad(mirrorAngleDeg);
@@ -1095,10 +1284,16 @@
         pEnd = pMirror.clone().add(reflectedDir.clone().multiplyScalar(12));
       }
 
-      // Draw Reflected Laser Line (Center to target or distance)
-      const reflectedGeo = new THREE.BufferGeometry().setFromPoints([pMirror, pEnd]);
-      const reflectedLine = new THREE.Line(reflectedGeo, laserMat);
-      laserGroup.add(reflectedLine);
+      // Draw Reflected Glowing 3D Laser Beam (Center to target or distance)
+      addLaserBeamSegment(pMirror, pEnd, laserColor);
+
+      // Glowing bounce spark sphere at mirror point
+      const sparkMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(0.18, 12, 12),
+        new THREE.MeshBasicMaterial({ color: laserColor })
+      );
+      sparkMesh.position.copy(pMirror);
+      laserGroup.add(sparkMesh);
 
       // Update UI guidance and Target Beacon state
       const statusText = document.getElementById('reflectionStatusText');
@@ -1109,6 +1304,8 @@
         targetCrystal.material.emissive.setHex(0x00AA44);
         skyBeam.visible = true;
         beaconLight.intensity = 3.5;
+
+        completeMission('beacon', 'missionBeacon', 'Mission 3: Energized the Redstone Beacon (45°)');
 
         if (!isTargetHit) {
           audio.playHitChime();
@@ -1141,21 +1338,31 @@
 
     updateLaser(25);
 
-    // Responsive Canvas
+    // DPR-aware Resize Handling (zero 60fps thrashing)
     function resize() {
       const width = canvas.clientWidth;
       const height = canvas.clientHeight;
-      if (canvas.width !== width || canvas.height !== height) {
+      if (width === 0 || height === 0) return;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const targetW = Math.round(width * dpr);
+      const targetH = Math.round(height * dpr);
+      if (canvas.width !== targetW || canvas.height !== targetH) {
+        renderer.setPixelRatio(dpr);
         renderer.setSize(width, height, false);
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
       }
     }
 
+    resize();
+    if (typeof ResizeObserver !== 'undefined' && canvas.parentElement) {
+      new ResizeObserver(resize).observe(canvas.parentElement);
+    }
+    window.addEventListener('resize', resize);
+
     // Animation Loop
     function animate() {
       requestAnimationFrame(animate);
-      resize();
       controls.update();
 
       // Gentle flame pulse
@@ -1184,8 +1391,12 @@
       // Moving torch closer to the object
       torchLight.position.set(0, h, dist + 2);
       torchGroup.position.copy(torchLight.position);
+      torchLight.target.position.set(0, 1.0, 0);
 
-      const ratio = (8 / (dist + 2)).toFixed(1);
+      if (dist <= 3.4) {
+        completeMission('giantShadow', 'missionGiantShadow', 'Mission 1: Made a Giant Shadow!');
+      }
+
       memoText.innerHTML = `
         🔍 <strong>Shadow Observation</strong>: Distance = ${dist.toFixed(1)}m. 
         ${dist < 4 ? '<strong>Huge Shadow!</strong> When the object is very close to the light source, it blocks more light rays, projecting a larger shadow!' : 'Moving the block further away from the light makes the shadow smaller and sharper.'}
@@ -1225,11 +1436,13 @@
           transparent = true;
           speakText = "Translucent. Some light passes through, casting a dim, soft shadow.";
           memoText.innerHTML = `🛡️ <strong>Translucent Material</strong>: Some light passes through, casting a dim, soft shadow.`;
+          completeMission('material', 'missionMaterial', 'Mission 2: Tested Material Opacity!');
         } else if (currentMaterialMode === 'transparent') {
           opacity = 0.15;
           transparent = true;
           speakText = "Transparent. Almost all light travels right through. No visible shadow forms.";
           memoText.innerHTML = `🛡️ <strong>Transparent Material</strong>: Almost all light travels right through! No visible shadow forms.`;
+          completeMission('material', 'missionMaterial', 'Mission 2: Tested Material Opacity!');
         } else {
           memoText.innerHTML = `🛡️ <strong>Opaque Material</strong>: Blocks all light rays completely, creating a crisp, dark shadow.`;
         }
@@ -1253,6 +1466,9 @@
           torchGroup.visible = true;
           backWall.visible = true;
           reflectionGroup.visible = false;
+          reflectionHemiLight.visible = false;
+          reflectionDirLight.visible = false;
+          applyMaterialLighting();
           controls.target.set(0, 1, 0);
           camera.position.set(0, 7, 16);
           document.getElementById('blockShadowControls').style.display = 'block';
@@ -1267,6 +1483,9 @@
           torchGroup.visible = false;
           backWall.visible = false;
           reflectionGroup.visible = true;
+          reflectionHemiLight.visible = true;
+          reflectionDirLight.visible = true;
+          ambientLight.intensity = 0.55;
           controls.target.set(0, 1.2, 2.5);
           camera.position.set(0, 10, 15);
           document.getElementById('blockShadowControls').style.display = 'none';
@@ -1274,7 +1493,7 @@
           document.getElementById('blockMaterialControls').style.display = 'none';
           document.getElementById('blockReflectionControls').style.display = 'block';
           document.getElementById('chipLightStatus').textContent = 'Light: Redstone Laser Beam';
-          memoText.innerHTML = `🪞 <strong>Law of Reflection</strong>: Light bounces off a mirror so Angle of Incidence equals Angle of Reflection (θ_i = θ_r). Rotate the mirror to 45° to reflect the laser 90° North into the Beacon!`;
+          memoText.innerHTML = `🪞 <strong>Law of Reflection</strong>: Light bounces off a mirror so Angle of Incidence equals Angle of Reflection (θ<sub>i</sub> = θ<sub>r</sub>). Rotate the mirror to 45° to reflect the laser 90° North into the Beacon!`;
           const angle = parseInt(sliderMirrorAngle.value, 10);
           updateLaser(angle);
         }
@@ -1299,9 +1518,60 @@
       }
     });
 
+    // Speaker button for Science Observation Memo
+    const btnSpeakMemo = document.getElementById('btnSpeakMemo');
+    if (btnSpeakMemo) {
+      btnSpeakMemo.addEventListener('click', () => {
+        audio.init();
+        const text = (memoText.textContent || '').replace(/θi\s*=\s*θr/gi, 'angle of incidence equals angle of reflection').trim();
+        if (!text) return;
+        btnSpeakMemo.classList.add('speaking');
+        TTS_MANAGER.speak(text, () => btnSpeakMemo.classList.remove('speaking'));
+      });
+    }
+
+    // IB PYP Reflection & Passport Stamp wiring
+    const pypModal = document.getElementById('pypReflectModal');
+    const btnOpenReflect = document.getElementById('btnOpenReflect');
+    const btnCloseReflect = document.getElementById('btnCloseReflect');
+    const btnClaimStamp = document.getElementById('btnClaimStamp');
+    const pypStampStatus = document.getElementById('pypStampStatus');
+
+    if (btnOpenReflect && pypModal) {
+      btnOpenReflect.addEventListener('click', () => {
+        audio.playTorch();
+        pypModal.classList.add('open');
+      });
+    }
+    if (btnCloseReflect && pypModal) {
+      btnCloseReflect.addEventListener('click', () => pypModal.classList.remove('open'));
+    }
+    if (pypModal) {
+      pypModal.addEventListener('click', (e) => {
+        if (e.target === pypModal) pypModal.classList.remove('open');
+      });
+    }
+    if (btnClaimStamp) {
+      btnClaimStamp.addEventListener('click', () => {
+        audio.playHitChime();
+        try {
+          const raw = localStorage.getItem('ib_pyp_passport');
+          const data = raw ? JSON.parse(raw) : { stamps: [], completed: [] };
+          const stamps = new Set(Array.isArray(data.stamps) ? data.stamps : []);
+          const completed = new Set(Array.isArray(data.completed) ? data.completed : []);
+          stamps.add('Inquirer');
+          completed.add('science/g2_light_shadow_master.html');
+          localStorage.setItem('ib_pyp_passport', JSON.stringify({ stamps: [...stamps], completed: [...completed] }));
+          if (pypStampStatus) pypStampStatus.textContent = '✅ Inquirer stamp saved to your IB PYP Passport!';
+          btnClaimStamp.textContent = '✅ Stamped!';
+        } catch (_) {}
+      });
+    }
+
     // ----------------------------------------------------
     // TTS MANAGER (Neobrutalism Radio Group Dropdown)
     // ----------------------------------------------------
+    const JOKE_VOICES = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|hysterical|pipe organ|trinoids|whisper|zarvox|fred|junior|kathy|ralph|wobble/i;
     const TTS_MANAGER = {
       currentVoiceName: '',
       wrap: null,
@@ -1354,10 +1624,11 @@
         if (!window.speechSynthesis || !this.list) return;
         const voices = window.speechSynthesis.getVoices();
         let englishVoices = voices.filter(v => {
-          const lang = v.lang.toLowerCase().replace('_', '-');
-          return lang.startsWith('en');
+          const lang = (v.lang || '').toLowerCase().replace('_', '-');
+          return lang.startsWith('en') && !JOKE_VOICES.test(v.name);
         });
 
+        if (englishVoices.length === 0) englishVoices = voices.filter(v => !JOKE_VOICES.test(v.name));
         if (englishVoices.length === 0) englishVoices = voices;
         if (englishVoices.length === 0) return;
 
@@ -1413,6 +1684,7 @@
           const btn = document.createElement('button');
           btn.type = 'button';
           btn.className = `tts-radio-item ${isActive ? 'active' : ''}`;
+          btn.dataset.voice = v.name;
           btn.setAttribute('role', 'menuitemradio');
           btn.setAttribute('aria-checked', isActive ? 'true' : 'false');
           btn.innerHTML = `
@@ -1438,7 +1710,7 @@
         localStorage.setItem('ib_pyp_voice_name', v.name);
         this.updateTriggerUI(v);
         this.list.querySelectorAll('.tts-radio-item').forEach(btn => {
-          const isMatch = btn.querySelector('.tts-item-name').textContent.includes(v.name);
+          const isMatch = btn.dataset.voice === v.name;
           btn.classList.toggle('active', isMatch);
           btn.setAttribute('aria-checked', isMatch ? 'true' : 'false');
         });
@@ -1476,14 +1748,6 @@
     };
 
     TTS_MANAGER.init();
-  </script>
-<script>
-    if (typeof ResizeObserver !== "undefined") {
-      window.addEventListener("DOMContentLoaded", () => {
-        const host = document.querySelector("#canvas-container, #viewport, .stage-3d, canvas")?.parentElement;
-        if (host) new ResizeObserver(() => window.dispatchEvent(new Event("resize"))).observe(host);
-      });
-    }
   </script>
 </body>
 

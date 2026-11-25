@@ -81,7 +81,7 @@ export class WordSearchGame {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  max-width: 720px;
+  max-width: 760px;
   margin: 0 auto;
 }
 .ws-header {
@@ -91,13 +91,39 @@ export class WordSearchGame {
   flex-wrap: wrap;
 }
 .ws-title {
-  font-size: 1.3rem;
+  font-size: 1.25rem;
   font-weight: 900;
   color: var(--ink, #1e1b4b);
   flex: 1;
 }
+.ws-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.ws-side {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--panel, #fff);
+  border: 3px solid var(--ink, #1e1b4b);
+  border-radius: 16px;
+  box-shadow: 4px 4px 0 var(--ink, #1e1b4b);
+  padding: 14px 16px;
+}
+.ws-side-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.ws-side-label {
+  font-weight: 900;
+  font-size: 0.95rem;
+  color: var(--ink, #1e1b4b);
+}
 .ws-progress-text {
-  font-weight: 800;
+  font-weight: 900;
   color: var(--accent, #7c3aed);
   font-size: 0.95rem;
   white-space: nowrap;
@@ -121,24 +147,34 @@ export class WordSearchGame {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  justify-content: center;
-  margin: 8px 0;
+  justify-content: flex-start;
+  margin: 4px 0 0;
 }
 .ws-word-chip {
+  min-height: 38px;
   padding: 6px 14px;
-  border-radius: 20px;
+  border-radius: 12px;
+  border: 2px solid var(--ink, #1e1b4b);
   background: var(--accent-light, #ede9fe);
-  font-weight: 700;
-  font-size: 14px;
+  box-shadow: 2px 2px 0 var(--ink, #1e1b4b);
+  font-weight: 800;
+  font-size: 0.95rem;
   color: var(--ink, #1e1b4b);
   cursor: pointer;
-  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: transform 0.12s ease, background 0.2s ease;
+}
+.ws-word-chip:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--ink, #1e1b4b);
 }
 .ws-word-chip.found {
   background: var(--good, #10b981);
   color: #fff;
   text-decoration: line-through;
-  opacity: 0.7;
+  opacity: 0.85;
 }
 .ws-grid-scroll {
   overflow-x: auto;
@@ -149,25 +185,27 @@ export class WordSearchGame {
 }
 .ws-grid {
   display: grid;
-  gap: 2px;
+  gap: 3px;
   background: var(--accent-light, #ede9fe);
-  padding: 8px;
-  border-radius: 12px;
+  border: 3px solid var(--ink, #1e1b4b);
+  box-shadow: 5px 5px 0 var(--ink, #1e1b4b);
+  padding: 10px;
+  border-radius: 16px;
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
   width: fit-content;
 }
 .ws-cell {
-  width: clamp(28px, 6vw, 44px);
-  height: clamp(28px, 6vw, 44px);
+  width: clamp(30px, 5vw, 44px);
+  height: clamp(30px, 5vw, 44px);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: clamp(14px, 3vw, 22px);
-  font-weight: 700;
+  font-size: clamp(15px, 2.6vw, 22px);
+  font-weight: 800;
   background: var(--panel, #fff);
-  border-radius: 6px;
+  border-radius: 7px;
   cursor: pointer;
   transition: background 0.1s ease, transform 0.1s ease;
   -webkit-tap-highlight-color: transparent;
@@ -184,6 +222,33 @@ export class WordSearchGame {
 .ws-cell.found.selected {
   background: var(--good, #10b981);
   box-shadow: 0 0 0 3px var(--accent, #7c3aed);
+}
+.ws-hint-note {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--muted, #4b5563);
+}
+@media (min-width: 960px) {
+  .ws-game {
+    max-width: 1220px;
+  }
+  .ws-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(270px, 0.75fr);
+    align-items: start;
+    gap: 22px;
+  }
+  .ws-grid-scroll {
+    order: 1;
+    justify-content: center;
+  }
+  .ws-side {
+    order: 2;
+  }
+  .ws-cell {
+    width: clamp(34px, 3.8vw, 46px);
+    height: clamp(34px, 3.8vw, 46px);
+  }
 }
 .ws-error {
   text-align: center;
@@ -314,38 +379,13 @@ export class WordSearchGame {
     title.textContent = '\uD83D\uDD0D Word Search';
     header.appendChild(title);
 
-    const progressText = document.createElement('span');
-    progressText.className = 'ws-progress-text';
-    progressText.textContent = `0 / ${this.gridData.placements.length}`;
-    header.appendChild(progressText);
-
-    const progressBar = document.createElement('div');
-    progressBar.className = 'ws-progress-bar';
-    const progressFill = document.createElement('div');
-    progressFill.className = 'ws-progress-fill';
-    progressBar.appendChild(progressFill);
-    header.appendChild(progressBar);
-
     game.appendChild(header);
 
-    // --- Word list ---
-    const wordList = document.createElement('div');
-    wordList.className = 'ws-word-list';
-    for (const p of this.gridData.placements) {
-      const chip = document.createElement('span');
-      chip.className = 'ws-word-chip';
-      chip.dataset.chars = p.chars;
-      chip.textContent = p.display;
-      chip.title = 'Click to hear: ' + p.display;
-      chip.addEventListener('click', (e) => {
-        e.stopPropagation();
-        try { speech.speak(p.display); } catch (err) { /* non-critical */ }
-      });
-      wordList.appendChild(chip);
-    }
-    game.appendChild(wordList);
+    // --- 2-column landscape layout: Grid left | Progress + Word Chips right ---
+    const layout = document.createElement('div');
+    layout.className = 'ws-layout';
 
-    // --- Grid ---
+    // Grid column
     const gridScroll = document.createElement('div');
     gridScroll.className = 'ws-grid-scroll';
 
@@ -368,8 +408,54 @@ export class WordSearchGame {
     }
 
     gridScroll.appendChild(grid);
-    game.appendChild(gridScroll);
+    layout.appendChild(gridScroll);
 
+    // Side panel: Progress + Word Chips
+    const side = document.createElement('aside');
+    side.className = 'ws-side';
+
+    const sideHead = document.createElement('div');
+    sideHead.className = 'ws-side-head';
+    const sideLabel = document.createElement('span');
+    sideLabel.className = 'ws-side-label';
+    sideLabel.textContent = 'Words to Find';
+    const progressText = document.createElement('span');
+    progressText.className = 'ws-progress-text';
+    progressText.textContent = `0 / ${this.gridData.placements.length}`;
+    sideHead.append(sideLabel, progressText);
+    side.appendChild(sideHead);
+
+    const progressBar = document.createElement('div');
+    progressBar.className = 'ws-progress-bar';
+    const progressFill = document.createElement('div');
+    progressFill.className = 'ws-progress-fill';
+    progressBar.appendChild(progressFill);
+    side.appendChild(progressBar);
+
+    const hintNote = document.createElement('p');
+    hintNote.className = 'ws-hint-note';
+    hintNote.textContent = 'Tap any word chip to hear it aloud, then drag across letters in the grid!';
+    side.appendChild(hintNote);
+
+    const wordList = document.createElement('div');
+    wordList.className = 'ws-word-list';
+    for (const p of this.gridData.placements) {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'ws-word-chip';
+      chip.dataset.chars = p.chars;
+      chip.textContent = `🔊 ${p.display}`;
+      chip.title = 'Tap to hear: ' + p.display;
+      chip.addEventListener('click', (e) => {
+        e.stopPropagation();
+        try { sfx.click(); speech.speak(p.display); } catch (err) { /* non-critical */ }
+      });
+      wordList.appendChild(chip);
+    }
+    side.appendChild(wordList);
+    layout.appendChild(side);
+
+    game.appendChild(layout);
     this.container.appendChild(game);
   }
 
@@ -653,10 +739,9 @@ export class WordSearchGame {
   }
 
   /**
-   * Handle game completion: sound, confetti, completion card, callback.
+   * Handle game completion: confetti + callback (victory fanfare fires once in screens.renderDone()).
    */
   handleComplete() {
-    try { sfx.complete(); } catch (err) { /* non-critical */ }
     this.showConfetti();
     this.showCompleteCard();
     this.onComplete();
