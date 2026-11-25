@@ -1,535 +1,1158 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>UOI5 Cycle: Moon Phases Flashcards</title>
+  <title>Moon Phases 3D Observatory — IB PYP Science</title>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
   <style>
     :root {
-      --page-padding: clamp(16px, 3vw, 32px);
-      --panel-gap: clamp(16px, 2.5vw, 28px);
-      --bg-deep: #07111f;
-      --bg-mid: #0f1b33;
-      --panel: rgba(10, 20, 40, 0.82);
-      --panel-edge: rgba(148, 163, 184, 0.24);
-      --moon-glow: rgba(250, 204, 21, 0.28);
-      --active-ring: #f8fafc;
-      --text-main: #f8fafc;
-      --text-soft: #cbd5e1;
-      --accent-blue: #7dd3fc;
-      --action-blue: #2563eb;
-      --action-gold: #f59e0b;
+      --bg: #12172b;
+      --panel: #ffffff;
+      --ink: #111111;
+      --yellow: #ffe156;
+      --coral: #ff6584;
+      --teal: #4ecdc4;
+      --blue: #38b6ff;
+      --purple: #b388ff;
+      --green: #86efac;
+      --border: 3.5px solid var(--ink);
+      --shadow: 4px 4px 0 var(--ink);
+      --shadow-sm: 2px 2px 0 var(--ink);
+      --radius: 14px;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
-      background: linear-gradient(180deg, var(--bg-deep), var(--bg-mid));
-      color: var(--text-main);
+      font-family: ui-rounded, "Avenir Next", "Nunito", system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 18% 12%, rgba(56, 182, 255, 0.2), transparent 36%),
+        radial-gradient(circle at 84% 18%, rgba(179, 136, 255, 0.2), transparent 34%),
+        var(--bg);
+      color: var(--ink);
+      min-height: 100dvh;
+      padding: 10px 14px 20px;
+    }
+
+    .container { max-width: 1120px; margin: 0 auto; }
+
+    /* Compact Nav Bar */
+    .nav-bar {
       display: flex;
-      flex-direction: column;
+      justify-content: space-between;
       align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      margin: 0;
-      padding: var(--page-padding);
-      text-align: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
     }
 
-    @keyframes twinkle {
-
-      0%,
-      100% {
-        opacity: 1;
-        transform: scale(1);
-      }
-
-      50% {
-        opacity: 0.15;
-        transform: scale(0.6);
-      }
-    }
-
-    .star {
-      position: fixed;
-      background: white;
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 0;
-      animation: twinkle var(--twinkle-duration, 3s) ease-in-out infinite;
-      animation-delay: var(--twinkle-delay, 0s);
-    }
-
-    .page-shell {
-      position: relative;
-      z-index: 1;
-      width: min(100%, 1080px);
+    .nav-left {
       display: flex;
-      flex-direction: column;
       align-items: center;
-      gap: 20px;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
-    .title-block {
+    .pyp-map-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 8px 16px;
+      background: var(--yellow);
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 900;
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      touch-action: manipulation;
+    }
+
+    .pyp-map-link:active { transform: translate(2px, 2px); box-shadow: var(--shadow-sm); }
+
+    .unit-tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 6px 14px;
+      background: var(--teal);
+      color: var(--ink);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      font-weight: 900;
+      font-size: 0.88rem;
+    }
+
+    .tts-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--panel);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 4px 10px;
+      min-height: 44px;
+    }
+
+    .tts-box select {
+      border: 0;
+      background: transparent;
+      font: inherit;
+      font-weight: 800;
+      font-size: 0.84rem;
+      color: var(--ink);
+      max-width: 170px;
+      cursor: pointer;
+    }
+
+    /* Compact Hero */
+    .hero-card {
+      background: var(--panel);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 10px 16px;
+      margin-bottom: 12px;
       display: flex;
-      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .hero-title {
+      display: flex;
       align-items: center;
       gap: 8px;
     }
 
-    h1 {
-      color: #fde047;
-      margin: 0;
-      font-size: clamp(2rem, 4vw, 2.7rem);
-      letter-spacing: 0.02em;
+    .hero-title h1 {
+      font-size: clamp(1.15rem, 2.3vw, 1.55rem);
+      font-weight: 900;
     }
 
-    .title-block p {
-      margin: 0;
-      color: var(--text-soft);
-      font-size: 1rem;
-    }
-
-    .learning-board {
-      width: 100%;
+    .mode-switch {
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: var(--panel-gap);
-    }
-
-    .flashcard {
-      background: linear-gradient(to bottom, #020617, #1e1b4b);
-      border: 2px solid var(--panel-edge);
-      border-radius: 24px;
-      padding: clamp(24px, 4vw, 40px) clamp(18px, 3vw, 28px);
-      width: 100%;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 0 25px rgba(168, 85, 247, 0.3), inset 0 0 20px rgba(0, 0, 0, 0.8);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      transition: transform 0.2s ease-in-out;
-    }
-
-    .card-star {
-      position: absolute;
-      background: white;
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 0;
-      animation: twinkle var(--twinkle-duration, 3s) ease-in-out infinite;
-      animation-delay: var(--twinkle-delay, 0s);
-    }
-
-    .flashcard>*:not(.card-star) {
-      position: relative;
-      z-index: 1;
-    }
-
-    .emoji-display {
-      font-size: clamp(7rem, 14vw, 11rem);
-      margin-bottom: 10px;
-      text-shadow: 0 0 30px rgba(253, 224, 71, 0.3);
-      line-height: 1;
-    }
-
-    .phase-name {
-      font-size: clamp(1.7rem, 3vw, 2.2rem);
-      color: var(--accent-blue);
-      margin: 0 0 15px 0;
-    }
-
-    .phase-text {
-      font-size: clamp(1.15rem, 2.5vw, 1.45rem);
-      line-height: 1.4;
-      margin-bottom: 24px;
-      min-height: 60px;
-      color: var(--text-soft);
-    }
-
-    button {
-      background-color: var(--action-blue);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      padding: 12px 24px;
-      font-size: 1.2rem;
-      font-weight: bold;
-      min-width: 44px;
-      min-height: 44px;
-      cursor: pointer;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-      transition: background-color 0.2s, transform 0.1s;
-    }
-
-    button:hover {
-      background-color: #2563eb;
-    }
-
-    button:active {
-      transform: translateY(2px);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    }
-
-    .tts-button {
-      background-color: var(--action-gold);
-      width: 100%;
-      font-size: 1.5rem;
-    }
-
-    .tts-button:hover {
-      background-color: #d97706;
-    }
-
-    .voice-controls {
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      gap: 8px;
       flex-wrap: wrap;
-      gap: 10px;
-      font-family: sans-serif;
-      font-size: 0.9rem;
-      color: #94a3b8;
-      width: 100%;
-      margin-top: 4px;
     }
 
-    #voice-select {
-      background-color: var(--panel);
-      color: var(--text-main);
-      border: 1px solid #475569;
-      border-radius: 8px;
-      padding: 8px;
-      font-size: 0.9rem;
-      outline: none;
-      cursor: pointer;
+    .btn {
       min-height: 44px;
-      width: min(100%, 260px);
-      max-width: 260px;
+      padding: 8px 14px;
+      background: var(--yellow);
+      color: var(--ink);
+      border: var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+      font: inherit;
+      font-weight: 900;
+      font-size: 0.9rem;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: transform 0.1s, box-shadow 0.1s;
     }
 
-    .cycle-strip {
-      width: 100%;
-      border-radius: 20px;
-      border: 1px solid var(--panel-edge);
-      background: var(--panel);
-      padding: 12px;
+    .btn:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--ink); }
+    .btn.secondary { background: #ffffff; }
+    .btn.active-mode { background: var(--coral); color: #ffffff; }
+    .btn.teal { background: var(--teal); }
+    .btn.purple { background: var(--purple); }
+
+    .btn-speaker {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      border: 2.5px solid var(--ink);
+      background: var(--yellow);
+      box-shadow: 2px 2px 0 var(--ink);
+      font-size: 1.05rem;
+      cursor: pointer;
+      display: inline-grid;
+      place-items: center;
+      flex-shrink: 0;
+      touch-action: manipulation;
+    }
+
+    .btn-speaker:active { transform: translate(1px, 1px); box-shadow: none; }
+
+    /* Main iPad Landscape Grid */
+    .play-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      grid-template-columns: 1.32fr 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 12px 14px;
+    }
+
+    /* 3D Viewport */
+    .viewport-wrap {
+      position: relative;
+      width: 100%;
+      height: 365px;
+      border: var(--border);
+      border-radius: 12px;
+      background: #060916;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    #spaceCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: grab;
+    }
+
+    #spaceCanvas:active { cursor: grabbing; }
+
+    .sky-pip {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 118px;
+      background: rgba(11, 16, 36, 0.92);
+      border: 2.5px solid var(--yellow);
+      border-radius: 12px;
+      padding: 6px;
+      text-align: center;
+      color: #ffffff;
+      box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.65);
+      pointer-events: none;
+    }
+
+    .sky-pip small {
+      display: block;
+      font-size: 0.68rem;
+      font-weight: 900;
+      color: var(--yellow);
+      margin-bottom: 4px;
+    }
+
+    #earthViewCanvas {
+      width: 82px;
+      height: 82px;
+      display: block;
+      margin: 0 auto;
+      border-radius: 50%;
+      background: #050814;
+      border: 1.5px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .sky-pip .lit-pct {
+      display: block;
+      margin-top: 3px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: #cbd5e1;
+    }
+
+    .viewport-hint {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      background: rgba(255, 255, 255, 0.94);
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      padding: 4px 9px;
+      font-size: 0.76rem;
+      font-weight: 900;
+      pointer-events: none;
+    }
+
+    .stage-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .orbit-slider-box {
+      flex: 1;
+      min-width: 180px;
+      background: #f8fafc;
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
+      padding: 6px 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .orbit-slider-box label {
+      font-size: 0.82rem;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .orbit-slider-box input[type="range"] {
+      flex: 1;
+      accent-color: var(--coral);
+      height: 10px;
+      cursor: pointer;
+    }
+
+    /* Right Console */
+    .phase-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      background: #fffbeb;
+      border: 2.5px solid var(--ink);
+      border-radius: 12px;
+      margin-bottom: 10px;
+    }
+
+    .phase-banner h2 {
+      font-size: 1.25rem;
+      font-weight: 900;
+    }
+
+    .phase-banner p {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #334155;
+      margin-top: 2px;
+    }
+
+    .phase-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .phase-btn {
+      min-height: 50px;
+      padding: 7px 10px;
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
+      background: #ffffff;
+      box-shadow: 2px 2px 0 var(--ink);
+      font: inherit;
+      font-weight: 900;
+      font-size: 0.84rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-align: left;
+      touch-action: manipulation;
+    }
+
+    .phase-btn.active {
+      background: var(--yellow);
+      transform: translate(1px, 1px);
+      box-shadow: 1px 1px 0 var(--ink);
+    }
+
+    .phase-btn .p-icon { font-size: 1.2rem; }
+
+    .discovery-tip {
+      margin-top: 10px;
+      padding: 10px 12px;
+      background: #e0f2fe;
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
+      font-size: 0.86rem;
+      font-weight: 800;
+      line-height: 1.4;
+    }
+
+    /* Challenge Panel */
+    .hidden { display: none !important; }
+
+    .case-tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .case-tab {
+      min-height: 40px;
+      padding: 6px 10px;
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
+      background: #ffffff;
+      font: inherit;
+      font-weight: 900;
+      font-size: 0.82rem;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .case-tab.active { background: var(--yellow); }
+    .case-tab.solved { background: var(--green); }
+
+    .prompt-card {
+      background: #f8fafc;
+      border: 2.5px dashed var(--ink);
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
       gap: 10px;
     }
 
-    .cycle-phase {
-      border-radius: 20px;
-      border: 1px solid var(--panel-edge);
-      background: rgba(2, 6, 23, 0.75);
-      color: var(--text-main);
+    .prompt-card p {
+      font-size: 0.94rem;
+      font-weight: 800;
+      line-height: 1.4;
+    }
+
+    .choice-header {
       display: flex;
-      flex-direction: column;
-      justify-content: center;
+      justify-content: space-between;
       align-items: center;
-      gap: 4px;
-      min-width: 44px;
-      min-height: 64px;
-      padding: 8px;
+      margin-bottom: 8px;
+      font-size: 0.84rem;
+      font-weight: 900;
+    }
+
+    .badge-neutral {
+      background: #ffffff;
+      border: 2px dashed var(--ink);
+      border-radius: 8px;
+      padding: 2px 8px;
+      font-size: 0.8rem;
+      font-weight: 800;
+    }
+
+    .badge-selected {
+      background: var(--yellow);
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      padding: 2px 8px;
+      font-size: 0.8rem;
+      font-weight: 900;
+    }
+
+    .choice-list {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .choice-btn {
+      min-height: 48px;
+      padding: 10px 12px;
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
+      background: #ffffff;
+      box-shadow: 2px 2px 0 var(--ink);
+      font: inherit;
+      font-weight: 900;
       font-size: 0.9rem;
+      text-align: left;
+      cursor: pointer;
+      touch-action: manipulation;
     }
 
-    .cycle-phase-emoji {
-      font-size: 1.35rem;
-      line-height: 1;
+    .choice-btn.active { background: var(--yellow); }
+
+    .feedback-box {
+      margin-top: 10px;
+      min-height: 48px;
+      padding: 10px 12px;
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 800;
+      background: #f1f5f9;
+      line-height: 1.38;
     }
 
-    .cycle-phase-label {
-      color: var(--accent-blue);
-      font-size: 0.78rem;
-      font-weight: 700;
-      line-height: 1.2;
+    .feedback-box.good { background: var(--green); }
+    .feedback-box.warn { background: #fef08a; }
+
+    @media (max-width: 860px) {
+      .play-grid { grid-template-columns: 1fr; }
+      .viewport-wrap { height: 300px; }
     }
-
-    .cycle-phase.is-active {
-      border-color: transparent;
-      filter: drop-shadow(0 0 6px rgba(250, 204, 21, 0.9)) drop-shadow(0 0 16px rgba(250, 204, 21, 0.5));
-      transform: translateY(-4px) scale(1.06);
-    }
-
-    @media (orientation: landscape) and (min-width: 900px) {
-      .page-shell {
-        gap: 24px;
-      }
-
-      .learning-board {
-        display: block;
-      }
-
-      .voice-controls {
-        justify-content: center;
-      }
-
-      #voice-select {
-        max-width: 320px;
-      }
-
-      .cycle-strip {
-        grid-template-columns: repeat(8, minmax(80px, 1fr));
-      }
-    }
-
-    @media (max-height: 834px) and (orientation: landscape) {
-      body {
-        justify-content: flex-start;
-      }
-
-      .page-shell {
-        gap: 16px;
-      }
-
-      .flashcard {
-        padding-top: 20px;
-        padding-bottom: 20px;
-      }
-
-      .emoji-display {
-        font-size: clamp(5.5rem, 11vw, 8rem);
-      }
-
-      .phase-text {
-        min-height: 0;
-        margin-bottom: 20px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .cycle-strip {
-        grid-template-columns: repeat(2, minmax(100px, 1fr));
-      }
-    }
-
   </style>
 </head>
-
 <body>
-  <main class="page-shell">
-    <header class="title-block">
-      <h1>Hilson's Moon Phases</h1>
-      <p>Flip through the moon cycle and hear each phase out loud.</p>
+  <div class="container">
+    <nav class="nav-bar">
+      <div class="nav-left">
+        <a class="pyp-map-link" href="../index.html">← PYP Map</a>
+        <span class="unit-tag">🌙 Grade 1 · Unit 5 · How the World Works</span>
+      </div>
+      <div class="tts-box">
+        <span>🔊</span>
+        <select id="voiceSelect" aria-label="Choose voice accent"></select>
+      </div>
+    </nav>
+
+    <header class="hero-card">
+      <div class="hero-title">
+        <h1>Moon Phases 3D Observatory 🔭</h1>
+        <button type="button" class="btn-speaker" id="btnSpeakTitle" aria-label="Read title aloud">🔊</button>
+      </div>
+      <div class="mode-switch">
+        <button type="button" class="btn active-mode" id="tabExplore">1. Explore 3D Orbit 🌌</button>
+        <button type="button" class="btn secondary" id="tabChallenge">2. Space Detective 🕵️</button>
+      </div>
     </header>
 
-    <section class="cycle-strip" id="cycle-strip"></section>
+    <main class="play-grid">
+      <!-- Left: 3D Observatory Stage -->
+      <section class="panel">
+        <div class="viewport-wrap" id="viewportWrap">
+          <canvas id="spaceCanvas"></canvas>
+          <div class="sky-pip">
+            <small>VIEW FROM EARTH 🌍</small>
+            <canvas id="earthViewCanvas" width="164" height="164"></canvas>
+            <span class="lit-pct" id="litPctLabel">50% Lit</span>
+          </div>
+          <div class="viewport-hint">👆 Drag to orbit 3D space · Watch the Sun light the Moon!</div>
+        </div>
 
-    <section class="learning-board">
-      <article class="flashcard" id="card">
-        <div class="emoji-display" id="emoji">🌑</div>
-        <h2 class="phase-name" id="name">New Moon</h2>
-        <p class="phase-text" id="text">The moon is hiding in the dark.</p>
+        <div class="stage-toolbar">
+          <div class="orbit-slider-box">
+            <label for="daySlider">Day <span id="dayNum">1</span> / 28</label>
+            <input type="range" id="daySlider" min="0" max="360" step="1" value="0">
+          </div>
+          <button type="button" class="btn teal" id="btnOrbitPlay">▶ Orbit</button>
+          <button type="button" class="btn secondary" id="btnResetCam">Reset ↺</button>
+        </div>
+      </section>
 
-        <button class="tts-button" type="button" onclick="speakText()">🔊 Read to me</button>
-      </article>
-    </section>
+      <!-- Right: Step 1 Explore OR Step 2 Detective -->
+      <section class="panel" id="explorePanel">
+        <div class="phase-banner">
+          <div>
+            <h2 id="phaseName">🌑 New Moon</h2>
+            <p id="phaseDesc">The sunlit side faces away from Earth, so the Moon looks dark.</p>
+          </div>
+          <button type="button" class="btn-speaker" id="btnSpeakPhase" aria-label="Read phase description">🔊</button>
+        </div>
 
-    <div class="voice-controls">
-      <label for="voice-select">Voice:</label>
-      <select id="voice-select"></select>
-    </div>
-  </main>
+        <div class="phase-grid" id="phaseGrid"></div>
 
-  <script>
-    const phases = [
-      { emoji: '🌑', name: 'New Moon', text: 'The moon is hiding in the dark.' },
-      { emoji: '🌒', name: 'Waxing Crescent', text: 'A thin sliver of light appears on the right.' },
-      { emoji: '🌓', name: 'First Quarter', text: 'Half the moon is lit up on the right side.' },
-      { emoji: '🌔', name: 'Waxing Gibbous', text: 'More than half the moon is glowing brightly.' },
-      { emoji: '🌕', name: 'Full Moon', text: 'The whole moon shines like a big bright ball!' },
-      { emoji: '🌖', name: 'Waning Gibbous', text: 'The light slowly shrinks on the left side.' },
-      { emoji: '🌗', name: 'Last Quarter', text: 'Half the moon is lit up on the left side.' },
-      { emoji: '🌘', name: 'Waning Crescent', text: 'Just a thin sliver remains before the dark.' }
+        <div class="discovery-tip" id="discoveryTip">
+          💡 Look at the glowing Sun on the right! The Moon does not make its own light — it shines like a giant mirror.
+        </div>
+      </section>
+
+      <section class="panel hidden" id="challengePanel">
+        <div class="case-tabs" id="caseTabs"></div>
+
+        <div class="prompt-card">
+          <p id="casePrompt"></p>
+          <button type="button" class="btn-speaker" id="btnSpeakCase" aria-label="Read case aloud">🔊</button>
+        </div>
+
+        <div class="choice-header">
+          <span>Choose your answer:</span>
+          <span class="badge-neutral" id="choiceBadge">❓ Tap to choose</span>
+        </div>
+
+        <div class="choice-list" id="choiceList"></div>
+
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button type="button" class="btn active-mode" id="btnSubmitCase" style="flex:1;">Check Discovery ✨</button>
+          <button type="button" class="btn secondary" id="btnBackExplore">⬅️ Back to Explore</button>
+        </div>
+
+        <div class="feedback-box" id="caseFeedback" aria-live="polite">
+          Orbit the 3D Moon to find the clue, then tap your answer!
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    // 1. Pure Web Audio SFX (strictly user-gesture unlocked, zero sound on page load)
+    class SoundFX {
+      constructor() { this.ctx = null; }
+      init() {
+        try {
+          if (!this.ctx) {
+            const Ctx = window.AudioContext || window.webkitAudioContext;
+            this.ctx = new Ctx();
+          }
+          if (this.ctx.state === 'suspended') this.ctx.resume();
+        } catch (_) {}
+      }
+      playClick() {
+        this.init();
+        if (!this.ctx) return;
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(560, t);
+        osc.frequency.exponentialRampToValueAtTime(320, t + 0.05);
+        gain.gain.setValueAtTime(0.11, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+        osc.connect(gain); gain.connect(this.ctx.destination);
+        osc.start(t); osc.stop(t + 0.055);
+      }
+      playCorrect() {
+        this.init();
+        if (!this.ctx) return;
+        const t = this.ctx.currentTime;
+        [523.25, 659.25, 783.99, 1046.5].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, t + idx * 0.055);
+          gain.gain.setValueAtTime(0.15, t + idx * 0.055);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + idx * 0.055 + 0.22);
+          osc.connect(gain); gain.connect(this.ctx.destination);
+          osc.start(t + idx * 0.055); osc.stop(t + idx * 0.055 + 0.24);
+        });
+      }
+      playBuzz() {
+        this.init();
+        if (!this.ctx) return;
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(175, t);
+        gain.gain.setValueAtTime(0.12, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+        osc.connect(gain); gain.connect(this.ctx.destination);
+        osc.start(t); osc.stop(t + 0.2);
+      }
+    }
+    const sfx = new SoundFX();
+
+    // 2. Switchable Accent TTS with Browser Default Fallback
+    const TTS_MANAGER = {
+      voices: [],
+      selectedVoice: null,
+      init() {
+        const load = () => {
+          const all = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
+          if (!all.length) return;
+          const enVoices = all.filter(v => v.lang && v.lang.toLowerCase().startsWith('en'));
+          this.voices = enVoices.length ? enVoices : all;
+          const saved = localStorage.getItem('ib_pyp_voice_name');
+          this.selectedVoice =
+            this.voices.find(v => v.name === saved) ||
+            this.voices.find(v => v.lang === 'en-US') ||
+            this.voices.find(v => v.default) ||
+            this.voices[0];
+          const sel = document.getElementById('voiceSelect');
+          sel.innerHTML = this.voices.map(v => `<option value="${v.name}">${v.name} (${v.lang})</option>`).join('');
+          if (this.selectedVoice) sel.value = this.selectedVoice.name;
+        };
+        load();
+        if (window.speechSynthesis && window.speechSynthesis.onvoiceschanged !== undefined) {
+          window.speechSynthesis.onvoiceschanged = load;
+        }
+        document.getElementById('voiceSelect').addEventListener('change', e => {
+          this.selectedVoice = this.voices.find(v => v.name === e.target.value) || this.voices[0];
+          if (this.selectedVoice) localStorage.setItem('ib_pyp_voice_name', this.selectedVoice.name);
+        });
+      },
+      speak(text) {
+        if (!window.speechSynthesis) return;
+        window.speechSynthesis.cancel();
+        const utt = new SpeechSynthesisUtterance(text);
+        if (this.selectedVoice) utt.voice = this.selectedVoice;
+        utt.rate = 0.94;
+        utt.pitch = 1.05;
+        window.speechSynthesis.speak(utt);
+      }
+    };
+    TTS_MANAGER.init();
+
+    // 3. Moon Phase Data
+    const PHASES = [
+      { angle: 0, name: 'New Moon', emoji: '🌑', desc: 'The Moon is between Earth and the Sun. Its dark side faces us.' },
+      { angle: 45, name: 'Waxing Crescent', emoji: '🌒', desc: 'A tiny bright banana sliver grows on the right side.' },
+      { angle: 90, name: 'First Quarter', emoji: '🌓', desc: 'Half of the Moon we see is bright on the right side.' },
+      { angle: 135, name: 'Waxing Gibbous', emoji: '🌔', desc: 'Almost the whole Moon is glowing bright and round.' },
+      { angle: 180, name: 'Full Moon', emoji: '🌕', desc: 'Earth is in the middle. The whole face of the Moon shines bright!' },
+      { angle: 225, name: 'Waning Gibbous', emoji: '🌖', desc: 'The bright Moon slowly starts to shrink from the right.' },
+      { angle: 270, name: 'Third Quarter', emoji: '🌗', desc: 'Half of the Moon is bright on the left side.' },
+      { angle: 315, name: 'Waning Crescent', emoji: '🌘', desc: 'Only a thin bright sliver is left before New Moon returns.' },
     ];
 
-    let currentIndex = 0;
+    const CASES = [
+      {
+        tab: '🌕 Case 1',
+        angle: 180,
+        prompt: 'Look at the 3D Moon when it is on the far side of Earth from the Sun. Which phase do we see from Earth?',
+        options: ['Full Moon 🌕', 'New Moon 🌑', 'First Quarter 🌓'],
+        answer: 0,
+        good: 'Brilliant! Sunlight shines straight on the Moon face turned toward Earth, making a Full Moon.',
+        hint: 'Check the "View from Earth" window in the top right of the 3D space!'
+      },
+      {
+        tab: '🌑 Case 2',
+        angle: 0,
+        prompt: 'The Moon moves right between Earth and the Sun. Why does the Moon look dark to us?',
+        options: ['The Moon turned off its lamp 💡', 'The sunlit half faces away from Earth 🌑', 'Clouds covered all of space ☁️'],
+        answer: 1,
+        good: 'Yes! The Sun still lights the back side of the Moon, so the dark half faces Earth.',
+        hint: 'Drag the 3D camera around the back of the Moon to see which side the Sun is lighting!'
+      },
+      {
+        tab: '🌓 Case 3',
+        angle: 90,
+        prompt: 'The Moon has traveled one quarter of the way around Earth. How much of the Moon looks bright from Earth?',
+        options: ['All of it is bright 🌕', 'None of it is bright 🌑', 'Half of it is bright on the right 🌓'],
+        answer: 2,
+        good: 'Spot on! At First Quarter, we see half of the lit side glowing on the right.',
+        hint: 'Look closely at the View from Earth circle — half is bright and half is dark.'
+      },
+      {
+        tab: '🔄 Case 4',
+        angle: 315,
+        prompt: 'After Waning Crescent, what happens next in the Moon cycle?',
+        options: ['The pattern starts over at New Moon 🌑', 'The Moon flies away forever 🚀', 'The Sun turns into a Moon ☀️'],
+        answer: 0,
+        good: 'Awesome scientist! The Moon phases repeat in a steady 28-day cycle.',
+        hint: 'Move the Day slider from Day 27 to Day 28 and watch the pattern repeat!'
+      }
+    ];
 
-    const emojiEl = document.getElementById('emoji');
-    const nameEl = document.getElementById('name');
-    const textEl = document.getElementById('text');
-    const cycleStrip = document.getElementById('cycle-strip');
-    const voiceSelect = document.getElementById('voice-select');
+    // 4. Procedural PBR Canvas Textures (100% offline-safe!)
+    function createEarthTexture() {
+      const c = document.createElement('canvas');
+      c.width = 512; c.height = 256;
+      const ctx = c.getContext('2d');
+      const grad = ctx.createLinearGradient(0, 0, 0, 256);
+      grad.addColorStop(0, '#1d4ed8');
+      grad.addColorStop(0.5, '#0284c7');
+      grad.addColorStop(1, '#1e3a8a');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 512, 256);
 
-    let allVoices = [];
-    let preferredVoice = null;
-
-    function loadVoices() {
-      allVoices = window.speechSynthesis.getVoices();
-
-      // Clear existing options
-      voiceSelect.innerHTML = '';
-
-      if (allVoices.length === 0) return;
-
-      // Populate the dropdown menu
-      allVoices.forEach((voice, index) => {
-        const option = document.createElement('option');
-        option.textContent = `${voice.name} (${voice.lang})`;
-        option.value = index;
-        voiceSelect.appendChild(option);
+      ctx.fillStyle = '#4ade80';
+      const blobs = [
+        [90, 95, 52, 34], [120, 155, 34, 46], [245, 85, 58, 30],
+        [270, 140, 42, 42], [385, 92, 65, 36], [420, 165, 36, 26]
+      ];
+      blobs.forEach(([x, y, rx, ry]) => {
+        ctx.beginPath();
+        ctx.ellipse(x, y, rx, ry, 0.2, 0, Math.PI * 2);
+        ctx.fill();
       });
 
-      // Prioritized logic to auto-select the best available voice
-      let targetIndex = allVoices.findIndex(v => v.name.toLowerCase().includes('google us english 2') && v.name.toLowerCase().includes('natural'));
+      // Polar ice caps
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillRect(0, 0, 512, 18);
+      ctx.fillRect(0, 238, 512, 18);
 
-      if (targetIndex === -1) {
-        targetIndex = allVoices.findIndex(v => v.name.toLowerCase().includes('google us english') && v.name.toLowerCase().includes('natural'));
-      }
-      if (targetIndex === -1) {
-        targetIndex = allVoices.findIndex(v => v.name.includes('Google US English'));
-      }
-      if (targetIndex === -1) {
-        targetIndex = allVoices.findIndex(v => v.lang === 'en-US' && v.name.toLowerCase().includes('google'));
-      }
-      if (targetIndex === -1) {
-        targetIndex = allVoices.findIndex(v => v.lang.startsWith('en-US'));
-      }
-      if (targetIndex === -1) {
-        targetIndex = 0; // Absolute fallback
-      }
-
-      voiceSelect.selectedIndex = targetIndex;
-      preferredVoice = allVoices[targetIndex];
+      const tex = new THREE.CanvasTexture(c);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      return tex;
     }
 
-    // Handle manual user selection
-    voiceSelect.addEventListener('change', (e) => {
-      preferredVoice = allVoices[e.target.value];
+    function createMoonTexture() {
+      const c = document.createElement('canvas');
+      c.width = 512; c.height = 256;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#d4d8e1';
+      ctx.fillRect(0, 0, 512, 256);
+
+      // Lunar maria (darker patches)
+      ctx.fillStyle = 'rgba(120, 130, 148, 0.45)';
+      [[140, 110, 48], [210, 145, 38], [320, 95, 54], [380, 150, 42], [85, 160, 30]].forEach(([x, y, r]) => {
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Craters
+      for (let i = 0; i < 65; i++) {
+        const x = (i * 79) % 512;
+        const y = 24 + ((i * 53) % 208);
+        const r = 4 + (i % 14);
+        ctx.fillStyle = 'rgba(90, 98, 114, 0.38)';
+        ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.arc(x - 1, y - 1, r, 0, Math.PI * 2); ctx.stroke();
+      }
+      const tex = new THREE.CanvasTexture(c);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      return tex;
+    }
+
+    // 5. Three.js 3D Space Observatory Setup
+    const viewportWrap = document.getElementById('viewportWrap');
+    const spaceCanvas = document.getElementById('spaceCanvas');
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x060a18);
+
+    const camera = new THREE.PerspectiveCamera(44, viewportWrap.clientWidth / viewportWrap.clientHeight, 0.1, 200);
+    camera.position.set(0, 7.2, 10.2);
+
+    const renderer = new THREE.WebGLRenderer({ canvas: spaceCanvas, antialias: true, powerPreference: 'high-performance' });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(viewportWrap.clientWidth, viewportWrap.clientHeight);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.15;
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.07;
+    controls.minDistance = 5.5;
+    controls.maxDistance = 20;
+    controls.maxPolarAngle = Math.PI * 0.72;
+
+    // Starfield
+    const starGeo = new THREE.BufferGeometry();
+    const starPositions = new Float32Array(700 * 3);
+    for (let i = 0; i < 700; i++) {
+      const r = 28 + Math.random() * 45;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      starPositions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+      starPositions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+      starPositions[i * 3 + 2] = r * Math.cos(phi);
+    }
+    starGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+    const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xfff8d6, size: 0.18, transparent: true, opacity: 0.9 }));
+    scene.add(stars);
+
+    // Subtle ambient so dark side of Moon is faintly visible in 3D space
+    scene.add(new THREE.AmbientLight(0x283558, 0.45));
+
+    // Sun on +X axis
+    const sunGroup = new THREE.Group();
+    sunGroup.position.set(12.5, 0, 0);
+    const sunCore = new THREE.Mesh(
+      new THREE.SphereGeometry(2.1, 32, 32),
+      new THREE.MeshBasicMaterial({ color: 0xffe46b })
+    );
+    const sunHalo = new THREE.Mesh(
+      new THREE.SphereGeometry(2.75, 24, 24),
+      new THREE.MeshBasicMaterial({ color: 0xffa726, transparent: true, opacity: 0.24 })
+    );
+    sunGroup.add(sunCore, sunHalo);
+    scene.add(sunGroup);
+
+    const sunLight = new THREE.DirectionalLight(0xfff7dc, 3.2);
+    sunLight.position.set(14, 0.4, 0);
+    scene.add(sunLight);
+
+    // Earth at origin
+    const earthTex = createEarthTexture();
+    const earth = new THREE.Mesh(
+      new THREE.SphereGeometry(1.45, 36, 36),
+      new THREE.MeshStandardMaterial({ map: earthTex, roughness: 0.55, metalness: 0.08 })
+    );
+    scene.add(earth);
+
+    const earthAtmo = new THREE.Mesh(
+      new THREE.SphereGeometry(1.56, 32, 32),
+      new THREE.MeshBasicMaterial({ color: 0x38b6ff, transparent: true, opacity: 0.16, side: THREE.BackSide })
+    );
+    scene.add(earthAtmo);
+
+    // Moon Orbit Ring
+    const ORBIT_R = 4.6;
+    const orbitRing = new THREE.Mesh(
+      new THREE.TorusGeometry(ORBIT_R, 0.035, 12, 96),
+      new THREE.MeshBasicMaterial({ color: 0x64748b, transparent: true, opacity: 0.6 })
+    );
+    orbitRing.rotation.x = Math.PI / 2;
+    scene.add(orbitRing);
+
+    // Moon
+    const moonTex = createMoonTexture();
+    const moon = new THREE.Mesh(
+      new THREE.SphereGeometry(0.68, 32, 32),
+      new THREE.MeshStandardMaterial({ map: moonTex, roughness: 0.92, metalness: 0.02 })
+    );
+    scene.add(moon);
+
+    // 6. Synchronized 2D "View From Earth" Phase Lens
+    const earthViewCanvas = document.getElementById('earthViewCanvas');
+    const evCtx = earthViewCanvas.getContext('2d');
+    const litPctLabel = document.getElementById('litPctLabel');
+
+    function drawEarthView(angleDeg) {
+      const w = earthViewCanvas.width;
+      const h = earthViewCanvas.height;
+      const cx = w / 2, cy = h / 2, r = w * 0.43;
+      evCtx.clearRect(0, 0, w, h);
+
+      // Dark moon disk
+      evCtx.fillStyle = '#182036';
+      evCtx.beginPath(); evCtx.arc(cx, cy, r, 0, Math.PI * 2); evCtx.fill();
+
+      const rad = (angleDeg * Math.PI) / 180;
+      const illum = (1 - Math.cos(rad)) / 2;
+      litPctLabel.textContent = `${Math.round(illum * 100)}% Lit`;
+
+      evCtx.save();
+      evCtx.beginPath(); evCtx.arc(cx, cy, r, 0, Math.PI * 2); evCtx.clip();
+
+      const waxing = angleDeg <= 180;
+      // Draw lit half
+      evCtx.fillStyle = '#fff5c2';
+      evCtx.beginPath();
+      if (waxing) {
+        evCtx.arc(cx, cy, r, -Math.PI / 2, Math.PI / 2, false);
+      } else {
+        evCtx.arc(cx, cy, r, Math.PI / 2, (Math.PI * 3) / 2, false);
+      }
+      evCtx.fill();
+
+      // Terminator ellipse
+      const k = Math.cos(rad);
+      evCtx.fillStyle = k > 0 ? '#182036' : '#fff5c2';
+      evCtx.beginPath();
+      evCtx.ellipse(cx, cy, Math.abs(k) * r, r, 0, 0, Math.PI * 2);
+      evCtx.fill();
+
+      // Subtle craters
+      evCtx.fillStyle = 'rgba(100, 116, 139, 0.22)';
+      [[cx - 18, cy - 12, 12], [cx + 16, cy + 14, 15], [cx + 8, cy - 22, 9]].forEach(([x, y, cr]) => {
+        evCtx.beginPath(); evCtx.arc(x, y, cr, 0, Math.PI * 2); evCtx.fill();
+      });
+      evCtx.restore();
+    }
+
+    // 7. State & UI Bindings
+    let orbitAngleDeg = 0;
+    let isOrbiting = false;
+    let activeCaseIdx = 0;
+    let selectedOption = null;
+    const solvedCases = [false, false, false, false];
+
+    const daySlider = document.getElementById('daySlider');
+    const dayNum = document.getElementById('dayNum');
+    const phaseNameEl = document.getElementById('phaseName');
+    const phaseDescEl = document.getElementById('phaseDesc');
+    const phaseGrid = document.getElementById('phaseGrid');
+
+    function nearestPhase(deg) {
+      const norm = ((deg % 360) + 360) % 360;
+      const idx = Math.round(norm / 45) % 8;
+      return { phase: PHASES[idx], idx };
+    }
+
+    function updateMoonPosition(deg) {
+      orbitAngleDeg = ((deg % 360) + 360) % 360;
+      const rad = (orbitAngleDeg * Math.PI) / 180;
+      // 0 deg = between Earth and Sun (+X) -> New Moon
+      // Counter-clockwise orbit as seen from North Pole
+      moon.position.set(Math.cos(rad) * ORBIT_R, 0, -Math.sin(rad) * ORBIT_R);
+      moon.lookAt(0, 0, 0);
+
+      daySlider.value = Math.round(orbitAngleDeg);
+      const day = Math.min(28, Math.max(1, Math.round((orbitAngleDeg / 360) * 28) + 1));
+      dayNum.textContent = day;
+
+      const { phase, idx } = nearestPhase(orbitAngleDeg);
+      phaseNameEl.textContent = `${phase.emoji} ${phase.name}`;
+      phaseDescEl.textContent = phase.desc;
+      document.querySelectorAll('.phase-btn').forEach((btn, i) => {
+        btn.classList.toggle('active', i === idx);
+      });
+
+      drawEarthView(orbitAngleDeg);
+    }
+
+    // Build 8 Phase Buttons
+    PHASES.forEach((p, idx) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'phase-btn';
+      btn.innerHTML = `<span class="p-icon">${p.emoji}</span><span>${p.name}</span>`;
+      btn.addEventListener('click', () => {
+        isOrbiting = false;
+        document.getElementById('btnOrbitPlay').textContent = '▶ Orbit';
+        sfx.playClick();
+        updateMoonPosition(p.angle);
+      });
+      phaseGrid.appendChild(btn);
     });
 
-    // Browsers load voices asynchronously, so we must listen for when they are ready
-    if (speechSynthesis.onvoiceschanged !== undefined) {
-      speechSynthesis.onvoiceschanged = loadVoices;
+    daySlider.addEventListener('input', e => {
+      isOrbiting = false;
+      document.getElementById('btnOrbitPlay').textContent = '▶ Orbit';
+      updateMoonPosition(parseFloat(e.target.value));
+    });
+
+    document.getElementById('btnOrbitPlay').addEventListener('click', e => {
+      sfx.playClick();
+      isOrbiting = !isOrbiting;
+      e.target.textContent = isOrbiting ? '⏸ Pause' : '▶ Orbit';
+    });
+
+    document.getElementById('btnResetCam').addEventListener('click', () => {
+      sfx.playClick();
+      controls.reset();
+      camera.position.set(0, 7.2, 10.2);
+    });
+
+    document.getElementById('btnSpeakTitle').addEventListener('click', () => {
+      sfx.playClick();
+      TTS_MANAGER.speak('Moon Phases 3D Observatory. Drag to explore how sunlight lights up the Moon as it orbits Earth.');
+    });
+
+    document.getElementById('btnSpeakPhase').addEventListener('click', () => {
+      sfx.playClick();
+      const { phase } = nearestPhase(orbitAngleDeg);
+      TTS_MANAGER.speak(`${phase.name}. ${phase.desc}`);
+    });
+
+    // Mode Switching (Explore-First <-> Space Detective)
+    const explorePanel = document.getElementById('explorePanel');
+    const challengePanel = document.getElementById('challengePanel');
+    const tabExplore = document.getElementById('tabExplore');
+    const tabChallenge = document.getElementById('tabChallenge');
+
+    function setMode(mode) {
+      const isExplore = mode === 'explore';
+      explorePanel.classList.toggle('hidden', !isExplore);
+      challengePanel.classList.toggle('hidden', isExplore);
+      tabExplore.classList.toggle('active-mode', isExplore);
+      tabExplore.classList.toggle('secondary', !isExplore);
+      tabChallenge.classList.toggle('active-mode', !isExplore);
+      tabChallenge.classList.toggle('secondary', isExplore);
+      if (!isExplore) renderCase(activeCaseIdx);
     }
-    // Also run once immediately in case they are already cached
-    loadVoices();
 
-    function renderCycleStrip() {
-      cycleStrip.innerHTML = '';
+    tabExplore.addEventListener('click', () => { sfx.playClick(); setMode('explore'); });
+    tabChallenge.addEventListener('click', () => { sfx.playClick(); setMode('challenge'); });
+    document.getElementById('btnBackExplore').addEventListener('click', () => { sfx.playClick(); setMode('explore'); });
 
-      phases.forEach((phase, index) => {
-        const button = document.createElement('button');
-        button.className = 'cycle-phase';
-        button.type = 'button';
-        button.dataset.index = String(index);
-        button.setAttribute('aria-label', phase.name);
-        button.setAttribute('aria-pressed', 'false');
-        button.innerHTML = `<span class="cycle-phase-emoji">${phase.emoji}</span><span class="cycle-phase-label">${phase.name}</span>`;
-        button.addEventListener('click', () => {
-          setCurrentPhase(index);
-          speakText();
+    // Detective Case UI (Zero pre-selection!)
+    const caseTabsEl = document.getElementById('caseTabs');
+    const casePromptEl = document.getElementById('casePrompt');
+    const choiceListEl = document.getElementById('choiceList');
+    const choiceBadgeEl = document.getElementById('choiceBadge');
+    const caseFeedbackEl = document.getElementById('caseFeedback');
+
+    function renderCase(idx) {
+      activeCaseIdx = idx;
+      const c = CASES[idx];
+      isOrbiting = false;
+      document.getElementById('btnOrbitPlay').textContent = '▶ Orbit';
+      updateMoonPosition(c.angle);
+
+      // Zero pre-selection reset for unsolved cases
+      selectedOption = null;
+      choiceBadgeEl.textContent = '❓ Tap to choose';
+      choiceBadgeEl.className = 'badge-neutral';
+
+      caseTabsEl.innerHTML = '';
+      CASES.forEach((item, i) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = `case-tab${i === idx ? ' active' : ''}${solvedCases[i] ? ' solved' : ''}`;
+        b.textContent = solvedCases[i] ? `${item.tab} ✅` : item.tab;
+        b.addEventListener('click', () => { sfx.playClick(); renderCase(i); });
+        caseTabsEl.appendChild(b);
+      });
+
+      casePromptEl.textContent = c.prompt;
+      choiceListEl.innerHTML = '';
+      c.options.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'choice-btn';
+        btn.textContent = opt;
+        btn.addEventListener('click', () => {
+          sfx.playClick();
+          selectedOption = i;
+          choiceListEl.querySelectorAll('.choice-btn').forEach((el, j) => el.classList.toggle('active', j === i));
+          choiceBadgeEl.textContent = opt;
+          choiceBadgeEl.className = 'badge-selected';
         });
-        cycleStrip.appendChild(button);
+        choiceListEl.appendChild(btn);
+      });
+
+      caseFeedbackEl.className = 'feedback-box';
+      caseFeedbackEl.textContent = solvedCases[idx]
+        ? `✅ Case solved! ${c.good}`
+        : 'Inspect the 3D Moon and the View from Earth, then tap your answer!';
+    }
+
+    document.getElementById('btnSpeakCase').addEventListener('click', () => {
+      sfx.playClick();
+      TTS_MANAGER.speak(CASES[activeCaseIdx].prompt);
+    });
+
+    document.getElementById('btnSubmitCase').addEventListener('click', () => {
+      const c = CASES[activeCaseIdx];
+      if (selectedOption === null) {
+        sfx.playBuzz();
+        caseFeedbackEl.className = 'feedback-box warn';
+        caseFeedbackEl.textContent = '👆 Please tap one of the choices above first!';
+        return;
+      }
+      if (selectedOption === c.answer) {
+        sfx.playCorrect();
+        solvedCases[activeCaseIdx] = true;
+        caseFeedbackEl.className = 'feedback-box good';
+        caseFeedbackEl.textContent = `🎉 ${c.good}`;
+        renderCaseTabsOnly();
+      } else {
+        sfx.playBuzz();
+        caseFeedbackEl.className = 'feedback-box warn';
+        caseFeedbackEl.textContent = `🤔 Good try! ${c.hint}`;
+      }
+    });
+
+    function renderCaseTabsOnly() {
+      caseTabsEl.querySelectorAll('.case-tab').forEach((b, i) => {
+        b.classList.toggle('solved', solvedCases[i]);
+        b.textContent = solvedCases[i] ? `${CASES[i].tab} ✅` : CASES[i].tab;
       });
     }
 
-    function updateCard() {
-      emojiEl.innerText = phases[currentIndex].emoji;
-      nameEl.innerText = phases[currentIndex].name;
-      textEl.innerText = phases[currentIndex].text;
-    }
-
-    function updateCycleStrip() {
-      const phaseButtons = cycleStrip.querySelectorAll('.cycle-phase');
-
-      phaseButtons.forEach((button, index) => {
-        const isActive = index === currentIndex;
-        button.classList.toggle('is-active', isActive);
-        button.setAttribute('aria-pressed', String(isActive));
-      });
-    }
-
-    function updatePhaseUI() {
-      updateCard();
-      updateCycleStrip();
-    }
-
-    function setCurrentPhase(index) {
-      currentIndex = (index + phases.length) % phases.length;
-      updatePhaseUI();
-    }
-
-    function speakText() {
-      // Stop any current speech
-      window.speechSynthesis.cancel();
-
-      const currentPhase = phases[currentIndex];
-      const textToRead = currentPhase.name + ". " + currentPhase.text;
-
-      const utterance = new SpeechSynthesisUtterance(textToRead);
-
-      // Apply the natural voice if we successfully loaded it
-      if (preferredVoice) {
-        utterance.voice = preferredVoice;
+    // 8. Animation Loop
+    function animate() {
+      requestAnimationFrame(animate);
+      earth.rotation.y += 0.004;
+      sunHalo.scale.setScalar(1 + Math.sin(performance.now() * 0.0025) * 0.04);
+      if (isOrbiting) {
+        updateMoonPosition(orbitAngleDeg + 0.45);
       }
-
-      // Slightly slower rate for early readers
-      utterance.rate = 0.85;
-      utterance.pitch = 1.1;
-
-      window.speechSynthesis.speak(utterance);
+      controls.update();
+      renderer.render(scene, camera);
     }
 
-    renderCycleStrip();
-    updatePhaseUI();
+    window.addEventListener('resize', () => {
+      const w = viewportWrap.clientWidth;
+      const h = viewportWrap.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    });
 
-    (function generateCardStars(count) {
-      const card = document.getElementById('card');
-      const fragment = document.createDocumentFragment();
-      for (let i = 0; i < count; i++) {
-        const star = document.createElement('div');
-        star.className = 'card-star';
-        const size = Math.random() * 2 + 0.5;
-        star.style.cssText = [
-          `left:${(Math.random() * 100).toFixed(2)}%`,
-          `top:${(Math.random() * 100).toFixed(2)}%`,
-          `width:${size.toFixed(2)}px`,
-          `height:${size.toFixed(2)}px`,
-          `opacity:${(Math.random() * 0.5 + 0.3).toFixed(2)}`,
-          `--twinkle-duration:${(Math.random() * 3 + 2).toFixed(1)}s`,
-          `--twinkle-delay:${(Math.random() * 6).toFixed(2)}s`
-        ].join(';');
-        fragment.appendChild(star);
-      }
-      card.prepend(fragment);
-    })(60);
-
-    (function generateStars(count) {
-      const fragment = document.createDocumentFragment();
-      for (let i = 0; i < count; i++) {
-        const star = document.createElement('div');
-        star.className = 'star';
-        const size = Math.random() * 2.5 + 0.5;
-        star.style.cssText = [
-          `left:${(Math.random() * 100).toFixed(2)}vw`,
-          `top:${(Math.random() * 100).toFixed(2)}vh`,
-          `width:${size.toFixed(2)}px`,
-          `height:${size.toFixed(2)}px`,
-          `opacity:${(Math.random() * 0.6 + 0.4).toFixed(2)}`,
-          `--twinkle-duration:${(Math.random() * 3 + 2).toFixed(1)}s`,
-          `--twinkle-delay:${(Math.random() * 5).toFixed(2)}s`
-        ].join(';');
-        fragment.appendChild(star);
-      }
-      document.body.appendChild(fragment);
-    })(180);
+    // Silent initialization on load
+    updateMoonPosition(45);
+    animate();
   </script>
-
-  <a class="pyp-map-link" href="../index.html" aria-label="Back to PYP curriculum map">PYP Map</a>
-  <style>
-    .pyp-map-link { position: fixed; top: 12px; right: 12px; z-index: 9999; min-height: 44px; display: inline-flex; align-items: center; border: 2px solid #17211f; border-radius: 8px; padding: 8px 12px; background: #fffaf0; color: #17211f; text-decoration: none; font: 900 14px/1 ui-rounded, "Avenir Next", "Segoe UI", sans-serif; box-shadow: 3px 3px 0 #17211f; letter-spacing: 0; }
-    .pyp-map-link:focus-visible { outline: 3px solid #f2b84b; outline-offset: 2px; }
-    @media print { .pyp-map-link { display: none; } }
-  </style>
 </body>
-
 </html>

@@ -158,14 +158,18 @@ Native HTML number input spin buttons (`<input type="number">`) are small and di
 
 ---
 
-## 4. 3D Scenes (Three.js) Interaction Rules
+## 4. 3D Scenes (Three.js) Interaction & Visual Craft Rules
 
-When building 3D spatial models (e.g., Solar System, Angle Explorer, Shadow Simulators):
+When building immersive 3D spatial dioramas (e.g., Moon Phases Observatory, Day & Night Earth Studio, Bike Gear Drivetrain Lab, 3D Position Room, Light & Shadow Lab, Angle Finder):
 
-1. **Never auto-rotate continuously by default**: Continuous camera rotation makes precise clicking frustrating on tablets. Default to a stable perspective.
-2. **Provide Pause / Reset Buttons**: Include explicit Neobrutalism buttons to pause simulation time and reset camera angles (`controls.reset()`).
-3. **Touch Action Restriction**: Apply `touch-action: none` to 3D canvas containers so touch drags don't trigger page scroll or pinch zoom glitches.
-4. **Clean Disposal**: If dynamically loading objects, dispose geometry and material textures to prevent mobile Safari memory crashes.
+1. **Procedural Canvas PBR Textures (100% Offline-Safe)**: Generate planet surfaces, lunar craters, city-light emissive maps, clouds, wood grains, and checker floors via offscreen `<canvas>` + `THREE.CanvasTexture` (`colorSpace = THREE.SRGBColorSpace`). Never rely on fragile external texture URLs that break offline or in school networks.
+2. **Cinema-Grade Lighting & iPad Performance Budget**:
+   - Pair `HemisphereLight` + `DirectionalLight` (with `PCFSoftShadowMap`, `1024×1024`) + subtle colored `PointLight` rim light.
+   - Set `renderer.toneMapping = THREE.ACESFilmicToneMapping` and cap `renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))` so iPads stay at a silky 60fps without overheating.
+3. **Never Auto-Rotate the Camera Continuously by Default**: Continuous camera orbit makes precise tapping frustrating on tablets. Keep the camera stable until the learner drags, and provide explicit Neobrutalism **Play/Pause** and **Reset View (`Reset ↺`)** buttons (`controls.reset()`).
+4. **Touch-Safe Raycasting (`<= 8px` Drag Threshold)**: Record `pointerdown` coordinates and only fire raycasted object taps on `pointerup` when pointer movement is `<= 8px`. This prevents orbiting gestures from accidentally triggering object clicks. Reward every 3D tap with a tactile bounce/hop animation, a 3D sparkle particle burst, and a Web Audio chime.
+5. **Dual-View Synchronization (3D World + 2D HUD Lens)**: For astronomy or perspective concepts (e.g., Moon Phases or Day & Night), pair the orbitable 3D scene with a compact corner picture-in-picture HUD lens (e.g., *"View From Earth"* phase circle or live local-time badge) that updates in real time.
+6. **Touch Action Restriction & Clean Disposal**: Apply `touch-action: none` to 3D canvas containers so touch drags never trigger Safari page scroll or pinch zoom. Always `.dispose()` replaced geometries/materials (such as swappable extruded gears) and wrap WebGL setup in a `try/catch` graceful fallback.
 
 ---
 

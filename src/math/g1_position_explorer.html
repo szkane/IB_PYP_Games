@@ -1,572 +1,867 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Position Explorer</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Position Explorer 3D — IB PYP Spatial Math</title>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
   <style>
+    :root {
+      --bg: #fffdf0;
+      --panel: #ffffff;
+      --ink: #111111;
+      --yellow: #ffe156;
+      --coral: #ff6584;
+      --teal: #4ecdc4;
+      --blue: #38b6ff;
+      --green: #86efac;
+      --border: 3.5px solid var(--ink);
+      --shadow: 4px 4px 0 var(--ink);
+      --shadow-sm: 2px 2px 0 var(--ink);
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      margin: 0;
+      font-family: ui-rounded, "Avenir Next", "Nunito", system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 14% 12%, rgba(56, 182, 255, 0.2), transparent 36%),
+        radial-gradient(circle at 86% 12%, rgba(255, 101, 132, 0.16), transparent 34%),
+        var(--bg);
+      color: var(--ink);
+      min-height: 100dvh;
+      padding: 10px 14px 20px;
+    }
+
+    .container { max-width: 1120px; margin: 0 auto; }
+
+    .nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .nav-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+    .pyp-map-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 8px 16px;
+      background: var(--yellow);
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 900;
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      touch-action: manipulation;
+    }
+
+    .pyp-map-link:active { transform: translate(2px, 2px); box-shadow: var(--shadow-sm); }
+
+    .unit-tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 6px 14px;
+      background: var(--teal);
+      color: var(--ink);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      font-weight: 900;
+      font-size: 0.88rem;
+    }
+
+    .tts-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--panel);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 4px 10px;
+      min-height: 44px;
+    }
+
+    .tts-box select {
+      border: 0;
+      background: transparent;
+      font: inherit;
+      font-weight: 800;
+      font-size: 0.84rem;
+      color: var(--ink);
+      max-width: 170px;
+    }
+
+    .hero-card {
+      background: var(--panel);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 10px 16px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .hero-title { display: flex; align-items: center; gap: 8px; }
+    .hero-title h1 { font-size: clamp(1.15rem, 2.3vw, 1.55rem); font-weight: 900; }
+
+    .mode-switch { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .btn {
+      min-height: 44px;
+      padding: 8px 14px;
+      background: var(--yellow);
+      color: var(--ink);
+      border: var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+      font: inherit;
+      font-weight: 900;
+      font-size: 0.9rem;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .btn:active { transform: translate(2px, 2px); box-shadow: none; }
+    .btn.secondary { background: #ffffff; }
+    .btn.active-mode { background: var(--coral); color: #ffffff; }
+
+    .btn-speaker {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      border: 2.5px solid var(--ink);
+      background: var(--yellow);
+      box-shadow: 2px 2px 0 var(--ink);
+      font-size: 1.05rem;
+      cursor: pointer;
+      display: inline-grid;
+      place-items: center;
+      flex-shrink: 0;
+      touch-action: manipulation;
+    }
+
+    .play-grid {
+      display: grid;
+      grid-template-columns: 1.38fr 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 12px 14px;
+    }
+
+    .viewport-wrap {
+      position: relative;
+      width: 100%;
+      height: 390px;
+      border: var(--border);
+      border-radius: 12px;
+      background: #cfe8ff;
       overflow: hidden;
-      background-color: #87CEEB;
-      font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
       touch-action: none;
     }
 
-    #canvas-container {
-      width: 100vw;
-      height: 100vh;
-      position: absolute;
-      top: 0;
-      left: 0;
-      z-index: 1;
-    }
+    #roomCanvas { width: 100%; height: 100%; display: block; cursor: grab; }
+    #roomCanvas:active { cursor: grabbing; }
 
-    #ui-layer {
+    .sentence-overlay {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 10;
-      pointer-events: none;
+      top: 10px;
+      left: 10px;
+      right: 10px;
       display: flex;
-      flex-direction: column;
+      align-items: center;
       justify-content: space-between;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.96);
+      border: 2.5px solid var(--ink);
+      border-radius: 12px;
+      padding: 7px 12px;
+      box-shadow: 3px 3px 0 var(--ink);
     }
 
-    .hud-element {
-      pointer-events: auto;
-    }
-
-    .vocab-word {
-      color: #ef4444;
+    .sentence-text {
+      font-size: 0.98rem;
       font-weight: 900;
+      line-height: 1.25;
+    }
+
+    .prep-hl {
+      color: #d91c5c;
       text-transform: uppercase;
-      text-shadow: 1px 1px 0px #fca5a5;
+      background: #fef08a;
+      padding: 1px 6px;
+      border-radius: 6px;
+      border: 1.5px solid var(--ink);
     }
 
-    /* Badge Animations */
-    .badge-found {
-      animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    .viewport-hint {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      background: rgba(255, 255, 255, 0.94);
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      padding: 4px 9px;
+      font-size: 0.76rem;
+      font-weight: 900;
+      pointer-events: none;
     }
 
-    @keyframes popIn {
-      0% {
-        transform: scale(1);
-      }
-
-      50% {
-        transform: scale(1.2);
-      }
-
-      100% {
-        transform: scale(1.05);
-      }
+    .reset-cam-btn {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      min-height: 36px;
+      padding: 4px 10px;
+      background: rgba(255, 255, 255, 0.95);
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      font: inherit;
+      font-size: 0.78rem;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 2px 2px 0 var(--ink);
     }
 
+    .progress-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-weight: 900;
+      font-size: 0.92rem;
+    }
+
+    .spot-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .spot-btn {
+      min-height: 48px;
+      padding: 8px 10px;
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
+      background: #ffffff;
+      box-shadow: 2px 2px 0 var(--ink);
+      font: inherit;
+      font-weight: 900;
+      font-size: 0.84rem;
+      cursor: pointer;
+      text-align: left;
+      touch-action: manipulation;
+    }
+
+    .spot-btn.found { background: var(--green); }
+    .spot-btn.current { background: var(--yellow); }
+
+    .hidden { display: none !important; }
+
+    .case-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+    .case-tab {
+      min-height: 40px;
+      padding: 6px 10px;
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
+      background: #ffffff;
+      font: inherit;
+      font-weight: 900;
+      font-size: 0.82rem;
+      cursor: pointer;
+    }
+    .case-tab.active { background: var(--yellow); }
+    .case-tab.solved { background: var(--green); }
+
+    .prompt-card {
+      background: #f8fafc;
+      border: 2.5px dashed var(--ink);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .prompt-card p { font-size: 0.96rem; font-weight: 800; line-height: 1.4; }
+
+    .feedback-box {
+      margin-top: 10px;
+      min-height: 52px;
+      padding: 10px 12px;
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 800;
+      background: #f1f5f9;
+      line-height: 1.4;
+    }
+    .feedback-box.good { background: var(--green); }
+    .feedback-box.warn { background: #fef08a; }
+
+    @media (max-width: 860px) {
+      .play-grid { grid-template-columns: 1fr; }
+      .viewport-wrap { height: 320px; }
+    }
   </style>
 </head>
-
 <body>
-
-  <div id="canvas-container"></div>
-
-  <div id="ui-layer">
-
-    <!-- TOP: The Floating Sentence Pill -->
-    <div class="w-full max-w-4xl mx-auto pt-4 px-3 sm:px-6 pointer-events-none flex flex-col items-center z-20">
-      <div
-        class="hud-element bg-white/95 backdrop-blur-md shadow-lg rounded-3xl border-b-4 border-green-400 px-4 py-3 md:py-4 flex flex-col sm:flex-row items-center gap-3 w-full">
-        <h1 id="sentence-container"
-          class="text-2xl md:text-4xl text-gray-800 transition-all duration-300 flex-1 text-center font-bold">
-          ✨ Tap the room to explore! ✨
-        </h1>
-        <button id="speak-btn"
-          class="shrink-0 bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-bold py-2 px-5 rounded-full shadow-md transition-all active:scale-95 text-sm md:text-lg whitespace-nowrap">
-          🔊 Read
-        </button>
+  <div class="container">
+    <nav class="nav-bar">
+      <div class="nav-left">
+        <a class="pyp-map-link" href="../index.html">← PYP Map</a>
+        <span class="unit-tag">🧸 Grade 1 · Unit 6 · Spatial Math</span>
       </div>
-
-      <!-- Instructions Floating Bubble -->
-      <div
-        class="hud-element mt-3 bg-black/40 backdrop-blur-sm text-white px-5 py-1.5 rounded-full text-xs md:text-sm font-medium tracking-wide">
-        👆 Tap grid or objects to move! Drag to rotate.
+      <div class="tts-box">
+        <span>🔊</span>
+        <select id="voiceSelect" aria-label="Choose voice accent"></select>
       </div>
-    </div>
+    </nav>
 
-    <!-- BOTTOM: The Progress Tracker Drawer -->
-    <div
-      class="hud-element absolute bottom-0 w-full bg-white/90 backdrop-blur-lg border-t-4 border-blue-400 shadow-[0_-4px_15px_rgba(0,0,0,0.1)] p-3 pb-6 md:pb-4 max-h-[35vh] overflow-y-auto z-20">
-      <p class="text-xs md:text-sm font-extrabold text-gray-500 mb-2 text-center uppercase tracking-widest">
-        Scavenger Hunt: Find all 15 words!
-      </p>
-      <div id="vocab-tracker" class="flex flex-wrap justify-center gap-2 max-w-5xl mx-auto">
-        <!-- Badges injected here via JS -->
+    <header class="hero-card">
+      <div class="hero-title">
+        <h1>Position Explorer 3D Room 🧸🏠</h1>
+        <button type="button" class="btn-speaker" id="btnSpeakTitle" aria-label="Read title aloud">🔊</button>
       </div>
-    </div>
+      <div class="mode-switch">
+        <button type="button" class="btn active-mode" id="tabExplore">1. Explore 3D Room 🏠</button>
+        <button type="button" class="btn secondary" id="tabChallenge">2. Hide &amp; Seek Missions 🎯</button>
+      </div>
+    </header>
 
+    <main class="play-grid">
+      <section class="panel">
+        <div class="viewport-wrap" id="viewportWrap">
+          <canvas id="roomCanvas"></canvas>
+          <div class="sentence-overlay">
+            <div class="sentence-text" id="sentenceText">✨ Tap any glowing pad in the 3D room to hop the bear!</div>
+            <button type="button" class="btn-speaker" id="btnSpeakSentence" aria-label="Read sentence aloud">🔊</button>
+          </div>
+          <div class="viewport-hint">👆 Tap yellow pads to hop · Drag to orbit the 3D room!</div>
+          <button type="button" class="reset-cam-btn" id="btnResetCam">Reset ↺</button>
+        </div>
+      </section>
+
+      <section class="panel" id="explorePanel">
+        <div class="progress-row">
+          <span>🗺️ Scavenger Hunt Spots</span>
+          <span id="foundCount">0 / 8 Found</span>
+        </div>
+        <div class="spot-grid" id="spotGrid"></div>
+      </section>
+
+      <section class="panel hidden" id="challengePanel">
+        <div class="case-tabs" id="caseTabs"></div>
+        <div class="prompt-card">
+          <p id="missionPrompt"></p>
+          <button type="button" class="btn-speaker" id="btnSpeakMission" aria-label="Read mission aloud">🔊</button>
+        </div>
+        <div class="feedback-box" id="missionFeedback" aria-live="polite">
+          Tap the matching glowing yellow pad in the 3D room to hop the bear there!
+        </div>
+        <div style="display:flex; gap:8px; margin-top:10px;">
+          <button type="button" class="btn secondary" id="btnBackExplore" style="flex:1;">⬅️ Back to Explore</button>
+        </div>
+      </section>
+    </main>
   </div>
 
-  <!-- External Libraries -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-  <script>
-    // --- 1. CORE SETUP ---
-    const container = document.getElementById('canvas-container');
+    // Web Audio SFX
+    class SoundFX {
+      constructor() { this.ctx = null; }
+      init() {
+        try {
+          if (!this.ctx) {
+            const Ctx = window.AudioContext || window.webkitAudioContext;
+            this.ctx = new Ctx();
+          }
+          if (this.ctx.state === 'suspended') this.ctx.resume();
+        } catch (_) {}
+      }
+      playHop() {
+        this.init();
+        if (!this.ctx) return;
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(340, t);
+        osc.frequency.exponentialRampToValueAtTime(680, t + 0.14);
+        gain.gain.setValueAtTime(0.13, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.16);
+        osc.connect(gain); gain.connect(this.ctx.destination);
+        osc.start(t); osc.stop(t + 0.18);
+      }
+      playCorrect() {
+        this.init();
+        if (!this.ctx) return;
+        const t = this.ctx.currentTime;
+        [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(f, t + i * 0.055);
+          gain.gain.setValueAtTime(0.15, t + i * 0.055);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.055 + 0.22);
+          osc.connect(gain); gain.connect(this.ctx.destination);
+          osc.start(t + i * 0.055); osc.stop(t + i * 0.055 + 0.24);
+        });
+      }
+      playBuzz() {
+        this.init();
+        if (!this.ctx) return;
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(175, t);
+        gain.gain.setValueAtTime(0.12, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+        osc.connect(gain); gain.connect(this.ctx.destination);
+        osc.start(t); osc.stop(t + 0.2);
+      }
+    }
+    const sfx = new SoundFX();
 
-    let width = container.clientWidth || window.innerWidth || 800;
-    let height = container.clientHeight || window.innerHeight || 600;
-    if (width === 0) width = 800;
-    if (height === 0) height = 600;
+    // TTS Manager with Browser Default Fallback
+    const TTS_MANAGER = {
+      voices: [],
+      selectedVoice: null,
+      init() {
+        const load = () => {
+          const all = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
+          if (!all.length) return;
+          const en = all.filter(v => v.lang && v.lang.toLowerCase().startsWith('en'));
+          this.voices = en.length ? en : all;
+          const saved = localStorage.getItem('ib_pyp_voice_name');
+          this.selectedVoice =
+            this.voices.find(v => v.name === saved) ||
+            this.voices.find(v => v.lang === 'en-US') ||
+            this.voices.find(v => v.default) ||
+            this.voices[0];
+          const sel = document.getElementById('voiceSelect');
+          sel.innerHTML = this.voices.map(v => `<option value="${v.name}">${v.name} (${v.lang})</option>`).join('');
+          if (this.selectedVoice) sel.value = this.selectedVoice.name;
+        };
+        load();
+        if (window.speechSynthesis && window.speechSynthesis.onvoiceschanged !== undefined) {
+          window.speechSynthesis.onvoiceschanged = load;
+        }
+        document.getElementById('voiceSelect').addEventListener('change', e => {
+          this.selectedVoice = this.voices.find(v => v.name === e.target.value) || this.voices[0];
+          if (this.selectedVoice) localStorage.setItem('ib_pyp_voice_name', this.selectedVoice.name);
+        });
+      },
+      speak(text) {
+        if (!window.speechSynthesis) return;
+        window.speechSynthesis.cancel();
+        const utt = new SpeechSynthesisUtterance(text);
+        if (this.selectedVoice) utt.voice = this.selectedVoice;
+        utt.rate = 0.94;
+        utt.pitch = 1.06;
+        window.speechSynthesis.speak(utt);
+      }
+    };
+    TTS_MANAGER.init();
 
+    // Spatial Spots Definition
+    const SPOTS = [
+      { id: 'on_bed', label: 'ON the bed', prep: 'ON', sentence: 'The bear is ON the bed.', pos: [-2.4, 0.85, -1.6] },
+      { id: 'under_table', label: 'UNDER the table', prep: 'UNDER', sentence: 'The bear is UNDER the table.', pos: [2.2, 0.05, -1.4] },
+      { id: 'on_table', label: 'ON the table', prep: 'ON', sentence: 'The bear is ON the table.', pos: [2.2, 1.32, -1.4] },
+      { id: 'in_front_chest', label: 'IN FRONT OF the chest', prep: 'IN FRONT OF', sentence: 'The bear is IN FRONT OF the toy chest.', pos: [2.2, 0.05, 2.35] },
+      { id: 'behind_shelf', label: 'BEHIND the shelf', prep: 'BEHIND', sentence: 'The bear is BEHIND the bookshelf.', pos: [0.0, 0.05, -3.15] },
+      { id: 'next_to_bed', label: 'NEXT TO the bed', prep: 'NEXT TO', sentence: 'The bear is NEXT TO the bed.', pos: [-0.85, 0.05, -1.4] },
+      { id: 'between', label: 'BETWEEN table & chest', prep: 'BETWEEN', sentence: 'The bear is BETWEEN the table and the toy chest.', pos: [2.2, 0.05, 0.15] },
+      { id: 'on_rug', label: 'IN THE MIDDLE of the rug', prep: 'IN THE MIDDLE OF', sentence: 'The bear is IN THE MIDDLE OF the rug.', pos: [-1.1, 0.08, 1.55] },
+    ];
+
+    const MISSIONS = [
+      { tab: '🎯 Mission 1', targetId: 'under_table', prompt: 'Hide-and-Seek! Hop the bear UNDER the wooden table.' },
+      { tab: '🎯 Mission 2', targetId: 'on_bed', prompt: 'Bedtime! Hop the bear ON top of the cozy bed.' },
+      { tab: '🎯 Mission 3', targetId: 'between', prompt: 'Careful step! Hop the bear BETWEEN the table and the toy chest.' },
+      { tab: '🎯 Mission 4', targetId: 'behind_shelf', prompt: 'Secret spot! Rotate the 3D room and hop the bear BEHIND the bookshelf.' },
+    ];
+
+    // Three.js 3D Room Setup
+    const viewportWrap = document.getElementById('viewportWrap');
+    const roomCanvas = document.getElementById('roomCanvas');
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x87CEEB);
+    scene.background = new THREE.Color(0xcdeaff);
 
-    const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 100);
-    camera.position.set(8, 8, 12);
+    const camera = new THREE.PerspectiveCamera(44, viewportWrap.clientWidth / viewportWrap.clientHeight, 0.1, 100);
+    camera.position.set(0, 6.2, 8.6);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const renderer = new THREE.WebGLRenderer({ canvas: roomCanvas, antialias: true, powerPreference: 'high-performance' });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(viewportWrap.clientWidth, viewportWrap.clientHeight);
     renderer.shadowMap.enabled = true;
-    container.appendChild(renderer.domElement);
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.08;
 
-    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
-    controls.maxPolarAngle = Math.PI / 2 + 0.1;
+    controls.dampingFactor = 0.08;
+    controls.maxPolarAngle = Math.PI * 0.46;
+    controls.minDistance = 5.5;
+    controls.maxDistance = 15;
 
-    // Lights
-    scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 0.6));
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
-    dirLight.position.set(10, 15, 10);
-    dirLight.castShadow = true;
-    dirLight.shadow.camera.left = -10; dirLight.shadow.camera.right = 10;
-    dirLight.shadow.camera.top = 10; dirLight.shadow.camera.bottom = -10;
-    scene.add(dirLight);
+    scene.add(new THREE.HemisphereLight(0xffffff, 0xffe4b5, 0.85));
+    const sunLight = new THREE.DirectionalLight(0xfff7df, 1.5);
+    sunLight.position.set(6, 11, 7);
+    sunLight.castShadow = true;
+    sunLight.shadow.mapSize.set(1024, 1024);
+    sunLight.shadow.camera.left = -6;
+    sunLight.shadow.camera.right = 6;
+    sunLight.shadow.camera.top = 6;
+    sunLight.shadow.camera.bottom = -6;
+    scene.add(sunLight);
 
-    // --- 2. ENVIRONMENT & ANCHORS ---
-    const voxelSize = 1;
-    const objectsToIntersect = [];
+    // Room Floor & Walls
+    const floor = new THREE.Mesh(
+      new THREE.BoxGeometry(9, 0.3, 8),
+      new THREE.MeshStandardMaterial({ color: 0xf4d3a1, roughness: 0.78 })
+    );
+    floor.position.y = -0.15;
+    floor.receiveShadow = true;
+    scene.add(floor);
 
-    // The 4 Color-Coded Floor Quadrants
-    const qGeo = new THREE.PlaneGeometry(10, 10);
+    const backWall = new THREE.Mesh(
+      new THREE.BoxGeometry(9, 3.8, 0.25),
+      new THREE.MeshStandardMaterial({ color: 0xfff8e7, roughness: 0.9 })
+    );
+    backWall.position.set(0, 1.8, -4.0);
+    backWall.receiveShadow = true;
+    scene.add(backWall);
 
-    const greenMat = new THREE.MeshStandardMaterial({ color: 0xbbf7d0, roughness: 1.0 });
-    const q1 = new THREE.Mesh(qGeo, greenMat);
-    q1.rotation.x = -Math.PI / 2; q1.position.set(5, -0.4, -5); q1.receiveShadow = true;
-    scene.add(q1); objectsToIntersect.push(q1);
+    const leftWall = new THREE.Mesh(
+      new THREE.BoxGeometry(0.25, 3.8, 8),
+      new THREE.MeshStandardMaterial({ color: 0xe6f4ff, roughness: 0.9 })
+    );
+    leftWall.position.set(-4.5, 1.8, 0);
+    leftWall.receiveShadow = true;
+    scene.add(leftWall);
 
-    const blueMat = new THREE.MeshStandardMaterial({ color: 0xbfdbfe, roughness: 1.0 });
-    const q2 = new THREE.Mesh(qGeo, blueMat);
-    q2.rotation.x = -Math.PI / 2; q2.position.set(-5, -0.4, -5); q2.receiveShadow = true;
-    scene.add(q2); objectsToIntersect.push(q2);
+    // Colorful Rug
+    const rug = new THREE.Mesh(
+      new THREE.CylinderGeometry(1.45, 1.45, 0.05, 32),
+      new THREE.MeshStandardMaterial({ color: 0x4ecdc4, roughness: 0.9 })
+    );
+    rug.position.set(-1.1, 0.025, 1.55);
+    rug.receiveShadow = true;
+    scene.add(rug);
 
-    const yellowMat = new THREE.MeshStandardMaterial({ color: 0xfef08a, roughness: 1.0 });
-    const q3 = new THREE.Mesh(qGeo, yellowMat);
-    q3.rotation.x = -Math.PI / 2; q3.position.set(-5, -0.4, 5); q3.receiveShadow = true;
-    scene.add(q3); objectsToIntersect.push(q3);
+    // Cozy Bed (left back)
+    const bedGroup = new THREE.Group();
+    bedGroup.position.set(-2.4, 0, -1.6);
+    const bedBase = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.5, 2.7), new THREE.MeshStandardMaterial({ color: 0xc97b4b, roughness: 0.6 }));
+    bedBase.position.y = 0.25; bedBase.castShadow = true; bedBase.receiveShadow = true;
+    const mattress = new THREE.Mesh(new THREE.BoxGeometry(1.92, 0.34, 2.5), new THREE.MeshStandardMaterial({ color: 0xff6584, roughness: 0.75 }));
+    mattress.position.y = 0.65; mattress.castShadow = true; mattress.receiveShadow = true;
+    const pillow = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.24, 0.6), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.8 }));
+    pillow.position.set(0, 0.9, -0.82); pillow.castShadow = true;
+    bedGroup.add(bedBase, mattress, pillow);
+    scene.add(bedGroup);
 
-    const purpleMat = new THREE.MeshStandardMaterial({ color: 0xe9d5ff, roughness: 1.0 });
-    const q4 = new THREE.Mesh(qGeo, purpleMat);
-    q4.rotation.x = -Math.PI / 2; q4.position.set(5, -0.4, 5); q4.receiveShadow = true;
-    scene.add(q4); objectsToIntersect.push(q4);
+    // Wooden Table (right back)
+    const tableGroup = new THREE.Group();
+    tableGroup.position.set(2.2, 0, -1.4);
+    const woodMat = new THREE.MeshStandardMaterial({ color: 0xd98a4e, roughness: 0.55 });
+    const tableTop = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.16, 1.6), woodMat);
+    tableTop.position.y = 1.24; tableTop.castShadow = true; tableTop.receiveShadow = true;
+    tableGroup.add(tableTop);
+    [[-0.9, -0.65], [0.9, -0.65], [-0.9, 0.65], [0.9, 0.65]].forEach(([lx, lz]) => {
+      const leg = new THREE.Mesh(new THREE.BoxGeometry(0.16, 1.2, 0.16), woodMat);
+      leg.position.set(lx, 0.6, lz); leg.castShadow = true;
+      tableGroup.add(leg);
+    });
+    scene.add(tableGroup);
 
-    const gridHelper = new THREE.GridHelper(20, 20, 0x9ca3af, 0x6b7280);
-    gridHelper.position.y = -0.39;
-    gridHelper.material.opacity = 0.5;
-    gridHelper.material.transparent = true;
-    scene.add(gridHelper);
+    // Toy Chest (right front)
+    const chest = new THREE.Mesh(
+      new THREE.BoxGeometry(1.6, 0.95, 1.1),
+      new THREE.MeshStandardMaterial({ color: 0x38b6ff, roughness: 0.45 })
+    );
+    chest.position.set(2.2, 0.48, 1.3);
+    chest.castShadow = true; chest.receiveShadow = true;
+    scene.add(chest);
 
-    // --- Central Anchor: The 3D Tree (Center 0, 0) ---
-    const treeGroup = new THREE.Group();
+    // Bookshelf (center back, slightly away from wall so bear can hide BEHIND it!)
+    const shelf = new THREE.Mesh(
+      new THREE.BoxGeometry(1.4, 1.9, 0.55),
+      new THREE.MeshStandardMaterial({ color: 0xb388ff, roughness: 0.55 })
+    );
+    shelf.position.set(0, 0.95, -2.35);
+    shelf.castShadow = true; shelf.receiveShadow = true;
+    scene.add(shelf);
 
-    // Tree Trunk
-    const trunkMat = new THREE.MeshStandardMaterial({ color: 0x5c4033, roughness: 0.9 });
-    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.4, 2, 8), trunkMat);
-    trunk.position.set(0, 0.6, 0); // Spans from floor (-0.4) up to 1.6
-    trunk.castShadow = true; trunk.receiveShadow = true;
-    treeGroup.add(trunk);
-    objectsToIntersect.push(trunk);
+    // Cute 3D Explorer Bear
+    const bear = new THREE.Group();
+    const furMat = new THREE.MeshStandardMaterial({ color: 0x9c5a2d, roughness: 0.6 });
+    const snoutMat = new THREE.MeshStandardMaterial({ color: 0xf4cfa0, roughness: 0.6 });
+    const darkMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.2 });
 
-    // Tree Canopy (Merged Dodecahedrons for a "Real" low-poly leafy look)
-    const leafMat = new THREE.MeshStandardMaterial({ color: 0x22c55e, roughness: 0.8 });
+    const body = new THREE.Mesh(new THREE.SphereGeometry(0.38, 20, 20), furMat);
+    body.scale.set(1, 1.15, 0.92); body.position.y = 0.42; body.castShadow = true;
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.3, 20, 20), furMat);
+    head.position.y = 0.92; head.castShadow = true;
+    const earL = new THREE.Mesh(new THREE.SphereGeometry(0.11, 14, 14), furMat); earL.position.set(-0.22, 1.16, 0);
+    const earR = new THREE.Mesh(new THREE.SphereGeometry(0.11, 14, 14), furMat); earR.position.set(0.22, 1.16, 0);
+    const snout = new THREE.Mesh(new THREE.SphereGeometry(0.12, 14, 14), snoutMat); snout.position.set(0, 0.87, 0.24);
+    const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.04, 10, 10), darkMat); eyeL.position.set(-0.1, 0.97, 0.26);
+    const eyeR = new THREE.Mesh(new THREE.SphereGeometry(0.04, 10, 10), darkMat); eyeR.position.set(0.1, 0.97, 0.26);
+    bear.add(body, head, earL, earR, snout, eyeL, eyeR);
+    bear.position.set(-1.1, 0.08, 1.55);
+    scene.add(bear);
 
-    const canopy1 = new THREE.Mesh(new THREE.DodecahedronGeometry(1.5), leafMat);
-    canopy1.position.set(0, 2.5, 0);
-    canopy1.castShadow = true; treeGroup.add(canopy1); objectsToIntersect.push(canopy1);
-
-    const canopy2 = new THREE.Mesh(new THREE.DodecahedronGeometry(1.2), leafMat);
-    canopy2.position.set(0.8, 1.8, 0.5);
-    canopy2.castShadow = true; treeGroup.add(canopy2); objectsToIntersect.push(canopy2);
-
-    const canopy3 = new THREE.Mesh(new THREE.DodecahedronGeometry(1.3), leafMat);
-    canopy3.position.set(-0.7, 2.0, -0.8);
-    canopy3.castShadow = true; treeGroup.add(canopy3); objectsToIntersect.push(canopy3);
-
-    scene.add(treeGroup);
-
-    // --- Zone 1 (Green): Table, Chair, & Door ---
-    const woodMat = new THREE.MeshStandardMaterial({ color: 0x8B5A2B, roughness: 0.8 });
-    const tableTop = new THREE.Mesh(new THREE.BoxGeometry(3, 0.2, 3), woodMat);
-    tableTop.position.set(5, 1.5, -5);
-    tableTop.castShadow = true; tableTop.receiveShadow = true;
-    scene.add(tableTop); objectsToIntersect.push(tableTop);
-
-    const legGeo = new THREE.CylinderGeometry(0.08, 0.05, 1.8);
-    [[3.7, -6.3], [6.3, -6.3], [3.7, -3.7], [6.3, -3.7]].forEach(pos => {
-      const leg = new THREE.Mesh(legGeo, woodMat);
-      leg.position.set(pos[0], 0.5, pos[1]);
-      leg.castShadow = true; scene.add(leg); objectsToIntersect.push(leg);
+    // Glowing Interactive 3D Hotspot Pads
+    const padMeshes = [];
+    SPOTS.forEach(spot => {
+      const pad = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.42, 0.46, 0.08, 24),
+        new THREE.MeshStandardMaterial({ color: 0xffe156, emissive: 0xffb703, emissiveIntensity: 0.35, roughness: 0.3 })
+      );
+      pad.position.set(spot.pos[0], spot.pos[1] + 0.04, spot.pos[2]);
+      pad.userData = { spot };
+      scene.add(pad);
+      padMeshes.push(pad);
     });
 
-    const cushionMat = new THREE.MeshStandardMaterial({ color: 0xef4444, roughness: 0.9 });
-    const chairSeat = new THREE.Mesh(new THREE.BoxGeometry(1, 0.2, 1), cushionMat);
-    chairSeat.position.set(5, 0.5, -2);
-    chairSeat.castShadow = true; scene.add(chairSeat); objectsToIntersect.push(chairSeat);
-
-    const chairBack = new THREE.Mesh(new THREE.BoxGeometry(1, 0.8, 0.1), woodMat);
-    chairBack.position.set(5, 1.0, -1.55);
-    chairBack.castShadow = true; scene.add(chairBack); objectsToIntersect.push(chairBack);
-
-    const cLegGeo = new THREE.CylinderGeometry(0.04, 0.03, 0.8);
-    [[4.6, -2.4], [5.4, -2.4], [4.6, -1.6], [5.4, -1.6]].forEach(pos => {
-      const leg = new THREE.Mesh(cLegGeo, woodMat);
-      leg.position.set(pos[0], 0.0, pos[1]);
-      leg.castShadow = true; scene.add(leg); objectsToIntersect.push(leg);
-    });
-
-    // The Door & Welcome Mat (Exclusively for "AT")
-    const doorMat = new THREE.MeshStandardMaterial({ color: 0x8B4513, roughness: 0.9 });
-    const door = new THREE.Mesh(new THREE.BoxGeometry(2, 3, 0.2), doorMat);
-    door.position.set(8, 1.1, -8);
-    door.castShadow = true; scene.add(door); objectsToIntersect.push(door);
-
-    const knobGeo = new THREE.SphereGeometry(0.15);
-    const knob = new THREE.Mesh(knobGeo, new THREE.MeshStandardMaterial({ color: 0xfacc15 }));
-    knob.position.set(7.3, 1, -7.85);
-    scene.add(knob);
-
-    const welcomeMat = new THREE.Mesh(new THREE.BoxGeometry(2, 0.05, 1.5), new THREE.MeshStandardMaterial({ color: 0x333333 }));
-    welcomeMat.position.set(8, -0.37, -7);
-    welcomeMat.receiveShadow = true; scene.add(welcomeMat); objectsToIntersect.push(welcomeMat);
-
-    // --- Zone 2 (Blue): Wooden Box & Water Puddle ---
-    const boxMat = new THREE.MeshStandardMaterial({ color: 0xA0522D, roughness: 0.9 });
-    const bFloor = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.1, 1.8), boxMat);
-    bFloor.position.set(-5, -0.45, -5);
-    bFloor.receiveShadow = true; scene.add(bFloor); objectsToIntersect.push(bFloor);
-
-    const wFB = new THREE.BoxGeometry(1.8, 1, 0.1);
-    const wLR = new THREE.BoxGeometry(0.1, 1, 1.6);
-    const wFront = new THREE.Mesh(wFB, boxMat); wFront.position.set(-5, 0.1, -4.15);
-    const wBack = new THREE.Mesh(wFB, boxMat); wBack.position.set(-5, 0.1, -5.85);
-    const wLeft = new THREE.Mesh(wLR, boxMat); wLeft.position.set(-5.85, 0.1, -5);
-    const wRight = new THREE.Mesh(wLR, boxMat); wRight.position.set(-4.15, 0.1, -5);
-
-    [wFront, wBack, wLeft, wRight].forEach(w => {
-      w.castShadow = true; w.receiveShadow = true; scene.add(w); objectsToIntersect.push(w);
-    });
-
-    // The Water Puddle (For "IN")
-    const waterMat = new THREE.MeshStandardMaterial({ color: 0x3b82f6, transparent: true, opacity: 0.7, roughness: 0.1 });
-    const pond = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 1.4, 0.1, 32), waterMat);
-    pond.position.set(-5, -0.4, -2);
-    pond.receiveShadow = true;
-    scene.add(pond); objectsToIntersect.push(pond);
-
-    // --- Zone 3 (Yellow): Rocks ---
-    const stoneMat = new THREE.MeshStandardMaterial({ color: 0x9ca3af, roughness: 0.7 });
-    const rocks = [[-4, 4], [-5, 5], [-3, 5], [-4, 6], [-5, 3], [-3, 3]];
-    rocks.forEach(pos => {
-      const rockGeo = new THREE.DodecahedronGeometry(Math.random() * 0.3 + 0.3);
-      const rock = new THREE.Mesh(rockGeo, stoneMat);
-      rock.position.set(pos[0], -0.2, pos[1]);
-      rock.rotation.set(Math.random(), Math.random(), Math.random());
-      rock.castShadow = true; scene.add(rock); objectsToIntersect.push(rock);
-    });
-
-    // --- Zone 4 (Purple): Pillars & Flowers ---
-    const pillarGeo = new THREE.CylinderGeometry(0.3, 0.4, 2, 16);
-    const p1 = new THREE.Mesh(pillarGeo, stoneMat); p1.position.set(4, 0.6, 5); p1.castShadow = true; scene.add(p1); objectsToIntersect.push(p1);
-    const p2 = new THREE.Mesh(pillarGeo, stoneMat); p2.position.set(6, 0.6, 5); p2.castShadow = true; scene.add(p2); objectsToIntersect.push(p2);
-
-    // NEW: Grass and Flowers (Exclusively for "ABOVE")
-    const dirtMat = new THREE.MeshStandardMaterial({ color: 0x5c4033, roughness: 0.9 });
-    const dirt = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.2, 1), dirtMat);
-    dirt.position.set(5, -0.3, 8);
-    dirt.receiveShadow = true; scene.add(dirt); objectsToIntersect.push(dirt);
-
-    const grassMat = new THREE.MeshStandardMaterial({ color: 0x22c55e, roughness: 0.8 });
-    const grassBox = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.1, 1), grassMat);
-    grassBox.position.set(5, -0.15, 8);
-    grassBox.receiveShadow = true; scene.add(grassBox); objectsToIntersect.push(grassBox);
-
-    // Add 3 bright flowers
-    const stemMat = new THREE.MeshStandardMaterial({ color: 0x16a34a });
-    const flowerColors = [0xec4899, 0xfacc15, 0xa855f7]; // Pink, Yellow, Purple
-    for (let i = 0; i < 3; i++) {
-      const fX = 4 + i;
-
-      const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.4), stemMat);
-      stem.position.set(fX, 0.05, 8);
-      stem.castShadow = true; scene.add(stem); objectsToIntersect.push(stem);
-
-      const petalMat = new THREE.MeshStandardMaterial({ color: flowerColors[i] });
-      const flower = new THREE.Mesh(new THREE.DodecahedronGeometry(0.25), petalMat);
-      flower.position.set(fX, 0.3, 8);
-      flower.castShadow = true; scene.add(flower); objectsToIntersect.push(flower);
+    // Sparkle bursts
+    const bursts = [];
+    function spawnSparkles(vec) {
+      const g = new THREE.Group();
+      g.position.copy(vec).add(new THREE.Vector3(0, 0.5, 0));
+      const colors = [0xffe156, 0xff6584, 0x4ecdc4, 0x38b6ff];
+      for (let i = 0; i < 12; i++) {
+        const p = new THREE.Mesh(
+          new THREE.OctahedronGeometry(0.08, 0),
+          new THREE.MeshBasicMaterial({ color: colors[i % colors.length], transparent: true, opacity: 1 })
+        );
+        p.userData = { vel: new THREE.Vector3(Math.random() - 0.5, Math.random() * 0.9 + 0.2, Math.random() - 0.5).normalize().multiplyScalar(0.06) };
+        g.add(p);
+      }
+      g.userData = { life: 1 };
+      scene.add(g);
+      bursts.push(g);
     }
 
-    // --- 3. THE PLAYER (DIAMOND) & GHOST BOX ---
-    const diamondGeo = new THREE.OctahedronGeometry(0.4);
-    const diamondMat = new THREE.MeshStandardMaterial({ color: 0x22d3ee, flatShading: true });
-    const diamond = new THREE.Mesh(diamondGeo, diamondMat);
-    diamond.castShadow = true;
-    scene.add(diamond);
+    // Bear Hop Animation State
+    let hopAnim = null;
+    const foundSet = new Set();
+    let currentSpot = null;
+    let mode = 'explore';
+    let activeMissionIdx = 0;
+    const solvedMissions = [false, false, false, false];
 
-    const ghostGeo = new THREE.BoxGeometry(1, 1, 1);
-    const ghostEdges = new THREE.EdgesGeometry(ghostGeo);
-    const ghostBox = new THREE.LineSegments(ghostEdges, new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 2 }));
-    scene.add(ghostBox);
+    const sentenceText = document.getElementById('sentenceText');
+    const foundCount = document.getElementById('foundCount');
+    const spotGrid = document.getElementById('spotGrid');
 
+    function hopBearTo(spot, speakNow = true) {
+      currentSpot = spot;
+      const start = bear.position.clone();
+      const end = new THREE.Vector3(spot.pos[0], spot.pos[1], spot.pos[2]);
+      hopAnim = { start, end, t: 0 };
 
-    // --- 4. INTERACTION (Raycasting) ---
-    const raycaster = new THREE.Raycaster();
-    const mouse = new THREE.Vector2();
+      sfx.playHop();
+      spawnSparkles(end);
 
-    let currentX = 5, currentY = 2, currentZ = -5; // Start ON the table
-    diamond.position.set(currentX, currentY, currentZ);
+      const hl = spot.sentence.replace(spot.prep, `<span class="prep-hl">${spot.prep}</span>`);
+      sentenceText.innerHTML = hl;
+      if (speakNow) TTS_MANAGER.speak(spot.sentence);
 
-    // NEW: State flag to track browser audio permission
-    let hasInteracted = false;
+      if (mode === 'explore') {
+        foundSet.add(spot.id);
+        foundCount.textContent = `${foundSet.size} / ${SPOTS.length} Found`;
+        renderSpotButtons();
+      } else {
+        const m = MISSIONS[activeMissionIdx];
+        const fb = document.getElementById('missionFeedback');
+        if (spot.id === m.targetId) {
+          sfx.playCorrect();
+          solvedMissions[activeMissionIdx] = true;
+          fb.className = 'feedback-box good';
+          fb.textContent = `🎉 You found it! ${spot.sentence}`;
+          renderMissionTabs();
+        } else {
+          sfx.playBuzz();
+          fb.className = 'feedback-box warn';
+          fb.textContent = `🤔 Right now: ${spot.sentence} Try hopping to another pad!`;
+        }
+      }
+    }
 
-    // --- NEW: SCAVENGER HUNT LOGIC ---
-    const totalVocab = ["IN", "UNDER", "NEAR", "AT", "ON", "ABOVE", "IN FRONT OF", "BEHIND", "BESIDE", "OPPOSITE", "INSIDE", "NEXT TO", "AMONG", "BY", "BETWEEN"];
-    const foundWords = new Set();
-
-    function initTracker() {
-      const tracker = document.getElementById('vocab-tracker');
-      totalVocab.forEach(word => {
-        const badge = document.createElement('span');
-        // Replace spaces with dashes for clean HTML IDs
-        badge.id = `badge-${word.replace(/\s+/g, '-')}`;
-        badge.innerText = word;
-        // Greyed out "undiscovered" state
-        badge.className = "px-3 py-1 bg-gray-100 text-gray-400 font-bold rounded-full text-xs md:text-sm border-2 border-gray-200 transition-all duration-300";
-        tracker.appendChild(badge);
+    function renderSpotButtons() {
+      spotGrid.innerHTML = '';
+      SPOTS.forEach(spot => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        const isCurrent = currentSpot && currentSpot.id === spot.id;
+        const isFound = foundSet.has(spot.id);
+        btn.className = `spot-btn${isCurrent ? ' current' : isFound ? ' found' : ''}`;
+        btn.textContent = `${isFound ? '✅' : '✨'} ${spot.label}`;
+        btn.addEventListener('click', () => hopBearTo(spot, true));
+        spotGrid.appendChild(btn);
       });
     }
 
-    function trackWord(newWord) {
-      if (newWord && !foundWords.has(newWord)) {
-        foundWords.add(newWord);
-        const badgeId = `badge-${newWord.replace(/\s+/g, '-')}`;
-        const badge = document.getElementById(badgeId);
+    // Raycasting Tap on 3D Pads
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2();
+    let downPos = { x: 0, y: 0 };
 
-        if (badge) {
-          // Update to vibrant "discovered" state
-          badge.className = "badge-found px-3 py-1 bg-green-100 text-green-700 font-bold rounded-full text-xs md:text-sm border-2 border-green-500 shadow-sm";
-        }
-
-        // Check for Win State
-        if (foundWords.size === totalVocab.length) {
-          setTimeout(() => {
-            document.getElementById('sentence-container').innerHTML = "🎉 <span class='text-yellow-500 font-bold'>YOU FOUND EVERY WORD!</span> 🎉";
-            if ('speechSynthesis' in window) {
-              window.speechSynthesis.cancel();
-              const msg = new SpeechSynthesisUtterance("Congratulations! You are a master explorer!");
-              msg.rate = 0.9; msg.pitch = 1.1;
-              window.speechSynthesis.speak(msg);
-            }
-          }, 1500); // Wait 1.5s for the normal word to finish reading
-        }
-      }
-    }
-    // ---------------------------------
-
-    function getGridIntersect(event) {
+    renderer.domElement.addEventListener('pointerdown', e => { downPos = { x: e.clientX, y: e.clientY }; });
+    renderer.domElement.addEventListener('pointerup', e => {
+      if (Math.hypot(e.clientX - downPos.x, e.clientY - downPos.y) > 8) return;
       const rect = renderer.domElement.getBoundingClientRect();
-      let clientX = event.clientX; let clientY = event.clientY;
-
-      if (event.changedTouches && event.changedTouches.length > 0) {
-        clientX = event.changedTouches[0].clientX; clientY = event.changedTouches[0].clientY;
-      }
-
-      mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
-      mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
-
-      raycaster.setFromCamera(mouse, camera);
-      const intersects = raycaster.intersectObjects(objectsToIntersect);
-
-      if (intersects.length > 0) {
-        const intersect = intersects[0];
-        const normal = intersect.face.normal.clone();
-        const pos = intersect.point.clone().add(normal.multiplyScalar(0.5));
-        return {
-          x: Math.round(pos.x),
-          y: Math.max(0, Math.round(pos.y)),
-          z: Math.round(pos.z)
-        };
-      }
-      return null;
-    }
-
-    renderer.domElement.addEventListener('pointermove', (e) => {
-      if (e.isPrimary === false) return;
-      const target = getGridIntersect(e);
-      if (target) {
-        ghostBox.position.set(target.x, target.y, target.z);
-        ghostBox.visible = true;
-      } else {
-        ghostBox.visible = false;
+      pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera(pointer, camera);
+      const hits = raycaster.intersectObjects(padMeshes, false);
+      if (hits.length > 0) {
+        hopBearTo(hits[0].object.userData.spot, true);
       }
     });
 
-    renderer.domElement.addEventListener('pointerdown', (e) => {
-      // NEW: Unlock the audio engine upon first tap
-      hasInteracted = true;
+    // Mode Switching & Mission Tabs
+    const explorePanel = document.getElementById('explorePanel');
+    const challengePanel = document.getElementById('challengePanel');
+    const tabExplore = document.getElementById('tabExplore');
+    const tabChallenge = document.getElementById('tabChallenge');
+    const caseTabsEl = document.getElementById('caseTabs');
 
-      const target = getGridIntersect(e);
-      if (target) {
-        currentX = target.x; currentY = target.y; currentZ = target.z;
+    function setMode(nextMode) {
+      mode = nextMode;
+      const isExp = mode === 'explore';
+      explorePanel.classList.toggle('hidden', !isExp);
+      challengePanel.classList.toggle('hidden', isExp);
+      tabExplore.classList.toggle('active-mode', isExp);
+      tabExplore.classList.toggle('secondary', !isExp);
+      tabChallenge.classList.toggle('active-mode', !isExp);
+      tabChallenge.classList.toggle('secondary', isExp);
+      if (!isExp) renderMission(activeMissionIdx);
+    }
 
-        new TWEEN.Tween(diamond.position)
-          .to({ x: currentX, y: currentY, z: currentZ }, 400)
-          .easing(TWEEN.Easing.Quadratic.Out)
-          .onComplete(updateUI)
-          .start();
-      }
+    function renderMissionTabs() {
+      caseTabsEl.innerHTML = '';
+      MISSIONS.forEach((m, i) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = `case-tab${i === activeMissionIdx ? ' active' : ''}${solvedMissions[i] ? ' solved' : ''}`;
+        b.textContent = solvedMissions[i] ? `${m.tab} ✅` : m.tab;
+        b.addEventListener('click', () => renderMission(i));
+        caseTabsEl.appendChild(b);
+      });
+    }
+
+    function renderMission(idx) {
+      activeMissionIdx = idx;
+      renderMissionTabs();
+      document.getElementById('missionPrompt').textContent = MISSIONS[idx].prompt;
+      const fb = document.getElementById('missionFeedback');
+      fb.className = 'feedback-box';
+      fb.textContent = solvedMissions[idx]
+        ? '✅ Mission complete! Try the next mission tab.'
+        : 'Tap the matching glowing yellow pad in the 3D room!';
+    }
+
+    tabExplore.addEventListener('click', () => setMode('explore'));
+    tabChallenge.addEventListener('click', () => setMode('challenge'));
+    document.getElementById('btnBackExplore').addEventListener('click', () => setMode('explore'));
+
+    document.getElementById('btnResetCam').addEventListener('click', () => {
+      controls.reset();
+      camera.position.set(0, 6.2, 8.6);
     });
 
-    // --- 5. LINGUISTIC LOGIC ENGINE (1-to-1 Mapping) ---
-    function updateUI() {
-      let sentenceHTML = "✨ Tap around the room to discover new places! ✨";
-      let word = "";
-      let rel = "";
+    document.getElementById('btnSpeakTitle').addEventListener('click', () => {
+      TTS_MANAGER.speak('Position Explorer 3D Room. Tap glowing pads to hop the bear and learn position words.');
+    });
 
-      // Pre-calculate zone variables so they don't break the if/else chain
-      const isTreeX = Math.abs(currentX) <= 1;
-      const isTreeZ = Math.abs(currentZ) <= 1;
-      const isNearTreeX = Math.abs(currentX) <= 2;
-      const isNearTreeZ = Math.abs(currentZ) <= 2;
-      const isTableX = Math.abs(currentX - 5) <= 1;
-      const isTableZ = Math.abs(currentZ - -5) <= 1;
+    document.getElementById('btnSpeakSentence').addEventListener('click', () => {
+      TTS_MANAGER.speak(currentSpot ? currentSpot.sentence : 'Tap any glowing pad in the 3D room to hop the bear!');
+    });
 
-      // CENTRAL LOGIC: The 3D Tree
-      if (isTreeX && isTreeZ && currentY >= 2 && currentY <= 4) { word = "IN"; rel = "the tree"; }
-      else if (isTreeX && isTreeZ && (currentY === 0 || currentY === 1) && !(currentX === 0 && currentZ === 0)) { word = "UNDER"; rel = "the tree"; }
-      else if (isNearTreeX && isNearTreeZ && currentY === 0 && !(isTreeX && isTreeZ)) { word = "NEAR"; rel = "the tree"; }
+    document.getElementById('btnSpeakMission').addEventListener('click', () => {
+      TTS_MANAGER.speak(MISSIONS[activeMissionIdx].prompt);
+    });
 
-      // ZONE 1 (GREEN): Door, Table, & Chair
-      // Door Logic (Restored)
-      else if (Math.abs(currentX - 8) <= 1 && currentZ === -7 && currentY === 0) { word = "AT"; rel = "the door"; }
-
-      // Table Logic
-      else if (isTableX && isTableZ && currentY === 2) { word = "ON"; rel = "the table"; }
-      else if (isTableX && isTableZ && (currentY === 0 || currentY === 1)) { word = "UNDER"; rel = "the table"; }
-      else if (isTableX && isTableZ && currentY > 2) { word = "ABOVE"; rel = "the table"; }
-      else if (isTableX && currentZ === -3 && currentY <= 1) { word = "IN FRONT OF"; rel = "the table"; }
-      else if (isTableX && currentZ === -7 && currentY <= 1) { word = "BEHIND"; rel = "the table"; }
-      else if ((currentX === 3 || currentX === 7) && isTableZ && currentY <= 1) { word = "BESIDE"; rel = "the table"; }
-
-      // Chair Logic (Strictly constrained to X=5)
-      else if (currentX === 5 && currentZ === -8 && currentY <= 1) { word = "OPPOSITE"; rel = "the red chair"; }
-      else if (currentX === 5 && currentZ === -2 && currentY === 1) { word = "ON"; rel = "the red chair"; }
-      else if (currentX === 5 && currentZ === -2 && currentY === 0) { word = "UNDER"; rel = "the red chair"; }
-      else if (currentX === 5 && currentZ === -1 && currentY <= 1) { word = "BEHIND"; rel = "the red chair"; }
-
-      // ZONE 2 (BLUE): Wooden Box & Pond
-      else if (currentX === -5 && currentZ === -5 && currentY === 0) { word = "INSIDE"; rel = "the wooden box"; }
-      else if ((currentX === -3 || currentX === -7) && Math.abs(currentZ - -5) <= 1 && currentY === 0) { word = "NEXT TO"; rel = "the wooden box"; }
-      else if (Math.abs(currentX - -5) <= 1 && Math.abs(currentZ - -2) <= 1 && currentY === 0) { word = "IN"; rel = "the water"; }
-
-      // ZONE 3 (YELLOW): Rocks
-      else if (currentX >= -5 && currentX <= -3 && currentZ >= 3 && currentZ <= 5 && currentY === 0) { word = "AMONG"; rel = "the rocks"; }
-      else if ((currentX === -2 || currentX === -6) && Math.abs(currentZ - 4) <= 1 && currentY === 0) { word = "BY"; rel = "the rocks"; }
-
-      // ZONE 4 (PURPLE): Pillars & Flowers
-      else if ((currentX === 4 || currentX === 6) && currentZ === 5 && currentY >= 2) { word = "ON"; rel = "the stone pillar"; }
-      else if (currentX === 5 && currentZ === 5 && currentY <= 1) { word = "BETWEEN"; rel = "the stone pillars"; }
-      else if (Math.abs(currentX - 5) <= 2 && Math.abs(currentZ - 5) <= 2 && currentY === 0 && !(currentX === 5 && currentZ === 5)) { word = "NEAR"; rel = "the stone pillars"; }
-      else if (currentX >= 4 && currentX <= 6 && currentZ === 8 && currentY >= 1) { word = "ABOVE"; rel = "the flowers"; }
-
-      // Apply to UI
-      if (word !== "") {
-        sentenceHTML = `The diamond is <span id="word-display" class="vocab-word">${word}</span> <span id="rel-display">${rel}</span>.`;
-      }
-
-      document.getElementById('sentence-container').innerHTML = sentenceHTML;
-
-      if (word !== "") {
-        trackWord(word);
-
-        // NEW: Only trigger auto-read if user has clicked the canvas
-        if (hasInteracted) {
-          readAloud();
-        }
-      }
-    }
-
-    // --- 6. AUDIO & ANIMATION ---
-    function readAloud() {
-      if ('speechSynthesis' in window) {
-        const wordEl = document.getElementById('word-display');
-        const relEl = document.getElementById('rel-display');
-        let sentence = "Tap around the room to discover new places!";
-
-        if (wordEl && relEl) {
-          sentence = `The diamond is ${wordEl.innerText} ${relEl.innerText}.`;
-        }
-
-        window.speechSynthesis.cancel();
-        const msg = new SpeechSynthesisUtterance(sentence);
-        msg.rate = 0.85;
-        msg.pitch = 1.1;
-        window.speechSynthesis.speak(msg);
-      }
-    }
-    document.getElementById('speak-btn').addEventListener('click', readAloud);
-
-    function animate(time) {
+    // Animation Loop
+    const clock = new THREE.Clock();
+    function animate() {
       requestAnimationFrame(animate);
-      const t = time || performance.now();
-      TWEEN.update(t);
-      controls.update();
+      const t = clock.getElapsedTime();
 
-      if (diamond) {
-        diamond.rotation.y += 0.02;
-        if (TWEEN.getAll().length === 0) {
-          diamond.position.y = currentY + Math.sin(t * 0.003) * 0.05;
+      padMeshes.forEach((p, idx) => {
+        p.material.emissiveIntensity = 0.28 + Math.sin(t * 3 + idx) * 0.16;
+      });
+
+      if (hopAnim) {
+        hopAnim.t = Math.min(1, hopAnim.t + 0.055);
+        bear.position.lerpVectors(hopAnim.start, hopAnim.end, hopAnim.t);
+        bear.position.y += Math.sin(hopAnim.t * Math.PI) * 1.15;
+        if (hopAnim.t >= 1) hopAnim = null;
+      }
+
+      for (let i = bursts.length - 1; i >= 0; i--) {
+        const b = bursts[i];
+        b.userData.life -= 0.035;
+        b.children.forEach(p => {
+          p.position.add(p.userData.vel);
+          p.material.opacity = Math.max(0, b.userData.life);
+        });
+        if (b.userData.life <= 0) {
+          scene.remove(b);
+          bursts.splice(i, 1);
         }
       }
+
+      controls.update();
       renderer.render(scene, camera);
     }
 
     window.addEventListener('resize', () => {
-      const w = container.clientWidth || window.innerWidth;
-      const h = container.clientHeight || window.innerHeight;
-      if (w === 0 || h === 0) return;
+      const w = viewportWrap.clientWidth;
+      const h = viewportWrap.clientHeight;
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
     });
 
-    initTracker(); // Initialize the badge board on load
-    updateUI();
-    requestAnimationFrame(animate); 
+    renderSpotButtons();
+    animate();
   </script>
-
-  <a class="pyp-map-link" href="../index.html" aria-label="Back to PYP curriculum map">PYP Map</a>
-  <style>
-    .pyp-map-link { position: fixed; top: 12px; right: 12px; z-index: 9999; min-height: 44px; display: inline-flex; align-items: center; border: 2px solid #17211f; border-radius: 8px; padding: 8px 12px; background: #fffaf0; color: #17211f; text-decoration: none; font: 900 14px/1 ui-rounded, "Avenir Next", "Segoe UI", sans-serif; box-shadow: 3px 3px 0 #17211f; letter-spacing: 0; }
-    .pyp-map-link:focus-visible { outline: 3px solid #f2b84b; outline-offset: 2px; }
-    @media print { .pyp-map-link { display: none; } }
-  </style>
 </body>
-
 </html>

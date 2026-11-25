@@ -3,16 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>3D Spatial Inspector - IB PYP Optics & Geometry Template</title>
+  <title>3D Spatial Inspector — IB PYP Immersive Three.js Starter</title>
+  <!-- CDN Importmap for Three.js ES Modules (externalized in Vite builds) -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
   <style>
     :root {
-      --bg: #FFFDF0;
+      --bg: #12172b;
+      --panel: #ffffff;
       --ink: #111111;
-      --yellow: #FFE156;
-      --coral: #FF6584;
-      --teal: #4ECDC4;
-      --purple: #B388FF;
-      --white: #FFFFFF;
+      --yellow: #ffe156;
+      --coral: #ff6584;
+      --teal: #4ecdc4;
+      --blue: #38b6ff;
+      --green: #86efac;
       --border: 3.5px solid var(--ink);
       --shadow: 4px 4px 0 var(--ink);
       --shadow-sm: 2px 2px 0 var(--ink);
@@ -22,246 +32,290 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: var(--bg);
+      font-family: ui-rounded, "Avenir Next", system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 15% 12%, rgba(56, 182, 255, 0.2), transparent 36%),
+        var(--bg);
       color: var(--ink);
-      min-height: 100vh;
-      padding: 12px 16px;
+      min-height: 100dvh;
+      padding: 10px 14px 20px;
     }
 
-    .container { max-width: 980px; margin: 0 auto; }
+    .container { max-width: 1100px; margin: 0 auto; }
 
     .nav-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
     }
 
-    .nav-link {
+    .nav-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+    .pyp-map-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 8px 16px;
       background: var(--yellow);
-      border: var(--border);
-      box-shadow: var(--shadow-sm);
-      border-radius: 999px;
-      padding: 6px 14px;
-      font-weight: 800;
-      font-size: 0.9rem;
       color: var(--ink);
       text-decoration: none;
+      font-weight: 900;
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      touch-action: manipulation;
+    }
+
+    .unit-tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 6px 14px;
+      background: var(--teal);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      font-weight: 900;
+      font-size: 0.86rem;
+    }
+
+    .tts-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--panel);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 4px 10px;
+      min-height: 44px;
+    }
+
+    .tts-box select {
+      border: 0;
+      background: transparent;
+      font: inherit;
+      font-weight: 800;
+      font-size: 0.84rem;
+      max-width: 170px;
     }
 
     .hero {
-      background: var(--white);
+      background: var(--panel);
       border: var(--border);
       box-shadow: var(--shadow);
       border-radius: var(--radius);
-      padding: 12px 18px;
-      margin-bottom: 14px;
+      padding: 10px 16px;
+      margin-bottom: 12px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 12px;
       flex-wrap: wrap;
-      gap: 10px;
     }
 
-    .hero-title { font-size: 1.3rem; font-weight: 900; }
-    .hero-tag {
-      background: var(--teal);
-      border: 2px solid var(--ink);
-      border-radius: 8px;
-      padding: 4px 10px;
-      font-weight: 800;
-      font-size: 0.8rem;
+    .hero-title { display: flex; align-items: center; gap: 8px; }
+    .hero-title h1 { font-size: clamp(1.15rem, 2.3vw, 1.5rem); font-weight: 900; }
+
+    .mode-switch { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .btn {
+      min-height: 44px;
+      padding: 8px 14px;
+      background: var(--yellow);
+      border: var(--border);
+      box-shadow: var(--shadow-sm);
+      border-radius: 12px;
+      font: inherit;
+      font-weight: 900;
+      font-size: 0.9rem;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+    .btn:active { transform: translate(2px, 2px); box-shadow: none; }
+    .btn.secondary { background: #ffffff; }
+    .btn.active-mode { background: var(--coral); color: #ffffff; }
+
+    .btn-speaker {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      border: 2.5px solid var(--ink);
+      background: var(--yellow);
+      box-shadow: 2px 2px 0 var(--ink);
+      font-size: 1rem;
+      cursor: pointer;
+      display: inline-grid;
+      place-items: center;
+      flex-shrink: 0;
     }
 
     .workspace-grid {
       display: grid;
       grid-template-columns: 1.3fr 1fr;
-      gap: 16px;
-    }
-    @media (max-width: 768px) {
-      .workspace-grid { grid-template-columns: 1fr; }
+      gap: 14px;
     }
 
     .panel {
-      background: var(--white);
+      background: var(--panel);
       border: var(--border);
       box-shadow: var(--shadow);
       border-radius: var(--radius);
-      padding: 16px;
+      padding: 12px 14px;
     }
 
-    /* 3D Viewport */
     .viewport-container {
       width: 100%;
-      height: 280px;
-      background: #111424;
+      height: 350px;
+      background: #0d1326;
       border: var(--border);
-      border-radius: 10px;
+      border-radius: 12px;
       position: relative;
       overflow: hidden;
       touch-action: none;
     }
 
-    #threeCanvas { width: 100%; height: 100%; display: block; }
+    #threeCanvas { width: 100%; height: 100%; display: block; cursor: grab; }
+    #threeCanvas:active { cursor: grabbing; }
 
     .viewport-overlay {
       position: absolute;
       bottom: 8px;
       left: 8px;
-      background: rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.94);
       border: 2px solid var(--ink);
-      border-radius: 6px;
+      border-radius: 8px;
       padding: 4px 8px;
-      font-size: 0.75rem;
-      font-weight: 800;
+      font-size: 0.76rem;
+      font-weight: 900;
       pointer-events: none;
     }
 
     .control-row {
-      margin-top: 12px;
+      margin-top: 10px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
-    input[type="range"] {
-      flex: 1;
-      height: 10px;
-      accent-color: var(--coral);
-      cursor: pointer;
-    }
-
-    .btn-toggle {
-      padding: 8px 12px;
-      border: 2px solid var(--ink);
-      box-shadow: 2px 2px 0 var(--ink);
-      border-radius: 8px;
-      background: var(--yellow);
-      font-weight: 800;
-      cursor: pointer;
-    }
-
-    /* Mission Panel */
-    .mission-prompt {
-      background: #FDFDFD;
-      border: 2px dashed var(--ink);
-      border-radius: 10px;
-      padding: 12px;
-      margin-bottom: 14px;
-      font-size: 0.95rem;
-      font-weight: 700;
-      line-height: 1.4;
-    }
-
-    .choice-group {
-      display: flex;
-      flex-direction: column;
       gap: 8px;
-      margin-bottom: 14px;
+      flex-wrap: wrap;
     }
 
-    .btn-choice {
-      padding: 10px 14px;
-      border: 2px solid var(--ink);
-      box-shadow: 2px 2px 0 var(--ink);
+    input[type="range"] { flex: 1; height: 10px; accent-color: var(--coral); cursor: pointer; }
+
+    .hidden { display: none !important; }
+    .case-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+    .case-tab {
+      min-height: 40px; padding: 6px 10px; border: 2.5px solid var(--ink); border-radius: 10px;
+      background: #fff; font: inherit; font-weight: 900; font-size: 0.82rem; cursor: pointer;
+    }
+    .case-tab.active { background: var(--yellow); }
+    .case-tab.solved { background: var(--green); }
+
+    .mission-prompt {
+      background: #f8fafc;
+      border: 2.5px dashed var(--ink);
       border-radius: 10px;
-      background: var(--white);
-      font-size: 0.9rem;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      font-size: 0.94rem;
       font-weight: 800;
-      cursor: pointer;
-      text-align: left;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .choice-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: 900; font-size: 0.84rem; }
+    .badge-neutral { border: 2px dashed var(--ink); border-radius: 8px; padding: 2px 8px; background: #fff; font-size: 0.8rem; }
+    .badge-selected { border: 2px solid var(--ink); border-radius: 8px; padding: 2px 8px; background: var(--yellow); font-size: 0.8rem; }
+
+    .choice-group { display: grid; gap: 8px; margin-bottom: 10px; }
+    .btn-choice {
+      min-height: 48px; padding: 10px 12px; border: 2.5px solid var(--ink); box-shadow: 2px 2px 0 var(--ink);
+      border-radius: 10px; background: #fff; font: inherit; font-weight: 900; text-align: left; cursor: pointer;
     }
     .btn-choice.active { background: var(--yellow); }
 
-    .btn-submit {
-      width: 100%;
-      padding: 12px;
-      background: var(--coral);
-      color: var(--white);
-      border: var(--border);
-      box-shadow: var(--shadow-sm);
-      border-radius: 10px;
-      font-weight: 900;
-      cursor: pointer;
-    }
-
     .toast {
-      margin-top: 12px;
-      padding: 10px;
-      border-radius: 8px;
-      border: 2px solid var(--ink);
-      font-weight: 800;
-      font-size: 0.9rem;
-      display: none;
+      margin-top: 10px; min-height: 48px; padding: 10px 12px; border-radius: 10px;
+      border: 2.5px solid var(--ink); font-weight: 800; font-size: 0.88rem; background: #f1f5f9;
     }
-    .toast.show { display: block; }
-  </style>
+    .toast.good { background: var(--green); }
+    .toast.warn { background: #fef08a; }
 
-  <!-- CDN Importmap for Three.js -->
-  <script type="importmap">
-  {
-    "imports": {
-      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    @media (max-width: 820px) {
+      .workspace-grid { grid-template-columns: 1fr; }
+      .viewport-container { height: 290px; }
     }
-  }
-  </script>
+  </style>
 </head>
 <body>
   <div class="container">
     <nav class="nav-bar">
-      <a class="nav-link" href="../index.html">← Back</a>
-      <span style="font-weight: 800; font-size: 0.85rem;">IB PYP: How The World Works</span>
+      <div class="nav-left">
+        <a class="pyp-map-link" href="../index.html">← PYP Map</a>
+        <span class="unit-tag">🔦 IB PYP · How the World Works</span>
+      </div>
+      <div class="tts-box">
+        <span>🔊</span>
+        <select id="voiceSelect" aria-label="Choose voice accent"></select>
+      </div>
     </nav>
 
     <header class="hero">
-      <div>
-        <h1 class="hero-title">3D Light & Shadow Optics Lab 🔦</h1>
-        <p style="font-size: 0.85rem; color: #555;">Drag to orbit the 3D diorama. Move the light to inspect real-time cast shadows.</p>
+      <div class="hero-title">
+        <h1>3D Light &amp; Shadow Optics Lab 🔦</h1>
+        <button type="button" class="btn-speaker" id="btnSpeakTitle" aria-label="Read title">🔊</button>
       </div>
-      <span class="hero-tag">Key Concept: Causation</span>
+      <div class="mode-switch">
+        <button type="button" class="btn active-mode" id="tabExplore">1. Explore 3D Lab 🌌</button>
+        <button type="button" class="btn secondary" id="tabChallenge">2. Shadow Detective 🕵️</button>
+      </div>
     </header>
 
     <main class="workspace-grid">
-      <!-- 3D Viewport Panel -->
       <section class="panel">
-        <div style="display: flex; justify-content: space-between; font-weight: 900; margin-bottom: 8px;">
-          <span>3D Optics Diorama</span>
-          <span style="font-size: 0.8rem; color: #666;">👆 Drag to rotate view</span>
-        </div>
-
         <div class="viewport-container" id="viewport">
           <canvas id="threeCanvas"></canvas>
-          <div class="viewport-overlay">Orbit Camera Active 🔄</div>
+          <div class="viewport-overlay">👆 Drag to orbit · Tap the 3D block to toggle material!</div>
         </div>
-
         <div class="control-row">
-          <label style="font-weight: 800; font-size: 0.85rem;">Sun Position (Angle):</label>
-          <input type="range" id="lightAngleSlider" min="-50" max="50" value="0">
-        </div>
-
-        <div class="control-row">
-          <button class="btn-toggle" id="btnMaterial" onclick="toggleMaterial()">Material: Opaque Cube 🧱</button>
+          <label style="font-weight:900; font-size:0.86rem;">Sun Angle:</label>
+          <input type="range" id="lightAngleSlider" min="-45" max="45" value="0">
+          <button type="button" class="btn secondary" id="btnResetCam">Reset ↺</button>
         </div>
       </section>
 
-      <!-- Challenge Panel -->
-      <section class="panel">
-        <div style="font-weight: 900; font-size: 1.1rem; margin-bottom: 12px;">Shadow Detective 🕵️</div>
+      <section class="panel" id="explorePanel">
+        <h2 style="margin-bottom:8px; font-size:1.1rem;">Free 3D Discovery 🔭</h2>
+        <p style="font-size:0.9rem; font-weight:700; margin-bottom:12px;">
+          Move the Sun slider and tap the 3D block (or buttons below) to see how Opaque and Transparent materials cast shadows!
+        </p>
+        <div class="control-row">
+          <button type="button" class="btn" id="btnMaterial" style="flex:1;">Material: Opaque Block 🧱</button>
+        </div>
+        <div class="toast" id="exploreTip" style="margin-top:12px;">
+          💡 Tap directly on the 3D block in the scene for a sparkle effect!
+        </div>
+      </section>
+
+      <section class="panel hidden" id="challengePanel">
+        <div class="case-tabs" id="caseTabs"></div>
         <div class="mission-prompt">
-          Case 1: When the flashlight moves lower toward the ground, what happens to the length of the shadow on the floor?
+          <span id="casePrompt"></span>
+          <button type="button" class="btn-speaker" id="btnSpeakCase" aria-label="Read case">🔊</button>
         </div>
-
-        <div class="choice-group">
-          <button class="btn-choice" onclick="selectChoice(0, this)">The shadow grows longer 📏</button>
-          <button class="btn-choice" onclick="selectChoice(1, this)">The shadow disappears completely 👻</button>
-          <button class="btn-choice" onclick="selectChoice(2, this)">The shadow shrinks into a tiny dot 🤏</button>
+        <div class="choice-header">
+          <span>Your Answer:</span>
+          <span class="badge-neutral" id="choiceBadge">❓ Tap to choose</span>
         </div>
-
-        <button class="btn-submit" onclick="checkAnswer()">Submit Case ✨</button>
-        <div class="toast" id="toast"></div>
+        <div class="choice-group" id="choiceGroup"></div>
+        <div style="display:flex; gap:8px;">
+          <button type="button" class="btn active-mode" id="btnSubmit" style="flex:1;">Submit Case ✨</button>
+          <button type="button" class="btn secondary" id="btnBackExplore">⬅️ Explore</button>
+        </div>
+        <div class="toast" id="toast" aria-live="polite">Test the 3D scene first, then choose your answer!</div>
       </section>
     </main>
   </div>
@@ -270,120 +324,279 @@
     import * as THREE from 'three';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
+    // Pure Web Audio SFX (zero sound on page load)
+    class SoundFX {
+      constructor() { this.ctx = null; }
+      init() {
+        try {
+          if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+          if (this.ctx.state === 'suspended') this.ctx.resume();
+        } catch (_) {}
+      }
+      playClick() {
+        this.init(); if (!this.ctx) return;
+        const t = this.ctx.currentTime, o = this.ctx.createOscillator(), g = this.ctx.createGain();
+        o.frequency.setValueAtTime(560, t); o.frequency.exponentialRampToValueAtTime(300, t + 0.05);
+        g.gain.setValueAtTime(0.11, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+        o.connect(g); g.connect(this.ctx.destination); o.start(t); o.stop(t + 0.055);
+      }
+      playCorrect() {
+        this.init(); if (!this.ctx) return;
+        const t = this.ctx.currentTime;
+        [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
+          const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+          o.frequency.setValueAtTime(f, t + i * 0.055);
+          g.gain.setValueAtTime(0.15, t + i * 0.055); g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.055 + 0.22);
+          o.connect(g); g.connect(this.ctx.destination); o.start(t + i * 0.055); o.stop(t + i * 0.055 + 0.24);
+        });
+      }
+      playBuzz() {
+        this.init(); if (!this.ctx) return;
+        const t = this.ctx.currentTime, o = this.ctx.createOscillator(), g = this.ctx.createGain();
+        o.type = 'triangle'; o.frequency.setValueAtTime(170, t);
+        g.gain.setValueAtTime(0.12, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+        o.connect(g); g.connect(this.ctx.destination); o.start(t); o.stop(t + 0.2);
+      }
+    }
+    const sfx = new SoundFX();
+
+    // Switchable Accent TTS with Browser Default Fallback
+    const TTS_MANAGER = {
+      voices: [], selectedVoice: null,
+      init() {
+        const load = () => {
+          const all = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
+          if (!all.length) return;
+          const en = all.filter(v => v.lang && v.lang.toLowerCase().startsWith('en'));
+          this.voices = en.length ? en : all;
+          const saved = localStorage.getItem('ib_pyp_voice_name');
+          this.selectedVoice = this.voices.find(v => v.name === saved) || this.voices.find(v => v.lang === 'en-US') || this.voices.find(v => v.default) || this.voices[0];
+          const sel = document.getElementById('voiceSelect');
+          sel.innerHTML = this.voices.map(v => `<option value="${v.name}">${v.name} (${v.lang})</option>`).join('');
+          if (this.selectedVoice) sel.value = this.selectedVoice.name;
+        };
+        load();
+        if (window.speechSynthesis && window.speechSynthesis.onvoiceschanged !== undefined) window.speechSynthesis.onvoiceschanged = load;
+        document.getElementById('voiceSelect').addEventListener('change', e => {
+          this.selectedVoice = this.voices.find(v => v.name === e.target.value) || this.voices[0];
+          if (this.selectedVoice) localStorage.setItem('ib_pyp_voice_name', this.selectedVoice.name);
+        });
+      },
+      speak(text) {
+        if (!window.speechSynthesis) return;
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        if (this.selectedVoice) u.voice = this.selectedVoice;
+        u.rate = 0.94; window.speechSynthesis.speak(u);
+      }
+    };
+    TTS_MANAGER.init();
+
+    // Procedural Checker Floor Texture (100% offline-safe)
+    function createFloorTexture() {
+      const c = document.createElement('canvas'); c.width = 256; c.height = 256;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#e2e8f0'; ctx.fillRect(0, 0, 256, 256);
+      ctx.fillStyle = '#cbd5e1';
+      for (let y = 0; y < 8; y++) for (let x = 0; x < 8; x++) if ((x + y) % 2 === 0) ctx.fillRect(x * 32, y * 32, 32, 32);
+      const tex = new THREE.CanvasTexture(c);
+      tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(4, 4);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      return tex;
+    }
+
     const container = document.getElementById('viewport');
     const canvas = document.getElementById('threeCanvas');
-
-    // Scene, Camera, Renderer
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x1a1e36);
+    scene.background = new THREE.Color(0x11172d);
 
-    const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
-    camera.position.set(0, 5, 8);
+    const camera = new THREE.PerspectiveCamera(44, container.clientWidth / container.clientHeight, 0.1, 100);
+    camera.position.set(0, 5.2, 8.2);
 
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.12;
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
-    controls.maxPolarAngle = Math.PI / 2 - 0.05; // Prevent camera from going below floor
+    controls.dampingFactor = 0.08;
+    controls.maxPolarAngle = Math.PI / 2 - 0.05;
 
-    // Floor Plane
-    const floorGeo = new THREE.PlaneGeometry(14, 14);
-    const floorMat = new THREE.MeshStandardMaterial({ color: 0xE8ECEF, roughness: 0.8 });
-    const floor = new THREE.Mesh(floorGeo, floorMat);
+    const floor = new THREE.Mesh(
+      new THREE.PlaneGeometry(16, 16),
+      new THREE.MeshStandardMaterial({ map: createFloorTexture(), roughness: 0.85 })
+    );
     floor.rotation.x = -Math.PI / 2;
     floor.receiveShadow = true;
     scene.add(floor);
 
-    // Target Block (Cube)
-    const cubeGeo = new THREE.BoxGeometry(1.6, 1.6, 1.6);
-    const cubeMatOpaque = new THREE.MeshStandardMaterial({ color: 0xFF6584, roughness: 0.4 });
-    const cubeMatGlass = new THREE.MeshStandardMaterial({ color: 0x4ECDC4, transparent: true, opacity: 0.35, roughness: 0.1 });
-    const cube = new THREE.Mesh(cubeGeo, cubeMatOpaque);
-    cube.position.set(0, 0.8, 0);
+    const cubeMatOpaque = new THREE.MeshStandardMaterial({ color: 0xff6584, roughness: 0.35, metalness: 0.1 });
+    const cubeMatGlass = new THREE.MeshStandardMaterial({ color: 0x4ecdc4, transparent: true, opacity: 0.35, roughness: 0.1 });
+    const cube = new THREE.Mesh(new THREE.BoxGeometry(1.7, 1.7, 1.7), cubeMatOpaque);
+    cube.position.set(0, 0.85, 0);
     cube.castShadow = true;
-    cube.receiveShadow = false;
     scene.add(cube);
 
-    // Ambient Light
-    const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.4);
-    scene.add(ambientLight);
-
-    // Movable Directional Light (Flashlight/Sun)
-    const dirLight = new THREE.DirectionalLight(0xFFE156, 1.8);
-    dirLight.position.set(0, 4, 3);
+    scene.add(new THREE.HemisphereLight(0xdff6ff, 0x262f4d, 0.55));
+    const dirLight = new THREE.DirectionalLight(0xffe156, 2.2);
+    dirLight.position.set(0, 4.5, 3);
     dirLight.castShadow = true;
-    dirLight.shadow.mapSize.width = 1024;
-    dirLight.shadow.mapSize.height = 1024;
+    dirLight.shadow.mapSize.set(1024, 1024);
     scene.add(dirLight);
 
-    // Light Helper Sphere
-    const lightSphere = new THREE.Mesh(
-      new THREE.SphereGeometry(0.2, 16, 16),
-      new THREE.MeshBasicMaterial({ color: 0xFFE156 })
-    );
+    const lightSphere = new THREE.Mesh(new THREE.SphereGeometry(0.24, 18, 18), new THREE.MeshBasicMaterial({ color: 0xffe156 }));
     dirLight.add(lightSphere);
 
-    // Animation Loop
+    // Sparkle Burst Helper
+    const bursts = [];
+    function spawnSparkles(pos) {
+      const g = new THREE.Group(); g.position.copy(pos);
+      [0xffe156, 0xff6584, 0x4ecdc4, 0x38b6ff].forEach((col, i) => {
+        for (let k = 0; k < 3; k++) {
+          const p = new THREE.Mesh(new THREE.OctahedronGeometry(0.08, 0), new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 1 }));
+          p.userData = { vel: new THREE.Vector3(Math.random() - 0.5, Math.random() * 0.8 + 0.2, Math.random() - 0.5).normalize().multiplyScalar(0.06) };
+          g.add(p);
+        }
+      });
+      g.userData = { life: 1 };
+      scene.add(g); bursts.push(g);
+    }
+
+    let isGlass = false;
+    function toggleMaterial() {
+      sfx.playClick();
+      isGlass = !isGlass;
+      cube.material = isGlass ? cubeMatGlass : cubeMatOpaque;
+      cube.castShadow = !isGlass;
+      spawnSparkles(cube.position);
+      document.getElementById('btnMaterial').textContent = isGlass ? 'Material: Clear Glass 🪟' : 'Material: Opaque Block 🧱';
+    }
+    document.getElementById('btnMaterial').addEventListener('click', toggleMaterial);
+
+    // Raycasting Tap on 3D Cube (with 8px drag threshold so orbit never mis-clicks)
+    const raycaster = new THREE.Raycaster(), pointer = new THREE.Vector2();
+    let downPos = { x: 0, y: 0 };
+    renderer.domElement.addEventListener('pointerdown', e => { downPos = { x: e.clientX, y: e.clientY }; });
+    renderer.domElement.addEventListener('pointerup', e => {
+      if (Math.hypot(e.clientX - downPos.x, e.clientY - downPos.y) > 8) return;
+      const r = renderer.domElement.getBoundingClientRect();
+      pointer.x = ((e.clientX - r.left) / r.width) * 2 - 1;
+      pointer.y = -((e.clientY - r.top) / r.height) * 2 + 1;
+      raycaster.setFromCamera(pointer, camera);
+      if (raycaster.intersectObject(cube).length > 0) toggleMaterial();
+    });
+
+    document.getElementById('lightAngleSlider').addEventListener('input', e => {
+      const x = parseFloat(e.target.value) / 9;
+      dirLight.position.x = x;
+      dirLight.position.y = Math.max(1.4, 4.5 - Math.abs(x) * 0.45);
+    });
+
+    document.getElementById('btnResetCam').addEventListener('click', () => {
+      sfx.playClick(); controls.reset(); camera.position.set(0, 5.2, 8.2);
+    });
+    document.getElementById('btnSpeakTitle').addEventListener('click', () => {
+      sfx.playClick(); TTS_MANAGER.speak('3D Light and Shadow Optics Lab. Move the sun and tap the block to inspect shadows.');
+    });
+
+    // Explore <-> Challenge Mode & Cases (Zero Pre-Selection)
+    const CASES = [
+      {
+        tab: '🔦 Case 1',
+        prompt: 'When the Sun moves lower toward the side, what happens to the shadow on the floor?',
+        options: ['The shadow grows longer 📏', 'The shadow disappears 👻', 'The shadow shrinks to a dot 🤏'],
+        answer: 0,
+        good: 'Brilliant observation! Lower light angles stretch shadows longer.',
+        hint: 'Slide the Sun Angle all the way to the left or right and watch the floor!'
+      },
+      {
+        tab: '🪟 Case 2',
+        prompt: 'Tap the block to turn it into Clear Glass. What happens to the dark shadow?',
+        options: ['The shadow gets darker ⬛', 'Light passes through so the dark shadow disappears 🪟', 'The block turns into a Sun ☀️'],
+        answer: 1,
+        good: 'Spot on! Transparent glass lets light pass right through it.',
+        hint: 'Tap the 3D block to switch it to Clear Glass and look at the floor!'
+      }
+    ];
+    let activeCase = 0, chosenIdx = null;
+    const solved = [false, false];
+
+    function setMode(m) {
+      const exp = m === 'explore';
+      document.getElementById('explorePanel').classList.toggle('hidden', !exp);
+      document.getElementById('challengePanel').classList.toggle('hidden', exp);
+      document.getElementById('tabExplore').classList.toggle('active-mode', exp);
+      document.getElementById('tabExplore').classList.toggle('secondary', !exp);
+      document.getElementById('tabChallenge').classList.toggle('active-mode', !exp);
+      document.getElementById('tabChallenge').classList.toggle('secondary', exp);
+      if (!exp) renderCase(activeCase);
+    }
+    document.getElementById('tabExplore').addEventListener('click', () => { sfx.playClick(); setMode('explore'); });
+    document.getElementById('tabChallenge').addEventListener('click', () => { sfx.playClick(); setMode('challenge'); });
+    document.getElementById('btnBackExplore').addEventListener('click', () => { sfx.playClick(); setMode('explore'); });
+
+    function renderCase(i) {
+      activeCase = i;
+      chosenIdx = null;
+      const badge = document.getElementById('choiceBadge');
+      badge.textContent = '❓ Tap to choose'; badge.className = 'badge-neutral';
+      const tabs = document.getElementById('caseTabs');
+      tabs.innerHTML = '';
+      CASES.forEach((c, idx) => {
+        const b = document.createElement('button'); b.type = 'button';
+        b.className = `case-tab${idx === i ? ' active' : ''}${solved[idx] ? ' solved' : ''}`;
+        b.textContent = solved[idx] ? `${c.tab} ✅` : c.tab;
+        b.addEventListener('click', () => { sfx.playClick(); renderCase(idx); });
+        tabs.appendChild(b);
+      });
+      document.getElementById('casePrompt').textContent = CASES[i].prompt;
+      const grp = document.getElementById('choiceGroup'); grp.innerHTML = '';
+      CASES[i].options.forEach((opt, idx) => {
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'btn-choice'; b.textContent = opt;
+        b.addEventListener('click', () => {
+          sfx.playClick(); chosenIdx = idx;
+          grp.querySelectorAll('.btn-choice').forEach((el, j) => el.classList.toggle('active', j === idx));
+          badge.textContent = opt; badge.className = 'badge-selected';
+        });
+        grp.appendChild(b);
+      });
+      const toast = document.getElementById('toast');
+      toast.className = 'toast'; toast.textContent = 'Test the 3D scene first, then choose your answer!';
+    }
+    document.getElementById('btnSpeakCase').addEventListener('click', () => { sfx.playClick(); TTS_MANAGER.speak(CASES[activeCase].prompt); });
+    document.getElementById('btnSubmit').addEventListener('click', () => {
+      const c = CASES[activeCase], toast = document.getElementById('toast');
+      if (chosenIdx === null) { sfx.playBuzz(); toast.className = 'toast warn'; toast.textContent = '👆 Please tap a choice first!'; return; }
+      if (chosenIdx === c.answer) {
+        sfx.playCorrect(); solved[activeCase] = true; spawnSparkles(cube.position);
+        toast.className = 'toast good'; toast.textContent = `🎉 ${c.good}`;
+        renderCase(activeCase); toast.className = 'toast good'; toast.textContent = `🎉 ${c.good}`;
+      } else {
+        sfx.playBuzz(); toast.className = 'toast warn'; toast.textContent = `🤔 ${c.hint}`;
+      }
+    });
+
     function animate() {
       requestAnimationFrame(animate);
+      for (let i = bursts.length - 1; i >= 0; i--) {
+        const b = bursts[i]; b.userData.life -= 0.035;
+        b.children.forEach(p => { p.position.add(p.userData.vel); p.material.opacity = Math.max(0, b.userData.life); });
+        if (b.userData.life <= 0) { scene.remove(b); bursts.splice(i, 1); }
+      }
       controls.update();
       renderer.render(scene, camera);
     }
     animate();
 
-    // Slider Event
-    const slider = document.getElementById('lightAngleSlider');
-    slider.addEventListener('input', (e) => {
-      const x = parseFloat(e.target.value) / 10;
-      dirLight.position.x = x;
-      dirLight.position.y = 4 - Math.abs(x) * 0.3; // Lowers angle as it moves out
-    });
-
-    // Material Toggle
-    let isGlass = false;
-    window.toggleMaterial = function() {
-      isGlass = !isGlass;
-      cube.material = isGlass ? cubeMatGlass : cubeMatOpaque;
-      cube.castShadow = !isGlass; // Transparent object casts almost no shadow
-      document.getElementById('btnMaterial').textContent = isGlass ? "Material: Glass (Transparent) 🪟" : "Material: Opaque Cube 🧱";
-    };
-
-    // Resize Handler
     window.addEventListener('resize', () => {
-      const w = container.clientWidth;
-      const h = container.clientHeight;
-      camera.aspect = w / h;
+      camera.aspect = container.clientWidth / container.clientHeight;
       camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
+      renderer.setSize(container.clientWidth, container.clientHeight);
     });
-
-    // Detective Challenge State
-    let chosenIndex = null;
-    window.selectChoice = function(idx, el) {
-      chosenIndex = idx;
-      document.querySelectorAll('.btn-choice').forEach(b => b.classList.remove('active'));
-      el.classList.add('active');
-    };
-
-    window.checkAnswer = function() {
-      const toast = document.getElementById('toast');
-      toast.className = 'toast show';
-      if (chosenIndex === null) {
-        toast.style.background = '#FFF3CD';
-        toast.textContent = '👆 Please select a choice first!';
-        return;
-      }
-      if (chosenIndex === 0) {
-        toast.style.background = '#D4EDDA';
-        toast.textContent = '🎉 Brilliant observation! Lower light angles cast longer stretched shadows.';
-      } else {
-        toast.style.background = '#F8D7DA';
-        toast.textContent = '🤔 Try moving the slider all the way to the side and look at the floor shadow!';
-      }
-    };
   </script>
 </body>
 </html>

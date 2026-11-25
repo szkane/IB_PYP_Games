@@ -126,12 +126,12 @@ Each archetype constructs a fundamentally different gameplay loop, state model, 
 
 ---
 
-### Type 4: 3D Spatial Inspectors & Virtual Dioramas (3D 空间检视与微缩模型型)
+### Type 4: 3D Spatial Inspectors & Interactive Dioramas (3D 空间检视与沉浸式微缩世界型)
 * **Bundled Starter Template**: [`examples/spatial-3d-starter.html`](../examples/spatial-3d-starter.html)
-* **Pedagogical Purpose**: 3D geometry inspection (faces, edges, vertices, 3D angles), light and shadow optics, and planetary day/night rotation.
+* **Pedagogical Purpose**: Immersive 3D spatial learning where depth, illumination, mechanical motion, or viewpoint rotation unlocks true understanding — including planetary orbits & Moon phases, Earth's day/night terminator with glowing city lights, extruded 3D mechanical gear drivetrains, interactive 3D rooms for spatial prepositions, light & shadow optics, and 3D solid geometry.
 * **Constructed Gameplay Flow**:
-  - **Step 1 (3D Diorama Exploration)**: Orbit the 3D scene (`OrbitControls` with `enableDamping`), drag the directional light angle slider, or toggle 3D object materials (Opaque block vs. Translucent tinted glass vs. Transparent clear glass) while observing real-time `PCFSoftShadowMap` shadows on the floor.
-  - **Step 2 (Spatial Detective Cases)**: Solve case challenges that require rotating the 3D camera or testing light positions to verify the answer.
+  - **Step 1 (Interactive 3D Diorama Exploration)**: Orbit the 3D scene (`OrbitControls` with damping, `ACESFilmicToneMapping`, procedural canvas PBR textures, `devicePixelRatio <= 2`), tap 3D objects or glowing hotspot pads via drag-safe raycasting (`<= 8px` threshold) with 3D sparkle particle bursts, manipulate continuous sliders (Sun angle, 28-day lunar orbit, 24-hour Earth spin, or swappable extruded gear teeth), and inspect synchronized 2D HUD lenses (e.g., *"View From Earth"* sky PIP or live gear-ratio telemetry).
+  - **Step 2 (Spatial Detective Cases)**: Solve case challenges via `[Case 1] [Case 2] [Case 3]` tabs with zero pre-selection (`❓ Tap to choose`), requiring the child to orbit, test, or hop inside the 3D world to verify their hypothesis.
 
 ---
 

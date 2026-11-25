@@ -164,7 +164,8 @@
                   "title": "3D Shape Explorer",
                   "path": "math/g1_3D_shape.html",
                   "type": "Existing",
-                  "description": "Rotate, compare, and name 3D solids used in shared spaces."
+                  "description": "Rotate, compare, and name 3D solids used in shared spaces.",
+                  "tags": ["3D", "geometry"]
                 }
               ]
             },
@@ -280,10 +281,11 @@
               "label": "Science",
               "games": [
                 {
-                  "title": "Bike Gear Lab",
+                  "title": "Bike Gear 3D Lab",
                   "path": "science/g1_bike_gear.html",
                   "type": "Existing",
-                  "description": "Observe cause and effect in a simple interactive system."
+                  "description": "Pedal a 3D bicycle drivetrain, swap front and rear gears, and explore mechanical cause and effect.",
+                  "tags": ["3D", "engineering", "gears"]
                 }
               ]
             },
@@ -333,16 +335,18 @@
               "label": "Science",
               "games": [
                 {
-                  "title": "Day and Night Detectives",
+                  "title": "Day and Night 3D Detectives",
                   "path": "science/g1_day_and_night_detectives.html",
                   "type": "Existing",
-                  "description": "Investigate day/night changes and evidence."
+                  "description": "Spin an interactive 3D Earth in sunlight to investigate day, night, and city lights.",
+                  "tags": ["3D", "astronomy", "cycles"]
                 },
                 {
-                  "title": "Moon Phases Flashcards",
+                  "title": "Moon Phases 3D Observatory",
                   "path": "science/g1_moon_phases.html",
                   "type": "Existing",
-                  "description": "Recognize moon phases as a natural cycle."
+                  "description": "Orbit a 3D Earth-Moon-Sun diorama to discover all 8 moon phases and solve space cases.",
+                  "tags": ["3D", "astronomy", "cycles"]
                 },
                 {
                   "title": "Gesture Cosmos Hub",
@@ -437,10 +441,11 @@
               "label": "Math",
               "games": [
                 {
-                  "title": "Position Explorer",
+                  "title": "Position Explorer 3D",
                   "path": "math/g1_position_explorer.html",
                   "type": "Existing",
-                  "description": "Describe journeys and views using in front of, behind, above, below, and next to."
+                  "description": "Explore a 3D interactive room and hop with a friendly bear to master spatial prepositions.",
+                  "tags": ["3D", "spatial"]
                 },
                 {
                   "title": "Kangaroo Math G1",
@@ -621,7 +626,8 @@
                   "title": "Light & Shadow Master 3D",
                   "path": "science/g2_light_shadow_master.html",
                   "type": "New",
-                  "description": "Explore 3D shadow formation, opacity, and mirror reflection with Minecraft items."
+                  "description": "Explore 3D shadow formation, opacity, and mirror reflection with Minecraft items.",
+                  "tags": ["3D", "optics"]
                 }
               ]
             },
@@ -669,7 +675,8 @@
                   "title": "Angle Finder 3D",
                   "path": "math/g2_angle_finder.html",
                   "type": "New",
-                  "description": "Interactive 3D geometry inspector for Right, Acute, Obtuse, and Straight angles."
+                  "description": "Interactive 3D geometry inspector for Right, Acute, Obtuse, and Straight angles.",
+                  "tags": ["3D", "geometry"]
                 }
               ]
             }

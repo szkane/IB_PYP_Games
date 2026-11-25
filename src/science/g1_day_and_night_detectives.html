@@ -1,1082 +1,1031 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>UOI5 Cycle:Day and Night Detectives</title>
-  <meta name="theme-color" content="#102a43">
-  <link rel="icon"
-    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='32' height='64' fill='%23f7c948'/%3E%3Crect x='32' width='32' height='64' fill='%2316284a'/%3E%3Ccircle cx='32' cy='32' r='22' fill='none' stroke='white' stroke-width='5'/%3E%3C/svg%3E">
+  <title>Day and Night 3D Detectives — IB PYP Science</title>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
   <style>
     :root {
-      --ink: #17324d;
-      --paper: #fff9ec;
-      --paper-soft: #fff2d2;
-      --sky: #7fc8d8;
-      --sea: #1f6f8b;
-      --night: #16284a;
-      --night-deep: #0d1830;
-      --sun: #f7c948;
-      --sun-hot: #f9703e;
-      --grass: #65a765;
-      --coral: #e45f5f;
-      --line: rgba(23, 50, 77, 0.18);
-      --shadow: rgba(20, 42, 67, 0.2);
-      --radius: 8px;
-      --earth-texture: url("https://cdn.jsdelivr.net/gh/mrdoob/three.js@r163/examples/textures/planets/earth_atmos_2048.jpg");
+      --bg: #101935;
+      --panel: #ffffff;
+      --ink: #111111;
+      --yellow: #ffe156;
+      --coral: #ff6584;
+      --teal: #4ecdc4;
+      --blue: #38b6ff;
+      --green: #86efac;
+      --border: 3.5px solid var(--ink);
+      --shadow: 4px 4px 0 var(--ink);
+      --shadow-sm: 2px 2px 0 var(--ink);
+      --radius: 14px;
     }
 
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      min-height: 100%;
-      background: var(--night-deep);
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      min-height: 100vh;
-      margin: 0;
-      color: var(--ink);
-      font-family: "Trebuchet MS", "Avenir Next", sans-serif;
+      font-family: ui-rounded, "Avenir Next", "Nunito", system-ui, sans-serif;
       background:
-        radial-gradient(circle at 8% 12%, rgba(247, 201, 72, 0.35) 0 7rem, transparent 7.2rem),
-        linear-gradient(115deg, #94dbe4 0%, #f7dc93 42%, #295174 42.5%, #0f2345 100%);
-      overflow-x: hidden;
-    }
-
-    body::before,
-    body::after {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background-image:
-        radial-gradient(circle, rgba(255, 255, 255, 0.86) 0 2px, transparent 2.5px),
-        radial-gradient(circle, rgba(255, 234, 145, 0.8) 0 1.5px, transparent 2px);
-      background-size: 160px 130px, 220px 190px;
-      background-position: 78% 10%, 88% 48%;
-      opacity: 0.58;
-      mask-image: linear-gradient(100deg, transparent 0 45%, black 57% 100%);
-    }
-
-    .app {
-      position: relative;
-      width: min(1160px, calc(100% - 28px));
-      min-height: 100vh;
-      margin: 0 auto;
-      padding: clamp(18px, 3vw, 32px) 0;
-      display: grid;
-      gap: clamp(14px, 2vw, 20px);
-    }
-
-    .top-bar {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 14px;
-      align-items: center;
-      color: #ffffff;
-      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-    }
-
-    h1 {
-      margin: 0;
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: clamp(2.15rem, 5vw, 4.4rem);
-      line-height: 0.9;
-      letter-spacing: 0;
-    }
-
-    .subtitle {
-      margin: 8px 0 0;
-      max-width: 760px;
-      font-size: clamp(1rem, 2vw, 1.2rem);
-      font-weight: 700;
-      line-height: 1.35;
-    }
-
-    .score-board {
-      min-width: 176px;
-      padding: 14px 16px;
-      border: 2px solid rgba(255, 255, 255, 0.48);
-      border-radius: var(--radius);
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(12px);
-      text-align: center;
-    }
-
-    .score-board span {
-      display: block;
-      font-size: 0.78rem;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      opacity: 0.82;
-    }
-
-    .score-board strong {
-      display: block;
-      margin-top: 4px;
-      font-size: clamp(1.55rem, 3vw, 2.25rem);
-      line-height: 1;
-    }
-
-    .investigation {
-      display: grid;
-      grid-template-columns: minmax(310px, 0.95fr) minmax(360px, 1.05fr);
-      gap: clamp(14px, 2vw, 22px);
-      align-items: stretch;
-    }
-
-    .earth-lab,
-    .places-lab,
-    .journal {
-      border: 2px solid rgba(255, 255, 255, 0.72);
-      border-radius: var(--radius);
-      background: rgba(255, 249, 236, 0.94);
-      box-shadow: 0 22px 60px var(--shadow);
-    }
-
-    .earth-lab {
-      position: relative;
-      min-height: 520px;
-      padding: clamp(16px, 2vw, 22px);
-      overflow: hidden;
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-      gap: 14px;
-    }
-
-    .round-tabs {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-    }
-
-    button {
-      min-height: 48px;
-      border: 0;
-      border-radius: var(--radius);
-      font: inherit;
-      font-weight: 900;
+        radial-gradient(circle at 12% 14%, rgba(255, 225, 86, 0.24), transparent 32%),
+        radial-gradient(circle at 86% 18%, rgba(56, 182, 255, 0.2), transparent 36%),
+        var(--bg);
       color: var(--ink);
-      cursor: pointer;
-      transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+      min-height: 100dvh;
+      padding: 10px 14px 20px;
+    }
+
+    .container { max-width: 1120px; margin: 0 auto; }
+
+    .nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .nav-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+    .pyp-map-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 8px 16px;
+      background: var(--yellow);
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 900;
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
       touch-action: manipulation;
     }
 
-    button:hover {
-      transform: translateY(-1px);
-    }
+    .pyp-map-link:active { transform: translate(2px, 2px); box-shadow: var(--shadow-sm); }
 
-    button:focus-visible {
-      outline: 4px solid rgba(249, 112, 62, 0.45);
-      outline-offset: 3px;
-    }
-
-    .round-tab {
-      background: #ffffff;
-      border: 2px solid var(--line);
-      box-shadow: inset 0 -3px 0 rgba(23, 50, 77, 0.08);
-    }
-
-    .round-tab.active {
-      background: var(--sun);
-      border-color: #d68a00;
-    }
-
-    .globe-wrap {
-      position: relative;
-      min-height: 350px;
-      display: grid;
-      place-items: center;
-    }
-
-    .sun-beam {
-      position: absolute;
-      left: -18%;
-      top: 18%;
-      width: 36%;
-      height: 64%;
-      background: linear-gradient(90deg, rgba(247, 201, 72, 0), rgba(247, 201, 72, 0.34), rgba(247, 201, 72, 0));
-      transform: skewX(-10deg);
-    }
-
-    .sun-icon {
-      position: absolute;
-      left: 0;
-      top: 10px;
-      width: clamp(74px, 12vw, 118px);
-      aspect-ratio: 1;
-      border-radius: 50%;
-      background: radial-gradient(circle, #fff7ad 0 28%, var(--sun) 29% 64%, transparent 65%);
-      filter: drop-shadow(0 0 22px rgba(247, 201, 72, 0.7));
-      animation: floatSun 5s ease-in-out infinite;
-    }
-
-    .sun-icon::before {
-      content: "";
-      position: absolute;
-      inset: 2%;
-      background: conic-gradient(from 0deg, var(--sun-hot) 0 7deg, transparent 7deg 23deg, var(--sun-hot) 23deg 31deg, transparent 31deg 45deg);
-      border-radius: 50%;
-      animation: spin 18s linear infinite;
-    }
-
-    .globe {
-      position: relative;
-      width: min(92%, 350px);
-      aspect-ratio: 1;
-      border: 5px solid #ffffff;
-      border-radius: 50%;
-      background: #0a3159;
-      overflow: hidden;
-      box-shadow:
-        inset -28px 0 54px rgba(5, 16, 31, 0.32),
-        inset 20px 0 42px rgba(255, 248, 191, 0.48),
-        0 26px 50px rgba(22, 40, 74, 0.22);
-    }
-
-    .globe::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-      background:
-        linear-gradient(90deg, rgba(255, 223, 93, 0.16) 0 47%, rgba(255, 255, 255, 0.18) 49% 51%, rgba(5, 13, 33, 0.78) 53% 100%);
-      mix-blend-mode: multiply;
-      pointer-events: none;
-    }
-
-    .globe::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      z-index: 6;
-      background:
-        linear-gradient(90deg, rgba(255, 255, 255, 0.32), transparent 28%, transparent 72%, rgba(0, 0, 0, 0.24)),
-        radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.18), transparent 34%);
-      pointer-events: none;
-    }
-
-    .map-strip {
-      position: absolute;
-      inset: 0;
-      background-image: var(--earth-texture);
-      background-size: 260% 100%;
-      background-position: var(--earth-position, 97%) center;
-      transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-
-    .latitude-line,
-    .longitude-line {
-      position: absolute;
-      border-color: rgba(255, 255, 255, 0.35);
-      pointer-events: none;
-    }
-
-    .latitude-line {
-      left: 6%;
-      right: 6%;
-      height: 1px;
-      border-top: 1px dashed rgba(255, 255, 255, 0.42);
-    }
-
-    .latitude-line.one {
-      top: 34%;
-    }
-
-    .latitude-line.two {
-      top: 50%;
-    }
-
-    .latitude-line.three {
-      top: 66%;
-    }
-
-    .longitude-line {
-      top: 6%;
-      bottom: 6%;
-      width: 1px;
-      border-left: 1px dashed rgba(255, 255, 255, 0.32);
-    }
-
-    .longitude-line.one {
-      left: 28%;
-    }
-
-    .longitude-line.two {
-      left: 50%;
-    }
-
-    .longitude-line.three {
-      left: 72%;
-    }
-
-    .city-dot {
-      position: absolute;
-      width: 16px;
-      height: 16px;
-      border: 3px solid #ffffff;
-      border-radius: 50%;
-      background: var(--coral);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
-      transform: translate(-50%, -50%);
-      transition: left 0.7s cubic-bezier(0.22, 1, 0.36, 1), top 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-      z-index: 5;
-    }
-
-    .city-dot::after {
-      content: attr(data-label);
-      position: absolute;
-      left: 12px;
-      top: 8px;
-      min-width: 74px;
-      padding: 3px 7px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.88);
-      color: var(--ink);
-      font-size: 0.74rem;
-      font-weight: 900;
-      white-space: nowrap;
-    }
-
-    .city-dot[data-city="mexico"]::after {
-      left: auto;
-      right: 12px;
-      top: -28px;
-    }
-
-    .terminator {
-      position: absolute;
-      left: 50%;
-      top: -4%;
-      width: 7px;
-      height: 108%;
-      background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.75), transparent);
-      box-shadow: 0 0 22px rgba(255, 255, 255, 0.64);
-      transform: translateX(-50%);
-      z-index: 4;
-    }
-
-    .lab-controls {
-      display: grid;
-      gap: 10px;
-    }
-
-    .fact-line {
-      margin: 0;
-      padding: 12px 14px;
-      border: 2px dashed rgba(31, 111, 139, 0.4);
-      border-radius: var(--radius);
-      background: rgba(127, 200, 216, 0.18);
-      font-size: 1rem;
-      font-weight: 800;
-      line-height: 1.35;
-    }
-
-    .action-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .primary-action {
-      background: var(--sea);
-      color: #ffffff;
-      box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.16);
-    }
-
-    .secondary-action {
-      background: #ffffff;
-      border: 2px solid var(--line);
-    }
-
-    .places-lab {
-      min-height: 520px;
-      padding: clamp(16px, 2vw, 22px);
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-      gap: 14px;
-    }
-
-    .section-title {
-      margin: 0;
-      font-size: clamp(1.35rem, 3vw, 2rem);
-      line-height: 1.05;
-    }
-
-    .round-prompt {
-      margin: 6px 0 0;
-      color: #466078;
-      font-weight: 800;
-      line-height: 1.35;
-    }
-
-    .place-grid {
-      display: grid;
-      gap: 12px;
-      align-content: start;
-    }
-
-    .place-card {
-      display: grid;
-      grid-template-columns: minmax(90px, 132px) 1fr;
-      gap: 12px;
-      padding: 12px;
-      border: 2px solid var(--line);
-      border-radius: var(--radius);
-      background: #ffffff;
-      box-shadow: 0 8px 20px rgba(20, 42, 67, 0.08);
-    }
-
-    .mini-map {
-      position: relative;
-      min-height: 104px;
-      border-radius: var(--radius);
-      overflow: hidden;
-      background-image: var(--earth-texture);
-      background-size: 260% 100%;
-      background-position: var(--earth-position) center;
-      border: 2px solid rgba(23, 50, 77, 0.14);
-    }
-
-    .mini-map::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(90deg, rgba(247, 201, 72, 0.78) 0 var(--light-edge), rgba(13, 24, 48, 0.8) var(--light-edge) 100%);
-      mix-blend-mode: multiply;
-      transition: background 0.35s ease;
-    }
-
-    .mini-dot {
-      position: absolute;
-      left: var(--dot-x);
-      top: var(--dot-y);
-      width: 13px;
-      height: 13px;
-      border: 3px solid #ffffff;
-      border-radius: 50%;
-      background: var(--coral);
-      transform: translate(-50%, -50%);
-      z-index: 2;
-    }
-
-    .place-info {
-      min-width: 0;
-      display: grid;
-      gap: 10px;
-      align-content: center;
-    }
-
-    .place-name {
-      margin: 0;
-      font-size: 1.24rem;
-      line-height: 1;
-    }
-
-    .place-name span {
-      display: block;
-      margin-top: 4px;
-      color: #637b90;
-      font-size: 0.84rem;
-      line-height: 1.15;
-    }
-
-    .choice-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-
-    .choice {
-      border: 2px solid transparent;
-      background: #edf6f8;
-    }
-
-    .choice.day {
-      background: #fff3b8;
-    }
-
-    .choice.night {
-      background: #dbe5ff;
-    }
-
-    .choice.selected {
-      border-color: var(--ink);
-      box-shadow: 0 0 0 4px rgba(23, 50, 77, 0.1);
-    }
-
-    .place-card.correct {
-      border-color: #3f9142;
-      background: #f1fff0;
-    }
-
-    .place-card.incorrect {
-      border-color: #c24040;
-      background: #fff1ef;
-      animation: shake 0.25s linear;
-    }
-
-    .feedback {
-      min-height: 52px;
-      margin: 0;
-      padding: 12px 14px;
-      border-radius: var(--radius);
-      background: var(--paper-soft);
-      font-weight: 900;
-      line-height: 1.35;
-    }
-
-    .journal {
-      padding: clamp(16px, 2vw, 22px);
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 16px;
+    .unit-tag {
+      display: inline-flex;
       align-items: center;
+      min-height: 44px;
+      padding: 6px 14px;
+      background: var(--teal);
+      color: var(--ink);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      font-weight: 900;
+      font-size: 0.88rem;
     }
 
-    .journal p {
-      margin: 5px 0 0;
-      color: #466078;
+    .tts-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--panel);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 4px 10px;
+      min-height: 44px;
+    }
+
+    .tts-box select {
+      border: 0;
+      background: transparent;
+      font: inherit;
       font-weight: 800;
-      line-height: 1.35;
+      font-size: 0.84rem;
+      color: var(--ink);
+      max-width: 170px;
     }
 
-    .badge-row {
+    .hero-card {
+      background: var(--panel);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 10px 16px;
+      margin-bottom: 12px;
       display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
       flex-wrap: wrap;
-      gap: 8px;
-      justify-content: flex-end;
     }
 
-    .badge {
-      min-width: 66px;
-      padding: 10px 12px;
-      border-radius: 999px;
+    .hero-title { display: flex; align-items: center; gap: 8px; }
+    .hero-title h1 { font-size: clamp(1.15rem, 2.3vw, 1.55rem); font-weight: 900; }
+
+    .mode-switch { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .btn {
+      min-height: 44px;
+      padding: 8px 14px;
+      background: var(--yellow);
+      color: var(--ink);
+      border: var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+      font: inherit;
+      font-weight: 900;
+      font-size: 0.9rem;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .btn:active { transform: translate(2px, 2px); box-shadow: none; }
+    .btn.secondary { background: #ffffff; }
+    .btn.active-mode { background: var(--coral); color: #ffffff; }
+    .btn.teal { background: var(--teal); }
+
+    .btn-speaker {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      border: 2.5px solid var(--ink);
+      background: var(--yellow);
+      box-shadow: 2px 2px 0 var(--ink);
+      font-size: 1.05rem;
+      cursor: pointer;
+      display: inline-grid;
+      place-items: center;
+      flex-shrink: 0;
+      touch-action: manipulation;
+    }
+
+    .play-grid {
+      display: grid;
+      grid-template-columns: 1.32fr 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 12px 14px;
+    }
+
+    .viewport-wrap {
+      position: relative;
+      width: 100%;
+      height: 365px;
+      border: var(--border);
+      border-radius: 12px;
+      background: #060b1d;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    #earthCanvas { width: 100%; height: 100%; display: block; cursor: grab; }
+    #earthCanvas:active { cursor: grabbing; }
+
+    .town-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(255, 255, 255, 0.95);
+      border: 2.5px solid var(--ink);
+      border-radius: 12px;
+      padding: 6px 12px;
+      box-shadow: 3px 3px 0 var(--ink);
+      font-weight: 900;
+      font-size: 0.86rem;
+      pointer-events: none;
+    }
+
+    .town-badge small { display: block; font-size: 0.72rem; color: #475569; }
+
+    .viewport-hint {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      background: rgba(255, 255, 255, 0.94);
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      padding: 4px 9px;
+      font-size: 0.76rem;
+      font-weight: 900;
+      pointer-events: none;
+    }
+
+    .stage-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .slider-box {
+      flex: 1;
+      min-width: 180px;
+      background: #f8fafc;
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
+      padding: 6px 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .slider-box label { font-size: 0.84rem; font-weight: 900; white-space: nowrap; }
+    .slider-box input[type="range"] { flex: 1; accent-color: var(--coral); height: 10px; cursor: pointer; }
+
+    .sky-window {
+      border: 2.5px solid var(--ink);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    .sky-window h2 { font-size: 1.22rem; font-weight: 900; }
+    .sky-window p { font-size: 0.88rem; font-weight: 700; margin-top: 3px; }
+
+    .time-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .time-btn {
+      min-height: 52px;
+      padding: 8px 10px;
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
       background: #ffffff;
-      border: 2px solid var(--line);
-      text-align: center;
+      box-shadow: 2px 2px 0 var(--ink);
+      font: inherit;
+      font-weight: 900;
+      font-size: 0.86rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      touch-action: manipulation;
+    }
+
+    .time-btn.active { background: var(--yellow); }
+
+    .evidence-card {
+      background: #f0fdf4;
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 0.86rem;
+      font-weight: 800;
+      line-height: 1.42;
+    }
+
+    .hidden { display: none !important; }
+
+    .case-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+    .case-tab {
+      min-height: 40px;
+      padding: 6px 10px;
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
+      background: #ffffff;
+      font: inherit;
+      font-weight: 900;
+      font-size: 0.82rem;
+      cursor: pointer;
+    }
+    .case-tab.active { background: var(--yellow); }
+    .case-tab.solved { background: var(--green); }
+
+    .prompt-card {
+      background: #f8fafc;
+      border: 2.5px dashed var(--ink);
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .prompt-card p { font-size: 0.94rem; font-weight: 800; line-height: 1.4; }
+
+    .choice-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.84rem;
       font-weight: 900;
     }
 
-    .badge.complete {
-      background: var(--sun);
-      border-color: #d68a00;
+    .badge-neutral {
+      background: #ffffff;
+      border: 2px dashed var(--ink);
+      border-radius: 8px;
+      padding: 2px 8px;
+      font-size: 0.8rem;
+      font-weight: 800;
+    }
+    .badge-selected {
+      background: var(--yellow);
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      padding: 2px 8px;
+      font-size: 0.8rem;
+      font-weight: 900;
     }
 
-    .celebration {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      overflow: hidden;
-      z-index: 20;
+    .choice-list { display: grid; gap: 8px; margin-bottom: 10px; }
+    .choice-btn {
+      min-height: 48px;
+      padding: 10px 12px;
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
+      background: #ffffff;
+      box-shadow: 2px 2px 0 var(--ink);
+      font: inherit;
+      font-weight: 900;
+      font-size: 0.9rem;
+      text-align: left;
+      cursor: pointer;
     }
+    .choice-btn.active { background: var(--yellow); }
 
-    .spark {
-      position: absolute;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: var(--spark-color);
-      animation: pop 900ms ease-out forwards;
+    .feedback-box {
+      margin-top: 10px;
+      min-height: 48px;
+      padding: 10px 12px;
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 800;
+      background: #f1f5f9;
+      line-height: 1.38;
     }
+    .feedback-box.good { background: var(--green); }
+    .feedback-box.warn { background: #fef08a; }
 
-    @keyframes spin {
-      to {
-        transform: rotate(1turn);
-      }
+    @media (max-width: 860px) {
+      .play-grid { grid-template-columns: 1fr; }
+      .viewport-wrap { height: 300px; }
     }
-
-    @keyframes floatSun {
-
-      0%,
-      100% {
-        transform: translateY(0);
-      }
-
-      50% {
-        transform: translateY(10px);
-      }
-    }
-
-    @keyframes shake {
-
-      0%,
-      100% {
-        transform: translateX(0);
-      }
-
-      30% {
-        transform: translateX(-5px);
-      }
-
-      70% {
-        transform: translateX(5px);
-      }
-    }
-
-    @keyframes pop {
-      0% {
-        transform: translate(0, 0) scale(0.8);
-        opacity: 1;
-      }
-
-      100% {
-        transform: translate(var(--spark-x), var(--spark-y)) scale(0);
-        opacity: 0;
-      }
-    }
-
-    @media (max-width: 840px) {
-
-      .top-bar,
-      .investigation,
-      .journal {
-        grid-template-columns: 1fr;
-      }
-
-      .score-board {
-        width: 100%;
-      }
-
-      .earth-lab,
-      .places-lab {
-        min-height: auto;
-      }
-    }
-
-    @media (max-width: 560px) {
-      .app {
-        width: min(100% - 18px, 1160px);
-        padding-top: 12px;
-      }
-
-      .round-tabs {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .place-card {
-        grid-template-columns: 1fr;
-      }
-
-      .mini-map {
-        min-height: 128px;
-      }
-
-      .action-row {
-        grid-template-columns: 1fr;
-      }
-
-      .badge-row {
-        justify-content: flex-start;
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-
-      *,
-      *::before,
-      *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        scroll-behavior: auto !important;
-        transition-duration: 0.01ms !important;
-      }
-    }
-
   </style>
 </head>
-
 <body>
-  <main class="app">
-    <header class="top-bar">
-      <div>
-        <h1>Day and Night Detectives</h1>
-        <p class="subtitle">Investigate Shenzhen, Cairo, and Mexico City. The sunny half is daytime; the shaded half is
-          nighttime.</p>
+  <div class="container">
+    <nav class="nav-bar">
+      <div class="nav-left">
+        <a class="pyp-map-link" href="../index.html">← PYP Map</a>
+        <span class="unit-tag">🌍 Grade 1 · Unit 5 · Patterns &amp; Cycles</span>
       </div>
-      <div class="score-board" aria-live="polite">
-        <span>Investigation Score</span>
-        <strong id="score">0 / 12</strong>
+      <div class="tts-box">
+        <span>🔊</span>
+        <select id="voiceSelect" aria-label="Choose voice accent"></select>
+      </div>
+    </nav>
+
+    <header class="hero-card">
+      <div class="hero-title">
+        <h1>Day &amp; Night 3D Detectives ☀️🌙</h1>
+        <button type="button" class="btn-speaker" id="btnSpeakTitle" aria-label="Read title aloud">🔊</button>
+      </div>
+      <div class="mode-switch">
+        <button type="button" class="btn active-mode" id="tabExplore">1. Spin 3D Earth 🌍</button>
+        <button type="button" class="btn secondary" id="tabChallenge">2. Detective Cases 🕵️</button>
       </div>
     </header>
 
-    <section class="investigation" aria-label="Day and night investigation game">
-      <div class="earth-lab">
-        <nav class="round-tabs" aria-label="Investigation rounds" id="roundTabs"></nav>
-
-        <div class="globe-wrap" aria-label="Earth model showing day and night">
-          <div class="sun-beam"></div>
-          <div class="sun-icon" aria-hidden="true"></div>
-          <div class="globe">
-            <div class="map-strip" id="mapStrip">
-              <div class="latitude-line one"></div>
-              <div class="latitude-line two"></div>
-              <div class="latitude-line three"></div>
-              <div class="longitude-line one"></div>
-              <div class="longitude-line two"></div>
-              <div class="longitude-line three"></div>
-              <span class="city-dot" data-city="mexico" data-label="Mexico City"></span>
-              <span class="city-dot" data-city="cairo" data-label="Cairo"></span>
-              <span class="city-dot" data-city="shenzhen" data-label="Shenzhen"></span>
-            </div>
-            <div class="terminator" aria-hidden="true"></div>
+    <main class="play-grid">
+      <section class="panel">
+        <div class="viewport-wrap" id="viewportWrap">
+          <canvas id="earthCanvas"></canvas>
+          <div class="town-badge" id="townBadge">
+            <span id="townTimeLabel">☀️ 12:00 Noon</span>
+            <small id="townPinState">📍 Red Pin faces the Sun!</small>
           </div>
+          <div class="viewport-hint">👆 Drag to orbit 3D Earth · Find the glowing city lights on the night side!</div>
         </div>
 
-        <div class="lab-controls">
-          <p class="fact-line" id="roundFact">Earth keeps turning, so places move into sunlight and shadow.</p>
-          <div class="action-row">
-            <button class="secondary-action" id="rotateBtn" type="button">Turn Earth</button>
-            <button class="primary-action" id="checkBtn" type="button">Check Round</button>
+        <div class="stage-toolbar">
+          <div class="slider-box">
+            <label for="hourSlider">Clock: <span id="clockText">12:00</span></label>
+            <input type="range" id="hourSlider" min="0" max="24" step="0.25" value="12">
           </div>
+          <button type="button" class="btn teal" id="btnSpin">▶ Spin Earth</button>
+          <button type="button" class="btn secondary" id="btnReset">Reset ↺</button>
         </div>
-      </div>
+      </section>
 
-      <div class="places-lab">
-        <div>
-          <h2 class="section-title" id="roundTitle">Round 1</h2>
-          <p class="round-prompt" id="roundPrompt">Color each place by choosing Day or Night.</p>
+      <section class="panel" id="explorePanel">
+        <div class="sky-window" id="skyWindow">
+          <div>
+            <h2 id="skyTitle">☀️ Bright Daytime</h2>
+            <p id="skyDesc">Our red pin faces the Sun! The sky is bright blue and warm.</p>
+          </div>
+          <button type="button" class="btn-speaker" id="btnSpeakSky" aria-label="Read sky update">🔊</button>
         </div>
-        <div class="place-grid" id="placeGrid"></div>
-        <p class="feedback" id="feedback" aria-live="polite">Start with Round 1. Look at each city dot before choosing.
-        </p>
-      </div>
-    </section>
 
-    <section class="journal" aria-label="Observation journal">
-      <div>
-        <h2 class="section-title">What Changed?</h2>
-        <p id="observation">Watch how Shenzhen, Cairo, and Mexico City do not all match. Day and night depend on where
-          each place is as Earth turns.</p>
-      </div>
-      <div class="badge-row" id="badgeRow" aria-label="Completed rounds"></div>
-    </section>
-  </main>
+        <div class="time-grid" id="timeGrid">
+          <button type="button" class="time-btn" data-hour="6">🌅 6:00 Sunrise</button>
+          <button type="button" class="time-btn active" data-hour="12">☀️ 12:00 Noon</button>
+          <button type="button" class="time-btn" data-hour="18">🌇 18:00 Sunset</button>
+          <button type="button" class="time-btn" data-hour="0">🌙 0:00 Midnight</button>
+        </div>
 
-  <div class="celebration" id="celebration" aria-hidden="true"></div>
+        <div class="evidence-card" id="evidenceCard">
+          🔎 <strong>Science Clue:</strong> Earth spins like a top once every 24 hours! When our town turns toward the Sun, it is Day. When it turns into Earth's shadow, it is Night.
+        </div>
+      </section>
 
-  <script>
-    const places = [
-      {
-        id: "shenzhen",
-        name: "Shenzhen",
-        location: "China",
-        longitude: 114,
-        latitude: 22.5,
-        dotX: "50%",
-        dotY: "41%"
-      },
-      {
-        id: "cairo",
-        name: "Cairo",
-        location: "Egypt",
-        longitude: 31,
-        latitude: 30,
-        dotX: "50%",
-        dotY: "38%"
-      },
-      {
-        id: "mexico",
-        name: "Mexico City",
-        location: "Mexico",
-        longitude: -99,
-        latitude: 19.4,
-        dotX: "50%",
-        dotY: "42%"
+      <section class="panel hidden" id="challengePanel">
+        <div class="case-tabs" id="caseTabs"></div>
+        <div class="prompt-card">
+          <p id="casePrompt"></p>
+          <button type="button" class="btn-speaker" id="btnSpeakCase" aria-label="Read case aloud">🔊</button>
+        </div>
+        <div class="choice-header">
+          <span>Pick your detective answer:</span>
+          <span class="badge-neutral" id="choiceBadge">❓ Tap to choose</span>
+        </div>
+        <div class="choice-list" id="choiceList"></div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button type="button" class="btn active-mode" id="btnSubmit" style="flex:1;">Check Case ✨</button>
+          <button type="button" class="btn secondary" id="btnBackExplore">⬅️ Back to Explore</button>
+        </div>
+        <div class="feedback-box" id="caseFeedback" aria-live="polite">
+          Spin the 3D Earth to test your idea, then tap an answer!
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    // Web Audio SFX
+    class SoundFX {
+      constructor() { this.ctx = null; }
+      init() {
+        try {
+          if (!this.ctx) {
+            const Ctx = window.AudioContext || window.webkitAudioContext;
+            this.ctx = new Ctx();
+          }
+          if (this.ctx.state === 'suspended') this.ctx.resume();
+        } catch (_) {}
       }
-    ];
-
-    const rounds = [
-      {
-        title: "Round 1",
-        sunCenter: 105,
-        fact: "The sunlight is centered near East Asia, so Shenzhen is easy to spot in the day side.",
-        prompt: "Use the lit and shaded halves to decide what time each place has."
-      },
-      {
-        title: "Round 2",
-        sunCenter: 35,
-        fact: "Earth has turned. Egypt is now close to the middle of the sunny side.",
-        prompt: "Compare each city with the bright half of Earth."
-      },
-      {
-        title: "Round 3",
-        sunCenter: -100,
-        fact: "The sunny side has moved to Mexico. Places far away may be in shadow.",
-        prompt: "Choose day or night for all three places."
-      },
-      {
-        title: "Round 4",
-        sunCenter: -165,
-        fact: "One more turn makes a new pattern. The same city can change from day to night.",
-        prompt: "Finish the investigation and look for the pattern."
+      playClick() {
+        this.init();
+        if (!this.ctx) return;
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(580, t);
+        osc.frequency.exponentialRampToValueAtTime(310, t + 0.05);
+        gain.gain.setValueAtTime(0.11, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+        osc.connect(gain); gain.connect(this.ctx.destination);
+        osc.start(t); osc.stop(t + 0.055);
       }
-    ];
+      playCorrect() {
+        this.init();
+        if (!this.ctx) return;
+        const t = this.ctx.currentTime;
+        [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(f, t + i * 0.055);
+          gain.gain.setValueAtTime(0.15, t + i * 0.055);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.055 + 0.22);
+          osc.connect(gain); gain.connect(this.ctx.destination);
+          osc.start(t + i * 0.055); osc.stop(t + i * 0.055 + 0.24);
+        });
+      }
+      playBuzz() {
+        this.init();
+        if (!this.ctx) return;
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(170, t);
+        gain.gain.setValueAtTime(0.12, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+        osc.connect(gain); gain.connect(this.ctx.destination);
+        osc.start(t); osc.stop(t + 0.2);
+      }
+    }
+    const sfx = new SoundFX();
 
-    const state = {
-      roundIndex: 0,
-      choices: {},
-      completed: new Set(),
-      correct: 0
+    // TTS Manager with Browser Default Fallback
+    const TTS_MANAGER = {
+      voices: [],
+      selectedVoice: null,
+      init() {
+        const load = () => {
+          const all = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
+          if (!all.length) return;
+          const en = all.filter(v => v.lang && v.lang.toLowerCase().startsWith('en'));
+          this.voices = en.length ? en : all;
+          const saved = localStorage.getItem('ib_pyp_voice_name');
+          this.selectedVoice =
+            this.voices.find(v => v.name === saved) ||
+            this.voices.find(v => v.lang === 'en-US') ||
+            this.voices.find(v => v.default) ||
+            this.voices[0];
+          const sel = document.getElementById('voiceSelect');
+          sel.innerHTML = this.voices.map(v => `<option value="${v.name}">${v.name} (${v.lang})</option>`).join('');
+          if (this.selectedVoice) sel.value = this.selectedVoice.name;
+        };
+        load();
+        if (window.speechSynthesis && window.speechSynthesis.onvoiceschanged !== undefined) {
+          window.speechSynthesis.onvoiceschanged = load;
+        }
+        document.getElementById('voiceSelect').addEventListener('change', e => {
+          this.selectedVoice = this.voices.find(v => v.name === e.target.value) || this.voices[0];
+          if (this.selectedVoice) localStorage.setItem('ib_pyp_voice_name', this.selectedVoice.name);
+        });
+      },
+      speak(text) {
+        if (!window.speechSynthesis) return;
+        window.speechSynthesis.cancel();
+        const utt = new SpeechSynthesisUtterance(text);
+        if (this.selectedVoice) utt.voice = this.selectedVoice;
+        utt.rate = 0.94;
+        utt.pitch = 1.05;
+        window.speechSynthesis.speak(utt);
+      }
     };
+    TTS_MANAGER.init();
 
-    const roundTabs = document.getElementById("roundTabs");
-    const placeGrid = document.getElementById("placeGrid");
-    const badgeRow = document.getElementById("badgeRow");
-    const feedback = document.getElementById("feedback");
-    const score = document.getElementById("score");
-    const mapStrip = document.getElementById("mapStrip");
-    const roundTitle = document.getElementById("roundTitle");
-    const roundPrompt = document.getElementById("roundPrompt");
-    const roundFact = document.getElementById("roundFact");
-    const observation = document.getElementById("observation");
-    const celebration = document.getElementById("celebration");
+    // Procedural Earth Day Texture + Glowing City Lights Emissive Map + Clouds
+    function createEarthTextures() {
+      const dayC = document.createElement('canvas');
+      dayC.width = 512; dayC.height = 256;
+      const dCtx = dayC.getContext('2d');
 
-    function normalizeLongitude(value) {
-      return ((((value + 180) % 360) + 360) % 360) - 180;
-    }
+      const oceanGrad = dCtx.createLinearGradient(0, 0, 0, 256);
+      oceanGrad.addColorStop(0, '#1d4ed8');
+      oceanGrad.addColorStop(0.5, '#0284c7');
+      oceanGrad.addColorStop(1, '#1e3a8a');
+      dCtx.fillStyle = oceanGrad;
+      dCtx.fillRect(0, 0, 512, 256);
 
-    function longitudeDistance(a, b) {
-      return Math.abs(normalizeLongitude(a - b));
-    }
-
-    function getAnswer(place, round) {
-      return longitudeDistance(place.longitude, round.sunCenter) <= 90 ? "day" : "night";
-    }
-
-    function getLightAmount(place, round) {
-      const distance = longitudeDistance(place.longitude, round.sunCenter);
-      return Math.max(0, Math.round((1 - distance / 180) * 100));
-    }
-
-    function getEarthPosition(longitude) {
-      const textureScale = 2.6;
-      const position = ((((longitude + 180) / 360) * textureScale) - 0.5) / (textureScale - 1);
-      return Math.max(0, Math.min(100, Math.round(position * 100)));
-    }
-
-    function getGlobePosition(place, round) {
-      const relative = normalizeLongitude(place.longitude - round.sunCenter);
-      const x = 50 + (relative / 180) * 46;
-      return {
-        x: Math.max(6, Math.min(94, x)),
-        y: 50 - (place.latitude / 90) * 38
-      };
-    }
-
-    function renderRoundTabs() {
-      roundTabs.innerHTML = "";
-      rounds.forEach((round, index) => {
-        const tab = document.createElement("button");
-        tab.type = "button";
-        tab.className = `round-tab${index === state.roundIndex ? " active" : ""}`;
-        tab.textContent = round.title;
-        tab.setAttribute("aria-pressed", String(index === state.roundIndex));
-        tab.addEventListener("click", () => {
-          state.roundIndex = index;
-          render();
-        });
-        roundTabs.appendChild(tab);
+      const continents = [
+        [95, 92, 54, 34], [135, 160, 32, 46], [248, 86, 62, 32],
+        [275, 146, 44, 42], [388, 94, 66, 36], [425, 168, 36, 24]
+      ];
+      dCtx.fillStyle = '#4ade80';
+      continents.forEach(([x, y, rx, ry]) => {
+        dCtx.beginPath();
+        dCtx.ellipse(x, y, rx, ry, 0.2, 0, Math.PI * 2);
+        dCtx.fill();
       });
-    }
 
-    function renderBadges() {
-      badgeRow.innerHTML = "";
-      rounds.forEach((round, index) => {
-        const badge = document.createElement("span");
-        badge.className = `badge${state.completed.has(index) ? " complete" : ""}`;
-        badge.textContent = state.completed.has(index) ? `${round.title} done` : round.title;
-        badgeRow.appendChild(badge);
-      });
-    }
+      // Polar caps
+      dCtx.fillStyle = '#f8fafc';
+      dCtx.fillRect(0, 0, 512, 16);
+      dCtx.fillRect(0, 240, 512, 16);
 
-    function renderPlaces() {
-      const round = rounds[state.roundIndex];
-      placeGrid.innerHTML = "";
-
-      places.forEach((place) => {
-        const card = document.createElement("article");
-        card.className = "place-card";
-        card.dataset.place = place.id;
-
-        const choiceKey = `${state.roundIndex}-${place.id}`;
-        const selected = state.choices[choiceKey];
-        const light = getLightAmount(place, round);
-        const edge = `${Math.max(8, Math.min(92, light))}%`;
-
-        card.innerHTML = `
-          <div class="mini-map" style="--light-edge: ${edge}; --earth-position: ${getEarthPosition(place.longitude)}%">
-            <span class="mini-dot" style="--dot-x: ${place.dotX}; --dot-y: ${place.dotY}"></span>
-          </div>
-          <div class="place-info">
-            <h3 class="place-name">${place.name}<span>${place.location}</span></h3>
-            <div class="choice-row" role="group" aria-label="${place.name} choice">
-              <button class="choice day${selected === "day" ? " selected" : ""}" type="button" data-choice="day">Day</button>
-              <button class="choice night${selected === "night" ? " selected" : ""}" type="button" data-choice="night">Night</button>
-            </div>
-          </div>
-        `;
-
-        card.querySelectorAll(".choice").forEach((button) => {
-          button.addEventListener("click", () => {
-            state.choices[choiceKey] = button.dataset.choice;
-            feedback.textContent = `${place.name} marked as ${button.dataset.choice}. Check all three when you are ready.`;
-            renderPlaces();
-          });
-        });
-
-        placeGrid.appendChild(card);
-      });
-    }
-
-    function renderGlobe() {
-      const round = rounds[state.roundIndex];
-      mapStrip.style.setProperty("--earth-position", `${getEarthPosition(round.sunCenter)}%`);
-      mapStrip.style.transform = "none";
-
-      places.forEach((place) => {
-        const dot = document.querySelector(`.city-dot[data-city="${place.id}"]`);
-        const position = getGlobePosition(place, round);
-        dot.style.left = `${position.x}%`;
-        dot.style.top = `${position.y}%`;
-      });
-    }
-
-    function updateScore() {
-      let correct = 0;
-      rounds.forEach((round, roundIndex) => {
-        places.forEach((place) => {
-          const key = `${roundIndex}-${place.id}`;
-          if (state.choices[key] === getAnswer(place, round)) {
-            correct += 1;
-          }
-        });
-      });
-      state.correct = correct;
-      score.textContent = `${correct} / ${rounds.length * places.length}`;
-    }
-
-    function render() {
-      const round = rounds[state.roundIndex];
-      renderRoundTabs();
-      renderPlaces();
-      renderBadges();
-      renderGlobe();
-      updateScore();
-
-      roundTitle.textContent = round.title;
-      roundPrompt.textContent = round.prompt;
-      roundFact.textContent = round.fact;
-      observation.textContent = getObservation();
-    }
-
-    function getObservation() {
-      if (state.completed.size === 0) {
-        return "Watch how Shenzhen, Cairo, and Mexico City do not all match. Day and night depend on where each place is as Earth turns.";
-      }
-
-      if (state.completed.size < rounds.length) {
-        return "Good investigation. Each completed round gives a different pattern because Earth keeps rotating under the sunlight.";
-      }
-
-      return "You found the pattern: the Sun lights one half of Earth at a time. As Earth rotates, each place takes turns having day and night.";
-    }
-
-    function checkRound() {
-      const round = rounds[state.roundIndex];
-      let missing = [];
-      let wrong = [];
-
-      places.forEach((place) => {
-        const key = `${state.roundIndex}-${place.id}`;
-        const card = document.querySelector(`.place-card[data-place="${place.id}"]`);
-        card.classList.remove("correct", "incorrect");
-
-        if (!state.choices[key]) {
-          missing.push(place.name);
-          return;
-        }
-
-        if (state.choices[key] === getAnswer(place, round)) {
-          card.classList.add("correct");
-        } else {
-          card.classList.add("incorrect");
-          wrong.push(place.name);
+      // Night city lights emissive canvas
+      const nightC = document.createElement('canvas');
+      nightC.width = 512; nightC.height = 256;
+      const nCtx = nightC.getContext('2d');
+      nCtx.fillStyle = '#000000';
+      nCtx.fillRect(0, 0, 512, 256);
+      nCtx.fillStyle = '#ffd166';
+      continents.forEach(([cx, cy, rx, ry]) => {
+        for (let i = 0; i < 16; i++) {
+          const a = (i / 16) * Math.PI * 2;
+          const r = 0.25 + (i % 5) * 0.13;
+          const px = cx + Math.cos(a) * rx * r;
+          const py = cy + Math.sin(a) * ry * r;
+          nCtx.beginPath();
+          nCtx.arc(px, py, 2.2, 0, Math.PI * 2);
+          nCtx.fill();
         }
       });
 
-      if (missing.length > 0) {
-        feedback.textContent = `Choose Day or Night for ${missing.join(", ")}.`;
-        return;
+      // Clouds canvas
+      const cloudC = document.createElement('canvas');
+      cloudC.width = 512; cloudC.height = 256;
+      const cCtx = cloudC.getContext('2d');
+      cCtx.fillStyle = 'rgba(255,255,255,0.68)';
+      for (let i = 0; i < 34; i++) {
+        const x = (i * 67) % 512;
+        const y = 26 + ((i * 41) % 204);
+        cCtx.beginPath();
+        cCtx.ellipse(x, y, 22 + (i % 18), 8 + (i % 7), 0, 0, Math.PI * 2);
+        cCtx.fill();
       }
 
-      if (wrong.length > 0) {
-        feedback.textContent = `Look again at ${wrong.join(", ")}. Is the city dot on the bright side or the shaded side?`;
-        updateScore();
-        return;
+      const dayTex = new THREE.CanvasTexture(dayC);
+      dayTex.colorSpace = THREE.SRGBColorSpace;
+      const nightTex = new THREE.CanvasTexture(nightC);
+      nightTex.colorSpace = THREE.SRGBColorSpace;
+      const cloudTex = new THREE.CanvasTexture(cloudC);
+      cloudTex.colorSpace = THREE.SRGBColorSpace;
+      return { dayTex, nightTex, cloudTex };
+    }
+
+    // Three.js Scene
+    const viewportWrap = document.getElementById('viewportWrap');
+    const earthCanvas = document.getElementById('earthCanvas');
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x060b1d);
+
+    const camera = new THREE.PerspectiveCamera(42, viewportWrap.clientWidth / viewportWrap.clientHeight, 0.1, 150);
+    camera.position.set(0, 2.8, 7.6);
+
+    const renderer = new THREE.WebGLRenderer({ canvas: earthCanvas, antialias: true, powerPreference: 'high-performance' });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(viewportWrap.clientWidth, viewportWrap.clientHeight);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.15;
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.07;
+    controls.minDistance = 4.2;
+    controls.maxDistance = 14;
+
+    // Starfield
+    const starGeo = new THREE.BufferGeometry();
+    const starPos = new Float32Array(600 * 3);
+    for (let i = 0; i < 600; i++) {
+      const r = 24 + Math.random() * 36;
+      const th = Math.random() * Math.PI * 2;
+      const ph = Math.acos(2 * Math.random() - 1);
+      starPos[i * 3] = r * Math.sin(ph) * Math.cos(th);
+      starPos[i * 3 + 1] = r * Math.sin(ph) * Math.sin(th);
+      starPos[i * 3 + 2] = r * Math.cos(ph);
+    }
+    starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+    scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xfff8d6, size: 0.16 })));
+
+    // Lighting: strong directional Sun from +X
+    scene.add(new THREE.AmbientLight(0x1f2d52, 0.35));
+    const sunLight = new THREE.DirectionalLight(0xfff5d6, 3.2);
+    sunLight.position.set(12, 1.2, 0);
+    scene.add(sunLight);
+
+    // Radiant Sun on +X
+    const sunMesh = new THREE.Mesh(
+      new THREE.SphereGeometry(1.5, 28, 28),
+      new THREE.MeshBasicMaterial({ color: 0xffe156 })
+    );
+    sunMesh.position.set(8.6, 0.8, 0);
+    const sunGlow = new THREE.Mesh(
+      new THREE.SphereGeometry(2.05, 24, 24),
+      new THREE.MeshBasicMaterial({ color: 0xffa726, transparent: true, opacity: 0.22 })
+    );
+    sunMesh.add(sunGlow);
+    scene.add(sunMesh);
+
+    // Earth Tilt & Spin Group
+    const earthTilt = new THREE.Group();
+    earthTilt.rotation.z = THREE.MathUtils.degToRad(23.4);
+    scene.add(earthTilt);
+
+    // Axis Rod
+    const axisMesh = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.035, 0.035, 5.2, 12),
+      new THREE.MeshBasicMaterial({ color: 0x94a3b8, transparent: true, opacity: 0.55 })
+    );
+    earthTilt.add(axisMesh);
+
+    const earthSpin = new THREE.Group();
+    earthTilt.add(earthSpin);
+
+    const { dayTex, nightTex, cloudTex } = createEarthTextures();
+    const earthSphere = new THREE.Mesh(
+      new THREE.SphereGeometry(2.1, 42, 42),
+      new THREE.MeshStandardMaterial({
+        map: dayTex,
+        emissiveMap: nightTex,
+        emissive: new THREE.Color(0xffb703),
+        emissiveIntensity: 0.45,
+        roughness: 0.58,
+        metalness: 0.06
+      })
+    );
+    earthSpin.add(earthSphere);
+
+    const cloudSphere = new THREE.Mesh(
+      new THREE.SphereGeometry(2.16, 36, 36),
+      new THREE.MeshStandardMaterial({ map: cloudTex, transparent: true, opacity: 0.62, roughness: 0.9 })
+    );
+    earthSpin.add(cloudSphere);
+
+    const atmoHalo = new THREE.Mesh(
+      new THREE.SphereGeometry(2.28, 32, 32),
+      new THREE.MeshBasicMaterial({ color: 0x38b6ff, transparent: true, opacity: 0.16, side: THREE.BackSide })
+    );
+    earthTilt.add(atmoHalo);
+
+    // Red Town Marker Pin on Equator (+X at Noon = hour 12)
+    const pinGroup = new THREE.Group();
+    const pinStick = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.05, 0.05, 0.52, 12),
+      new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 })
+    );
+    pinStick.rotation.z = -Math.PI / 2;
+    pinStick.position.x = 2.26;
+    const pinHead = new THREE.Mesh(
+      new THREE.SphereGeometry(0.18, 20, 20),
+      new THREE.MeshStandardMaterial({ color: 0xff3b5c, emissive: 0xff3b5c, emissiveIntensity: 0.35, roughness: 0.25 })
+    );
+    pinHead.position.x = 2.55;
+    pinGroup.add(pinStick, pinHead);
+    earthSpin.add(pinGroup);
+
+    // Cases
+    const CASES = [
+      {
+        tab: '☀️ Case 1',
+        hour: 12,
+        prompt: 'The red pin for our town is pointing straight at the bright Sun. What time of day is it in our town?',
+        options: ['Bright Noon (Daytime) ☀️', 'Dark Midnight (Nighttime) 🌙', 'Time for sleeping in the dark 😴'],
+        answer: 0,
+        good: 'Yes! When our side of Earth faces the Sun, we get bright daytime sunlight.',
+        hint: 'Look at the red pin on the 3D Earth — is it in the sunlight or in the shadow?'
+      },
+      {
+        tab: '🌙 Case 2',
+        hour: 0,
+        prompt: 'Our town has spun all the way around into Earth’s dark shadow. What can we see in our sky now?',
+        options: ['The hot noon Sun overhead ☀️', 'A dark night sky with stars and city lights ✨', 'A bright rainbow at midnight 🌈'],
+        answer: 1,
+        good: 'Awesome detective work! On the shadow side of Earth, it is Night and city lights glow.',
+        hint: 'Drag the 3D globe to look at the dark side where the red pin is hiding.'
+      },
+      {
+        tab: '🌍 Case 3',
+        hour: 12,
+        prompt: 'When it is sunny lunchtime in our town, what is happening on the exact opposite side of Earth?',
+        options: ['It is daytime everywhere on Earth ☀️', 'It is nighttime on the opposite side 🌙', 'The Sun disappears for everyone 👻'],
+        answer: 1,
+        good: 'Spot on! Sunlight can only light half of a round ball at one time, so the other half has night.',
+        hint: 'Orbit behind the 3D Earth right now — half is bright and half is dark!'
+      },
+      {
+        tab: '🔄 Case 4',
+        hour: 6,
+        prompt: 'What causes Day and Night to happen in a steady pattern every 24 hours?',
+        options: ['Earth spins around on its axis 🌍', 'The Sun turns on and off like a lamp 💡', 'Birds push the clouds away 🐦'],
+        answer: 0,
+        good: 'Brilliant scientist! Earth’s steady spin gives us sunrise, noon, sunset, and night every 24 hours.',
+        hint: 'Tap the "▶ Spin Earth" button and watch how Earth turns!'
       }
+    ];
 
-      state.completed.add(state.roundIndex);
-      feedback.textContent = `${round.title} complete. The pattern changed because Earth turned.`;
-      celebrate();
-      updateScore();
-      renderBadges();
-      observation.textContent = getObservation();
+    let currentHour = 12;
+    let isSpinning = false;
+    let activeCaseIdx = 0;
+    let selectedOption = null;
+    const solvedCases = [false, false, false, false];
 
-      if (state.completed.size < rounds.length) {
-        setTimeout(() => {
-          state.roundIndex = (state.roundIndex + 1) % rounds.length;
-          while (state.completed.has(state.roundIndex) && state.completed.size < rounds.length) {
-            state.roundIndex = (state.roundIndex + 1) % rounds.length;
-          }
-          render();
-          feedback.textContent = "New round ready. Compare the city dots with the sunlight.";
-        }, 900);
+    const hourSlider = document.getElementById('hourSlider');
+    const clockText = document.getElementById('clockText');
+    const townTimeLabel = document.getElementById('townTimeLabel');
+    const townPinState = document.getElementById('townPinState');
+    const skyWindow = document.getElementById('skyWindow');
+    const skyTitle = document.getElementById('skyTitle');
+    const skyDesc = document.getElementById('skyDesc');
+
+    function formatClock(h) {
+      const norm = ((h % 24) + 24) % 24;
+      const hrs = Math.floor(norm);
+      const mins = Math.round((norm - hrs) * 60) % 60;
+      return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+    }
+
+    function updateHour(h) {
+      currentHour = ((h % 24) + 24) % 24;
+      // Hour 12 -> pin at +X (angle 0). Hour 0 -> pin at -X (angle PI).
+      const rad = ((currentHour - 12) / 24) * Math.PI * 2;
+      earthSpin.rotation.y = rad;
+
+      hourSlider.value = currentHour;
+      const formatted = formatClock(currentHour);
+      clockText.textContent = formatted;
+
+      let label, pinNote, title, desc, bg, fg;
+      if (currentHour >= 5 && currentHour < 8.5) {
+        label = `🌅 ${formatted} Sunrise`;
+        pinNote = '📍 Turning into the morning Sun!';
+        title = '🌅 Morning Sunrise';
+        desc = 'Our town is turning into the sunlight! The sky turns peach and gold.';
+        bg = 'linear-gradient(135deg, #fde68a, #fda4af)'; fg = '#111111';
+      } else if (currentHour >= 8.5 && currentHour < 16.5) {
+        label = `☀️ ${formatted} Daytime`;
+        pinNote = '📍 Red Pin faces the bright Sun!';
+        title = '☀️ Bright Daytime';
+        desc = 'Our town faces the Sun! We can play outside and see shadows.';
+        bg = 'linear-gradient(135deg, #bae6fd, #fef08a)'; fg = '#111111';
+      } else if (currentHour >= 16.5 && currentHour < 20) {
+        label = `🌇 ${formatted} Sunset`;
+        pinNote = '📍 Turning into Earth’s shadow!';
+        title = '🌇 Evening Sunset';
+        desc = 'Our town is turning away from the Sun. The sky glows orange and purple.';
+        bg = 'linear-gradient(135deg, #fdba74, #c084fc)'; fg = '#111111';
       } else {
-        feedback.textContent = "Investigation complete. Every place changes as Earth rotates.";
+        label = `🌙 ${formatted} Nighttime`;
+        pinNote = '📍 Red Pin is on the dark side!';
+        title = '🌙 Starry Nighttime';
+        desc = 'Our town is in Earth’s shadow. Stars twinkle and city lights glow!';
+        bg = 'linear-gradient(135deg, #1e1b4b, #0f172a)'; fg = '#ffffff';
       }
+
+      townTimeLabel.textContent = label;
+      townPinState.textContent = pinNote;
+      skyWindow.style.background = bg;
+      skyWindow.style.color = fg;
+      skyTitle.textContent = title;
+      skyDesc.textContent = desc;
+
+      document.querySelectorAll('.time-btn').forEach(btn => {
+        const target = parseFloat(btn.dataset.hour);
+        const diff = Math.min(Math.abs(currentHour - target), 24 - Math.abs(currentHour - target));
+        btn.classList.toggle('active', diff < 1.5);
+      });
     }
 
-    function rotateEarth() {
-      state.roundIndex = (state.roundIndex + 1) % rounds.length;
-      feedback.textContent = "Earth turned. The day and night pattern changed.";
-      render();
+    hourSlider.addEventListener('input', e => {
+      isSpinning = false;
+      document.getElementById('btnSpin').textContent = '▶ Spin Earth';
+      updateHour(parseFloat(e.target.value));
+    });
+
+    document.querySelectorAll('.time-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        sfx.playClick();
+        isSpinning = false;
+        document.getElementById('btnSpin').textContent = '▶ Spin Earth';
+        updateHour(parseFloat(btn.dataset.hour));
+      });
+    });
+
+    document.getElementById('btnSpin').addEventListener('click', e => {
+      sfx.playClick();
+      isSpinning = !isSpinning;
+      e.target.textContent = isSpinning ? '⏸ Pause' : '▶ Spin Earth';
+    });
+
+    document.getElementById('btnReset').addEventListener('click', () => {
+      sfx.playClick();
+      controls.reset();
+      camera.position.set(0, 2.8, 7.6);
+    });
+
+    document.getElementById('btnSpeakTitle').addEventListener('click', () => {
+      sfx.playClick();
+      TTS_MANAGER.speak('Day and Night 3D Detectives. Spin the 3D Earth to discover how sunlight creates day and night.');
+    });
+
+    document.getElementById('btnSpeakSky').addEventListener('click', () => {
+      sfx.playClick();
+      TTS_MANAGER.speak(`${skyTitle.textContent.replace(/[^\w\s.,!]/g, '')}. ${skyDesc.textContent}`);
+    });
+
+    // Mode Switching
+    const explorePanel = document.getElementById('explorePanel');
+    const challengePanel = document.getElementById('challengePanel');
+    const tabExplore = document.getElementById('tabExplore');
+    const tabChallenge = document.getElementById('tabChallenge');
+
+    function setMode(mode) {
+      const isExplore = mode === 'explore';
+      explorePanel.classList.toggle('hidden', !isExplore);
+      challengePanel.classList.toggle('hidden', isExplore);
+      tabExplore.classList.toggle('active-mode', isExplore);
+      tabExplore.classList.toggle('secondary', !isExplore);
+      tabChallenge.classList.toggle('active-mode', !isExplore);
+      tabChallenge.classList.toggle('secondary', isExplore);
+      if (!isExplore) renderCase(activeCaseIdx);
     }
 
-    function celebrate() {
-      const colors = ["#f7c948", "#f9703e", "#65a765", "#1f6f8b", "#e45f5f"];
-      for (let i = 0; i < 26; i += 1) {
-        const spark = document.createElement("span");
-        const angle = (Math.PI * 2 * i) / 26;
-        const distance = 80 + Math.random() * 120;
-        spark.className = "spark";
-        spark.style.left = `${50 + Math.random() * 8 - 4}%`;
-        spark.style.top = `${42 + Math.random() * 10 - 5}%`;
-        spark.style.setProperty("--spark-x", `${Math.cos(angle) * distance}px`);
-        spark.style.setProperty("--spark-y", `${Math.sin(angle) * distance}px`);
-        spark.style.setProperty("--spark-color", colors[i % colors.length]);
-        celebration.appendChild(spark);
-        setTimeout(() => spark.remove(), 950);
+    tabExplore.addEventListener('click', () => { sfx.playClick(); setMode('explore'); });
+    tabChallenge.addEventListener('click', () => { sfx.playClick(); setMode('challenge'); });
+    document.getElementById('btnBackExplore').addEventListener('click', () => { sfx.playClick(); setMode('explore'); });
+
+    // Detective Cases (Zero Pre-Selection)
+    const caseTabsEl = document.getElementById('caseTabs');
+    const casePromptEl = document.getElementById('casePrompt');
+    const choiceListEl = document.getElementById('choiceList');
+    const choiceBadgeEl = document.getElementById('choiceBadge');
+    const caseFeedbackEl = document.getElementById('caseFeedback');
+
+    function renderCase(idx) {
+      activeCaseIdx = idx;
+      const c = CASES[idx];
+      isSpinning = false;
+      document.getElementById('btnSpin').textContent = '▶ Spin Earth';
+      updateHour(c.hour);
+
+      selectedOption = null;
+      choiceBadgeEl.textContent = '❓ Tap to choose';
+      choiceBadgeEl.className = 'badge-neutral';
+
+      caseTabsEl.innerHTML = '';
+      CASES.forEach((item, i) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = `case-tab${i === idx ? ' active' : ''}${solvedCases[i] ? ' solved' : ''}`;
+        b.textContent = solvedCases[i] ? `${item.tab} ✅` : item.tab;
+        b.addEventListener('click', () => { sfx.playClick(); renderCase(i); });
+        caseTabsEl.appendChild(b);
+      });
+
+      casePromptEl.textContent = c.prompt;
+      choiceListEl.innerHTML = '';
+      c.options.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'choice-btn';
+        btn.textContent = opt;
+        btn.addEventListener('click', () => {
+          sfx.playClick();
+          selectedOption = i;
+          choiceListEl.querySelectorAll('.choice-btn').forEach((el, j) => el.classList.toggle('active', j === i));
+          choiceBadgeEl.textContent = opt;
+          choiceBadgeEl.className = 'badge-selected';
+        });
+        choiceListEl.appendChild(btn);
+      });
+
+      caseFeedbackEl.className = 'feedback-box';
+      caseFeedbackEl.textContent = solvedCases[idx]
+        ? `✅ Case solved! ${c.good}`
+        : 'Watch the red pin on Earth and pick your detective answer!';
+    }
+
+    document.getElementById('btnSpeakCase').addEventListener('click', () => {
+      sfx.playClick();
+      TTS_MANAGER.speak(CASES[activeCaseIdx].prompt);
+    });
+
+    document.getElementById('btnSubmit').addEventListener('click', () => {
+      const c = CASES[activeCaseIdx];
+      if (selectedOption === null) {
+        sfx.playBuzz();
+        caseFeedbackEl.className = 'feedback-box warn';
+        caseFeedbackEl.textContent = '👆 Please tap one of the choices above first!';
+        return;
       }
+      if (selectedOption === c.answer) {
+        sfx.playCorrect();
+        solvedCases[activeCaseIdx] = true;
+        caseFeedbackEl.className = 'feedback-box good';
+        caseFeedbackEl.textContent = `🎉 ${c.good}`;
+        caseTabsEl.querySelectorAll('.case-tab').forEach((b, i) => {
+          b.classList.toggle('solved', solvedCases[i]);
+          b.textContent = solvedCases[i] ? `${CASES[i].tab} ✅` : CASES[i].tab;
+        });
+      } else {
+        sfx.playBuzz();
+        caseFeedbackEl.className = 'feedback-box warn';
+        caseFeedbackEl.textContent = `🤔 Good try! ${c.hint}`;
+      }
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+      cloudSphere.rotation.y += 0.0012;
+      sunGlow.scale.setScalar(1 + Math.sin(performance.now() * 0.003) * 0.045);
+      if (isSpinning) {
+        updateHour(currentHour + 0.045);
+      }
+      controls.update();
+      renderer.render(scene, camera);
     }
 
-    document.getElementById("checkBtn").addEventListener("click", checkRound);
-    document.getElementById("rotateBtn").addEventListener("click", rotateEarth);
+    window.addEventListener('resize', () => {
+      const w = viewportWrap.clientWidth;
+      const h = viewportWrap.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    });
 
-    render();
+    updateHour(12);
+    animate();
   </script>
-
-  <a class="pyp-map-link" href="../index.html" aria-label="Back to PYP curriculum map">PYP Map</a>
-  <style>
-    .pyp-map-link { position: fixed; top: 12px; right: 12px; z-index: 9999; min-height: 44px; display: inline-flex; align-items: center; border: 2px solid #17211f; border-radius: 8px; padding: 8px 12px; background: #fffaf0; color: #17211f; text-decoration: none; font: 900 14px/1 ui-rounded, "Avenir Next", "Segoe UI", sans-serif; box-shadow: 3px 3px 0 #17211f; letter-spacing: 0; }
-    .pyp-map-link:focus-visible { outline: 3px solid #f2b84b; outline-offset: 2px; }
-    @media print { .pyp-map-link { display: none; } }
-  </style>
 </body>
-
 </html>
