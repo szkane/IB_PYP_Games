@@ -85,27 +85,49 @@
       font-size: 0.88rem;
     }
 
-    .tts-box {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--panel);
-      border: var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 4px 10px;
-      min-height: 44px;
+        /* Neobrutalism TTS Radio Dropdown */
+    .tts-dropdown-wrap { position: relative; display: inline-block; user-select: none; font-family: inherit; }
+    .tts-trigger {
+      display: inline-flex; align-items: center; gap: 6px; background: #FFF;
+      border: 2.5px solid var(--ink); border-radius: 10px; box-shadow: 3px 3px 0 var(--ink);
+      padding: 6px 12px; font-family: inherit; font-size: 0.85rem; font-weight: 800;
+      color: var(--ink); cursor: pointer; min-height: 44px; transition: transform 0.1s, box-shadow 0.1s;
     }
-
-    .tts-box select {
-      border: 0;
-      background: transparent;
-      font: inherit;
-      font-weight: 800;
-      font-size: 0.84rem;
-      color: var(--ink);
-      max-width: 170px;
+    .tts-trigger:hover { background: #FEF08A; transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--ink); }
+    .tts-trigger:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+    .tts-arrow { font-size: 0.75rem; transition: transform 0.15s ease; }
+    .tts-dropdown-wrap.open .tts-arrow { transform: rotate(180deg); }
+    .tts-menu {
+      display: none; position: absolute; top: calc(100% + 6px); right: 0;
+      min-width: 250px; max-width: 310px; max-height: 280px; overflow-y: auto;
+      background: #FFF; border: 3px solid var(--ink); border-radius: 12px;
+      box-shadow: 4px 4px 0 var(--ink); padding: 6px; z-index: 1000; flex-direction: column; gap: 3px;
     }
+    .tts-dropdown-wrap.open .tts-menu { display: flex; }
+    .tts-menu-header {
+      font-size: 0.72rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.6px;
+      color: #6B7280; padding: 4px 8px 6px; border-bottom: 2px solid #E5E7EB; margin-bottom: 3px;
+    }
+    .tts-radio-group { display: flex; flex-direction: column; gap: 3px; }
+    .tts-radio-item {
+      display: flex; align-items: center; gap: 8px; padding: 7px 10px;
+      border: 2px solid transparent; border-radius: 8px; background: transparent;
+      cursor: pointer; font-family: inherit; font-size: 0.82rem; font-weight: 700;
+      color: var(--ink); text-align: left; width: 100%;
+    }
+    .tts-radio-item:hover { background: #FEF9C3; border-color: var(--ink); }
+    .tts-radio-item.active { background: #E0F2FE; border-color: var(--ink); font-weight: 800; }
+    .tts-radio-circle {
+      width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--ink);
+      display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; background: #FFF;
+    }
+    .tts-radio-item.active .tts-radio-circle::after {
+      content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--ink);
+    }
+    .tts-item-flag { font-size: 1rem; }
+    .tts-item-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+    .btn-speaker.speaking { background: #86EFAC; animation: ttsPulse 0.7s infinite alternate; }
+    @keyframes ttsPulse { from { transform: scale(1); } to { transform: scale(1.1); } }
 
     .hero-card {
       background: var(--panel);
@@ -338,9 +360,16 @@
         <a class="pyp-map-link" href="../index.html">← PYP Map</a>
         <span class="unit-tag">🧸 Grade 1 · Unit 6 · Spatial Math</span>
       </div>
-      <div class="tts-box">
-        <span>🔊</span>
-        <select id="voiceSelect" aria-label="Choose voice accent"></select>
+            <div class="tts-dropdown-wrap" id="ttsDropdownWrap">
+        <button type="button" class="tts-trigger" id="ttsTrigger" aria-haspopup="menu" aria-expanded="false" title="Select Voice Accent">
+          <span class="tts-trigger-flag" id="ttsFlag">🇬🇧</span>
+          <span class="tts-trigger-label" id="ttsLabel">Voice</span>
+          <span class="tts-arrow">▾</span>
+        </button>
+        <div class="tts-menu" id="ttsMenu" role="menu">
+          <div class="tts-menu-header">Select Voice Accent</div>
+          <div class="tts-radio-group" id="ttsRadioList" role="radiogroup"></div>
+        </div>
       </div>
     </nav>
 
@@ -455,40 +484,119 @@
 
     // TTS Manager with Browser Default Fallback
     const TTS_MANAGER = {
-      voices: [],
-      selectedVoice: null,
+      currentVoiceName: "",
+      wrap: null, trigger: null, menu: null, flag: null, label: null, list: null,
       init() {
-        const load = () => {
-          const all = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
-          if (!all.length) return;
-          const en = all.filter(v => v.lang && v.lang.toLowerCase().startsWith('en'));
-          this.voices = en.length ? en : all;
-          const saved = localStorage.getItem('ib_pyp_voice_name');
-          this.selectedVoice =
-            this.voices.find(v => v.name === saved) ||
-            this.voices.find(v => v.lang === 'en-US') ||
-            this.voices.find(v => v.default) ||
-            this.voices[0];
-          const sel = document.getElementById('voiceSelect');
-          sel.innerHTML = this.voices.map(v => `<option value="${v.name}">${v.name} (${v.lang})</option>`).join('');
-          if (this.selectedVoice) sel.value = this.selectedVoice.name;
-        };
-        load();
-        if (window.speechSynthesis && window.speechSynthesis.onvoiceschanged !== undefined) {
-          window.speechSynthesis.onvoiceschanged = load;
+        this.wrap = document.getElementById("ttsDropdownWrap");
+        this.trigger = document.getElementById("ttsTrigger");
+        this.menu = document.getElementById("ttsMenu");
+        this.flag = document.getElementById("ttsFlag");
+        this.label = document.getElementById("ttsLabel");
+        this.list = document.getElementById("ttsRadioList");
+        if (!this.trigger) return;
+        this.trigger.addEventListener("click", (e) => {
+          e.stopPropagation();
+          this.wrap.classList.toggle("open");
+          this.trigger.setAttribute("aria-expanded", this.wrap.classList.contains("open"));
+        });
+        document.addEventListener("click", (e) => {
+          if (this.wrap && !this.wrap.contains(e.target)) {
+            this.wrap.classList.remove("open");
+            this.trigger.setAttribute("aria-expanded", "false");
+          }
+        });
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape" && this.wrap) {
+            this.wrap.classList.remove("open");
+            this.trigger.setAttribute("aria-expanded", "false");
+          }
+        });
+        if (window.speechSynthesis) {
+          this.populateVoices();
+          if (window.speechSynthesis.onvoiceschanged !== undefined) {
+            window.speechSynthesis.onvoiceschanged = () => this.populateVoices();
+          }
         }
-        document.getElementById('voiceSelect').addEventListener('change', e => {
-          this.selectedVoice = this.voices.find(v => v.name === e.target.value) || this.voices[0];
-          if (this.selectedVoice) localStorage.setItem('ib_pyp_voice_name', this.selectedVoice.name);
+      },
+      populateVoices() {
+        if (!window.speechSynthesis || !this.list) return;
+        const voices = window.speechSynthesis.getVoices();
+        if (!voices || !voices.length) return;
+        let available = voices.filter(v => (v.lang || "").toLowerCase().replace("_", "-").startsWith("en"));
+        let isFallback = false;
+        if (!available.length) { isFallback = true; available = voices; }
+        if (!isFallback) {
+          available.sort((a, b) => {
+            const aUK = (a.lang || "").toLowerCase().includes("gb");
+            const bUK = (b.lang || "").toLowerCase().includes("gb");
+            if (aUK && !bUK) return -1; if (!aUK && bUK) return 1;
+            const aUS = (a.lang || "").toLowerCase().includes("us");
+            const bUS = (b.lang || "").toLowerCase().includes("us");
+            if (aUS && !bUS) return -1; if (!aUS && bUS) return 1;
+            return (a.name || "").localeCompare(b.name || "");
+          });
+        }
+        const saved = localStorage.getItem("ib_pyp_voice_name");
+        let selected = saved ? available.find(v => v.name === saved) : null;
+        if (!selected && !isFallback) {
+          selected = available.find(v => (v.lang || "").toLowerCase().includes("gb")) || available.find(v => (v.lang || "").toLowerCase().includes("us"));
+        }
+        if (!selected) selected = available.find(v => v.default) || available[0] || voices.find(v => v.default) || voices[0] || null;
+        this.currentVoiceName = selected ? selected.name : "";
+        this.renderMenu(available);
+        this.updateTriggerUI(selected);
+      },
+      renderMenu(voices) {
+        this.list.innerHTML = "";
+        voices.slice(0, 15).forEach(v => {
+          const lang = (v.lang || "").toLowerCase().replace("_", "-");
+          const isUK = lang.includes("gb"), isAU = lang.includes("au"), isUS = lang.includes("us") || lang.startsWith("en");
+          const flag = isAU ? "🇦🇺" : isUK ? "🇬🇧" : isUS ? "🇺🇸" : "🌐";
+          const region = isAU ? "AU" : isUK ? "UK" : isUS ? "US" : (v.lang || "System");
+          const isActive = v.name === this.currentVoiceName;
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "tts-radio-item" + (isActive ? " active" : "");
+          btn.setAttribute("role", "menuitemradio");
+          btn.setAttribute("aria-checked", isActive ? "true" : "false");
+          btn.innerHTML = `<span class="tts-radio-circle"></span><span class="tts-item-flag">${flag}</span><span class="tts-item-name">${v.name} (${region})</span>`;
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            this.currentVoiceName = v.name;
+            localStorage.setItem("ib_pyp_voice_name", v.name);
+            this.updateTriggerUI(v);
+            this.list.querySelectorAll(".tts-radio-item").forEach(b => {
+              const m = b.querySelector(".tts-item-name").textContent.includes(v.name);
+              b.classList.toggle("active", m);
+              b.setAttribute("aria-checked", m ? "true" : "false");
+            });
+            this.wrap.classList.remove("open");
+            this.trigger.setAttribute("aria-expanded", "false");
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
+          });
+          this.list.appendChild(btn);
         });
       },
-      speak(text) {
-        if (!window.speechSynthesis) return;
+      updateTriggerUI(v) {
+        if (!v) { if (this.flag) this.flag.textContent = "🌐"; if (this.label) this.label.textContent = "Voice"; return; }
+        const lang = (v.lang || "").toLowerCase().replace("_", "-");
+        const isUK = lang.includes("gb"), isAU = lang.includes("au"), isUS = lang.includes("us") || lang.startsWith("en");
+        this.flag.textContent = isAU ? "🇦🇺" : isUK ? "🇬🇧" : isUS ? "🇺🇸" : "🌐";
+        let shortName = (v.name || "Default").replace(/^(Google|Microsoft|Apple)\s+/i, "");
+        if (shortName.length > 14) shortName = shortName.substring(0, 12) + "...";
+        this.label.textContent = shortName;
+      },
+      speak(text, onEnd) {
+        if (!window.speechSynthesis || !text || !text.trim()) return;
         window.speechSynthesis.cancel();
         const utt = new SpeechSynthesisUtterance(text);
-        if (this.selectedVoice) utt.voice = this.selectedVoice;
-        utt.rate = 0.94;
-        utt.pitch = 1.06;
+        const voices = window.speechSynthesis.getVoices();
+        const vn = this.currentVoiceName || localStorage.getItem("ib_pyp_voice_name");
+        let chosen = (vn && voices.length) ? voices.find(v => v.name === vn) : null;
+        if (!chosen && voices.length) chosen = voices.find(v => v.default) || voices[0] || null;
+        if (chosen) utt.voice = chosen;
+        utt.rate = 0.88;
+        if (onEnd) { utt.onend = onEnd; utt.onerror = onEnd; }
         window.speechSynthesis.speak(utt);
       }
     };

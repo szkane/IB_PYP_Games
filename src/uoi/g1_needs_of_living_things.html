@@ -1,99 +1,456 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>G1 UOI4 Needs of Living Things</title>
+  <title>Needs of Living Things — IB PYP Grade 1 UOI 4</title>
   <style>
-    :root { --ink:#1f2a25; --paper:#f3fbef; --leaf:#68a85f; --water:#5aa3d9; --sun:#f3be44; --soil:#9d7356; --bad:#d96356; }
-    * { box-sizing:border-box; }
-    body { margin:0; min-height:100vh; font-family:ui-rounded,"Avenir Next","Segoe UI",sans-serif; color:var(--ink); background:linear-gradient(135deg,rgba(104,168,95,.25),transparent 42%),var(--paper); }
-    main { width:min(1120px,calc(100% - 24px)); margin:0 auto; padding:18px 0 28px; }
-    h1 { margin:0; font-size:clamp(2rem,5vw,4rem); line-height:1; letter-spacing:0; }
-    p { line-height:1.55; }
-    .map-link { position:fixed; top:12px; right:12px; z-index:10; min-height:44px; display:inline-flex; align-items:center; border:2px solid var(--ink); border-radius:8px; padding:8px 12px; background:white; color:var(--ink); text-decoration:none; font-weight:900; box-shadow:3px 3px 0 var(--ink); }
-    .game { display:grid; grid-template-columns:.95fr 1.05fr; gap:16px; }
-    .panel { border:2px solid var(--ink); border-radius:8px; background:rgba(255,255,255,.84); padding:14px; box-shadow:5px 5px 0 rgba(31,42,37,.2); }
-    .living { display:grid; place-items:center; min-height:260px; border:2px solid var(--ink); border-radius:8px; background:white; text-align:center; font-size:1.35rem; font-weight:900; }
-    .living span { display:block; font-size:5rem; }
-    .needs { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
-    button { min-height:64px; border:2px solid var(--ink); border-radius:8px; background:white; color:var(--ink); font:inherit; font-weight:900; cursor:pointer; }
-    button.selected { background:#dff2d9; }
-    .meter { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:12px; }
-    .meter span { min-height:28px; border:2px solid var(--ink); border-radius:8px; background:white; }
-    .meter span.on:nth-child(1){background:var(--water);} .meter span.on:nth-child(2){background:var(--sun);} .meter span.on:nth-child(3){background:var(--soil);} .meter span.on:nth-child(4){background:var(--leaf);}
-    #feedback { min-height:48px; color:#356d36; font-weight:900; }
-    .next { background:var(--leaf); color:white; padding:10px 14px; }
-    @media(max-width:820px){ .game{grid-template-columns:1fr;} }
+    :root {
+      --bg: #FFFDF0;
+      --ink: #111111;
+      --yellow: #FFE156;
+      --coral: #FF6584;
+      --teal: #4ECDC4;
+      --blue: #38B6FF;
+      --green: #86EFAC;
+      --white: #FFFFFF;
+      --border: 3.5px solid var(--ink);
+      --shadow: 4px 4px 0 var(--ink);
+      --shadow-sm: 2px 2px 0 var(--ink);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: ui-rounded, "Avenir Next", "Nunito", system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 12% 14%, rgba(134, 239, 172, 0.28), transparent 36%),
+        radial-gradient(circle at 86% 84%, rgba(56, 182, 255, 0.16), transparent 34%),
+        var(--bg);
+      color: var(--ink);
+      min-height: 100dvh;
+      padding: 10px 14px 24px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .container { max-width: 1080px; margin: 0 auto; }
+
+    .nav-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+    .nav-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+    .pyp-map-link {
+      display: inline-flex; align-items: center; min-height: 44px; padding: 8px 16px;
+      background: var(--yellow); color: var(--ink); text-decoration: none; font-weight: 900;
+      font-size: 0.92rem; border: var(--border); border-radius: var(--radius); box-shadow: var(--shadow);
+    }
+    .pyp-map-link:active { transform: translate(2px, 2px); box-shadow: var(--shadow-sm); }
+
+    .unit-tag {
+      display: inline-flex; align-items: center; min-height: 44px; padding: 6px 14px;
+      background: var(--green); border: var(--border); border-radius: var(--radius);
+      box-shadow: var(--shadow); font-weight: 900; font-size: 0.88rem;
+    }
+
+    /* Neobrutalism TTS Radio Dropdown */
+    .tts-dropdown-wrap { position: relative; display: inline-block; user-select: none; }
+    .tts-trigger {
+      display: inline-flex; align-items: center; gap: 6px; background: #FFF;
+      border: 2.5px solid var(--ink); border-radius: 10px; box-shadow: 3px 3px 0 var(--ink);
+      padding: 6px 12px; font: inherit; font-size: 0.85rem; font-weight: 800; color: var(--ink); cursor: pointer; min-height: 44px;
+    }
+    .tts-trigger:hover { background: #FEF08A; }
+    .tts-arrow { font-size: 0.75rem; transition: transform 0.15s ease; }
+    .tts-dropdown-wrap.open .tts-arrow { transform: rotate(180deg); }
+    .tts-menu {
+      display: none; position: absolute; top: calc(100% + 6px); right: 0;
+      min-width: 250px; max-width: 310px; max-height: 280px; overflow-y: auto;
+      background: #FFF; border: 3px solid var(--ink); border-radius: 12px;
+      box-shadow: 4px 4px 0 var(--ink); padding: 6px; z-index: 1000; flex-direction: column; gap: 3px;
+    }
+    .tts-dropdown-wrap.open .tts-menu { display: flex; }
+    .tts-menu-header { font-size: 0.72rem; font-weight: 900; text-transform: uppercase; color: #6B7280; padding: 4px 8px 6px; border-bottom: 2px solid #E5E7EB; }
+    .tts-radio-group { display: flex; flex-direction: column; gap: 3px; }
+    .tts-radio-item {
+      display: flex; align-items: center; gap: 8px; padding: 7px 10px; border: 2px solid transparent;
+      border-radius: 8px; background: transparent; cursor: pointer; font: inherit; font-size: 0.82rem; font-weight: 700; width: 100%; text-align: left;
+    }
+    .tts-radio-item:hover { background: #FEF9C3; border-color: var(--ink); }
+    .tts-radio-item.active { background: #E0F2FE; border-color: var(--ink); font-weight: 800; }
+    .tts-radio-circle { width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--ink); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; background: #FFF; }
+    .tts-radio-item.active .tts-radio-circle::after { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--ink); }
+    .tts-item-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+
+    .btn-speaker {
+      display: inline-flex; align-items: center; justify-content: center;
+      background: #FEF08A; border: 2.5px solid var(--ink); box-shadow: 2px 2px 0 var(--ink);
+      border-radius: 10px; width: 40px; height: 40px; cursor: pointer; font-size: 1.1rem; flex-shrink: 0;
+    }
+    .btn-speaker.speaking { background: var(--green); animation: ttsPulse 0.7s infinite alternate; }
+    @keyframes ttsPulse { from { transform: scale(1); } to { transform: scale(1.1); } }
+
+    .hero-card {
+      background: var(--white); border: var(--border); border-radius: var(--radius); box-shadow: var(--shadow);
+      padding: 10px 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+    .hero-title { display: flex; align-items: center; gap: 10px; }
+    .hero-title h1 { font-size: clamp(1.2rem, 2.5vw, 1.6rem); font-weight: 900; }
+
+    .pet-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+    .pet-tab {
+      min-height: 44px; padding: 6px 12px; border: 2.5px solid var(--ink); border-radius: 12px;
+      background: var(--white); box-shadow: var(--shadow-sm); font: inherit; font-weight: 900; cursor: pointer;
+    }
+    .pet-tab.active { background: var(--yellow); }
+    .pet-tab.solved { background: var(--green); }
+
+    .play-grid { display: grid; grid-template-columns: 1.05fr 1.05fr; gap: 14px; align-items: start; }
+    .panel { background: var(--white); border: var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 14px; }
+
+    .habitat-box {
+      width: 100%; border: 3px solid var(--ink); border-radius: 14px; overflow: hidden;
+      margin-bottom: 12px; background: #e0f2fe;
+    }
+    .habitat-box svg { display: block; width: 100%; height: auto; }
+
+    .meter-wrap { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .meter-cell {
+      min-height: 36px; border: 2.5px solid var(--ink); border-radius: 10px; background: #F1F5F9;
+      display: grid; place-items: center; font-weight: 900; font-size: 0.8rem; transition: background 0.25s;
+    }
+    .meter-cell.on { background: var(--green); box-shadow: 2px 2px 0 var(--ink); }
+
+    .needs-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 12px; }
+    .need-btn {
+      min-height: 62px; padding: 10px 12px; border: 2.5px solid var(--ink); border-radius: 12px;
+      background: var(--white); box-shadow: 3px 3px 0 var(--ink); font: inherit; font-weight: 900;
+      font-size: 0.92rem; cursor: pointer; display: flex; align-items: center; gap: 8px; touch-action: manipulation;
+    }
+    .need-btn.selected { background: var(--yellow); transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--ink); }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn {
+      min-height: 46px; padding: 10px 16px; border: var(--border); border-radius: 12px;
+      box-shadow: var(--shadow-sm); font: inherit; font-weight: 900; font-size: 0.92rem; cursor: pointer;
+    }
+    .btn.coral { background: var(--coral); color: var(--white); flex: 1; }
+    .btn.secondary { background: var(--white); }
+
+    .feedback-bar {
+      margin-top: 10px; min-height: 50px; padding: 10px 12px; border: 2.5px solid var(--ink);
+      border-radius: 12px; background: #F1F5F9; font-weight: 800; font-size: 0.9rem; display: flex; align-items: center;
+    }
+    .feedback-bar.good { background: var(--green); }
+    .feedback-bar.warn { background: #FEF08A; }
+
+    @media (max-width: 820px) {
+      .play-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
-  <a class="map-link" href="../index.html">PYP Map</a>
-  <main>
-    <p><strong>Unit 4 · Sharing the Planet</strong></p>
-    <h1>Needs of Living Things</h1>
-    <p>Choose what each living thing needs. Then check if it can survive and thrive.</p>
-    <section class="game">
-      <div class="panel">
-        <h2 id="name">Plant</h2>
-        <div class="living" id="living"></div>
-        <div class="meter" id="meter"></div>
+  <div class="container">
+    <nav class="nav-bar">
+      <div class="nav-left">
+        <a class="pyp-map-link" href="../index.html">← PYP Map</a>
+        <span class="unit-tag">🌱 Grade 1 · Unit 4 · Sharing the Planet</span>
       </div>
-      <div class="panel">
-        <h2>Needs</h2>
-        <div class="needs" id="needs"></div>
-        <p id="feedback">Tap the needs for this living thing.</p>
-        <button class="next" id="check">Check</button>
-        <button class="next" id="next">Next living thing</button>
+      <div class="tts-dropdown-wrap" id="ttsDropdownWrap">
+        <button type="button" class="tts-trigger" id="ttsTrigger" aria-haspopup="menu" aria-expanded="false">
+          <span class="tts-trigger-flag" id="ttsFlag">🇬🇧</span>
+          <span class="tts-trigger-label" id="ttsLabel">Voice</span>
+          <span class="tts-arrow">▾</span>
+        </button>
+        <div class="tts-menu" id="ttsMenu" role="menu">
+          <div class="tts-menu-header">Select Voice Accent</div>
+          <div class="tts-radio-group" id="ttsRadioList" role="radiogroup"></div>
+        </div>
       </div>
-    </section>
-  </main>
+    </nav>
+
+    <header class="hero-card">
+      <div class="hero-title">
+        <h1>Needs of Living Things 🌱💛</h1>
+        <button type="button" class="btn-speaker" id="btnSpeakTitle" aria-label="Read title">🔊</button>
+      </div>
+      <div class="pet-tabs" id="petTabs"></div>
+    </header>
+
+    <main class="play-grid">
+      <section class="panel">
+        <div class="habitat-box" id="habitatBox"></div>
+        <div style="font-weight:900; font-size:0.86rem; margin-bottom:6px;">💚 Living Vitality Meter:</div>
+        <div class="meter-wrap" id="meterWrap"></div>
+      </section>
+
+      <section class="panel">
+        <h2 style="font-size:1rem; margin-bottom:10px;" id="promptHeading">Choose the 4 things this living thing needs to thrive!</h2>
+        <div class="needs-grid" id="needsGrid"></div>
+        <div class="btn-row">
+          <button type="button" class="btn coral" id="btnCheck">Check Habitat ✨</button>
+          <button type="button" class="btn secondary" id="btnClear">Clear ↺</button>
+        </div>
+        <div class="feedback-bar" id="feedbackBar" aria-live="polite">
+          Tap the helpful needs and watch the habitat come alive!
+        </div>
+      </section>
+    </main>
+  </div>
+
   <script>
-    const rounds = [
-      { name: "Sunflower", icon: "🌻", needs: ["Water", "Sunlight", "Soil", "Air"], extras: ["Tablet", "Shoes"] },
-      { name: "Fish", icon: "🐟", needs: ["Water", "Food", "Safe home", "Air in water"], extras: ["Backpack", "Crayons"] },
-      { name: "Rabbit", icon: "🐇", needs: ["Food", "Water", "Air", "Safe home"], extras: ["Moonlight", "Pencil"] }
+    class SoundFX {
+      constructor() { this.ctx = null; }
+      init() {
+        try {
+          if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+          if (this.ctx.state === "suspended") this.ctx.resume();
+        } catch (_) {}
+      }
+      playClick() {
+        this.init(); if (!this.ctx) return;
+        const t = this.ctx.currentTime, o = this.ctx.createOscillator(), g = this.ctx.createGain();
+        o.frequency.setValueAtTime(560, t); o.frequency.exponentialRampToValueAtTime(320, t + 0.05);
+        g.gain.setValueAtTime(0.11, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+        o.connect(g); g.connect(this.ctx.destination); o.start(t); o.stop(t + 0.055);
+      }
+      playCorrect() {
+        this.init(); if (!this.ctx) return;
+        const t = this.ctx.currentTime;
+        [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
+          const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+          o.frequency.setValueAtTime(f, t + i * 0.06);
+          g.gain.setValueAtTime(0.15, t + i * 0.06); g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.06 + 0.24);
+          o.connect(g); g.connect(this.ctx.destination); o.start(t + i * 0.06); o.stop(t + i * 0.06 + 0.26);
+        });
+      }
+      playBuzz() {
+        this.init(); if (!this.ctx) return;
+        const t = this.ctx.currentTime, o = this.ctx.createOscillator(), g = this.ctx.createGain();
+        o.type = "triangle"; o.frequency.setValueAtTime(175, t);
+        g.gain.setValueAtTime(0.12, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+        o.connect(g); g.connect(this.ctx.destination); o.start(t); o.stop(t + 0.2);
+      }
+    }
+    const sfx = new SoundFX();
+
+    const TTS_MANAGER = {
+      currentVoiceName: "", wrap: null, trigger: null, menu: null, flag: null, label: null, list: null,
+      init() {
+        this.wrap = document.getElementById("ttsDropdownWrap");
+        this.trigger = document.getElementById("ttsTrigger");
+        this.menu = document.getElementById("ttsMenu");
+        this.flag = document.getElementById("ttsFlag");
+        this.label = document.getElementById("ttsLabel");
+        this.list = document.getElementById("ttsRadioList");
+        if (!this.trigger) return;
+        this.trigger.addEventListener("click", (e) => { e.stopPropagation(); this.wrap.classList.toggle("open"); });
+        document.addEventListener("click", (e) => { if (this.wrap && !this.wrap.contains(e.target)) this.wrap.classList.remove("open"); });
+        if (window.speechSynthesis) {
+          this.populateVoices();
+          if (window.speechSynthesis.onvoiceschanged !== undefined) window.speechSynthesis.onvoiceschanged = () => this.populateVoices();
+        }
+      },
+      populateVoices() {
+        const voices = window.speechSynthesis.getVoices();
+        if (!voices.length) return;
+        let available = voices.filter(v => (v.lang || "").toLowerCase().replace("_", "-").startsWith("en"));
+        if (!available.length) available = voices;
+        const saved = localStorage.getItem("ib_pyp_voice_name");
+        let selected = (saved && available.find(v => v.name === saved)) || available.find(v => (v.lang || "").toLowerCase().includes("gb")) || available.find(v => (v.lang || "").toLowerCase().includes("us")) || available.find(v => v.default) || available[0];
+        this.currentVoiceName = selected ? selected.name : "";
+        this.list.innerHTML = "";
+        available.slice(0, 15).forEach(v => {
+          const lang = (v.lang || "").toLowerCase().replace("_", "-");
+          const flag = lang.includes("au") ? "🇦🇺" : lang.includes("gb") ? "🇬🇧" : lang.includes("us") || lang.startsWith("en") ? "🇺🇸" : "🌐";
+          const region = lang.includes("au") ? "AU" : lang.includes("gb") ? "UK" : lang.includes("us") ? "US" : (v.lang || "System");
+          const isActive = v.name === this.currentVoiceName;
+          const btn = document.createElement("button");
+          btn.type = "button"; btn.className = "tts-radio-item" + (isActive ? " active" : "");
+          btn.innerHTML = `<span class="tts-radio-circle"></span><span class="tts-item-flag">${flag}</span><span class="tts-item-name">${v.name} (${region})</span>`;
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation(); this.currentVoiceName = v.name; localStorage.setItem("ib_pyp_voice_name", v.name);
+            this.updateTriggerUI(v);
+            this.list.querySelectorAll(".tts-radio-item").forEach(b => b.classList.toggle("active", b === btn));
+            this.wrap.classList.remove("open");
+          });
+          this.list.appendChild(btn);
+        });
+        this.updateTriggerUI(selected);
+      },
+      updateTriggerUI(v) {
+        if (!v) return;
+        const lang = (v.lang || "").toLowerCase().replace("_", "-");
+        this.flag.textContent = lang.includes("au") ? "🇦🇺" : lang.includes("gb") ? "🇬🇧" : lang.includes("us") || lang.startsWith("en") ? "🇺🇸" : "🌐";
+        let shortName = (v.name || "Voice").replace(/^(Google|Microsoft|Apple)\s+/i, "");
+        if (shortName.length > 14) shortName = shortName.substring(0, 12) + "...";
+        this.label.textContent = shortName;
+      },
+      speak(text, btn) {
+        if (!window.speechSynthesis || !text) return;
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        const voices = window.speechSynthesis.getVoices();
+        const chosen = voices.find(v => v.name === this.currentVoiceName) || voices.find(v => v.default) || voices[0];
+        if (chosen) u.voice = chosen;
+        u.rate = 0.88;
+        if (btn) { btn.classList.add("speaking"); u.onend = u.onerror = () => btn.classList.remove("speaking"); }
+        window.speechSynthesis.speak(u);
+      }
+    };
+    TTS_MANAGER.init();
+
+    const ROUNDS = [
+      {
+        name: "Sunflower", icon: "🌻", sky: "#BAE6FD", ground: "#A16207",
+        needs: [
+          { icon: "💧", label: "Water" },
+          { icon: "☀️", label: "Sunlight" },
+          { icon: "🪴", label: "Rich Soil" },
+          { icon: "🌬️", label: "Fresh Air" }
+        ],
+        extras: [
+          { icon: "📱", label: "Tablet" },
+          { icon: "👟", label: "Sneakers" }
+        ]
+      },
+      {
+        name: "Fish", icon: "🐟", sky: "#7DD3FC", ground: "#FDE68A",
+        needs: [
+          { icon: "🌊", label: "Clean Water" },
+          { icon: "🦐", label: "Food" },
+          { icon: "🪸", label: "Safe Home" },
+          { icon: "🫧", label: "Air Bubbles" }
+        ],
+        extras: [
+          { icon: "🎒", label: "Backpack" },
+          { icon: "🖍️", label: "Crayons" }
+        ]
+      },
+      {
+        name: "Rabbit", icon: "🐇", sky: "#DCFCE7", ground: "#4ADE80",
+        needs: [
+          { icon: "🥕", label: "Healthy Food" },
+          { icon: "💧", label: "Water" },
+          { icon: "🌬️", label: "Fresh Air" },
+          { icon: "🏡", label: "Safe Burrow" }
+        ],
+        extras: [
+          { icon: "✏️", label: "Pencil" },
+          { icon: "🎸", label: "Guitar" }
+        ]
+      }
     ];
-    let index = 0;
+
+    let idx = 0;
     let selected = new Set();
-    const living = document.getElementById("living");
-    const needs = document.getElementById("needs");
-    const meter = document.getElementById("meter");
-    const feedback = document.getElementById("feedback");
-    const shuffle = items => [...items].sort(() => Math.random() - 0.5);
+    let shuffled = [];
+    const solved = [false, false, false];
+    const shuffle = arr => [...arr].sort(() => Math.random() - 0.5);
 
-    function render() {
+    function renderTabs() {
+      const wrap = document.getElementById("petTabs");
+      wrap.innerHTML = "";
+      ROUNDS.forEach((r, i) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = `pet-tab${i === idx ? " active" : ""}${solved[i] ? " solved" : ""}`;
+        b.textContent = solved[i] ? `${r.icon} ${r.name} ✅` : `${r.icon} ${r.name}`;
+        b.addEventListener("click", () => { sfx.playClick(); idx = i; startRound(); });
+        wrap.appendChild(b);
+      });
+    }
+
+    function renderHabitat() {
+      const r = ROUNDS[idx];
+      const activeNeeds = r.needs.filter(n => selected.has(n.label));
+      const scale = 0.85 + activeNeeds.length * 0.1;
+      const iconsSvg = activeNeeds.map((n, i) => `<text x="${85 + i * 85}" y="58" text-anchor="middle" font-size="30">${n.icon}</text>`).join("");
+      document.getElementById("habitatBox").innerHTML = `
+        <svg viewBox="0 0 420 220" aria-label="${r.name} Habitat">
+          <rect x="0" y="0" width="420" height="160" fill="${r.sky}"/>
+          <rect x="0" y="160" width="420" height="60" fill="${r.ground}" stroke="#111" stroke-width="3"/>
+          ${iconsSvg}
+          <g transform="translate(210, 145) scale(${scale})">
+            <text x="0" y="0" text-anchor="middle" font-size="68">${r.icon}</text>
+          </g>
+          <text x="210" y="200" text-anchor="middle" font-size="17" font-weight="900" fill="#111">${r.name} · ${activeNeeds.length} / 4 Needs Met</text>
+        </svg>
+      `;
+
+      const meter = document.getElementById("meterWrap");
+      meter.innerHTML = "";
+      r.needs.forEach((n, i) => {
+        const cell = document.createElement("div");
+        cell.className = "meter-cell" + (i < activeNeeds.length ? " on" : "");
+        cell.textContent = i < activeNeeds.length ? "💚" : "○";
+        meter.appendChild(cell);
+      });
+    }
+
+    function renderNeeds() {
+      const grid = document.getElementById("needsGrid");
+      grid.innerHTML = "";
+      shuffled.forEach(item => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "need-btn" + (selected.has(item.label) ? " selected" : "");
+        b.innerHTML = `<span style="font-size:1.45rem;">${item.icon}</span><span>${item.label}</span>`;
+        b.addEventListener("click", () => {
+          sfx.playClick();
+          if (selected.has(item.label)) selected.delete(item.label);
+          else selected.add(item.label);
+          renderNeeds();
+          renderHabitat();
+        });
+        grid.appendChild(b);
+      });
+    }
+
+    function startRound() {
+      const r = ROUNDS[idx];
       selected = new Set();
-      const round = rounds[index];
-      document.getElementById("name").textContent = round.name;
-      living.innerHTML = `<span>${round.icon}</span>${round.name}`;
-      needs.innerHTML = shuffle([...round.needs, ...round.extras]).map(need => `<button>${need}</button>`).join("");
-      meter.innerHTML = round.needs.map(() => "<span></span>").join("");
-      feedback.textContent = "Tap the needs for this living thing.";
-      needs.querySelectorAll("button").forEach(button => button.addEventListener("click", () => {
-        button.classList.toggle("selected");
-        if (selected.has(button.textContent)) selected.delete(button.textContent);
-        else selected.add(button.textContent);
-        updateMeter();
-      }));
+      shuffled = shuffle([...r.needs, ...r.extras]);
+      document.getElementById("promptHeading").textContent = `Choose the 4 things the ${r.name} needs to survive and thrive!`;
+      const fb = document.getElementById("feedbackBar");
+      fb.className = "feedback-bar";
+      fb.textContent = "Tap the helpful needs and watch the habitat come alive!";
+      renderTabs();
+      renderNeeds();
+      renderHabitat();
     }
 
-    function updateMeter() {
-      const round = rounds[index];
-      const count = round.needs.filter(need => selected.has(need)).length;
-      Array.from(meter.children).forEach((bar, i) => bar.classList.toggle("on", i < count));
-    }
+    document.getElementById("btnCheck").addEventListener("click", () => {
+      const r = ROUNDS[idx];
+      const fb = document.getElementById("feedbackBar");
+      if (selected.size === 0) {
+        sfx.playBuzz();
+        fb.className = "feedback-bar warn";
+        fb.textContent = "👆 Please tap some needs first!";
+        return;
+      }
+      const needLabels = r.needs.map(n => n.label);
+      const allNeeds = needLabels.every(l => selected.has(l));
+      const noExtras = [...selected].every(l => needLabels.includes(l));
+      if (allNeeds && noExtras) {
+        sfx.playCorrect();
+        solved[idx] = true;
+        renderTabs();
+        fb.className = "feedback-bar good";
+        fb.textContent = `🎉 Wonderful care! The ${r.name} has everything it needs to thrive!`;
+      } else {
+        sfx.playBuzz();
+        fb.className = "feedback-bar warn";
+        fb.textContent = "🤔 Look closely! Only choose natural needs that help living things stay alive.";
+      }
+    });
 
-    function check() {
-      const round = rounds[index];
-      const allNeeds = round.needs.every(need => selected.has(need));
-      const noExtras = [...selected].every(need => round.needs.includes(need));
-      feedback.textContent = allNeeds && noExtras ? `${round.name} has what it needs. Thank you for caring.` : "Look again. Living things need helpful things, not every thing.";
-    }
+    document.getElementById("btnClear").addEventListener("click", () => { sfx.playClick(); startRound(); });
+    document.getElementById("btnSpeakTitle").addEventListener("click", (e) => {
+      sfx.playClick();
+      TTS_MANAGER.speak("Needs of Living Things. Choose what each plant or animal needs to survive and thrive.", e.currentTarget);
+    });
 
-    document.getElementById("check").addEventListener("click", check);
-    document.getElementById("next").addEventListener("click", () => { index = (index + 1) % rounds.length; render(); });
-    render();
+    startRound();
   </script>
 </body>
 </html>

@@ -1,121 +1,477 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>G1 UOI2 Community Helpers Sort</title>
+  <title>Community Helpers Sort — IB PYP Grade 1 UOI 2</title>
   <style>
-    :root { --ink:#1f2a25; --paper:#f4fbf8; --aqua:#92d5cf; --gold:#f3bf54; --rose:#e66d73; --green:#4f9a72; }
-    * { box-sizing: border-box; }
-    body { margin:0; min-height:100vh; font-family:ui-rounded,"Avenir Next","Segoe UI",sans-serif; color:var(--ink); background:linear-gradient(120deg,#fff7df,transparent 45%),var(--paper); }
-    main { width:min(1120px,calc(100% - 24px)); margin:0 auto; padding:18px 0 28px; }
-    h1 { margin:0; font-size:clamp(2rem,5vw,4rem); line-height:1; letter-spacing:0; }
-    p { line-height:1.55; }
-    .map-link { position:fixed; top:12px; right:12px; z-index:10; min-height:44px; display:inline-flex; align-items:center; border:2px solid var(--ink); border-radius:8px; padding:8px 12px; background:white; color:var(--ink); text-decoration:none; font-weight:900; box-shadow:3px 3px 0 var(--ink); }
-    .hud { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
-    .pill { min-height:44px; display:inline-flex; align-items:center; border:2px solid var(--ink); border-radius:8px; padding:8px 12px; background:var(--gold); font-weight:900; box-shadow:4px 4px 0 var(--ink); }
-    .grid { display:grid; grid-template-columns:.9fr 1.1fr; gap:16px; }
-    .panel { border:2px solid var(--ink); border-radius:8px; background:rgba(255,255,255,.82); padding:14px; box-shadow:5px 5px 0 rgba(31,42,37,.2); }
-    .helpers, .choices { display:grid; gap:10px; }
-    .helpers { grid-template-columns:repeat(2,minmax(0,1fr)); }
-    button { min-height:56px; border:2px solid var(--ink); border-radius:8px; background:white; color:var(--ink); font:inherit; font-weight:900; cursor:pointer; }
-    button.active { background:var(--aqua); box-shadow:inset 0 0 0 4px rgba(255,255,255,.62); }
-    button.done { background:#d9f1df; opacity:.72; }
-    .choice { display:grid; grid-template-columns:70px 1fr; align-items:center; gap:10px; padding:10px; text-align:left; }
-    .place { min-height:46px; display:grid; place-items:center; border-radius:8px; background:var(--green); color:white; }
-    #feedback { min-height:48px; color:#2b6952; font-weight:900; }
-    .next { background:var(--rose); color:white; padding:10px 14px; }
-    @media (max-width:820px){ .grid{grid-template-columns:1fr;} .helpers{grid-template-columns:1fr;} }
+    :root {
+      --bg: #FFFDF0;
+      --ink: #111111;
+      --yellow: #FFE156;
+      --coral: #FF6584;
+      --teal: #4ECDC4;
+      --blue: #38B6FF;
+      --purple: #B388FF;
+      --green: #86EFAC;
+      --white: #FFFFFF;
+      --border: 3.5px solid var(--ink);
+      --shadow: 4px 4px 0 var(--ink);
+      --shadow-sm: 2px 2px 0 var(--ink);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: ui-rounded, "Avenir Next", "Nunito", system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 14% 12%, rgba(56, 182, 255, 0.16), transparent 34%),
+        radial-gradient(circle at 86% 84%, rgba(255, 101, 132, 0.14), transparent 34%),
+        var(--bg);
+      color: var(--ink);
+      min-height: 100dvh;
+      padding: 10px 14px 24px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .container { max-width: 1080px; margin: 0 auto; }
+
+    .nav-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 10px; flex-wrap: wrap; margin-bottom: 10px;
+    }
+    .nav-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+    .pyp-map-link {
+      display: inline-flex; align-items: center; min-height: 44px; padding: 8px 16px;
+      background: var(--yellow); color: var(--ink); text-decoration: none; font-weight: 900;
+      font-size: 0.92rem; border: var(--border); border-radius: var(--radius); box-shadow: var(--shadow);
+      touch-action: manipulation;
+    }
+    .pyp-map-link:active { transform: translate(2px, 2px); box-shadow: var(--shadow-sm); }
+
+    .unit-tag {
+      display: inline-flex; align-items: center; min-height: 44px; padding: 6px 14px;
+      background: var(--teal); border: var(--border); border-radius: var(--radius);
+      box-shadow: var(--shadow); font-weight: 900; font-size: 0.88rem;
+    }
+
+    /* Neobrutalism TTS Radio Dropdown */
+    .tts-dropdown-wrap { position: relative; display: inline-block; user-select: none; }
+    .tts-trigger {
+      display: inline-flex; align-items: center; gap: 6px; background: #FFF;
+      border: 2.5px solid var(--ink); border-radius: 10px; box-shadow: 3px 3px 0 var(--ink);
+      padding: 6px 12px; font: inherit; font-size: 0.85rem; font-weight: 800;
+      color: var(--ink); cursor: pointer; min-height: 44px;
+    }
+    .tts-trigger:hover { background: #FEF08A; }
+    .tts-arrow { font-size: 0.75rem; transition: transform 0.15s ease; }
+    .tts-dropdown-wrap.open .tts-arrow { transform: rotate(180deg); }
+    .tts-menu {
+      display: none; position: absolute; top: calc(100% + 6px); right: 0;
+      min-width: 250px; max-width: 310px; max-height: 280px; overflow-y: auto;
+      background: #FFF; border: 3px solid var(--ink); border-radius: 12px;
+      box-shadow: 4px 4px 0 var(--ink); padding: 6px; z-index: 1000; flex-direction: column; gap: 3px;
+    }
+    .tts-dropdown-wrap.open .tts-menu { display: flex; }
+    .tts-menu-header { font-size: 0.72rem; font-weight: 900; text-transform: uppercase; color: #6B7280; padding: 4px 8px 6px; border-bottom: 2px solid #E5E7EB; }
+    .tts-radio-group { display: flex; flex-direction: column; gap: 3px; }
+    .tts-radio-item {
+      display: flex; align-items: center; gap: 8px; padding: 7px 10px; border: 2px solid transparent;
+      border-radius: 8px; background: transparent; cursor: pointer; font: inherit; font-size: 0.82rem; font-weight: 700; width: 100%; text-align: left;
+    }
+    .tts-radio-item:hover { background: #FEF9C3; border-color: var(--ink); }
+    .tts-radio-item.active { background: #E0F2FE; border-color: var(--ink); font-weight: 800; }
+    .tts-radio-circle { width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--ink); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; background: #FFF; }
+    .tts-radio-item.active .tts-radio-circle::after { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--ink); }
+    .tts-item-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+
+    .btn-speaker {
+      display: inline-flex; align-items: center; justify-content: center;
+      background: #FEF08A; border: 2.5px solid var(--ink); box-shadow: 2px 2px 0 var(--ink);
+      border-radius: 10px; width: 40px; height: 40px; cursor: pointer; font-size: 1.1rem; flex-shrink: 0;
+    }
+    .btn-speaker.speaking { background: var(--green); animation: ttsPulse 0.7s infinite alternate; }
+    @keyframes ttsPulse { from { transform: scale(1); } to { transform: scale(1.1); } }
+
+    .hero-card {
+      background: var(--white); border: var(--border); border-radius: var(--radius); box-shadow: var(--shadow);
+      padding: 10px 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+    .hero-title { display: flex; align-items: center; gap: 10px; }
+    .hero-title h1 { font-size: clamp(1.2rem, 2.5vw, 1.6rem); font-weight: 900; }
+
+    .round-tabs { display: flex; gap: 8px; }
+    .round-tab {
+      min-height: 44px; padding: 6px 14px; border: 2.5px solid var(--ink); border-radius: 12px;
+      background: var(--white); box-shadow: var(--shadow-sm); font: inherit; font-weight: 900; cursor: pointer;
+    }
+    .round-tab.active { background: var(--yellow); }
+
+    .score-pill {
+      min-height: 44px; padding: 6px 14px; display: inline-flex; align-items: center;
+      background: var(--coral); color: var(--white); border: var(--border); border-radius: 12px;
+      box-shadow: var(--shadow-sm); font-weight: 900;
+    }
+
+    .play-grid {
+      display: grid;
+      grid-template-columns: 0.92fr 1.18fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--white); border: var(--border); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 14px;
+    }
+
+    .town-banner {
+      width: 100%; border: 3px solid var(--ink); border-radius: 12px; overflow: hidden;
+      background: linear-gradient(180deg, #bae6fd 0%, #e0f2fe 62%, #bbf7d0 62%, #86efac 100%);
+      margin-bottom: 12px;
+    }
+    .town-banner svg { display: block; width: 100%; height: auto; }
+
+    .helper-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .helper-card {
+      min-height: 76px;
+      padding: 10px;
+      border: 2.5px solid var(--ink);
+      border-radius: 12px;
+      background: var(--white);
+      box-shadow: 3px 3px 0 var(--ink);
+      font: inherit;
+      font-weight: 900;
+      font-size: 0.94rem;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      touch-action: manipulation;
+    }
+    .helper-card .h-emoji { font-size: 1.7rem; }
+    .helper-card.active { background: var(--yellow); transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--ink); }
+    .helper-card.done { background: var(--green); opacity: 0.72; pointer-events: none; box-shadow: none; }
+
+    .place-list { display: grid; gap: 10px; margin-bottom: 12px; }
+
+    .place-card {
+      min-height: 68px;
+      padding: 10px 12px;
+      border: 2.5px solid var(--ink);
+      border-radius: 12px;
+      background: var(--white);
+      box-shadow: 3px 3px 0 var(--ink);
+      font: inherit;
+      font-weight: 900;
+      cursor: pointer;
+      display: grid;
+      grid-template-columns: 112px 1fr;
+      align-items: center;
+      gap: 10px;
+      text-align: left;
+      touch-action: manipulation;
+    }
+    .place-card:hover { background: #FEF9C3; }
+    .place-card.done { background: var(--green); opacity: 0.78; pointer-events: none; box-shadow: none; }
+
+    .place-badge {
+      display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+      min-height: 44px; padding: 4px 8px; border: 2px solid var(--ink); border-radius: 10px;
+      background: var(--blue); color: var(--white); font-size: 0.84rem; font-weight: 900;
+    }
+
+    .feedback-bar {
+      min-height: 52px; padding: 10px 12px; border: 2.5px solid var(--ink); border-radius: 12px;
+      background: #F1F5F9; font-weight: 800; font-size: 0.9rem; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    }
+    .feedback-bar.good { background: var(--green); }
+    .feedback-bar.warn { background: #FEF08A; }
+
+    @media (max-width: 820px) {
+      .play-grid { grid-template-columns: 1fr; }
+      .place-card { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
-  <a class="map-link" href="../index.html">PYP Map</a>
-  <main>
-    <div class="hud">
-      <div>
-        <p><strong>Unit 2 · How We Organize Ourselves</strong></p>
-        <h1>Community Helpers Sort</h1>
-        <p>Tap a helper, then tap the place and responsibility that match.</p>
+  <div class="container">
+    <nav class="nav-bar">
+      <div class="nav-left">
+        <a class="pyp-map-link" href="../index.html">← PYP Map</a>
+        <span class="unit-tag">🏘️ Grade 1 · Unit 2 · How We Organize Ourselves</span>
       </div>
-      <div class="pill" id="score">Matches 0</div>
-    </div>
-    <section class="grid">
-      <aside class="panel">
-        <h2>Helpers</h2>
-        <div class="helpers" id="helpers"></div>
-      </aside>
+      <div class="tts-dropdown-wrap" id="ttsDropdownWrap">
+        <button type="button" class="tts-trigger" id="ttsTrigger" aria-haspopup="menu" aria-expanded="false">
+          <span class="tts-trigger-flag" id="ttsFlag">🇬🇧</span>
+          <span class="tts-trigger-label" id="ttsLabel">Voice</span>
+          <span class="tts-arrow">▾</span>
+        </button>
+        <div class="tts-menu" id="ttsMenu" role="menu">
+          <div class="tts-menu-header">Select Voice Accent</div>
+          <div class="tts-radio-group" id="ttsRadioList" role="radiogroup"></div>
+        </div>
+      </div>
+    </nav>
+
+    <header class="hero-card">
+      <div class="hero-title">
+        <h1>Community Helpers Sort 🏘️💛</h1>
+        <button type="button" class="btn-speaker" id="btnSpeakTitle" aria-label="Read title">🔊</button>
+      </div>
+      <div class="round-tabs">
+        <button type="button" class="round-tab active" id="btnRound0">Town 1 🏫</button>
+        <button type="button" class="round-tab" id="btnRound1">Town 2 🚒</button>
+      </div>
+      <div class="score-pill" id="scorePill">⭐ 0 Matched</div>
+    </header>
+
+    <main class="play-grid">
       <section class="panel">
-        <h2>Places and responsibilities</h2>
-        <div class="choices" id="choices"></div>
-        <p id="feedback">Choose a helper first.</p>
-        <button class="next" id="next">New helpers</button>
+        <div class="town-banner">
+          <svg viewBox="0 0 420 130" aria-label="Community Neighborhood">
+            <circle cx="370" cy="30" r="18" fill="#FFE156" stroke="#111" stroke-width="2.5"/>
+            <rect x="22" y="42" width="76" height="62" rx="6" fill="#FF6584" stroke="#111" stroke-width="3"/>
+            <text x="60" y="82" text-anchor="middle" font-size="28">🏫</text>
+            <rect x="116" y="48" width="76" height="56" rx="6" fill="#38B6FF" stroke="#111" stroke-width="3"/>
+            <text x="154" y="84" text-anchor="middle" font-size="28">🏥</text>
+            <rect x="210" y="40" width="76" height="64" rx="6" fill="#FFE156" stroke="#111" stroke-width="3"/>
+            <text x="248" y="82" text-anchor="middle" font-size="28">📚</text>
+            <rect x="304" y="50" width="76" height="54" rx="6" fill="#B388FF" stroke="#111" stroke-width="3"/>
+            <text x="342" y="85" text-anchor="middle" font-size="28">🚒</text>
+            <rect x="0" y="104" width="420" height="26" fill="#334155"/>
+            <line x1="16" y1="117" x2="404" y2="117" stroke="#FFE156" stroke-width="3" stroke-dasharray="16,14"/>
+          </svg>
+        </div>
+        <h2 style="font-size:1rem; margin-bottom:10px;">1. Tap a Community Helper:</h2>
+        <div class="helper-grid" id="helperGrid"></div>
       </section>
-    </section>
-  </main>
+
+      <section class="panel">
+        <h2 style="font-size:1rem; margin-bottom:10px;">2. Tap Their Place &amp; Responsibility:</h2>
+        <div class="place-list" id="placeList"></div>
+        <div class="feedback-bar" id="feedbackBar" aria-live="polite">
+          <span id="feedbackText">Tap a helper on the left first, then match their place!</span>
+          <button type="button" class="btn-speaker" id="btnSpeakFeedback" aria-label="Read feedback">🔊</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
   <script>
-    const rounds = [
+    class SoundFX {
+      constructor() { this.ctx = null; }
+      init() {
+        try {
+          if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+          if (this.ctx.state === "suspended") this.ctx.resume();
+        } catch (_) {}
+      }
+      playClick() {
+        this.init(); if (!this.ctx) return;
+        const t = this.ctx.currentTime, o = this.ctx.createOscillator(), g = this.ctx.createGain();
+        o.frequency.setValueAtTime(560, t); o.frequency.exponentialRampToValueAtTime(320, t + 0.05);
+        g.gain.setValueAtTime(0.11, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+        o.connect(g); g.connect(this.ctx.destination); o.start(t); o.stop(t + 0.055);
+      }
+      playCorrect() {
+        this.init(); if (!this.ctx) return;
+        const t = this.ctx.currentTime;
+        [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
+          const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+          o.frequency.setValueAtTime(f, t + i * 0.055);
+          g.gain.setValueAtTime(0.15, t + i * 0.055); g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.055 + 0.22);
+          o.connect(g); g.connect(this.ctx.destination); o.start(t + i * 0.055); o.stop(t + i * 0.055 + 0.24);
+        });
+      }
+      playBuzz() {
+        this.init(); if (!this.ctx) return;
+        const t = this.ctx.currentTime, o = this.ctx.createOscillator(), g = this.ctx.createGain();
+        o.type = "triangle"; o.frequency.setValueAtTime(170, t);
+        g.gain.setValueAtTime(0.12, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+        o.connect(g); g.connect(this.ctx.destination); o.start(t); o.stop(t + 0.2);
+      }
+    }
+    const sfx = new SoundFX();
+
+    const TTS_MANAGER = {
+      currentVoiceName: "", wrap: null, trigger: null, menu: null, flag: null, label: null, list: null,
+      init() {
+        this.wrap = document.getElementById("ttsDropdownWrap");
+        this.trigger = document.getElementById("ttsTrigger");
+        this.menu = document.getElementById("ttsMenu");
+        this.flag = document.getElementById("ttsFlag");
+        this.label = document.getElementById("ttsLabel");
+        this.list = document.getElementById("ttsRadioList");
+        if (!this.trigger) return;
+        this.trigger.addEventListener("click", (e) => {
+          e.stopPropagation();
+          this.wrap.classList.toggle("open");
+          this.trigger.setAttribute("aria-expanded", this.wrap.classList.contains("open"));
+        });
+        document.addEventListener("click", (e) => {
+          if (this.wrap && !this.wrap.contains(e.target)) { this.wrap.classList.remove("open"); this.trigger.setAttribute("aria-expanded", "false"); }
+        });
+        if (window.speechSynthesis) {
+          this.populateVoices();
+          if (window.speechSynthesis.onvoiceschanged !== undefined) window.speechSynthesis.onvoiceschanged = () => this.populateVoices();
+        }
+      },
+      populateVoices() {
+        const voices = window.speechSynthesis.getVoices();
+        if (!voices.length) return;
+        let available = voices.filter(v => (v.lang || "").toLowerCase().replace("_", "-").startsWith("en"));
+        if (!available.length) available = voices;
+        const saved = localStorage.getItem("ib_pyp_voice_name");
+        let selected = (saved && available.find(v => v.name === saved)) || available.find(v => (v.lang || "").toLowerCase().includes("gb")) || available.find(v => (v.lang || "").toLowerCase().includes("us")) || available.find(v => v.default) || available[0];
+        this.currentVoiceName = selected ? selected.name : "";
+        this.list.innerHTML = "";
+        available.slice(0, 15).forEach(v => {
+          const lang = (v.lang || "").toLowerCase().replace("_", "-");
+          const flag = lang.includes("au") ? "🇦🇺" : lang.includes("gb") ? "🇬🇧" : lang.includes("us") || lang.startsWith("en") ? "🇺🇸" : "🌐";
+          const region = lang.includes("au") ? "AU" : lang.includes("gb") ? "UK" : lang.includes("us") ? "US" : (v.lang || "System");
+          const isActive = v.name === this.currentVoiceName;
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "tts-radio-item" + (isActive ? " active" : "");
+          btn.innerHTML = `<span class="tts-radio-circle"></span><span class="tts-item-flag">${flag}</span><span class="tts-item-name">${v.name} (${region})</span>`;
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            this.currentVoiceName = v.name;
+            localStorage.setItem("ib_pyp_voice_name", v.name);
+            this.updateTriggerUI(v);
+            this.list.querySelectorAll(".tts-radio-item").forEach(b => b.classList.toggle("active", b === btn));
+            this.wrap.classList.remove("open");
+          });
+          this.list.appendChild(btn);
+        });
+        this.updateTriggerUI(selected);
+      },
+      updateTriggerUI(v) {
+        if (!v) return;
+        const lang = (v.lang || "").toLowerCase().replace("_", "-");
+        this.flag.textContent = lang.includes("au") ? "🇦🇺" : lang.includes("gb") ? "🇬🇧" : lang.includes("us") || lang.startsWith("en") ? "🇺🇸" : "🌐";
+        let shortName = (v.name || "Voice").replace(/^(Google|Microsoft|Apple)\s+/i, "");
+        if (shortName.length > 14) shortName = shortName.substring(0, 12) + "...";
+        this.label.textContent = shortName;
+      },
+      speak(text, btn) {
+        if (!window.speechSynthesis || !text) return;
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        const voices = window.speechSynthesis.getVoices();
+        const chosen = voices.find(v => v.name === this.currentVoiceName) || voices.find(v => v.default) || voices[0];
+        if (chosen) u.voice = chosen;
+        u.rate = 0.88;
+        if (btn) { btn.classList.add("speaking"); u.onend = u.onerror = () => btn.classList.remove("speaking"); }
+        window.speechSynthesis.speak(u);
+      }
+    };
+    TTS_MANAGER.init();
+
+    const ROUNDS = [
       [
-        ["Teacher", "School", "helps students learn"],
-        ["Doctor", "Clinic", "helps people feel better"],
-        ["Librarian", "Library", "helps people find books"],
-        ["Cleaner", "School", "keeps shared spaces tidy"]
+        { name: "Teacher", emoji: "👩‍🏫", place: "🏫 School", role: "Helps students learn and grow." },
+        { name: "Doctor", emoji: "👩‍⚕️", place: "🏥 Clinic", role: "Helps sick people feel better." },
+        { name: "Librarian", emoji: "🧑‍💼", place: "📚 Library", role: "Helps people find great books." },
+        { name: "Cleaner", emoji: "🧹", place: "✨ Campus", role: "Keeps shared spaces clean and tidy." }
       ],
       [
-        ["Bus driver", "Bus stop", "helps people travel safely"],
-        ["Chef", "Cafeteria", "cooks food for the community"],
-        ["Firefighter", "Fire station", "helps keep people safe"],
-        ["Gardener", "Garden", "cares for plants"]
+        { name: "Bus Driver", emoji: "🚌", place: "🚏 Bus Stop", role: "Helps people travel safely." },
+        { name: "Chef", emoji: "👨‍🍳", place: "🍽️ Cafeteria", role: "Cooks healthy food for everyone." },
+        { name: "Firefighter", emoji: "👩‍🚒", place: "🚒 Fire Station", role: "Keeps our neighborhood safe." },
+        { name: "Gardener", emoji: "🧑‍🌾", place: "🌻 Garden", role: "Cares for trees and flowers." }
       ]
     ];
-    let round = 0;
-    let selected = null;
-    let matches = 0;
-    const helpers = document.getElementById("helpers");
-    const choices = document.getElementById("choices");
-    const feedback = document.getElementById("feedback");
-    const score = document.getElementById("score");
-    const shuffle = items => [...items].sort(() => Math.random() - 0.5);
 
-    function render() {
-      selected = null;
-      const data = rounds[round];
-      helpers.innerHTML = data.map(item => `<button data-helper="${item[0]}">${item[0]}</button>`).join("");
-      choices.innerHTML = shuffle(data).map(item => `
-        <button class="choice" data-helper="${item[0]}">
-          <span class="place">${item[1]}</span>
-          <span>${item[2]}</span>
-        </button>`).join("");
-      helpers.querySelectorAll("button").forEach(button => button.addEventListener("click", () => {
-        if (button.classList.contains("done")) return;
-        selected = button.dataset.helper;
-        helpers.querySelectorAll("button").forEach(b => b.classList.toggle("active", b === button));
-        feedback.textContent = `Now find where the ${selected} helps.`;
-      }));
-      choices.querySelectorAll("button").forEach(button => button.addEventListener("click", () => check(button)));
+    let roundIdx = 0;
+    let selectedHelper = null;
+    let matchedCount = 0;
+    const shuffle = arr => [...arr].sort(() => Math.random() - 0.5);
+
+    function renderRound() {
+      selectedHelper = null;
+      const data = ROUNDS[roundIdx];
+      document.getElementById("btnRound0").classList.toggle("active", roundIdx === 0);
+      document.getElementById("btnRound1").classList.toggle("active", roundIdx === 1);
+
+      const hGrid = document.getElementById("helperGrid");
+      hGrid.innerHTML = "";
+      data.forEach(item => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "helper-card";
+        btn.dataset.name = item.name;
+        btn.innerHTML = `<span class="h-emoji">${item.emoji}</span><span>${item.name}</span>`;
+        btn.addEventListener("click", () => {
+          sfx.playClick();
+          selectedHelper = item;
+          hGrid.querySelectorAll(".helper-card").forEach(b => b.classList.toggle("active", b === btn));
+          setFeedback(`Now tap where the ${item.name} helps!`, "");
+        });
+        hGrid.appendChild(btn);
+      });
+
+      const pList = document.getElementById("placeList");
+      pList.innerHTML = "";
+      shuffle(data).forEach(item => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "place-card";
+        btn.dataset.name = item.name;
+        btn.innerHTML = `<span class="place-badge">${item.place}</span><span>${item.role}</span>`;
+        btn.addEventListener("click", () => {
+          if (!selectedHelper) {
+            sfx.playBuzz();
+            setFeedback("👈 Please tap a community helper on the left first!", "warn");
+            return;
+          }
+          if (selectedHelper.name === item.name) {
+            sfx.playCorrect();
+            matchedCount += 1;
+            document.getElementById("scorePill").textContent = `⭐ ${matchedCount} Matched`;
+            hGrid.querySelector(`[data-name="${item.name}"]`).classList.add("done");
+            btn.classList.add("done");
+            setFeedback(`🎉 Yes! The ${item.name} ${item.role.toLowerCase()}`, "good");
+            selectedHelper = null;
+          } else {
+            sfx.playBuzz();
+            setFeedback(`🤔 Think about where the ${selectedHelper.name} works and try another place!`, "warn");
+          }
+        });
+        pList.appendChild(btn);
+      });
+
+      setFeedback("Tap a helper on the left first, then match their place!", "");
     }
 
-    function check(button) {
-      if (!selected) {
-        feedback.textContent = "Choose a helper first.";
-        return;
-      }
-      if (button.dataset.helper === selected) {
-        matches += 1;
-        score.textContent = `Matches ${matches}`;
-        feedback.textContent = `${selected} is part of a caring community.`;
-        helpers.querySelector(`[data-helper="${selected}"]`).classList.add("done");
-        button.classList.add("done");
-        selected = null;
-      } else {
-        feedback.textContent = "Try another place. Think about the helper's role.";
-      }
+    function setFeedback(text, tone) {
+      const bar = document.getElementById("feedbackBar");
+      bar.className = "feedback-bar" + (tone ? " " + tone : "");
+      document.getElementById("feedbackText").textContent = text;
     }
 
-    document.getElementById("next").addEventListener("click", () => {
-      round = (round + 1) % rounds.length;
-      render();
+    document.getElementById("btnRound0").addEventListener("click", () => { sfx.playClick(); roundIdx = 0; renderRound(); });
+    document.getElementById("btnRound1").addEventListener("click", () => { sfx.playClick(); roundIdx = 1; renderRound(); });
+    document.getElementById("btnSpeakTitle").addEventListener("click", (e) => {
+      sfx.playClick();
+      TTS_MANAGER.speak("Community Helpers Sort. Tap a helper, then match their place and responsibility.", e.currentTarget);
     });
-    render();
+    document.getElementById("btnSpeakFeedback").addEventListener("click", (e) => {
+      sfx.playClick();
+      TTS_MANAGER.speak(document.getElementById("feedbackText").textContent, e.currentTarget);
+    });
+
+    renderRound();
   </script>
 </body>
 </html>
