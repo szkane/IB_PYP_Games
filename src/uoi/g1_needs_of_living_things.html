@@ -146,6 +146,54 @@
     @media (max-width: 820px) {
       .play-grid { grid-template-columns: 1fr; }
     }
+  
+    /* Fluid Responsive + Mobile-Native Polish */
+    html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; overscroll-behavior: none; }
+    button { user-select: none; -webkit-user-select: none; }
+    .container {
+      container-type: inline-size;
+      max-width: 1320px;
+      padding-left: env(safe-area-inset-left, 0px);
+      padding-right: env(safe-area-inset-right, 0px);
+    }
+    .viewport-wrap { height: clamp(280px, 50dvh, 520px) !important; }
+    @container (max-width: 780px) {
+      .play-grid { grid-template-columns: 1fr !important; }
+    }
+
+    /* IB PYP Reflection & Action Modal */
+    .btn-reflect-pill {
+      display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 6px 14px;
+      background: linear-gradient(135deg, #ffe156, #86efac); color: #111; border: 3px solid #111;
+      border-radius: 12px; box-shadow: 3px 3px 0 #111; font: inherit; font-weight: 900; font-size: 0.86rem;
+      cursor: pointer; touch-action: manipulation;
+    }
+    .btn-reflect-pill:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #111; }
+    .pyp-modal-backdrop {
+      position: fixed; inset: 0; z-index: 2000; background: rgba(15, 23, 42, 0.72);
+      backdrop-filter: blur(6px); display: none; place-items: center; padding: 16px;
+    }
+    .pyp-modal-backdrop.open { display: grid; }
+    .pyp-modal-card {
+      width: min(560px, 100%); background: #FFFDF0; color: #111; border: 4px solid #111;
+      border-radius: 20px; box-shadow: 8px 8px 0 #111; padding: 20px 22px; display: grid; gap: 12px;
+    }
+    .pyp-modal-badge {
+      display: inline-flex; align-items: center; gap: 8px; width: fit-content; padding: 6px 14px;
+      background: #FFE156; border: 3px solid #111; border-radius: 999px; font-weight: 900; font-size: 0.9rem;
+    }
+    .pyp-modal-box {
+      background: #FFF; border: 2.5px solid #111; border-radius: 12px; padding: 10px 14px; font-size: 0.92rem; line-height: 1.45;
+    }
+    .pyp-modal-box strong { display: block; font-size: 0.78rem; text-transform: uppercase; color: #0ea5a4; margin-bottom: 3px; }
+    .pyp-modal-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+    .pyp-modal-btn {
+      flex: 1; min-height: 46px; padding: 10px 14px; border: 3px solid #111; border-radius: 12px;
+      box-shadow: 3px 3px 0 #111; font: inherit; font-weight: 900; cursor: pointer; text-decoration: none;
+      display: inline-flex; align-items: center; justify-content: center; color: #111; background: #FFF;
+    }
+    .pyp-modal-btn.primary { background: #86EFAC; }
+
   </style>
 </head>
 <body>
@@ -154,6 +202,8 @@
       <div class="nav-left">
         <a class="pyp-map-link" href="../index.html">← PYP Map</a>
         <span class="unit-tag">🌱 Grade 1 · Unit 4 · Sharing the Planet</span>
+      
+        <button type="button" class="btn-reflect-pill" id="btnOpenReflect">💛 Reflect &amp; Stamp</button>
       </div>
       <div class="tts-dropdown-wrap" id="ttsDropdownWrap">
         <button type="button" class="tts-trigger" id="ttsTrigger" aria-haspopup="menu" aria-expanded="false">
@@ -451,6 +501,63 @@
     });
 
     startRound();
+  </script>
+
+  <div class="pyp-modal-backdrop" id="pypReflectModal" role="dialog" aria-modal="true" aria-labelledby="pypModalTitle">
+    <div class="pyp-modal-card">
+      <div class="pyp-modal-badge">💛 Learner Profile Stamp: Caring</div>
+      <h2 id="pypModalTitle" style="font-size:1.35rem; font-weight:900;">🌟 IB PYP Reflection &amp; Action</h2>
+      <div class="pyp-modal-box">
+        <strong>Key Concept · Responsibility & Connection</strong>
+        <span>Respecting and protecting living things helps plants and animals survive and thrive.</span>
+      </div>
+      <div class="pyp-modal-box" style="background:#ECFDF5;">
+        <strong>🚀 Take Action in Real Life</strong>
+        <span>Care for a plant or pet gently today and make sure its basic needs are met!</span>
+      </div>
+      <div id="pypStampStatus" style="font-weight:900; font-size:0.88rem; color:#15803d;"></div>
+      <div class="pyp-modal-actions">
+        <button type="button" class="pyp-modal-btn primary" id="btnClaimStamp">💛 Stamp My Passport!</button>
+        <a class="pyp-modal-btn" href="../index.html">🗺️ View Passport</a>
+        <button type="button" class="pyp-modal-btn" id="btnCloseReflect">Keep Exploring</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function() {
+      const modal = document.getElementById("pypReflectModal");
+      const status = document.getElementById("pypStampStatus");
+      const openBtn = document.getElementById("btnOpenReflect");
+      const claimBtn = document.getElementById("btnClaimStamp");
+      const closeBtn = document.getElementById("btnCloseReflect");
+
+      function saveStamp() {
+        try {
+          const raw = localStorage.getItem("ib_pyp_passport");
+          const data = raw ? JSON.parse(raw) : { stamps: [], completed: [] };
+          const stamps = new Set(Array.isArray(data.stamps) ? data.stamps : []);
+          const completed = new Set(Array.isArray(data.completed) ? data.completed : []);
+          stamps.add("Caring");
+          completed.add("uoi/g1_needs_of_living_things.html");
+          localStorage.setItem("ib_pyp_passport", JSON.stringify({ stamps: [...stamps], completed: [...completed] }));
+          status.textContent = "✅ Caring stamp saved to your IB PYP Passport!";
+          claimBtn.textContent = "✅ Stamped!";
+        } catch (_) {}
+      }
+
+      if (openBtn && modal) {
+        openBtn.addEventListener("click", () => { modal.classList.add("open"); });
+      }
+      if (claimBtn) {
+        claimBtn.addEventListener("click", saveStamp);
+      }
+      if (closeBtn && modal) {
+        closeBtn.addEventListener("click", () => { modal.classList.remove("open"); });
+      }
+      if (modal) {
+        modal.addEventListener("click", (e) => { if (e.target === modal) modal.classList.remove("open"); });
+      }
+    })();
   </script>
 </body>
 </html>

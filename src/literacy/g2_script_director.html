@@ -32,7 +32,7 @@
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: var(--bg);
       color: #F3F4F6;
-      min-height: 100vh;
+      min-height: 100vh; min-height: 100dvh;
       padding: 12px 16px 28px;
       overflow-x: hidden;
     }
@@ -523,6 +523,8 @@
       from { transform: scale(1); }
       to { transform: scale(1.1); }
     }
+  
+    html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
   </style>
 </head>
 

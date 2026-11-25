@@ -43,9 +43,16 @@
 
     * { box-sizing: border-box; }
 
+    html {
+      -webkit-tap-highlight-color: transparent;
+      -webkit-text-size-adjust: 100%;
+      overscroll-behavior: none;
+    }
+
     body {
       margin: 0;
       min-height: 100vh;
+      min-height: 100dvh;
       font-family: ui-rounded, "Avenir Next", "Nunito", "Segoe UI", sans-serif;
       color: var(--ink);
       background:
@@ -55,12 +62,18 @@
         var(--paper);
     }
 
-    a { color: inherit; }
+    a { color: inherit; touch-action: manipulation; }
+    button { touch-action: manipulation; user-select: none; -webkit-user-select: none; }
 
     .app-shell {
-      width: min(1200px, calc(100% - 32px));
+      container-type: inline-size;
+      width: min(1360px, calc(100% - clamp(20px, 3vw, 48px)));
       margin: 0 auto;
-      padding: 18px 0 48px;
+      padding:
+        calc(16px + env(safe-area-inset-top, 0px))
+        env(safe-area-inset-right, 0px)
+        calc(44px + env(safe-area-inset-bottom, 0px))
+        env(safe-area-inset-left, 0px);
     }
 
     .topbar {
@@ -178,7 +191,7 @@
     /* Interactive 3D Hero Diorama */
     .hub-3d-card {
       position: relative;
-      min-height: 290px;
+      height: clamp(275px, 38dvh, 420px);
       border: var(--border);
       border-radius: 18px;
       box-shadow: var(--shadow);
@@ -191,9 +204,105 @@
     #hub-3d-stage {
       width: 100%;
       flex: 1;
-      min-height: 245px;
+      min-height: 0;
       touch-action: none;
       cursor: grab;
+    }
+
+    /* IB PYP Learner Profile Passport */
+    .passport-band {
+      margin: 2px 0 18px;
+      padding: 12px 16px;
+      border: var(--border);
+      border-radius: 18px;
+      background: linear-gradient(135deg, #fffdf0 0%, #eefaf8 100%);
+      box-shadow: var(--shadow);
+    }
+
+    .passport-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .passport-head h2 {
+      margin: 0;
+      font-size: 1.02rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .passport-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.84rem;
+      font-weight: 800;
+      color: var(--muted);
+    }
+
+    .passport-reset {
+      min-height: 34px;
+      padding: 4px 10px;
+      border: 2px solid var(--ink);
+      border-radius: 9px;
+      background: #ffffff;
+      font: inherit;
+      font-size: 0.78rem;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 2px 2px 0 var(--ink);
+    }
+
+    .passport-stamps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(138px, 100%), 1fr));
+      gap: 8px;
+    }
+
+    .stamp-chip {
+      min-height: 46px;
+      padding: 6px 10px;
+      border: 2.5px dashed #94a3b8;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.72);
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.84rem;
+      font-weight: 900;
+      transition: transform 150ms ease, background 150ms ease;
+    }
+
+    .stamp-chip.earned {
+      border-style: solid;
+      border-color: var(--ink);
+      background: #ffe156;
+      color: var(--ink);
+      box-shadow: 3px 3px 0 var(--ink);
+    }
+
+    .badge-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .badge-done {
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 2px solid var(--ink);
+      background: #86efac;
+      color: var(--ink);
+      font-size: 0.72rem;
+      font-weight: 900;
     }
 
     #hub-3d-stage:active { cursor: grabbing; }
@@ -298,7 +407,7 @@
 
     .showcase-grid {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr));
       gap: 10px;
     }
 
@@ -317,11 +426,20 @@
       transition: transform 120ms ease, box-shadow 120ms ease;
     }
 
-    .showcase-card:hover,
+    @media (hover: hover) and (pointer: fine) {
+      .showcase-card:hover {
+        transform: translate(-1px, -2px);
+        box-shadow: 5px 5px 0 var(--yellow);
+      }
+      .game-link:hover {
+        transform: translate(-1px, -2px);
+        box-shadow: 6px 6px 0 var(--ink);
+      }
+    }
+
     .showcase-card:focus-visible {
-      transform: translate(-1px, -2px);
-      box-shadow: 5px 5px 0 var(--yellow);
-      outline: none;
+      outline: 3px solid var(--yellow);
+      outline-offset: 2px;
     }
 
     .showcase-card:active {
@@ -548,10 +666,7 @@
       background: linear-gradient(135deg, #ffffff 78%, #eef7ff 100%);
     }
 
-    .game-link:hover,
     .game-link:focus-visible {
-      transform: translate(-1px, -2px);
-      box-shadow: 6px 6px 0 var(--ink);
       outline: 3px solid rgba(56, 182, 255, 0.55);
       outline-offset: 2px;
     }
@@ -754,6 +869,25 @@
       </div>
     </section>
 
+    <section class="passport-band" aria-label="IB PYP Learner Profile Passport">
+      <div class="passport-head">
+        <h2>🛂 IB PYP Learner Profile Passport</h2>
+        <div class="passport-meta">
+          <span id="passport-summary">0 / 7 Stamps · Complete any inquiry mission &amp; reflection to collect stamps!</span>
+          <button type="button" class="passport-reset" id="passport-reset">Reset</button>
+        </div>
+      </div>
+      <div class="passport-stamps" id="passport-stamps">
+        <div class="stamp-chip" data-stamp="Inquirer"><span>🔍</span><span>Inquirer</span></div>
+        <div class="stamp-chip" data-stamp="Thinker"><span>💡</span><span>Thinker</span></div>
+        <div class="stamp-chip" data-stamp="Communicator"><span>🗣️</span><span>Communicator</span></div>
+        <div class="stamp-chip" data-stamp="Caring"><span>💛</span><span>Caring</span></div>
+        <div class="stamp-chip" data-stamp="Balanced"><span>⚖️</span><span>Balanced</span></div>
+        <div class="stamp-chip" data-stamp="Reflective"><span>🪞</span><span>Reflective</span></div>
+        <div class="stamp-chip" data-stamp="Risk-Taker"><span>🧭</span><span>Risk-Taker</span></div>
+      </div>
+    </section>
+
     <section class="showcase-band" aria-label="Interactive 3D Creative Courses">
       <div class="showcase-head">
         <h2>🚀 Gemini 4 Interactive 3D Courses</h2>
@@ -851,27 +985,27 @@
             <section class="subject-lane" style="--subject-color:#4a7cdd">
               <h4><span>Aa</span>Literacy</h4>
               <div class="game-list">
-              <a class="game-link " href="literacy/g1_spelling_bee.html">
+              <a class="game-link " href="literacy/g1_spelling_bee.html" data-game-path="literacy/g1_spelling_bee.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Spelling Bee for IB PYP G1</strong></span>
+                  <span class="game-title-row"><strong>Spelling Bee for IB PYP G1</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Listen, spell, and build fluency with spelling lists.</small>
                 </span>
               </a>
-              <a class="game-link " href="literacy/movespelling/index.html">
+              <a class="game-link " href="literacy/movespelling/index.html" data-game-path="literacy/movespelling/index.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>MoveSpell - Magic Hand Edition</strong></span>
+                  <span class="game-title-row"><strong>MoveSpell - Magic Hand Edition</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Gesture spelling with CVC and high-frequency words.</small>
                 </span>
               </a>
-              <a class="game-link " href="literacy/g1_pronunciation.html">
+              <a class="game-link " href="literacy/g1_pronunciation.html" data-game-path="literacy/g1_pronunciation.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Pronunciation Studio</strong></span>
+                  <span class="game-title-row"><strong>Pronunciation Studio</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Hear and repeat sounds for early phonics practice.</small>
                 </span>
               </a>
-              <a class="game-link " href="literacy/wordquest/index.html">
+              <a class="game-link " href="literacy/wordquest/index.html" data-game-path="literacy/wordquest/index.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>WordQuest - Word Search &amp; Crossword</strong></span>
+                  <span class="game-title-row"><strong>WordQuest - Word Search &amp; Crossword</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Find hidden words and fill crosswords across KG-G3 vocabulary categories.</small>
                 </span>
               </a></div>
@@ -879,9 +1013,9 @@
             <section class="subject-lane" style="--subject-color:#2d9d78">
               <h4><span>123</span>Math</h4>
               <div class="game-list">
-              <a class="game-link " href="math/g1_arithmetic.html">
+              <a class="game-link " href="math/g1_arithmetic.html" data-game-path="math/g1_arithmetic.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Arithmetic Worksheet Generator</strong></span>
+                  <span class="game-title-row"><strong>Arithmetic Worksheet Generator</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Counting, number bonds, addition, and subtraction practice.</small>
                 </span>
               </a></div>
@@ -889,15 +1023,15 @@
             <section class="subject-lane" style="--subject-color:#d05a8a">
               <h4><span>文</span>Chinese 中文</h4>
               <div class="game-list">
-              <a class="game-link " href="Chinese/g1_pinyin_training.html">
+              <a class="game-link " href="Chinese/g1_pinyin_training.html" data-game-path="Chinese/g1_pinyin_training.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Pinyin Tone Helper</strong></span>
+                  <span class="game-title-row"><strong>Pinyin Tone Helper</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Practice pinyin tones with large touch-friendly choices.</small>
                 </span>
               </a>
-              <a class="game-link " href="Chinese/g1_chinese-practice-print.html">
+              <a class="game-link " href="Chinese/g1_chinese-practice-print.html" data-game-path="Chinese/g1_chinese-practice-print.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Chinese Practice Print</strong></span>
+                  <span class="game-title-row"><strong>Chinese Practice Print</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Printable Chinese writing practice for home-school routines.</small>
                 </span>
               </a></div>
@@ -917,9 +1051,9 @@
             <section class="subject-lane" style="--subject-color:#f2b84b">
               <h4><span>◎</span>UOI</h4>
               <div class="game-list">
-              <a class="game-link " href="uoi/g1_goal_steps_quest.html">
+              <a class="game-link " href="uoi/g1_goal_steps_quest.html" data-game-path="uoi/g1_goal_steps_quest.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Goal Steps Quest</strong></span>
+                  <span class="game-title-row"><strong>Goal Steps Quest</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Choose small actions that help a learner reach a school goal.</small>
                 </span>
               </a></div>
@@ -927,9 +1061,9 @@
             <section class="subject-lane" style="--subject-color:#2d9d78">
               <h4><span>123</span>Math</h4>
               <div class="game-list">
-              <a class="game-link " href="math/g1_Kangaroo_Math.html">
+              <a class="game-link " href="math/g1_Kangaroo_Math.html" data-game-path="math/g1_Kangaroo_Math.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Kangaroo Math G1</strong></span>
+                  <span class="game-title-row"><strong>Kangaroo Math G1</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Short Grade 1 logic and counting missions.</small>
                 </span>
               </a></div>
@@ -949,9 +1083,9 @@
             <section class="subject-lane" style="--subject-color:#f2b84b">
               <h4><span>◎</span>UOI</h4>
               <div class="game-list">
-              <a class="game-link " href="uoi/g1_community_helpers_sort.html">
+              <a class="game-link " href="uoi/g1_community_helpers_sort.html" data-game-path="uoi/g1_community_helpers_sort.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Community Helpers Sort</strong></span>
+                  <span class="game-title-row"><strong>Community Helpers Sort</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Match helpers, places, and responsibilities in a community.</small>
                 </span>
               </a></div>
@@ -959,9 +1093,9 @@
             <section class="subject-lane" style="--subject-color:#4a7cdd">
               <h4><span>Aa</span>Literacy</h4>
               <div class="game-list">
-              <a class="game-link " href="literacy/mc_words/index.html">
+              <a class="game-link " href="literacy/mc_words/index.html" data-game-path="literacy/mc_words/index.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>MEET MC WORDS</strong></span>
+                  <span class="game-title-row"><strong>MEET MC WORDS</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Vocabulary categories and word recognition.</small>
                 </span>
               </a></div>
@@ -969,9 +1103,9 @@
             <section class="subject-lane" style="--subject-color:#2d9d78">
               <h4><span>123</span>Math</h4>
               <div class="game-list">
-              <a class="game-link  is-3d" href="math/g1_3D_shape.html">
+              <a class="game-link  is-3d" href="math/g1_3D_shape.html" data-game-path="math/g1_3D_shape.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>3D Shape Explorer</strong><span class="badge-3d">3D ✨</span></span>
+                  <span class="game-title-row"><strong>3D Shape Explorer</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span><span class="badge-3d">3D ✨</span></span></span>
                   <small>Rotate, compare, and name 3D solids used in shared spaces.</small>
                 </span>
               </a></div>
@@ -979,9 +1113,9 @@
             <section class="subject-lane" style="--subject-color:#d05a8a">
               <h4><span>文</span>Chinese 中文</h4>
               <div class="game-list">
-              <a class="game-link " href="Chinese/g1_word_spinner.html">
+              <a class="game-link " href="Chinese/g1_word_spinner.html" data-game-path="Chinese/g1_word_spinner.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Radical Spinner</strong></span>
+                  <span class="game-title-row"><strong>Radical Spinner</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Spin and combine radicals for Chinese character awareness.</small>
                 </span>
               </a></div>
@@ -1001,9 +1135,9 @@
             <section class="subject-lane" style="--subject-color:#f2b84b">
               <h4><span>◎</span>UOI</h4>
               <div class="game-list">
-              <a class="game-link " href="uoi/g1_story_sequencer.html">
+              <a class="game-link " href="uoi/g1_story_sequencer.html" data-game-path="uoi/g1_story_sequencer.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Story Sequencer</strong></span>
+                  <span class="game-title-row"><strong>Story Sequencer</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Put beginning, middle, and end cards in order and explain the message.</small>
                 </span>
               </a></div>
@@ -1011,9 +1145,9 @@
             <section class="subject-lane" style="--subject-color:#4a7cdd">
               <h4><span>Aa</span>Literacy</h4>
               <div class="game-list">
-              <a class="game-link " href="literacy/g1_before_after.html?mode=days">
+              <a class="game-link " href="literacy/g1_before_after.html?mode=days" data-game-path="literacy/g1_before_after.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Time Train - Before &amp; After</strong></span>
+                  <span class="game-title-row"><strong>Time Train - Before &amp; After</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Practice sequence words that help retell stories in order.</small>
                 </span>
               </a></div>
@@ -1033,15 +1167,15 @@
             <section class="subject-lane" style="--subject-color:#f2b84b">
               <h4><span>◎</span>UOI</h4>
               <div class="game-list">
-              <a class="game-link " href="uoi/g1_needs_of_living_things.html">
+              <a class="game-link " href="uoi/g1_needs_of_living_things.html" data-game-path="uoi/g1_needs_of_living_things.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Needs of Living Things</strong></span>
+                  <span class="game-title-row"><strong>Needs of Living Things</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Give plants and animals what they need and explain why.</small>
                 </span>
               </a>
-              <a class="game-link " href="math/g1_living_things_eco_detective.html">
+              <a class="game-link " href="math/g1_living_things_eco_detective.html" data-game-path="math/g1_living_things_eco_detective.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>UOI4 Living Things - Eco Detective Mission</strong></span>
+                  <span class="game-title-row"><strong>UOI4 Living Things - Eco Detective Mission</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Investigate living/non-living things, needs, and protection choices.</small>
                 </span>
               </a></div>
@@ -1049,15 +1183,15 @@
             <section class="subject-lane" style="--subject-color:#2d9d78">
               <h4><span>123</span>Math</h4>
               <div class="game-list">
-              <a class="game-link " href="math/g1_pictograph_tally_story_journey.html">
+              <a class="game-link " href="math/g1_pictograph_tally_story_journey.html" data-game-path="math/g1_pictograph_tally_story_journey.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Story Journey: Pictograph and Tally Adventure</strong></span>
+                  <span class="game-title-row"><strong>Story Journey: Pictograph and Tally Adventure</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Collect and read data using pictographs and tally charts.</small>
                 </span>
               </a>
-              <a class="game-link " href="math/g1_pictograph_tally_quiz_arcade.html">
+              <a class="game-link " href="math/g1_pictograph_tally_quiz_arcade.html" data-game-path="math/g1_pictograph_tally_quiz_arcade.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Quiz Arcade: Pictograph and Tally Sprint</strong></span>
+                  <span class="game-title-row"><strong>Quiz Arcade: Pictograph and Tally Sprint</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Fast data questions about how many, most, and least.</small>
                 </span>
               </a></div>
@@ -1065,9 +1199,9 @@
             <section class="subject-lane" style="--subject-color:#c95353">
               <h4><span>⚗</span>Science</h4>
               <div class="game-list">
-              <a class="game-link  is-3d" href="science/g1_bike_gear.html">
+              <a class="game-link  is-3d" href="science/g1_bike_gear.html" data-game-path="science/g1_bike_gear.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Bike Gear 3D Lab</strong><span class="badge-3d">3D ✨</span></span>
+                  <span class="game-title-row"><strong>Bike Gear 3D Lab</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span><span class="badge-3d">3D ✨</span></span></span>
                   <small>Pedal a 3D bicycle drivetrain, swap front and rear gears, and explore mechanical cause and effect.</small>
                 </span>
               </a></div>
@@ -1075,9 +1209,9 @@
             <section class="subject-lane" style="--subject-color:#d05a8a">
               <h4><span>文</span>Chinese 中文</h4>
               <div class="game-list">
-              <a class="game-link " href="Chinese/g1_word_spinner.html">
+              <a class="game-link " href="Chinese/g1_word_spinner.html" data-game-path="Chinese/g1_word_spinner.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Radical Spinner</strong></span>
+                  <span class="game-title-row"><strong>Radical Spinner</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Notice radicals that help build meaning in nature-related characters.</small>
                 </span>
               </a></div>
@@ -1097,9 +1231,9 @@
             <section class="subject-lane" style="--subject-color:#f2b84b">
               <h4><span>◎</span>UOI</h4>
               <div class="game-list">
-              <a class="game-link " href="uoi/g1_life_cycle_builder.html">
+              <a class="game-link " href="uoi/g1_life_cycle_builder.html" data-game-path="uoi/g1_life_cycle_builder.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Life Cycle Builder</strong></span>
+                  <span class="game-title-row"><strong>Life Cycle Builder</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Arrange nature cycle stages and notice what changes next.</small>
                 </span>
               </a></div>
@@ -1107,39 +1241,39 @@
             <section class="subject-lane" style="--subject-color:#c95353">
               <h4><span>⚗</span>Science</h4>
               <div class="game-list">
-              <a class="game-link  is-3d" href="science/g1_day_and_night_detectives.html">
+              <a class="game-link  is-3d" href="science/g1_day_and_night_detectives.html" data-game-path="science/g1_day_and_night_detectives.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Day and Night 3D Detectives</strong><span class="badge-3d">3D ✨</span></span>
+                  <span class="game-title-row"><strong>Day and Night 3D Detectives</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span><span class="badge-3d">3D ✨</span></span></span>
                   <small>Spin an interactive 3D Earth in sunlight to investigate day, night, and city lights.</small>
                 </span>
               </a>
-              <a class="game-link  is-3d" href="science/g1_moon_phases.html">
+              <a class="game-link  is-3d" href="science/g1_moon_phases.html" data-game-path="science/g1_moon_phases.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Moon Phases 3D Observatory</strong><span class="badge-3d">3D ✨</span></span>
+                  <span class="game-title-row"><strong>Moon Phases 3D Observatory</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span><span class="badge-3d">3D ✨</span></span></span>
                   <small>Orbit a 3D Earth-Moon-Sun diorama to discover all 8 moon phases and solve space cases.</small>
                 </span>
               </a>
-              <a class="game-link  is-3d" href="science/gesture-cosmos-hub.html">
+              <a class="game-link  is-3d" href="science/gesture-cosmos-hub.html" data-game-path="science/gesture-cosmos-hub.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Gesture Cosmos Hub</strong><span class="badge-3d">3D ✨</span></span>
+                  <span class="game-title-row"><strong>Gesture Cosmos Hub</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span><span class="badge-3d">3D ✨</span></span></span>
                   <small>Explore 6 cosmic scenes — solar system, neon planets, spiral galaxies, crystal galaxy, milky way, and particle shapes — with hand gesture control.</small>
                 </span>
               </a>
-              <a class="game-link  is-3d" href="science/g1_3D_camera_blueball.html">
+              <a class="game-link  is-3d" href="science/g1_3D_camera_blueball.html" data-game-path="science/g1_3D_camera_blueball.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Blue Plasma Orb Interface</strong><span class="badge-3d">3D ✨</span></span>
+                  <span class="game-title-row"><strong>Blue Plasma Orb Interface</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span><span class="badge-3d">3D ✨</span></span></span>
                   <small>Observe light, color, and motion patterns.</small>
                 </span>
               </a>
-              <a class="game-link  is-3d" href="science/g1_3D_camera_dragonball.html">
+              <a class="game-link  is-3d" href="science/g1_3D_camera_dragonball.html" data-game-path="science/g1_3D_camera_dragonball.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Stable Hand Particle System</strong><span class="badge-3d">3D ✨</span></span>
+                  <span class="game-title-row"><strong>Stable Hand Particle System</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span><span class="badge-3d">3D ✨</span></span></span>
                   <small>Gesture-based particle motion extension.</small>
                 </span>
               </a>
-              <a class="game-link  is-3d" href="science/g1_3D_camera_test.html">
+              <a class="game-link  is-3d" href="science/g1_3D_camera_test.html" data-game-path="science/g1_3D_camera_test.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Random Color Hand Particles</strong><span class="badge-3d">3D ✨</span></span>
+                  <span class="game-title-row"><strong>Random Color Hand Particles</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span><span class="badge-3d">3D ✨</span></span></span>
                   <small>Experiment with changing color and movement.</small>
                 </span>
               </a></div>
@@ -1147,9 +1281,9 @@
             <section class="subject-lane" style="--subject-color:#2d9d78">
               <h4><span>123</span>Math</h4>
               <div class="game-list">
-              <a class="game-link " href="literacy/g1_before_after.html?mode=months">
+              <a class="game-link " href="literacy/g1_before_after.html?mode=months" data-game-path="literacy/g1_before_after.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Time Train - Before &amp; After</strong></span>
+                  <span class="game-title-row"><strong>Time Train - Before &amp; After</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Sequence daily routines using before and after.</small>
                 </span>
               </a></div>
@@ -1169,15 +1303,15 @@
             <section class="subject-lane" style="--subject-color:#f2b84b">
               <h4><span>◎</span>UOI</h4>
               <div class="game-list">
-              <a class="game-link " href="uoi/g1_story_sequencer.html">
+              <a class="game-link " href="uoi/g1_story_sequencer.html" data-game-path="uoi/g1_story_sequencer.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Story Sequencer</strong></span>
+                  <span class="game-title-row"><strong>Story Sequencer</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Sequence journey moments and explain how a person grows or changes.</small>
                 </span>
               </a>
-              <a class="game-link " href="uoi/g1_goal_steps_quest.html">
+              <a class="game-link " href="uoi/g1_goal_steps_quest.html" data-game-path="uoi/g1_goal_steps_quest.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Goal Steps Quest</strong></span>
+                  <span class="game-title-row"><strong>Goal Steps Quest</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Choose actions that help prepare for a new stage in a learning journey.</small>
                 </span>
               </a></div>
@@ -1185,9 +1319,9 @@
             <section class="subject-lane" style="--subject-color:#4a7cdd">
               <h4><span>Aa</span>Literacy</h4>
               <div class="game-list">
-              <a class="game-link " href="literacy/g1_before_after.html?mode=months">
+              <a class="game-link " href="literacy/g1_before_after.html?mode=months" data-game-path="literacy/g1_before_after.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Time Train - Before &amp; After</strong></span>
+                  <span class="game-title-row"><strong>Time Train - Before &amp; After</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Use time words to retell personal journeys in order.</small>
                 </span>
               </a></div>
@@ -1195,15 +1329,15 @@
             <section class="subject-lane" style="--subject-color:#2d9d78">
               <h4><span>123</span>Math</h4>
               <div class="game-list">
-              <a class="game-link  is-3d" href="math/g1_position_explorer.html">
+              <a class="game-link  is-3d" href="math/g1_position_explorer.html" data-game-path="math/g1_position_explorer.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Position Explorer 3D</strong><span class="badge-3d">3D ✨</span></span>
+                  <span class="game-title-row"><strong>Position Explorer 3D</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span><span class="badge-3d">3D ✨</span></span></span>
                   <small>Explore a 3D interactive room and hop with a friendly bear to master spatial prepositions.</small>
                 </span>
               </a>
-              <a class="game-link " href="math/g1_Kangaroo_Math.html">
+              <a class="game-link " href="math/g1_Kangaroo_Math.html" data-game-path="math/g1_Kangaroo_Math.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Kangaroo Math G1</strong></span>
+                  <span class="game-title-row"><strong>Kangaroo Math G1</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Review Grade 1 maths skills with short practice missions.</small>
                 </span>
               </a></div>
@@ -1211,9 +1345,9 @@
             <section class="subject-lane" style="--subject-color:#d05a8a">
               <h4><span>文</span>Chinese 中文</h4>
               <div class="game-list">
-              <a class="game-link " href="Chinese/g1_word_spinner.html">
+              <a class="game-link " href="Chinese/g1_word_spinner.html" data-game-path="Chinese/g1_word_spinner.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Radical Spinner</strong></span>
+                  <span class="game-title-row"><strong>Radical Spinner</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Build character awareness while preparing personal writing words.</small>
                 </span>
               </a></div>
@@ -1241,9 +1375,9 @@
             <section class="subject-lane" style="--subject-color:#f2b84b">
               <h4><span>◎</span>UOI</h4>
               <div class="game-list">
-              <a class="game-link " href="uoi/g2_vocabulary.html?scheme=uoi">
+              <a class="game-link " href="uoi/g2_vocabulary.html?scheme=uoi" data-game-path="uoi/g2_vocabulary.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Grade 2 UOI Vocabulary</strong></span>
+                  <span class="game-title-row"><strong>Grade 2 UOI Vocabulary</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Interactive flashcards and vocabulary games for Grade 2 UOI Summer Holiday Home Learning.</small>
                 </span>
               </a></div>
@@ -1251,9 +1385,9 @@
             <section class="subject-lane" style="--subject-color:#2d9d78">
               <h4><span>123</span>Math</h4>
               <div class="game-list">
-              <a class="game-link " href="uoi/g2_vocabulary.html?scheme=math">
+              <a class="game-link " href="uoi/g2_vocabulary.html?scheme=math" data-game-path="uoi/g2_vocabulary.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Grade 2 Math Vocabulary</strong></span>
+                  <span class="game-title-row"><strong>Grade 2 Math Vocabulary</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Explore division, multiplication, and algebraic vocabulary with games.</small>
                 </span>
               </a></div>
@@ -1273,9 +1407,9 @@
             <section class="subject-lane" style="--subject-color:#f2b84b">
               <h4><span>◎</span>UOI</h4>
               <div class="game-list">
-              <a class="game-link " href="uoi/g2_balanced_choices.html">
+              <a class="game-link " href="uoi/g2_balanced_choices.html" data-game-path="uoi/g2_balanced_choices.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Balanced Choices Adventure</strong></span>
+                  <span class="game-title-row"><strong>Balanced Choices Adventure</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Interactive decision quest exploring physical health, emotions, and responsibility.</small>
                 </span>
               </a></div>
@@ -1283,21 +1417,21 @@
             <section class="subject-lane" style="--subject-color:#4a7cdd">
               <h4><span>Aa</span>Literacy</h4>
               <div class="game-list">
-              <a class="game-link " href="literacy/g2_sentence_fixer.html">
+              <a class="game-link " href="literacy/g2_sentence_fixer.html" data-game-path="literacy/g2_sentence_fixer.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Sentence Doctor Clinic</strong></span>
+                  <span class="game-title-row"><strong>Sentence Doctor Clinic</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Interactive token clinic to heal capital letters, -ed past tense verbs, and ending punctuation.</small>
                 </span>
               </a>
-              <a class="game-link " href="literacy/g2_five_finger_retell.html">
+              <a class="game-link " href="literacy/g2_five_finger_retell.html" data-game-path="literacy/g2_five_finger_retell.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Five Finger Story Retell</strong></span>
+                  <span class="game-title-row"><strong>Five Finger Story Retell</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Interactive narrative map matching characters, setting, time, problem, and solution.</small>
                 </span>
               </a>
-              <a class="game-link " href="literacy/g2_phonics_word_clinic.html">
+              <a class="game-link " href="literacy/g2_phonics_word_clinic.html" data-game-path="literacy/g2_phonics_word_clinic.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Phonics &amp; Word Clinic</strong></span>
+                  <span class="game-title-row"><strong>Phonics &amp; Word Clinic</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Master FLSZ doubling, regular -ed vs irregular verbs, and heal high-frequency spelling words.</small>
                 </span>
               </a></div>
@@ -1305,15 +1439,15 @@
             <section class="subject-lane" style="--subject-color:#2d9d78">
               <h4><span>123</span>Math</h4>
               <div class="game-list">
-              <a class="game-link " href="math/g2_mixed_arithmetic_worksheet.html">
+              <a class="game-link " href="math/g2_mixed_arithmetic_worksheet.html" data-game-path="math/g2_mixed_arithmetic_worksheet.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>3-Number Mixed Arithmetic Worksheet</strong></span>
+                  <span class="game-title-row"><strong>3-Number Mixed Arithmetic Worksheet</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Continuous addition and subtraction generator with A4 ink-friendly print layout.</small>
                 </span>
               </a>
-              <a class="game-link " href="math/g2_time_and_math_quest.html">
+              <a class="game-link " href="math/g2_time_and_math_quest.html" data-game-path="math/g2_time_and_math_quest.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Time &amp; Mental Math Quest</strong></span>
+                  <span class="game-title-row"><strong>Time &amp; Mental Math Quest</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Digital clocks, calendar duration inquiries, and mental arithmetic arcade.</small>
                 </span>
               </a></div>
@@ -1333,15 +1467,15 @@
             <section class="subject-lane" style="--subject-color:#f2b84b">
               <h4><span>◎</span>UOI</h4>
               <div class="game-list">
-              <a class="game-link " href="uoi/g2_sound_and_light_studio.html">
+              <a class="game-link " href="uoi/g2_sound_and_light_studio.html" data-game-path="uoi/g2_sound_and_light_studio.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Sound &amp; Light Creative Studio</strong></span>
+                  <span class="game-title-row"><strong>Sound &amp; Light Creative Studio</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Inquire into sound waves, light shadows, emergency signals, and direct multimedia theater stories.</small>
                 </span>
               </a>
-              <a class="game-link " href="uoi/g2_sound_explorer.html">
+              <a class="game-link " href="uoi/g2_sound_explorer.html" data-game-path="uoi/g2_sound_explorer.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Sound Explorer Lab</strong></span>
+                  <span class="game-title-row"><strong>Sound Explorer Lab</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Investigate volume, pitch, and communication signals.</small>
                 </span>
               </a></div>
@@ -1349,9 +1483,9 @@
             <section class="subject-lane" style="--subject-color:#c95353">
               <h4><span>⚗</span>Science</h4>
               <div class="game-list">
-              <a class="game-link  is-3d" href="science/g2_light_shadow_master.html">
+              <a class="game-link  is-3d" href="science/g2_light_shadow_master.html" data-game-path="science/g2_light_shadow_master.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Light &amp; Shadow Master 3D</strong><span class="badge-3d">3D ✨</span></span>
+                  <span class="game-title-row"><strong>Light &amp; Shadow Master 3D</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span><span class="badge-3d">3D ✨</span></span></span>
                   <small>Explore 3D shadow formation, opacity, and mirror reflection with Minecraft items.</small>
                 </span>
               </a></div>
@@ -1359,15 +1493,15 @@
             <section class="subject-lane" style="--subject-color:#4a7cdd">
               <h4><span>Aa</span>Literacy</h4>
               <div class="game-list">
-              <a class="game-link " href="literacy/g2_digraph_pop.html">
+              <a class="game-link " href="literacy/g2_digraph_pop.html" data-game-path="literacy/g2_digraph_pop.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Digraph Pop!</strong></span>
+                  <span class="game-title-row"><strong>Digraph Pop!</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Bubble popping phonics practice for sh, ch, th, wh, ph, ck, ng, and nk.</small>
                 </span>
               </a>
-              <a class="game-link " href="literacy/g2_script_director.html">
+              <a class="game-link " href="literacy/g2_script_director.html" data-game-path="literacy/g2_script_director.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Script Director &amp; Grammar Lab</strong></span>
+                  <span class="game-title-row"><strong>Script Director &amp; Grammar Lab</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Stage directions using prepositions of place and grammar clinic.</small>
                 </span>
               </a></div>
@@ -1375,27 +1509,27 @@
             <section class="subject-lane" style="--subject-color:#2d9d78">
               <h4><span>123</span>Math</h4>
               <div class="game-list">
-              <a class="game-link " href="math/g2_array_equal_groups.html">
+              <a class="game-link " href="math/g2_array_equal_groups.html" data-game-path="math/g2_array_equal_groups.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Array &amp; Equal Groups Visualizer</strong></span>
+                  <span class="game-title-row"><strong>Array &amp; Equal Groups Visualizer</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Visual matrix arrays, equal groups, and repeated addition reasoning.</small>
                 </span>
               </a>
-              <a class="game-link " href="math/g2_times_table_challenge.html">
+              <a class="game-link " href="math/g2_times_table_challenge.html" data-game-path="math/g2_times_table_challenge.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Times Table Speed Challenge</strong></span>
+                  <span class="game-title-row"><strong>Times Table Speed Challenge</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Fast-paced multiplication fact sprint for 2, 3, 4, and 5 times tables.</small>
                 </span>
               </a>
-              <a class="game-link " href="math/g2_angle_explorer.html">
+              <a class="game-link " href="math/g2_angle_explorer.html" data-game-path="math/g2_angle_explorer.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Angle Explorer</strong></span>
+                  <span class="game-title-row"><strong>Angle Explorer</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span></span></span>
                   <small>Open a door to learn angles, build each angle type, then solve Angle Detective cases.</small>
                 </span>
               </a>
-              <a class="game-link  is-3d" href="math/g2_angle_finder.html">
+              <a class="game-link  is-3d" href="math/g2_angle_finder.html" data-game-path="math/g2_angle_finder.html">
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>Angle Finder 3D</strong><span class="badge-3d">3D ✨</span></span>
+                  <span class="game-title-row"><strong>Angle Finder 3D</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span><span class="badge-3d">3D ✨</span></span></span>
                   <small>Interactive 3D geometry inspector for Right, Acute, Obtuse, and Straight angles.</small>
                 </span>
               </a></div>
@@ -1615,6 +1749,34 @@
     if (initial && document.getElementById(initial)) {
       activateGrade(initial);
     }
+
+    function loadPassport() {
+      try {
+        const raw = localStorage.getItem('ib_pyp_passport');
+        const data = raw ? JSON.parse(raw) : { stamps: [], completed: [] };
+        const stamps = new Set(Array.isArray(data.stamps) ? data.stamps : []);
+        const completed = new Set(Array.isArray(data.completed) ? data.completed : []);
+        document.querySelectorAll('.stamp-chip').forEach(chip => {
+          chip.classList.toggle('earned', stamps.has(chip.dataset.stamp));
+        });
+        document.querySelectorAll('.game-link[data-game-path]').forEach(link => {
+          const badge = link.querySelector('.badge-done');
+          if (badge) badge.hidden = !completed.has(link.dataset.gamePath);
+        });
+        const summary = document.getElementById('passport-summary');
+        if (summary) {
+          summary.textContent = stamps.size + ' / 7 Stamps · ' + completed.size + ' Inquiry Adventures Completed';
+        }
+      } catch (_) {}
+    }
+
+    document.getElementById('passport-reset')?.addEventListener('click', () => {
+      try { localStorage.removeItem('ib_pyp_passport'); } catch (_) {}
+      loadPassport();
+    });
+
+    loadPassport();
+    window.addEventListener('focus', loadPassport);
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -1923,13 +2085,18 @@
       }
       animate();
 
-      window.addEventListener('resize', () => {
-        const w = stage.clientWidth;
-        const h = Math.max(stage.clientHeight, 240);
+      const resizeHub3D = () => {
+        const w = Math.max(stage.clientWidth, 1);
+        const h = Math.max(stage.clientHeight, 1);
         camera.aspect = w / h;
         camera.updateProjectionMatrix();
-        renderer.setSize(w, h);
-      });
+        renderer.setSize(w, h, false);
+      };
+      if (typeof ResizeObserver !== 'undefined') {
+        new ResizeObserver(resizeHub3D).observe(stage);
+      } else {
+        window.addEventListener('resize', resizeHub3D);
+      }
     } catch (err) {
       console.warn('[Hub 3D] WebGL fallback:', err);
       stage.innerHTML = '<div style="display:grid;place-items:center;height:100%;color:#ffe156;font-weight:900;padding:20px;text-align:center;">✨ Explore our Interactive 3D Courses below!</div>';

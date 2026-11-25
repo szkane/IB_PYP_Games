@@ -15,7 +15,7 @@
     }
     canvas { display: block; }
     .input_video { display: none; }
-    #canvas-container { width: 100vw; height: 100vh; }
+    #canvas-container { width: 100vw; height: 100vh; height: 100dvh; }
 
     /* Nav Bar */
     #nav-bar {
@@ -223,6 +223,8 @@
       color: #00f3ff;
       font-weight: bold;
     }
+  
+    html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
   </style>
   <!-- MediaPipe -->
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>

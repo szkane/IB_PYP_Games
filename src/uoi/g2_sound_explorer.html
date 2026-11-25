@@ -35,7 +35,7 @@
         radial-gradient(circle at 88% 82%, rgba(56, 182, 255, 0.12) 0%, transparent 28%),
         radial-gradient(circle at 50% 50%, rgba(255, 225, 86, 0.08) 0%, transparent 50%);
       color: var(--ink);
-      min-height: 100vh;
+      min-height: 100vh; min-height: 100dvh;
       padding: 14px 16px 36px;
     }
 
@@ -577,6 +577,8 @@
       from { transform: scale(1); }
       to { transform: scale(1.1); }
     }
+  
+    html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
   </style>
 </head>
 

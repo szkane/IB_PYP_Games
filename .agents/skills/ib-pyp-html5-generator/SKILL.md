@@ -158,9 +158,10 @@ flowchart TD
 
 Regardless of the scenario or archetype, every generated game must follow these non-negotiable rules:
 
-### 1. Explore-First Sequence (Two-Step Flow)
-- **Step 1 (Free Discovery / Setup)**: Children freely tap, listen, manipulate variables, or configure parameters first with zero test pressure (and in Type 9 Speed Arcades, start in a calm Ready/Warm-up screen rather than auto-starting countdown timers on page load).
-- **Step 2 (Challenge / Mission / Output)**: Hands-on problem-solving applying what was discovered in Step 1 (or printable A4 output / dictation in Type 1). Always provide an easy way to switch back to Step 1.
+### 1. Authentic IB PYP Inquiry Cycle (Three-Step Flow)
+- **Step 1 (Tuning In & Finding Out)**: Anchor the activity in a Key Concept driving question. Children freely tap, listen, orbit 3D models, or manipulate variables with zero test pressure (and in Type 9 Speed Arcades, start in a calm Warm-up screen rather than auto-starting countdown timers on page load).
+- **Step 2 (Sorting Out & Going Further)**: Hands-on problem-solving missions applying what was discovered in Step 1 (or printable A4 output / dictation in Type 1). Always provide an easy way to switch back to Step 1.
+- **Step 3 (Reflecting & Taking Action)**: Include a brief, child-friendly **IB PYP Reflection & Action Modal** that reinforces the unit's Central Idea, offers one concrete real-world "Take Action" challenge, and unlocks the unit's **Learner Profile Stamp** (`Inquirer`, `Thinker`, `Communicator`, `Caring`, `Balanced`, `Reflective`, `Risk-Taker`) in `localStorage['ib_pyp_passport']`.
 
 ### 2. Strict Grade-Level Language Calibration
 - **Grade 1 (Age 6–7)**: 5–10 words per sentence, basic sight words, concrete nouns, emoji on every noun, TTS auto-speak enabled.
@@ -184,15 +185,17 @@ Regardless of the scenario or archetype, every generated game must follow these 
 - Strictly **zero sound effects on page load**. `DOMContentLoaded` runs with `playSound = false` so sirens, alarms, and roars never startle young children or trigger browser audio policy blocks.
 - Sounds only trigger on explicit user touch/click.
 
-### 7. Neobrutalism Design System & iPad Landscape
+### 7. Neobrutalism Design System, Fluid Responsive & Mobile-Native Craft
 - Bold black borders (`3.5px solid #111`), hard offset drop shadows (`4px 4px 0 #111`), candy colors, tactile button depression (`translate(2px, 2px)`).
 - Compact header (one nav row + one small hero, no sticky banners eating vertical height).
-- Responsive two-column play grid (`1.2fr 1fr` in landscape, stacked on narrow mobile).
-- Large touch targets ($\ge 44$px height/width, `touch-action: manipulation`). Use `100dvh` for full-height views.
+- **Fluid Responsive Across All Viewports (Never Hardcode Single-Device Resolutions like `1180×820`)**:
+  - Use `container-type: inline-size` with CSS `@container` layout queries, fluid `clamp()` spacing & stage heights (`clamp(270px, 48dvh, 520px)`), and `100dvh` (never bare `100vh`).
+  - Apply mobile-native platform fixes: `-webkit-tap-highlight-color: transparent`, `overscroll-behavior: none`, `env(safe-area-inset-*)` padding, `user-select: none` on controls only, and capability-gated `@media (hover: hover) and (pointer: fine)` so touch devices never get stuck hover states.
+  - Large touch targets ($\ge 44$px height/width, `touch-action: manipulation` on buttons, `touch-action: none` on 3D/drag canvases).
 - For **Type 1 (Worksheet & Print)**, strictly separate languages: use **international standard 4-line 3-space primary ruled lines (dashed midline & solid baseline)** for English; reserve square Tian Zi Ge / Mi Zi Ge exclusively for Chinese; use monospace aligned columns for math. Include `@page { size: A4 portrait; margin: 8mm 10mm; }` and `@media print` rules that strip screen UI, enforce ink-friendly black-on-white (`print-color-adjust: exact`), and prevent mid-item page breaks (`break-inside: avoid`).
 
-### 8. Voice Read-Aloud (TTS) with Robust Fallback & Web Audio SFX
-- **Switchable Accent TTS**: Copy the accent dropdown and `TTS_MANAGER` from [`references/tts-pattern.md`](references/tts-pattern.md) verbatim. Persists voice choice across activities via `localStorage['ib_pyp_voice_name']`. Provide 🔊 `.btn-speaker` buttons next to titles, prompts, stories, and clues.
+### 8. Voice Read-Aloud (TTS) with Custom Radio Dropdown & Web Audio SFX
+- **Neobrutalism Switchable Accent TTS (`.tts-dropdown-wrap`)**: Always copy the custom flag-enabled radio dropdown (`.tts-dropdown-wrap`, `.tts-trigger`, `.tts-menu`, `.tts-radio-item`) and `TTS_MANAGER` from [`references/tts-pattern.md`](references/tts-pattern.md) verbatim — **never use a plain native `<select>` for voice selection**. Persists voice choice via `localStorage['ib_pyp_voice_name']`. Provide 🔊 `.btn-speaker` buttons next to titles, prompts, stories, and clues.
 - **Mandatory TTS Fallback Logic**:
   - Filter for US, UK, AU, and EN-related voices (`lang.startsWith('en')`).
   - **Browser Default Fallback**: If the browser or operating system does NOT have US or EN-related TTS voice resources installed, automatically fallback to the browser's default TTS (`voices.find(v => v.default) || voices[0]`). Speech synthesis must never fail silently.
@@ -217,4 +220,5 @@ Regardless of the scenario or archetype, every generated game must follow these 
 - [ ] **Neobrutalism UI, iPad Landscape & Print Precision**: Bold borders (`3.5px #111`), hard drop shadows (`4px 4px 0 #111`), compact header; for Type 1 print pages, verified strict language guideline separation (English 4-line 3-space vs. Chinese Tian Zi Ge vs. Math columns) and `@page { size: A4 portrait }` / `@media print` rules.
 - [ ] **TTS Read-Aloud & Fallback**: Top-right accent dropdown present; 🔊 buttons on prompts; voice choice saved in `localStorage`; **browser default TTS fallback implemented if US/EN voices are missing**.
 - [ ] **Synthetic Audio**: Pure Web Audio API SFX; unlocks on first gesture; silent graceful degradation if audio is unavailable.
-- [ ] **Immersive 3D Craft (for Type 4 Three.js scenes)**: Procedural canvas PBR textures (offline-safe, zero broken external image URLs), `ACESFilmicToneMapping`, `devicePixelRatio <= 2`, `touch-action: none` on canvas, drag-safe raycasting (`<= 8px` threshold) with particle feedback, and explicit `Reset ↺` / `Play/Pause` controls.
+- [ ] **Immersive 3D Craft (for Type 4 Three.js scenes)**: Procedural canvas PBR textures (offline-safe, zero broken external image URLs), `ACESFilmicToneMapping`, `devicePixelRatio <= 2`, `ResizeObserver` (not only `window.resize`), `touch-action: none` on canvas, drag-safe raycasting (`<= 8px` threshold) with particle feedback, and explicit `Reset ↺` / `Play/Pause` controls.
+- [ ] **Fluid Responsive, Mobile-Native & PYP Reflection**: Uses `container-type: inline-size` (`@container`), fluid `clamp()` stage sizing, `100dvh`, `env(safe-area-inset-*)`, capability-gated `@media (hover: hover) and (pointer: fine)`, custom `.tts-dropdown-wrap` (never plain `<select>`), and an IB PYP Reflection & Action modal stamping `localStorage['ib_pyp_passport']`.

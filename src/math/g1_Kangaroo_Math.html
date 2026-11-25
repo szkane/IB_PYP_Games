@@ -1,451 +1,464 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-
+<!doctype html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title> Kangaroo math G1 </title>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+  <title>Kangaroo Math Logic Safari — IB PYP Grade 1</title>
   <style>
+    :root {
+      --bg: #FFFDF0;
+      --ink: #111111;
+      --yellow: #FFE156;
+      --coral: #FF6584;
+      --teal: #4ECDC4;
+      --blue: #38B6FF;
+      --purple: #B388FF;
+      --green: #86EFAC;
+      --white: #FFFFFF;
+      --border: 3.5px solid var(--ink);
+      --shadow: 4px 4px 0 var(--ink);
+      --shadow-sm: 2px 2px 0 var(--ink);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; overscroll-behavior: none; }
+    button { user-select: none; -webkit-user-select: none; touch-action: manipulation; }
+
     body {
-      font-family: 'Noto Sans SC', sans-serif;
-      background-color: #f0f9ff;
+      font-family: ui-rounded, "Avenir Next", "Nunito", system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 12% 14%, rgba(255, 225, 86, 0.24), transparent 36%),
+        radial-gradient(circle at 86% 84%, rgba(134, 239, 172, 0.26), transparent 36%),
+        var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding:
+        calc(10px + env(safe-area-inset-top, 0px))
+        calc(14px + env(safe-area-inset-right, 0px))
+        calc(24px + env(safe-area-inset-bottom, 0px))
+        calc(14px + env(safe-area-inset-left, 0px));
     }
 
-    .game-card {
-      transition: all 0.3s ease;
+    .container { container-type: inline-size; max-width: 1320px; margin: 0 auto; }
+
+    .nav-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+    .nav-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+    .pyp-map-link {
+      display: inline-flex; align-items: center; min-height: 44px; padding: 8px 16px;
+      background: var(--yellow); color: var(--ink); text-decoration: none; font-weight: 900;
+      font-size: 0.92rem; border: var(--border); border-radius: var(--radius); box-shadow: var(--shadow);
+    }
+    .unit-tag {
+      display: inline-flex; align-items: center; min-height: 44px; padding: 6px 14px;
+      background: var(--teal); border: var(--border); border-radius: var(--radius);
+      box-shadow: var(--shadow); font-weight: 900; font-size: 0.86rem;
+    }
+    .btn-reflect-pill {
+      display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 6px 14px;
+      background: linear-gradient(135deg, #ffe156, #86efac); color: #111; border: 3px solid #111;
+      border-radius: 12px; box-shadow: 3px 3px 0 #111; font: inherit; font-weight: 900; font-size: 0.86rem; cursor: pointer;
     }
 
-    .game-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    /* Neobrutalism TTS Radio Dropdown */
+    .tts-dropdown-wrap { position: relative; display: inline-block; user-select: none; }
+    .tts-trigger {
+      display: inline-flex; align-items: center; gap: 6px; background: #FFF;
+      border: 2.5px solid var(--ink); border-radius: 10px; box-shadow: 3px 3px 0 var(--ink);
+      padding: 6px 12px; font: inherit; font-size: 0.85rem; font-weight: 800; color: var(--ink); cursor: pointer; min-height: 44px;
+    }
+    .tts-arrow { font-size: 0.75rem; transition: transform 0.15s ease; }
+    .tts-dropdown-wrap.open .tts-arrow { transform: rotate(180deg); }
+    .tts-menu {
+      display: none; position: absolute; top: calc(100% + 6px); right: 0;
+      min-width: 250px; max-width: 310px; max-height: 280px; overflow-y: auto;
+      background: #FFF; border: 3px solid var(--ink); border-radius: 12px;
+      box-shadow: 4px 4px 0 var(--ink); padding: 6px; z-index: 1000; flex-direction: column; gap: 3px;
+    }
+    .tts-dropdown-wrap.open .tts-menu { display: flex; }
+    .tts-menu-header { font-size: 0.72rem; font-weight: 900; text-transform: uppercase; color: #6B7280; padding: 4px 8px 6px; border-bottom: 2px solid #E5E7EB; }
+    .tts-radio-group { display: flex; flex-direction: column; gap: 3px; }
+    .tts-radio-item { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border: 2px solid transparent; border-radius: 8px; background: transparent; cursor: pointer; font: inherit; font-size: 0.82rem; font-weight: 700; width: 100%; text-align: left; }
+    .tts-radio-item.active { background: #E0F2FE; border-color: var(--ink); font-weight: 800; }
+    .tts-radio-circle { width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--ink); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; background: #FFF; }
+    .tts-radio-item.active .tts-radio-circle::after { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--ink); }
+    .tts-item-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+
+    .btn-speaker {
+      display: inline-flex; align-items: center; justify-content: center; background: #FEF08A;
+      border: 2.5px solid var(--ink); box-shadow: 2px 2px 0 var(--ink); border-radius: 10px;
+      width: 40px; height: 40px; cursor: pointer; font-size: 1.1rem; flex-shrink: 0;
     }
 
-    .fade-in {
-      animation: fadeIn 0.5s ease-in;
+    .hero-card {
+      background: var(--white); border: var(--border); border-radius: var(--radius); box-shadow: var(--shadow);
+      padding: 10px 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+    .hero-title { display: flex; align-items: center; gap: 10px; }
+    .hero-title h1 { font-size: clamp(1.18rem, 2.3vw, 1.65rem); font-weight: 900; }
+
+    .case-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+    .case-tab {
+      min-height: 44px; padding: 6px 12px; border: 2.5px solid var(--ink); border-radius: 12px;
+      background: var(--white); box-shadow: var(--shadow-sm); font: inherit; font-weight: 900; font-size: 0.85rem; cursor: pointer;
+    }
+    .case-tab.active { background: var(--yellow); }
+    .case-tab.solved { background: var(--green); }
+
+    .play-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 14px; align-items: start; }
+    @container (max-width: 780px) { .play-grid { grid-template-columns: 1fr; } }
+
+    .panel { background: var(--white); border: var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 14px; }
+
+    .puzzle-stage {
+      width: 100%; border: 3px solid var(--ink); border-radius: 14px; overflow: hidden;
+      background: #F8FAFC; margin-bottom: 10px;
+    }
+    .puzzle-stage svg { display: block; width: 100%; height: auto; }
+
+    .prompt-row {
+      display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;
+      background: #FFFBEB; border: 2.5px dashed var(--ink); border-radius: 12px;
+      padding: 12px; margin-bottom: 12px; font-weight: 800; font-size: 0.98rem; line-height: 1.4;
     }
 
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-      }
+    .choice-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: 900; font-size: 0.85rem; }
+    .badge-neutral { border: 2px dashed var(--ink); border-radius: 8px; padding: 2px 8px; background: #FFF; font-size: 0.8rem; }
+    .badge-selected { border: 2px solid var(--ink); border-radius: 8px; padding: 2px 8px; background: var(--yellow); font-size: 0.8rem; }
 
-      to {
-        opacity: 1;
-      }
+    .choice-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 12px; }
+    .choice-btn {
+      min-height: 58px; padding: 10px 12px; border: 2.5px solid var(--ink); border-radius: 12px;
+      background: var(--white); box-shadow: 3px 3px 0 var(--ink); font: inherit; font-weight: 900; font-size: 1rem; cursor: pointer;
     }
+    .choice-btn.active { background: var(--yellow); }
 
-    .bounce {
-      animation: bounce 1s infinite;
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+    .btn {
+      min-height: 46px; padding: 10px 16px; border: var(--border); border-radius: 12px;
+      box-shadow: var(--shadow-sm); font: inherit; font-weight: 900; font-size: 0.92rem; cursor: pointer;
     }
+    .btn.coral { background: var(--coral); color: var(--white); flex: 1; }
+    .btn.secondary { background: var(--white); }
 
-    @keyframes bounce {
-
-      0%,
-      100% {
-        transform: translateY(0);
-      }
-
-      50% {
-        transform: translateY(-10px);
-      }
+    .feedback-bar {
+      min-height: 50px; padding: 10px 12px; border: 2.5px solid var(--ink); border-radius: 12px;
+      background: #F1F5F9; font-weight: 800; font-size: 0.9rem; display: flex; align-items: center;
     }
+    .feedback-bar.good { background: var(--green); }
+    .feedback-bar.warn { background: #FEF08A; }
 
+    /* IB PYP Reflection Modal */
+    .pyp-modal-backdrop { position: fixed; inset: 0; z-index: 2000; background: rgba(15, 23, 42, 0.72); backdrop-filter: blur(6px); display: none; place-items: center; padding: 16px; }
+    .pyp-modal-backdrop.open { display: grid; }
+    .pyp-modal-card { width: min(560px, 100%); background: #FFFDF0; border: 4px solid #111; border-radius: 20px; box-shadow: 8px 8px 0 #111; padding: 20px 22px; display: grid; gap: 12px; }
+    .pyp-modal-badge { display: inline-flex; align-items: center; gap: 8px; width: fit-content; padding: 6px 14px; background: #FFE156; border: 3px solid #111; border-radius: 999px; font-weight: 900; font-size: 0.9rem; }
+    .pyp-modal-box { background: #FFF; border: 2.5px solid #111; border-radius: 12px; padding: 10px 14px; font-size: 0.92rem; line-height: 1.45; }
+    .pyp-modal-box strong { display: block; font-size: 0.78rem; text-transform: uppercase; color: #0ea5a4; margin-bottom: 3px; }
+    .pyp-modal-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .pyp-modal-btn { flex: 1; min-height: 46px; padding: 10px 14px; border: 3px solid #111; border-radius: 12px; box-shadow: 3px 3px 0 #111; font: inherit; font-weight: 900; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; color: #111; background: #FFF; }
+    .pyp-modal-btn.primary { background: #86EFAC; }
   </style>
 </head>
-
 <body>
-  <div id="root"></div>
+  <div class="container">
+    <nav class="nav-bar">
+      <div class="nav-left">
+        <a class="pyp-map-link" href="../index.html">← PYP Map</a>
+        <span class="unit-tag">🦘 Grade 1 · Math · Logic &amp; Strategy</span>
+        <button type="button" class="btn-reflect-pill" id="btnOpenReflect">🧭 Reflect &amp; Stamp</button>
+      </div>
+      <div class="tts-dropdown-wrap" id="ttsDropdownWrap">
+        <button type="button" class="tts-trigger" id="ttsTrigger" aria-haspopup="menu" aria-expanded="false">
+          <span class="tts-trigger-flag" id="ttsFlag">🇬🇧</span>
+          <span class="tts-trigger-label" id="ttsLabel">Voice</span>
+          <span class="tts-arrow">▾</span>
+        </button>
+        <div class="tts-menu" id="ttsMenu" role="menu">
+          <div class="tts-menu-header">Select Voice Accent</div>
+          <div class="tts-radio-group" id="ttsRadioList" role="radiogroup"></div>
+        </div>
+      </div>
+    </nav>
 
-  <script type="text/babel">
-    const { useState, useEffect } = React;
+    <header class="hero-card">
+      <div class="hero-title">
+        <h1>Kangaroo Math Logic Safari 🦘✨</h1>
+        <button type="button" class="btn-speaker" id="btnSpeakTitle" aria-label="Read title">🔊</button>
+      </div>
+      <div class="case-tabs" id="caseTabs"></div>
+    </header>
 
-    // --- 图标组件 ---
-    const IconScissor = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="6" cy="6" r="3" /><circle cx="6" cy="18" r="3" /><line x1="20" y1="4" x2="8.12" y2="15.88" /><line x1="14.47" y1="14.48" x2="20" y2="20" /><line x1="8.12" y1="8.12" x2="12" y2="12" /></svg>;
-    const IconUsers = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>;
-    const IconMap = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 21 15 18 9 21 3 18 3 6" /><line x1="9" y1="3" x2="9" y2="21" /><line x1="15" y1="6" x2="15" y2="18" /></svg>;
-    const IconHome = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>;
+    <main class="play-grid">
+      <section class="panel">
+        <div class="puzzle-stage" id="puzzleStage"></div>
+        <div class="feedback-bar" id="strategyNote">
+          💡 Risk-Taker Strategy: Look closely at the visual picture clue and test your idea!
+        </div>
+      </section>
 
-    // --- 模块 1: 剪绳子 (The Fencepost) ---
-    const ModuleRope = ({ onBack }) => {
-      const [cuts, setCuts] = useState(0);
+      <section class="panel">
+        <div class="prompt-row">
+          <span id="puzzlePrompt"></span>
+          <button type="button" class="btn-speaker" id="btnSpeakPrompt" aria-label="Read mission">🔊</button>
+        </div>
+        <div class="choice-header">
+          <span>Choose your answer:</span>
+          <span class="badge-neutral" id="choiceBadge">❓ Tap to choose</span>
+        </div>
+        <div class="choice-grid" id="choiceGrid"></div>
+        <div class="btn-row">
+          <button type="button" class="btn coral" id="btnCheck">Check My Thinking ✨</button>
+          <button type="button" class="btn secondary" id="btnHint">💡 Hint</button>
+        </div>
+        <div class="feedback-bar" id="feedbackBar" aria-live="polite">
+          Study the picture carefully, then tap your answer!
+        </div>
+      </section>
+    </main>
+  </div>
 
-      const handleCut = () => {
-        if (cuts < 8) setCuts(cuts + 1);
-      };
+  <div class="pyp-modal-backdrop" id="pypReflectModal" role="dialog" aria-modal="true">
+    <div class="pyp-modal-card">
+      <div class="pyp-modal-badge">🧭 Learner Profile Stamp: Risk-Taker</div>
+      <h2 style="font-size:1.35rem; font-weight:900;">🌟 IB PYP Reflection &amp; Action</h2>
+      <div class="pyp-modal-box">
+        <strong>Key Concept · Function &amp; Perspective</strong>
+        <span>Brave math explorers use pictures, patterns, and number lines to solve tricky logic puzzles step by step.</span>
+      </div>
+      <div class="pyp-modal-box" style="background:#ECFDF5;">
+        <strong>🚀 Take Action in Real Life</strong>
+        <span>Make up a repeating pattern with spoons, blocks, or fruit at home and challenge a family member to guess what comes next!</span>
+      </div>
+      <div id="pypStampStatus" style="font-weight:900; font-size:0.88rem; color:#15803d;"></div>
+      <div class="pyp-modal-actions">
+        <button type="button" class="pyp-modal-btn primary" id="btnClaimStamp">🧭 Stamp My Passport!</button>
+        <a class="pyp-modal-btn" href="../index.html">🗺️ View Passport</a>
+        <button type="button" class="pyp-modal-btn" id="btnCloseReflect">More Puzzles</button>
+      </div>
+    </div>
+  </div>
 
-      const reset = () => setCuts(0);
-
-      // 生成绳子段
-      const segments = [];
-      for (let i = 0; i <= cuts; i++) {
-        segments.push(
-          <div key={i} className="h-16 flex-1 bg-yellow-400 border-x-2 border-yellow-600 flex items-center justify-center text-yellow-900 font-bold text-xl relative">
-            {i + 1}
-            {i < cuts && (
-              <div className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-12 bg-gray-200 border-2 border-gray-400 rounded z-10 flex items-center justify-center shadow-lg">
-                ✂️
-              </div>
-            )}
-          </div>
-        );
+  <script>
+    class SoundFX {
+      constructor() { this.ctx = null; }
+      init() {
+        try {
+          if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+          if (this.ctx.state === "suspended") this.ctx.resume();
+        } catch (_) {}
       }
+      playClick() {
+        this.init(); if (!this.ctx) return;
+        const t = this.ctx.currentTime, o = this.ctx.createOscillator(), g = this.ctx.createGain();
+        o.frequency.setValueAtTime(560, t); o.frequency.exponentialRampToValueAtTime(320, t + 0.05);
+        g.gain.setValueAtTime(0.11, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+        o.connect(g); g.connect(this.ctx.destination); o.start(t); o.stop(t + 0.055);
+      }
+      playCorrect() {
+        this.init(); if (!this.ctx) return;
+        const t = this.ctx.currentTime;
+        [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
+          const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+          o.frequency.setValueAtTime(f, t + i * 0.055);
+          g.gain.setValueAtTime(0.15, t + i * 0.055); g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.055 + 0.22);
+          o.connect(g); g.connect(this.ctx.destination); o.start(t + i * 0.055); o.stop(t + i * 0.055 + 0.24);
+        });
+      }
+      playBuzz() {
+        this.init(); if (!this.ctx) return;
+        const t = this.ctx.currentTime, o = this.ctx.createOscillator(), g = this.ctx.createGain();
+        o.type = "triangle"; o.frequency.setValueAtTime(175, t);
+        g.gain.setValueAtTime(0.12, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+        o.connect(g); g.connect(this.ctx.destination); o.start(t); o.stop(t + 0.2);
+      }
+    }
+    const sfx = new SoundFX();
 
-      return (
-        <div className="fade-in p-6 max-w-2xl mx-auto">
-          <button onClick={onBack} className="mb-4 text-blue-500 flex items-center hover:underline">
-            <IconHome className="mr-2" /> 返回大厅
-          </button>
-          <h2 className="text-3xl font-bold text-yellow-600 mb-2">✂️ 剪彩带魔法</h2>
-          <p className="text-gray-600 mb-6">数一数：剪了几刀？变成了几段？</p>
-
-          <div className="bg-white p-8 rounded-2xl shadow-xl border-4 border-yellow-100">
-            <div className="flex justify-between items-center mb-8 gap-1">
-              {segments}
-            </div>
-
-            <div className="flex justify-center gap-8 mb-8">
-              <div className="text-center bg-blue-50 p-4 rounded-xl min-w-[100px]">
-                <div className="text-sm text-blue-600 font-bold uppercase tracking-wider">剪刀 (Cuts)</div>
-                <div className="text-4xl font-bold text-blue-800">{cuts}</div>
-              </div>
-              <div className="text-center bg-green-50 p-4 rounded-xl min-w-[100px]">
-                <div className="text-sm text-green-600 font-bold uppercase tracking-wider">段数 (Pieces)</div>
-                <div className="text-4xl font-bold text-green-800">{cuts + 1}</div>
-              </div>
-            </div>
-
-            <div className="flex justify-center gap-4">
-              <button
-                onClick={handleCut}
-                disabled={cuts >= 8}
-                className={`px-8 py-4 rounded-full text-xl font-bold text-white shadow-lg transition transform active:scale-95 ${cuts >= 8 ? 'bg-gray-300' : 'bg-yellow-500 hover:bg-yellow-400'}`}
-              >
-                ✂️ 剪一刀
-              </button>
-              <button onClick={reset} className="px-6 py-4 rounded-full text-lg font-bold text-gray-500 bg-gray-100 hover:bg-gray-200 transition">
-                🔄 重置
-              </button>
-            </div>
-          </div>
-
-          <div className="mt-6 bg-blue-50 p-4 rounded-xl border border-blue-200">
-            <h3 className="font-bold text-blue-800 mb-1">👨‍💻 爸爸的小贴士 (Protocol)</h3>
-            <p className="text-sm text-blue-700">
-              这就是"差一错误" (Off-by-one Error)。<br />
-              告诉 Hilson：剪刀是<b>间隔</b>，彩带是<b>物体</b>。<br />
-              永远记住公式：<b>段数 = 刀数 + 1</b>
-            </p>
-          </div>
-        </div>
-      );
-    };
-
-    // --- 模块 2: 排排队 (The Queue & Overlap) ---
-    const ModuleQueue = ({ onBack }) => {
-      const [selectedIndex, setSelectedIndex] = useState(null);
-      const animals = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻'];
-
-      return (
-        <div className="fade-in p-6 max-w-2xl mx-auto">
-          <button onClick={onBack} className="mb-4 text-blue-500 flex items-center hover:underline">
-            <IconHome className="mr-2" /> 返回大厅
-          </button>
-          <h2 className="text-3xl font-bold text-indigo-600 mb-2">👫 排队数一数</h2>
-          <p className="text-gray-600 mb-6">点选一个小动物代表 <b>Hilson</b>。它前面是第几个？后面是第几个？</p>
-
-          <div className="bg-white p-8 rounded-2xl shadow-xl border-4 border-indigo-100">
-            <div className="flex justify-between items-end mb-12 h-24">
-              {animals.map((emoji, index) => (
-                <div
-                  key={index}
-                  onClick={() => setSelectedIndex(index)}
-                  className={`cursor-pointer transition-all duration-300 flex flex-col items-center ${selectedIndex === index ? 'transform scale-150 -translate-y-4' : 'hover:scale-110 opacity-70'}`}
-                >
-                  <span className="text-4xl">{emoji}</span>
-                  {selectedIndex === index && (
-                    <div className="mt-2 text-xs bg-indigo-600 text-white px-2 py-1 rounded-full animate-bounce">我</div>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            {selectedIndex !== null ? (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between text-sm text-gray-500 mb-2">
-                  <span>从前面数...</span>
-                  <span>从后面数...</span>
-                </div>
-                <div className="relative h-12 bg-gray-100 rounded-full overflow-hidden flex">
-                  {/* 左边条 */}
-                  <div
-                    className="h-full bg-blue-400 flex items-center justify-center text-white font-bold transition-all duration-500"
-                    style={{ width: `${((selectedIndex + 1) / animals.length) * 100}%` }}
-                  >
-                    第 {selectedIndex + 1}
-                  </div>
-                  {/* 右边条 (重叠演示) - 为了视觉效果，我们用另一个反向的逻辑 */}
-                  <div
-                    className="absolute right-0 h-full bg-red-400/70 flex items-center justify-center text-white font-bold transition-all duration-500"
-                    style={{ width: `${((animals.length - selectedIndex) / animals.length) * 100}%` }}
-                  >
-                    第 {animals.length - selectedIndex}
-                  </div>
-                </div>
-
-                <div className="mt-6 text-center">
-                  <p className="text-lg mb-2">如果直接加起来：</p>
-                  <div className="flex items-center justify-center gap-2 text-2xl font-bold text-gray-700">
-                    <span className="text-blue-500">{selectedIndex + 1}</span>
-                    <span>+</span>
-                    <span className="text-red-500">{animals.length - selectedIndex}</span>
-                    <span>=</span>
-                    <span>{(selectedIndex + 1) + (animals.length - selectedIndex)}</span>
-                    <span className="text-sm text-gray-400 font-normal ml-2">(哎呀！多算了一个！)</span>
-                  </div>
-                  <p className="text-indigo-600 font-bold mt-4 text-xl animate-pulse">
-                    正确人数 = {(selectedIndex + 1) + (animals.length - selectedIndex)} - 1 = {animals.length}
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div className="text-center text-gray-400 py-8">👆 请点击上面的一个小动物</div>
-            )}
-          </div>
-
-          <div className="mt-6 bg-blue-50 p-4 rounded-xl border border-blue-200">
-            <h3 className="font-bold text-blue-800 mb-1">👨‍💻 爸爸的小贴士 (Deduplication)</h3>
-            <p className="text-sm text-blue-700">
-              这是集合论中的交集问题。<br />
-              Hilson 被计数了两次（一次作为前数第N个，一次作为后数第M个）。<br />
-              <b>User ID 重复了</b>，所以必须 -1 去重。
-            </p>
-          </div>
-        </div>
-      );
-    };
-
-    // --- 模块 3: 迷宫路线 (Session/Scope Logic) ---
-    const ModuleMaze = ({ onBack }) => {
-      const [logs, setLogs] = useState([]);
-      const [mousePos, setMousePos] = useState('start'); // start, top, mid, bot, end
-      const [message, setMessage] = useState("小老鼠准备好了！选一条路吧。");
-
-      const paths = {
-        'start': [
-          { to: 'top', label: '走上门 (Path A)' },
-          { to: 'bot', label: '走下门 (Path B)' },
-          { to: 'mid', label: '走中间门 (Path C)' }
-        ],
-        'top': [{ to: 'end', label: '跑向出口！' }],
-        'bot': [{ to: 'end', label: '跑向出口！' }],
-        'mid': [
-          { to: 'top', label: '往上转 (Switch Top)' },
-          { to: 'bot', label: '往下转 (Switch Bottom)' }
-        ],
-        'end': []
-      };
-
-      const handleMove = (nextPos, label) => {
-        setMousePos(nextPos);
-        if (nextPos === 'end') {
-          const newLog = `成功逃脱！路线：${label}`;
-          setLogs(prev => [newLog, ...prev]);
-          setMessage("太棒了！小老鼠跑出去了！我们再玩一次？");
-          // Reset game automatically after a delay
-          setTimeout(() => {
-            setMousePos('start');
-            setMessage("新的一局开始了！所有的门都重置了。");
-          }, 1500);
-        } else if (nextPos === 'mid') {
-          setMessage("进入中间了... 前面有分岔路！");
-        } else {
-          setMessage("正在奔跑中...");
+    const TTS_MANAGER = {
+      currentVoiceName: "", wrap: null, trigger: null, flag: null, label: null, list: null,
+      init() {
+        this.wrap = document.getElementById("ttsDropdownWrap");
+        this.trigger = document.getElementById("ttsTrigger");
+        this.flag = document.getElementById("ttsFlag");
+        this.label = document.getElementById("ttsLabel");
+        this.list = document.getElementById("ttsRadioList");
+        this.trigger.addEventListener("click", e => { e.stopPropagation(); this.wrap.classList.toggle("open"); });
+        document.addEventListener("click", e => { if (!this.wrap.contains(e.target)) this.wrap.classList.remove("open"); });
+        if (window.speechSynthesis) {
+          this.populateVoices();
+          if (window.speechSynthesis.onvoiceschanged !== undefined) window.speechSynthesis.onvoiceschanged = () => this.populateVoices();
         }
-      };
-
-      return (
-        <div className="fade-in p-6 max-w-2xl mx-auto">
-          <button onClick={onBack} className="mb-4 text-blue-500 flex items-center hover:underline">
-            <IconHome className="mr-2" /> 返回大厅
-          </button>
-          <h2 className="text-3xl font-bold text-green-600 mb-2">🐭 迷宫大逃亡</h2>
-          <p className="text-gray-600 mb-6">每一次逃跑都是<b>新的一局游戏</b>。门可以用很多次哦！</p>
-
-          <div className="bg-white p-8 rounded-2xl shadow-xl border-4 border-green-100 min-h-[400px]">
-            <div className="text-center mb-6">
-              <div className="inline-block bg-green-100 text-green-800 px-4 py-2 rounded-full font-bold">
-                {message}
-              </div>
-            </div>
-
-            {/* 简易地图可视化 */}
-            <div className="flex justify-between items-center mb-8 relative h-48 bg-gray-50 rounded-xl p-4 border border-dashed border-gray-300">
-              {/* Start Node */}
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl z-10 transition-all ${mousePos === 'start' ? 'bg-green-500 scale-125 shadow-lg' : 'bg-gray-200'}`}>🏠</div>
-
-              {/* Middle Nodes Column */}
-              <div className="flex flex-col gap-8">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all ${mousePos === 'top' ? 'bg-blue-500 border-blue-600 scale-125 text-white' : 'bg-white border-gray-300'}`}>A</div>
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all ${mousePos === 'mid' ? 'bg-yellow-500 border-yellow-600 scale-125 text-white' : 'bg-white border-gray-300'}`}>?</div>
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all ${mousePos === 'bot' ? 'bg-blue-500 border-blue-600 scale-125 text-white' : 'bg-white border-gray-300'}`}>B</div>
-              </div>
-
-              {/* End Node */}
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl z-10 transition-all ${mousePos === 'end' ? 'bg-red-500 scale-125 shadow-lg animate-bounce' : 'bg-gray-200'}`}>🚩</div>
-
-              {/* Simple connecting lines (SVG) */}
-              <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-20">
-                <line x1="10%" y1="50%" x2="50%" y2="20%" stroke="black" strokeWidth="2" />
-                <line x1="10%" y1="50%" x2="50%" y2="50%" stroke="black" strokeWidth="2" />
-                <line x1="10%" y1="50%" x2="50%" y2="80%" stroke="black" strokeWidth="2" />
-                <line x1="50%" y1="20%" x2="90%" y2="50%" stroke="black" strokeWidth="2" />
-                <line x1="50%" y1="80%" x2="90%" y2="50%" stroke="black" strokeWidth="2" />
-                {/* Internal connections */}
-                <line x1="50%" y1="50%" x2="50%" y2="20%" stroke="black" strokeWidth="2" strokeDasharray="4" />
-                <line x1="50%" y1="50%" x2="50%" y2="80%" stroke="black" strokeWidth="2" strokeDasharray="4" />
-              </svg>
-
-              {/* Mouse Avatar */}
-              <div className="absolute text-3xl transition-all duration-500" style={{
-                left: mousePos === 'start' ? '5%' : mousePos === 'end' ? '90%' : '50%',
-                top: mousePos === 'start' || mousePos === 'end' || mousePos === 'mid' ? '45%' : mousePos === 'top' ? '15%' : '75%'
-              }}>
-                🐭
-              </div>
-            </div>
-
-            {/* Controls */}
-            <div className="grid grid-cols-1 gap-3">
-              {paths[mousePos].map((path, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => handleMove(path.to, path.label)}
-                  className="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg shadow transition transform hover:scale-105 active:scale-95"
-                >
-                  {path.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Score Board */}
-            <div className="mt-8 bg-gray-50 p-4 rounded-xl">
-              <div className="text-gray-500 text-sm font-bold uppercase mb-2">成功逃脱记录 (Session Log)</div>
-              {logs.length === 0 ? (
-                <div className="text-gray-400 italic">还没有逃跑过哦...</div>
-              ) : (
-                <ul className="space-y-1">
-                  {logs.map((log, i) => (
-                    <li key={i} className="text-green-700 text-sm flex items-center">
-                      <span className="mr-2">✅</span> 第 {logs.length - i} 次游戏: {log}
-                    </li>
-                  ))}
-                </ul>
-              )}
-              <div className="mt-2 pt-2 border-t border-gray-200 text-right font-bold text-gray-700">
-                总共发现了 {logs.length} 种玩法
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-6 bg-blue-50 p-4 rounded-xl border border-blue-200">
-            <h3 className="font-bold text-blue-800 mb-1">👨‍💻 爸爸的小贴士 (Session Scope)</h3>
-            <p className="text-sm text-blue-700">
-              告诉 Hilson：每一次回到起点，游戏就<b>重置(Reset)</b>了。<br />
-              上一局走过的门，这一局又变成新的了。<br />
-              规则是：<b>在这一局里不走回头路</b>，不是说永远不能走同一个门。
-            </p>
-          </div>
-        </div>
-      );
+      },
+      populateVoices() {
+        const voices = window.speechSynthesis.getVoices();
+        if (!voices.length) return;
+        let available = voices.filter(v => (v.lang || "").toLowerCase().replace("_", "-").startsWith("en"));
+        if (!available.length) available = voices;
+        const saved = localStorage.getItem("ib_pyp_voice_name");
+        let selected = (saved && available.find(v => v.name === saved)) || available.find(v => (v.lang || "").toLowerCase().includes("gb")) || available.find(v => (v.lang || "").toLowerCase().includes("us")) || available.find(v => v.default) || available[0];
+        this.currentVoiceName = selected ? selected.name : "";
+        this.list.innerHTML = "";
+        available.slice(0, 15).forEach(v => {
+          const lang = (v.lang || "").toLowerCase().replace("_", "-");
+          const flag = lang.includes("au") ? "🇦🇺" : lang.includes("gb") ? "🇬🇧" : lang.includes("us") || lang.startsWith("en") ? "🇺🇸" : "🌐";
+          const region = lang.includes("au") ? "AU" : lang.includes("gb") ? "UK" : lang.includes("us") ? "US" : (v.lang || "System");
+          const btn = document.createElement("button");
+          btn.type = "button"; btn.className = "tts-radio-item" + (v.name === this.currentVoiceName ? " active" : "");
+          btn.innerHTML = `<span class="tts-radio-circle"></span><span>${flag}</span><span class="tts-item-name">${v.name} (${region})</span>`;
+          btn.addEventListener("click", e => {
+            e.stopPropagation(); this.currentVoiceName = v.name; localStorage.setItem("ib_pyp_voice_name", v.name);
+            this.updateTriggerUI(v);
+            this.list.querySelectorAll(".tts-radio-item").forEach(b => b.classList.toggle("active", b === btn));
+            this.wrap.classList.remove("open");
+          });
+          this.list.appendChild(btn);
+        });
+        this.updateTriggerUI(selected);
+      },
+      updateTriggerUI(v) {
+        if (!v) return;
+        const lang = (v.lang || "").toLowerCase().replace("_", "-");
+        this.flag.textContent = lang.includes("au") ? "🇦🇺" : lang.includes("gb") ? "🇬🇧" : lang.includes("us") || lang.startsWith("en") ? "🇺🇸" : "🌐";
+        let s = (v.name || "Voice").replace(/^(Google|Microsoft|Apple)\s+/i, "");
+        this.label.textContent = s.length > 14 ? s.slice(0, 12) + "..." : s;
+      },
+      speak(text) {
+        if (!window.speechSynthesis || !text) return;
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        const voices = window.speechSynthesis.getVoices();
+        const chosen = voices.find(v => v.name === this.currentVoiceName) || voices.find(v => v.default) || voices[0];
+        if (chosen) u.voice = chosen;
+        u.rate = 0.88; window.speechSynthesis.speak(u);
+      }
     };
+    TTS_MANAGER.init();
 
-    // --- 主菜单 ---
-    const App = () => {
-      const [currentModule, setCurrentModule] = useState('menu');
+    const PUZZLES = [
+      {
+        tab: "⚖️ Scale",
+        prompt: "Look at the balanced scale! One big melon balances 3 apples. How many apples balance 2 big melons?",
+        options: ["4 apples 🍎", "5 apples 🍎", "6 apples 🍎", "8 apples 🍎"],
+        answer: 2,
+        hint: "1 melon = 3 apples. So 2 melons = 3 + 3 apples!",
+        good: "Awesome Thinker! 3 + 3 = 6 apples balance 2 big melons.",
+        svg: `<svg viewBox="0 0 460 220"><rect width="460" height="220" fill="#E0F2FE"/><polygon points="230,195 195,155 265,155" fill="#FFE156" stroke="#111" stroke-width="3.5"/><line x1="95" y1="150" x2="365" y2="150" stroke="#111" stroke-width="6" stroke-linecap="round"/><rect x="75" y="136" width="100" height="14" rx="6" fill="#4ECDC4" stroke="#111" stroke-width="3"/><rect x="285" y="136" width="100" height="14" rx="6" fill="#4ECDC4" stroke="#111" stroke-width="3"/><text x="125" y="122" text-anchor="middle" font-size="42">🍉</text><text x="335" y="122" text-anchor="middle" font-size="30">🍎🍎🍎</text><text x="230" y="42" text-anchor="middle" font-size="20" font-weight="900" fill="#111">1 🍉 = 3 🍎   →   2 🍉 = ? 🍎</text></svg>`
+      },
+      {
+        tab: "🦘 Hops",
+        prompt: "Kangaroo Joey starts at 2 and makes 3 big hops of 2 steps each. Which number stone does Joey land on?",
+        options: ["6", "8", "10", "7"],
+        answer: 1,
+        hint: "Count by 2s from 2: hop 1 lands on 4, hop 2 lands on 6, hop 3 lands on...",
+        good: "Super Kangaroo jump! 2 → 4 → 6 → 8!",
+        svg: `<svg viewBox="0 0 460 220"><rect width="460" height="220" fill="#DCFCE7"/><line x1="30" y1="165" x2="430" y2="165" stroke="#111" stroke-width="4"/><g font-weight="900" font-size="16" text-anchor="middle"><circle cx="60" cy="165" r="20" fill="#FFE156" stroke="#111" stroke-width="3"/><text x="60" y="171">2</text><circle cx="150" cy="165" r="20" fill="#FFF" stroke="#111" stroke-width="3"/><text x="150" y="171">4</text><circle cx="240" cy="165" r="20" fill="#FFF" stroke="#111" stroke-width="3"/><text x="240" y="171">6</text><circle cx="330" cy="165" r="22" fill="#FF6584" stroke="#111" stroke-width="3"/><text x="330" y="171" fill="#FFF">?</text><circle cx="415" cy="165" r="20" fill="#FFF" stroke="#111" stroke-width="3"/><text x="415" y="171">10</text></g><path d="M60,140 Q105,65 150,140 M150,140 Q195,65 240,140 M240,140 Q285,65 330,140" fill="none" stroke="#FF6584" stroke-width="4" stroke-dasharray="8,5"/><text x="60" y="128" text-anchor="middle" font-size="36">🦘</text></svg>`
+      },
+      {
+        tab: "🔷 Pattern",
+        prompt: "Look at the magical stone bridge pattern: 🔺 🟡 🔷 🔺 🟡 🔷 🔺 ... Which shape goes in the ❓ box?",
+        options: ["🔺 Red Triangle", "🟡 Yellow Circle", "🔷 Blue Diamond", "⭐ Gold Star"],
+        answer: 1,
+        hint: "Say the repeating beat out loud: Triangle, Circle, Diamond — Triangle, Circle, Diamond — Triangle, ...!",
+        good: "Pattern master! Yellow Circle 🟡 always comes right after Red Triangle 🔺.",
+        svg: `<svg viewBox="0 0 460 220"><rect width="460" height="220" fill="#FEF3C7"/><rect x="24" y="75" width="412" height="72" rx="14" fill="#FFF" stroke="#111" stroke-width="3.5"/><text x="58" y="122" font-size="34">🔺</text><text x="108" y="122" font-size="34">🟡</text><text x="158" y="122" font-size="34">🔷</text><text x="208" y="122" font-size="34">🔺</text><text x="258" y="122" font-size="34">🟡</text><text x="308" y="122" font-size="34">🔷</text><text x="354" y="122" font-size="34">🔺</text><rect x="392" y="88" width="36" height="46" rx="8" fill="#FFE156" stroke="#111" stroke-width="3" stroke-dasharray="5,3"/><text x="410" y="120" text-anchor="middle" font-size="24" font-weight="900">?</text></svg>`
+      },
+      {
+        tab: "🧊 Tower",
+        prompt: "Count ALL the toy blocks in this pyramid tower (bottom row + middle row + top block). How many blocks in total?",
+        options: ["5 blocks", "6 blocks", "7 blocks", "9 blocks"],
+        answer: 1,
+        hint: "Count row by row: 3 blocks on the bottom + 2 in the middle + 1 on top!",
+        good: "Brilliant counting! 3 + 2 + 1 = 6 blocks in total.",
+        svg: `<svg viewBox="0 0 460 220"><rect width="460" height="220" fill="#EDE9FE"/><g stroke="#111" stroke-width="3.5"><rect x="140" y="148" width="58" height="44" rx="6" fill="#38B6FF"/><rect x="201" y="148" width="58" height="44" rx="6" fill="#38B6FF"/><rect x="262" y="148" width="58" height="44" rx="6" fill="#38B6FF"/><rect x="170" y="100" width="58" height="44" rx="6" fill="#4ECDC4"/><rect x="232" y="100" width="58" height="44" rx="6" fill="#4ECDC4"/><rect x="201" y="52" width="58" height="44" rx="6" fill="#FFE156"/></g><text x="230" y="34" text-anchor="middle" font-size="18" font-weight="900">How many blocks build the whole tower?</text></svg>`
+      }
+    ];
 
-      const renderModule = () => {
-        switch (currentModule) {
-          case 'rope': return <ModuleRope onBack={() => setCurrentModule('menu')} />;
-          case 'queue': return <ModuleQueue onBack={() => setCurrentModule('menu')} />;
-          case 'maze': return <ModuleMaze onBack={() => setCurrentModule('menu')} />;
-          default: return (
-            <div className="max-w-md mx-auto p-6 fade-in">
-              <header className="text-center mb-10">
-                <h1 className="text-4xl font-bold text-gray-800 mb-2">🕵️‍♂️ Hilson 的逻辑探案馆</h1>
-                <p className="text-gray-500">你是最棒的小侦探！今天我们要破解什么谜题？</p>
-              </header>
+    let curIdx = 0;
+    let selectedOpt = null;
+    const solved = PUZZLES.map(() => false);
 
-              <div className="space-y-4">
-                <button
-                  onClick={() => setCurrentModule('rope')}
-                  className="game-card w-full bg-yellow-100 hover:bg-yellow-200 p-6 rounded-2xl flex items-center gap-4 text-left border-2 border-yellow-300"
-                >
-                  <div className="bg-yellow-400 p-3 rounded-full text-white">
-                    <IconScissor />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-yellow-800">剪刀与彩带</h3>
-                    <p className="text-yellow-700 text-sm">剪几刀？有几段？</p>
-                  </div>
-                </button>
+    function renderPuzzle() {
+      const p = PUZZLES[curIdx];
+      selectedOpt = null;
+      const tabs = document.getElementById("caseTabs");
+      tabs.innerHTML = "";
+      PUZZLES.forEach((item, i) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = `case-tab${i === curIdx ? " active" : ""}${solved[i] ? " solved" : ""}`;
+        b.textContent = solved[i] ? `${item.tab} ✅` : item.tab;
+        b.addEventListener("click", () => { sfx.playClick(); curIdx = i; renderPuzzle(); });
+        tabs.appendChild(b);
+      });
 
-                <button
-                  onClick={() => setCurrentModule('queue')}
-                  className="game-card w-full bg-indigo-100 hover:bg-indigo-200 p-6 rounded-2xl flex items-center gap-4 text-left border-2 border-indigo-300"
-                >
-                  <div className="bg-indigo-400 p-3 rounded-full text-white">
-                    <IconUsers />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-indigo-800">小动物排排队</h3>
-                    <p className="text-indigo-700 text-sm">我被数了两次吗？</p>
-                  </div>
-                </button>
+      document.getElementById("puzzleStage").innerHTML = p.svg;
+      document.getElementById("puzzlePrompt").textContent = p.prompt;
+      const badge = document.getElementById("choiceBadge");
+      badge.textContent = "❓ Tap to choose"; badge.className = "badge-neutral";
 
-                <button
-                  onClick={() => setCurrentModule('maze')}
-                  className="game-card w-full bg-green-100 hover:bg-green-200 p-6 rounded-2xl flex items-center gap-4 text-left border-2 border-green-300"
-                >
-                  <div className="bg-green-400 p-3 rounded-full text-white">
-                    <IconMap />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-green-800">迷宫大逃亡</h3>
-                    <p className="text-green-700 text-sm">可以走回头路吗？</p>
-                  </div>
-                </button>
-              </div>
+      const grid = document.getElementById("choiceGrid");
+      grid.innerHTML = "";
+      p.options.forEach((opt, i) => {
+        const b = document.createElement("button");
+        b.type = "button"; b.className = "choice-btn"; b.textContent = opt;
+        b.addEventListener("click", () => {
+          sfx.playClick(); selectedOpt = i;
+          grid.querySelectorAll(".choice-btn").forEach((el, j) => el.classList.toggle("active", j === i));
+          badge.textContent = opt; badge.className = "badge-selected";
+        });
+        grid.appendChild(b);
+      });
 
-              <footer className="mt-12 text-center text-gray-400 text-sm">
-                为 Hilson 特别定制 | Made by Papa Kane 👨‍💻
-              </footer>
-            </div>
-          );
-        }
-      };
+      const fb = document.getElementById("feedbackBar");
+      fb.className = "feedback-bar";
+      fb.textContent = solved[curIdx] ? `✅ Solved! ${p.good}` : "Study the picture carefully, then tap your answer!";
+    }
 
-      return (
-        <div className="min-h-screen bg-slate-50 py-8">
-          {renderModule()}
-        </div>
-      );
-    };
+    document.getElementById("btnCheck").addEventListener("click", () => {
+      const p = PUZZLES[curIdx], fb = document.getElementById("feedbackBar");
+      if (selectedOpt === null) { sfx.playBuzz(); fb.className = "feedback-bar warn"; fb.textContent = "👆 Please tap an answer choice first!"; return; }
+      if (selectedOpt === p.answer) {
+        sfx.playCorrect(); solved[curIdx] = true;
+        fb.className = "feedback-bar good"; fb.textContent = `🎉 ${p.good}`;
+        document.querySelectorAll(".case-tab").forEach((b, i) => { b.classList.toggle("solved", solved[i]); b.textContent = solved[i] ? `${PUZZLES[i].tab} ✅` : PUZZLES[i].tab; });
+      } else {
+        sfx.playBuzz(); fb.className = "feedback-bar warn"; fb.textContent = `🤔 Good try! ${p.hint}`;
+      }
+    });
 
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<App />);
+    document.getElementById("btnHint").addEventListener("click", () => {
+      sfx.playClick();
+      const fb = document.getElementById("feedbackBar");
+      fb.className = "feedback-bar warn";
+      fb.textContent = `💡 Hint: ${PUZZLES[curIdx].hint}`;
+    });
+
+    document.getElementById("btnSpeakTitle").addEventListener("click", () => { sfx.playClick(); TTS_MANAGER.speak("Kangaroo Math Logic Safari! Solve visual logic puzzles step by step."); });
+    document.getElementById("btnSpeakPrompt").addEventListener("click", () => { sfx.playClick(); TTS_MANAGER.speak(PUZZLES[curIdx].prompt); });
+
+    const modal = document.getElementById("pypReflectModal");
+    document.getElementById("btnOpenReflect").addEventListener("click", () => { sfx.playClick(); modal.classList.add("open"); });
+    document.getElementById("btnCloseReflect").addEventListener("click", () => modal.classList.remove("open"));
+    modal.addEventListener("click", e => { if (e.target === modal) modal.classList.remove("open"); });
+    document.getElementById("btnClaimStamp").addEventListener("click", () => {
+      try {
+        const raw = localStorage.getItem("ib_pyp_passport");
+        const data = raw ? JSON.parse(raw) : { stamps: [], completed: [] };
+        const stamps = new Set(data.stamps || []);
+        const completed = new Set(data.completed || []);
+        stamps.add("Risk-Taker");
+        completed.add("math/g1_Kangaroo_Math.html");
+        localStorage.setItem("ib_pyp_passport", JSON.stringify({ stamps: [...stamps], completed: [...completed] }));
+        sfx.playCorrect();
+        document.getElementById("pypStampStatus").textContent = "✅ Risk-Taker stamp saved to your IB PYP Passport!";
+        document.getElementById("btnClaimStamp").textContent = "✅ Stamped!";
+      } catch (_) {}
+    });
+
+    renderPuzzle();
   </script>
-
-  <a class="pyp-map-link" href="../index.html" aria-label="Back to PYP curriculum map">PYP Map</a>
-  <style>
-    .pyp-map-link { position: fixed; top: 12px; right: 12px; z-index: 9999; min-height: 44px; display: inline-flex; align-items: center; border: 2px solid #17211f; border-radius: 8px; padding: 8px 12px; background: #fffaf0; color: #17211f; text-decoration: none; font: 900 14px/1 ui-rounded, "Avenir Next", "Segoe UI", sans-serif; box-shadow: 3px 3px 0 #17211f; letter-spacing: 0; }
-    .pyp-map-link:focus-visible { outline: 3px solid #f2b84b; outline-offset: 2px; }
-    @media print { .pyp-map-link { display: none; } }
-  </style>
 </body>
-
 </html>

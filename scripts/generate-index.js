@@ -197,9 +197,9 @@ function renderSubject(subject) {
     const disabled = game.exists ? '' : ' aria-disabled="true"';
     const badge3d = is3DGame(game) ? '<span class="badge-3d">3D ✨</span>' : '';
     return `
-              <a class="game-link ${game.exists ? '' : 'missing'}${is3DGame(game) ? ' is-3d' : ''}" href="${escapeHtml(href)}"${disabled}>
+              <a class="game-link ${game.exists ? '' : 'missing'}${is3DGame(game) ? ' is-3d' : ''}" href="${escapeHtml(href)}" data-game-path="${escapeHtml(game.path)}"${disabled}>
                 <span class="game-copy">
-                  <span class="game-title-row"><strong>${escapeHtml(game.title)}</strong>${badge3d}</span>
+                  <span class="game-title-row"><strong>${escapeHtml(game.title)}</strong><span class="badge-group"><span class="badge-done" hidden>⭐ Done</span>${badge3d}</span></span>
                   <small>${escapeHtml(game.description || '')}</small>
                 </span>
               </a>`;
@@ -371,9 +371,16 @@ function generateIndexHtml(curriculum) {
 
     * { box-sizing: border-box; }
 
+    html {
+      -webkit-tap-highlight-color: transparent;
+      -webkit-text-size-adjust: 100%;
+      overscroll-behavior: none;
+    }
+
     body {
       margin: 0;
       min-height: 100vh;
+      min-height: 100dvh;
       font-family: ui-rounded, "Avenir Next", "Nunito", "Segoe UI", sans-serif;
       color: var(--ink);
       background:
@@ -383,12 +390,18 @@ function generateIndexHtml(curriculum) {
         var(--paper);
     }
 
-    a { color: inherit; }
+    a { color: inherit; touch-action: manipulation; }
+    button { touch-action: manipulation; user-select: none; -webkit-user-select: none; }
 
     .app-shell {
-      width: min(1200px, calc(100% - 32px));
+      container-type: inline-size;
+      width: min(1360px, calc(100% - clamp(20px, 3vw, 48px)));
       margin: 0 auto;
-      padding: 18px 0 48px;
+      padding:
+        calc(16px + env(safe-area-inset-top, 0px))
+        env(safe-area-inset-right, 0px)
+        calc(44px + env(safe-area-inset-bottom, 0px))
+        env(safe-area-inset-left, 0px);
     }
 
     .topbar {
@@ -506,7 +519,7 @@ function generateIndexHtml(curriculum) {
     /* Interactive 3D Hero Diorama */
     .hub-3d-card {
       position: relative;
-      min-height: 290px;
+      height: clamp(275px, 38dvh, 420px);
       border: var(--border);
       border-radius: 18px;
       box-shadow: var(--shadow);
@@ -519,9 +532,105 @@ function generateIndexHtml(curriculum) {
     #hub-3d-stage {
       width: 100%;
       flex: 1;
-      min-height: 245px;
+      min-height: 0;
       touch-action: none;
       cursor: grab;
+    }
+
+    /* IB PYP Learner Profile Passport */
+    .passport-band {
+      margin: 2px 0 18px;
+      padding: 12px 16px;
+      border: var(--border);
+      border-radius: 18px;
+      background: linear-gradient(135deg, #fffdf0 0%, #eefaf8 100%);
+      box-shadow: var(--shadow);
+    }
+
+    .passport-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .passport-head h2 {
+      margin: 0;
+      font-size: 1.02rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .passport-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.84rem;
+      font-weight: 800;
+      color: var(--muted);
+    }
+
+    .passport-reset {
+      min-height: 34px;
+      padding: 4px 10px;
+      border: 2px solid var(--ink);
+      border-radius: 9px;
+      background: #ffffff;
+      font: inherit;
+      font-size: 0.78rem;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 2px 2px 0 var(--ink);
+    }
+
+    .passport-stamps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(138px, 100%), 1fr));
+      gap: 8px;
+    }
+
+    .stamp-chip {
+      min-height: 46px;
+      padding: 6px 10px;
+      border: 2.5px dashed #94a3b8;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.72);
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.84rem;
+      font-weight: 900;
+      transition: transform 150ms ease, background 150ms ease;
+    }
+
+    .stamp-chip.earned {
+      border-style: solid;
+      border-color: var(--ink);
+      background: #ffe156;
+      color: var(--ink);
+      box-shadow: 3px 3px 0 var(--ink);
+    }
+
+    .badge-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .badge-done {
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 2px solid var(--ink);
+      background: #86efac;
+      color: var(--ink);
+      font-size: 0.72rem;
+      font-weight: 900;
     }
 
     #hub-3d-stage:active { cursor: grabbing; }
@@ -626,7 +735,7 @@ function generateIndexHtml(curriculum) {
 
     .showcase-grid {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr));
       gap: 10px;
     }
 
@@ -645,11 +754,20 @@ function generateIndexHtml(curriculum) {
       transition: transform 120ms ease, box-shadow 120ms ease;
     }
 
-    .showcase-card:hover,
+    @media (hover: hover) and (pointer: fine) {
+      .showcase-card:hover {
+        transform: translate(-1px, -2px);
+        box-shadow: 5px 5px 0 var(--yellow);
+      }
+      .game-link:hover {
+        transform: translate(-1px, -2px);
+        box-shadow: 6px 6px 0 var(--ink);
+      }
+    }
+
     .showcase-card:focus-visible {
-      transform: translate(-1px, -2px);
-      box-shadow: 5px 5px 0 var(--yellow);
-      outline: none;
+      outline: 3px solid var(--yellow);
+      outline-offset: 2px;
     }
 
     .showcase-card:active {
@@ -876,10 +994,7 @@ function generateIndexHtml(curriculum) {
       background: linear-gradient(135deg, #ffffff 78%, #eef7ff 100%);
     }
 
-    .game-link:hover,
     .game-link:focus-visible {
-      transform: translate(-1px, -2px);
-      box-shadow: 6px 6px 0 var(--ink);
       outline: 3px solid rgba(56, 182, 255, 0.55);
       outline-offset: 2px;
     }
@@ -1062,6 +1177,25 @@ ${gradeTabs}
       </div>
     </section>
 
+    <section class="passport-band" aria-label="IB PYP Learner Profile Passport">
+      <div class="passport-head">
+        <h2>🛂 IB PYP Learner Profile Passport</h2>
+        <div class="passport-meta">
+          <span id="passport-summary">0 / 7 Stamps · Complete any inquiry mission &amp; reflection to collect stamps!</span>
+          <button type="button" class="passport-reset" id="passport-reset">Reset</button>
+        </div>
+      </div>
+      <div class="passport-stamps" id="passport-stamps">
+        <div class="stamp-chip" data-stamp="Inquirer"><span>🔍</span><span>Inquirer</span></div>
+        <div class="stamp-chip" data-stamp="Thinker"><span>💡</span><span>Thinker</span></div>
+        <div class="stamp-chip" data-stamp="Communicator"><span>🗣️</span><span>Communicator</span></div>
+        <div class="stamp-chip" data-stamp="Caring"><span>💛</span><span>Caring</span></div>
+        <div class="stamp-chip" data-stamp="Balanced"><span>⚖️</span><span>Balanced</span></div>
+        <div class="stamp-chip" data-stamp="Reflective"><span>🪞</span><span>Reflective</span></div>
+        <div class="stamp-chip" data-stamp="Risk-Taker"><span>🧭</span><span>Risk-Taker</span></div>
+      </div>
+    </section>
+
     <section class="showcase-band" aria-label="Interactive 3D Creative Courses">
       <div class="showcase-head">
         <h2>🚀 Gemini 4 Interactive 3D Courses</h2>
@@ -1116,6 +1250,34 @@ ${panels}
     if (initial && document.getElementById(initial)) {
       activateGrade(initial);
     }
+
+    function loadPassport() {
+      try {
+        const raw = localStorage.getItem('ib_pyp_passport');
+        const data = raw ? JSON.parse(raw) : { stamps: [], completed: [] };
+        const stamps = new Set(Array.isArray(data.stamps) ? data.stamps : []);
+        const completed = new Set(Array.isArray(data.completed) ? data.completed : []);
+        document.querySelectorAll('.stamp-chip').forEach(chip => {
+          chip.classList.toggle('earned', stamps.has(chip.dataset.stamp));
+        });
+        document.querySelectorAll('.game-link[data-game-path]').forEach(link => {
+          const badge = link.querySelector('.badge-done');
+          if (badge) badge.hidden = !completed.has(link.dataset.gamePath);
+        });
+        const summary = document.getElementById('passport-summary');
+        if (summary) {
+          summary.textContent = stamps.size + ' / 7 Stamps · ' + completed.size + ' Inquiry Adventures Completed';
+        }
+      } catch (_) {}
+    }
+
+    document.getElementById('passport-reset')?.addEventListener('click', () => {
+      try { localStorage.removeItem('ib_pyp_passport'); } catch (_) {}
+      loadPassport();
+    });
+
+    loadPassport();
+    window.addEventListener('focus', loadPassport);
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -1424,13 +1586,18 @@ ${panels}
       }
       animate();
 
-      window.addEventListener('resize', () => {
-        const w = stage.clientWidth;
-        const h = Math.max(stage.clientHeight, 240);
+      const resizeHub3D = () => {
+        const w = Math.max(stage.clientWidth, 1);
+        const h = Math.max(stage.clientHeight, 1);
         camera.aspect = w / h;
         camera.updateProjectionMatrix();
-        renderer.setSize(w, h);
-      });
+        renderer.setSize(w, h, false);
+      };
+      if (typeof ResizeObserver !== 'undefined') {
+        new ResizeObserver(resizeHub3D).observe(stage);
+      } else {
+        window.addEventListener('resize', resizeHub3D);
+      }
     } catch (err) {
       console.warn('[Hub 3D] WebGL fallback:', err);
       stage.innerHTML = '<div style="display:grid;place-items:center;height:100%;color:#ffe156;font-weight:900;padding:20px;text-align:center;">✨ Explore our Interactive 3D Courses below!</div>';

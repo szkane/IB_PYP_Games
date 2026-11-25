@@ -41,7 +41,7 @@
         radial-gradient(circle at 90% 85%, rgba(56, 182, 255, 0.12) 0%, transparent 28%),
         repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(17, 17, 17, 0.03) 28px);
       color: var(--ink);
-      min-height: 100vh;
+      min-height: 100vh; min-height: 100dvh;
       padding: 14px 16px 36px;
     }
 
@@ -662,6 +662,8 @@
         grid-template-columns: 1fr;
       }
     }
+  
+    html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
   </style>
 </head>
 

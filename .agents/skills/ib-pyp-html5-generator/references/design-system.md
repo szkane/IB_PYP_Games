@@ -120,23 +120,42 @@ body {
 - One nav row + one compact hero. No eyebrow labels, no long subtitles, no sticky bars—these eat critical vertical height on iPad landscape screens (768px–820px).
 - Put the driving question or instructions inside the play area next to a 🔊 button, not in a tall header.
 
-## iPad landscape rules
+## Fluid Responsive & Mobile-Native Rules (All Viewports)
 
-- Design for 1024×768 and 1180×820 first. The full activity (prompt, manipulative, choices, feedback) should fit with little or no scrolling.
-- Use two-column layouts in landscape (manipulative left, controls/choices right) and stack under ~760px:
+Never hardcode a single device target (such as fixed `1180×820` or fixed `height: 365px`). Design fluid layouts that adapt cleanly across Tablet Landscape, Desktop Wide, Tablet Portrait, and smaller screens:
 
 ```css
-.play-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 16px; }
-@media (max-width: 760px) { .play-grid { grid-template-columns: 1fr; } }
-@media (orientation: landscape) and (max-height: 820px) {
-  body { padding-top: 10px; }
-  .hero-card { padding: 10px 14px; margin-bottom: 10px; }
+html {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior: none;
+}
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding:
+    calc(10px + env(safe-area-inset-top, 0px))
+    calc(14px + env(safe-area-inset-right, 0px))
+    calc(20px + env(safe-area-inset-bottom, 0px))
+    calc(14px + env(safe-area-inset-left, 0px));
+}
+.container {
+  container-type: inline-size;
+  max-width: 1320px;
+  margin: 0 auto;
+}
+.play-grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 16px; }
+@container (max-width: 780px) { .play-grid { grid-template-columns: 1fr; } }
+.viewport-wrap { height: clamp(280px, 50dvh, 520px); }
+
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0 var(--ink); }
 }
 ```
 
-- Touch targets ≥44px; `touch-action: manipulation` on buttons; `touch-action: none` on drag surfaces and canvases.
-- Fixed sizes for boards and cards so feedback text never shifts the layout.
-- Use `100dvh` rather than `100vh` for full-height layouts so Safari toolbars do not clip content.
+- Touch targets ≥44px; `touch-action: manipulation` on buttons/links; `touch-action: none` on drag surfaces and 3D canvases; `user-select: none` on controls only (never on body text).
+- Gate `:hover` transforms inside `@media (hover: hover) and (pointer: fine)` so touch taps never get stuck in hover states.
+- Use `ResizeObserver` on 3D `<canvas>` wrapper elements so orientation flips and wide desktop monitors keep crisp aspect ratios.
 
 ## Printable Worksheets & Handwriting Guidelines (Archetype 1)
 

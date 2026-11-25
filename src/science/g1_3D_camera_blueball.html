@@ -1,386 +1,255 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>UOI5 Blue Orb Motion Lab</title>
+  <title>Blue Plasma Orb 3D Energy Lab — IB PYP Science</title>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
   <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      background-color: #000;
-      font-family: 'Avenir Next', 'Segoe UI', sans-serif;
+    :root { --ink: #111; --yellow: #FFE156; --coral: #FF6584; --teal: #4ECDC4; --blue: #38B6FF; --green: #86EFAC; --border: 3px solid #111; --shadow: 4px 4px 0 #111; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-tap-highlight-color: transparent; overscroll-behavior: none; }
+    body { font-family: ui-rounded, "Avenir Next", system-ui, sans-serif; background: #050a18; color: #FFF; height: 100vh; height: 100dvh; overflow: hidden; display: flex; flex-direction: column; }
+    .hud-top {
+      position: relative; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;
+      padding: calc(10px + env(safe-area-inset-top, 0px)) 14px 10px; background: rgba(9, 15, 34, 0.86); border-bottom: 3px solid #111; backdrop-filter: blur(8px);
     }
-
-    /* Video Background */
-    #webcam {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transform: scaleX(-1);
-      z-index: 0;
+    .hud-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .pyp-map-link { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 16px; background: var(--yellow); color: var(--ink); text-decoration: none; font-weight: 900; border: var(--border); border-radius: 14px; box-shadow: var(--shadow); }
+    .unit-tag { display: inline-flex; align-items: center; min-height: 44px; padding: 6px 14px; background: var(--blue); color: var(--ink); border: var(--border); border-radius: 14px; box-shadow: var(--shadow); font-weight: 900; font-size: 0.86rem; }
+    .btn-reflect-pill { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 6px 14px; background: linear-gradient(135deg, #ffe156, #86efac); color: #111; border: 3px solid #111; border-radius: 12px; box-shadow: 3px 3px 0 #111; font: inherit; font-weight: 900; font-size: 0.86rem; cursor: pointer; }
+    .stage-wrap { position: relative; flex: 1; min-height: 0; width: 100%; touch-action: none; }
+    #plasmaCanvas { width: 100%; height: 100%; display: block; cursor: grab; }
+    #plasmaCanvas:active { cursor: grabbing; }
+    .hud-bottom {
+      position: relative; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;
+      padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px)); background: rgba(9, 15, 34, 0.9); border-top: 3px solid #111;
     }
-
-    /* Dark Overlay to make particles pop */
-    #overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.85);
-      z-index: 1;
-      pointer-events: none;
-    }
-
-    /* 3D Scene */
-    #canvas-container {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 2;
-    }
-
-    /* Simple UI Status */
-    #status-bar {
-      position: absolute;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 10;
-      background: rgba(0, 20, 50, 0.8);
-      border: 1px solid #0088ff;
-      color: #0088ff;
-      padding: 10px 30px;
-      border-radius: 20px;
-      font-size: 14px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      box-shadow: 0 0 20px rgba(0, 136, 255, 0.4);
-      opacity: 0;
-      transition: opacity 0.5s;
-    }
-
+    .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn { min-height: 44px; padding: 8px 14px; background: #FFF; color: #111; border: var(--border); border-radius: 12px; box-shadow: 3px 3px 0 #000; font: inherit; font-weight: 900; font-size: 0.88rem; cursor: pointer; touch-action: manipulation; user-select: none; }
+    .btn.active { background: var(--yellow); }
+    .btn:active { transform: translate(2px, 2px); box-shadow: none; }
+    .inquiry-pill { font-size: 0.88rem; font-weight: 800; color: #bae6fd; }
+    .pyp-modal-backdrop { position: fixed; inset: 0; z-index: 2000; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(6px); display: none; place-items: center; padding: 16px; }
+    .pyp-modal-backdrop.open { display: grid; }
+    .pyp-modal-card { width: min(540px, 100%); background: #FFFDF0; color: #111; border: 4px solid #111; border-radius: 20px; box-shadow: 8px 8px 0 #111; padding: 20px; display: grid; gap: 12px; }
+    .pyp-modal-badge { width: fit-content; padding: 6px 14px; background: var(--yellow); border: 3px solid #111; border-radius: 999px; font-weight: 900; }
+    .pyp-modal-box { background: #FFF; border: 2.5px solid #111; border-radius: 12px; padding: 10px 14px; font-size: 0.92rem; line-height: 1.45; }
+    .pyp-modal-box strong { display: block; font-size: 0.78rem; text-transform: uppercase; color: #0ea5a4; margin-bottom: 3px; }
+    .pyp-modal-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .pyp-modal-btn { flex: 1; min-height: 46px; padding: 10px; border: 3px solid #111; border-radius: 12px; box-shadow: 3px 3px 0 #111; font: inherit; font-weight: 900; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; color: #111; background: #FFF; }
+    .pyp-modal-btn.primary { background: var(--green); }
   </style>
 </head>
-
 <body>
+  <header class="hud-top">
+    <div class="hud-left">
+      <a class="pyp-map-link" href="../index.html">← PYP Map</a>
+      <span class="unit-tag">⚡ Blue Plasma Orb 3D · How the World Works</span>
+      <button type="button" class="btn-reflect-pill" id="btnOpenReflect">🔍 Reflect &amp; Stamp</button>
+    </div>
+    <span class="inquiry-pill" id="statusPill">👆 Drag to orbit · Tap energy modes to observe light &amp; motion patterns!</span>
+  </header>
 
-  <video id="webcam" playsinline></video>
-  <div id="overlay"></div>
-  <div id="canvas-container"></div>
-  <div id="status-bar">Move your hand to guide the orb</div>
+  <main class="stage-wrap" id="stageWrap">
+    <canvas id="plasmaCanvas"></canvas>
+  </main>
 
-  <!-- Three.js & MediaPipe -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+  <footer class="hud-bottom">
+    <div class="btn-group">
+      <button type="button" class="btn active" data-mode="orbit">🌀 Steady Orbit</button>
+      <button type="button" class="btn" data-mode="pulse">⚡ Energy Pulse</button>
+      <button type="button" class="btn" data-mode="burst">💥 Supernova Burst</button>
+      <button type="button" class="btn" data-mode="calm">❄️ Slow Freeze</button>
+    </div>
+    <button type="button" class="btn" id="btnReset">Reset View ↺</button>
+  </footer>
 
-  <script>
-    // --- Configuration ---
-    const CONFIG = {
-      particleCount: 12000,
-      baseRadius: 15,
-      camZ: 100,
-      color: new THREE.Color(0x0088ff) // Deep Blue
-    };
+  <div class="pyp-modal-backdrop" id="pypReflectModal" role="dialog" aria-modal="true">
+    <div class="pyp-modal-card">
+      <div class="pyp-modal-badge">🔍 Learner Profile Stamp: Inquirer</div>
+      <h2 style="font-size:1.35rem; font-weight:900;">🌟 IB PYP Reflection &amp; Action</h2>
+      <div class="pyp-modal-box">
+        <strong>Key Concept · Change &amp; Causation</strong>
+        <span>Adding energy makes particles move faster and spread outward; calming energy slows their motion into steady patterns.</span>
+      </div>
+      <div class="pyp-modal-box" style="background:#ECFDF5;">
+        <strong>🚀 Take Action in Real Life</strong>
+        <span>Watch how light, shadows, or water ripples move when you gently tap a bowl of water at home!</span>
+      </div>
+      <div id="pypStampStatus" style="font-weight:900; font-size:0.88rem; color:#15803d;"></div>
+      <div class="pyp-modal-actions">
+        <button type="button" class="pyp-modal-btn primary" id="btnClaimStamp">🔍 Stamp My Passport!</button>
+        <a class="pyp-modal-btn" href="../index.html">🗺️ View Passport</a>
+        <button type="button" class="pyp-modal-btn" id="btnCloseReflect">Keep Exploring</button>
+      </div>
+    </div>
+  </div>
 
-    const state = {
-      phase: 'IDLE', // IDLE, TRACKING, FLYING, EXPLODING
-      handPos: new THREE.Vector3(0, 0, 0),
-      orbPos: new THREE.Vector3(0, 0, 0),
-      targetPos: new THREE.Vector3(0, 0, 0), // Destination (Top Left)
-      scale: 0,
-      explosion: 0
-    };
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-    // --- Three.js Setup ---
-    const container = document.getElementById('canvas-container');
+    let audioCtx = null;
+    function playTone(freq) {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const t = audioCtx.currentTime, o = audioCtx.createOscillator(), g = audioCtx.createGain();
+        o.type = 'sine'; o.frequency.setValueAtTime(freq, t); o.frequency.exponentialRampToValueAtTime(freq * 1.4, t + 0.16);
+        g.gain.setValueAtTime(0.11, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+        o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t + 0.24);
+      } catch (_) {}
+    }
+
+    function createGlowSprite() {
+      const c = document.createElement('canvas'); c.width = 64; c.height = 64;
+      const ctx = c.getContext('2d');
+      const g = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+      g.addColorStop(0, 'rgba(255,255,255,1)');
+      g.addColorStop(0.35, 'rgba(56,182,255,0.85)');
+      g.addColorStop(1, 'rgba(56,182,255,0)');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, 64, 64);
+      return new THREE.CanvasTexture(c);
+    }
+
+    const wrap = document.getElementById('stageWrap');
+    const canvas = document.getElementById('plasmaCanvas');
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = CONFIG.camZ;
+    scene.background = new THREE.Color(0x050a18);
 
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    container.appendChild(renderer.domElement);
+    const camera = new THREE.PerspectiveCamera(48, Math.max(wrap.clientWidth, 1) / Math.max(wrap.clientHeight, 1), 0.1, 100);
+    camera.position.set(0, 2.2, 8.8);
 
-    // --- Particle System (Shader) ---
-    const geometry = new THREE.BufferGeometry();
-    const positions = [];
-    const randoms = [];
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(wrap.clientWidth, wrap.clientHeight, false);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
 
-    for (let i = 0; i < CONFIG.particleCount; i++) {
-      // Create a sphere
-      const r = CONFIG.baseRadius * Math.pow(Math.random(), 0.5); // Fill volume
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos(2 * Math.random() - 1);
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.minDistance = 4; controls.maxDistance = 16;
 
-      const x = r * Math.sin(phi) * Math.cos(theta);
-      const y = r * Math.sin(phi) * Math.sin(theta);
-      const z = r * Math.cos(phi);
+    scene.add(new THREE.AmbientLight(0x38b6ff, 0.8));
+    const coreLight = new THREE.PointLight(0x38b6ff, 4, 25);
+    scene.add(coreLight);
 
-      positions.push(x, y, z);
-      randoms.push(Math.random(), Math.random(), Math.random());
-    }
+    const core = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(1.15, 2),
+      new THREE.MeshStandardMaterial({ color: 0x38b6ff, emissive: 0x0ea5e9, emissiveIntensity: 0.9, roughness: 0.2, wireframe: true })
+    );
+    const innerCore = new THREE.Mesh(
+      new THREE.SphereGeometry(0.88, 32, 32),
+      new THREE.MeshBasicMaterial({ color: 0x93e2ff })
+    );
+    scene.add(core, innerCore);
 
-    geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-    geometry.setAttribute('aRandom', new THREE.Float32BufferAttribute(randoms, 3));
-
-    const vertexShader = `
-            uniform float uTime;
-            uniform float uScale;
-            uniform float uExplosion;
-            uniform vec3 uPos; // World position of the orb
-
-            attribute vec3 aRandom;
-            varying float vAlpha;
-
-            void main() {
-                vec3 pos = position;
-
-                // 1. Rotation (Idle animation)
-                float angle = uTime * 0.5 + aRandom.x;
-                float s = sin(angle);
-                float c = cos(angle);
-                // Rotate around Y
-                pos.xz = mat2(c, -s, s, c) * pos.xz;
-
-                // 2. Growth Logic
-                pos *= uScale;
-
-                // 3. Explosion Logic
-                if (uExplosion > 0.0) {
-                    // Explode outward along normal + random chaos
-                    vec3 dir = normalize(position); 
-                    float burst = uExplosion * 150.0; // Explosion force
-                    pos += (dir + (aRandom - 0.5)) * burst;
-                }
-
-                // 4. World Position
-                vec3 worldPos = pos + uPos;
-
-                vec4 mvPosition = modelViewMatrix * vec4(worldPos, 1.0);
-                gl_Position = projectionMatrix * mvPosition;
-
-                // Size attenuation
-                gl_PointSize = (4.0 * uScale) * (300.0 / -mvPosition.z);
-                
-                // Fade out during explosion
-                vAlpha = 1.0 - (uExplosion * 1.5);
-            }
-        `;
-
-    const fragmentShader = `
-            uniform vec3 uColor;
-            varying float vAlpha;
-
-            void main() {
-                // Circular particle
-                vec2 coord = gl_PointCoord - vec2(0.5);
-                float dist = length(coord);
-                if (dist > 0.5) discard;
-
-                // Glow effect
-                float glow = 1.0 - (dist * 2.0);
-                glow = pow(glow, 2.0);
-
-                gl_FragColor = vec4(uColor, glow * vAlpha);
-            }
-        `;
-
-    const material = new THREE.ShaderMaterial({
-      vertexShader: vertexShader,
-      fragmentShader: fragmentShader,
-      uniforms: {
-        uTime: { value: 0 },
-        uScale: { value: 0 },
-        uExplosion: { value: 0 },
-        uPos: { value: new THREE.Vector3() },
-        uColor: { value: CONFIG.color }
-      },
-      transparent: true,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending
+    const rings = [];
+    [2.1, 2.8, 3.5].forEach((r, idx) => {
+      const ring = new THREE.Mesh(
+        new THREE.TorusGeometry(r, 0.035, 12, 80),
+        new THREE.MeshBasicMaterial({ color: idx === 1 ? 0xffe156 : 0x38b6ff, transparent: true, opacity: 0.55 })
+      );
+      ring.rotation.set(idx * 0.9, idx * 0.6, 0);
+      scene.add(ring);
+      rings.push(ring);
     });
 
-    const sphere = new THREE.Points(geometry, material);
-    scene.add(sphere);
-
-    // --- Helper: Calculate Screen Corners in 3D ---
-    function getTopLeftCoordinate() {
-      // Calculate the visible height at the camera's Z distance
-      // vH = 2 * tan(fov / 2) * dist
-      const vFOV = camera.fov * Math.PI / 180;
-      const height = 2 * Math.tan(vFOV / 2) * Math.abs(camera.position.z);
-      const width = height * camera.aspect;
-
-      // Top Left is (-width/2, +height/2)
-      return new THREE.Vector3(-width / 2.5, height / 2.5, 0);
-      // Divided by 2.5 instead of 2 to keep it slightly inside screen margins
+    const COUNT = 1200;
+    const basePos = new Float32Array(COUNT * 3);
+    const pos = new Float32Array(COUNT * 3);
+    for (let i = 0; i < COUNT; i++) {
+      const r = 1.6 + Math.random() * 2.8;
+      const th = Math.random() * Math.PI * 2;
+      const ph = Math.acos(2 * Math.random() - 1);
+      basePos[i * 3] = pos[i * 3] = r * Math.sin(ph) * Math.cos(th);
+      basePos[i * 3 + 1] = pos[i * 3 + 1] = r * Math.sin(ph) * Math.sin(th);
+      basePos[i * 3 + 2] = pos[i * 3 + 2] = r * Math.cos(ph);
     }
+    const pGeo = new THREE.BufferGeometry();
+    pGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    const particles = new THREE.Points(pGeo, new THREE.PointsMaterial({
+      size: 0.28, map: createGlowSprite(), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false
+    }));
+    scene.add(particles);
 
-    // --- MediaPipe Hands Logic ---
-    const statusBar = document.getElementById('status-bar');
-
-    function onResults(results) {
-      statusBar.style.opacity = 1;
-
-      // If a hand is detected
-      if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-        const landmarks = results.multiHandLandmarks[0];
-        const wrist = landmarks[0];
-
-        // 1. Calculate Hand Position in 3D
-        const aspect = window.innerWidth / window.innerHeight;
-        const vHeight = 2 * Math.tan((camera.fov * Math.PI / 180) / 2) * CONFIG.camZ;
-        const vWidth = vHeight * aspect;
-
-        // Convert 0-1 video coords to World Coords
-        // Note: Video is mirrored via CSS, so logic: (0.5 - x) works for "mirror" feel
-        const x = (0.5 - landmarks[9].x) * vWidth;
-        const y = (0.5 - landmarks[9].y) * vHeight;
-        state.handPos.set(x, y, 0);
-
-        // 2. Detect Fist vs Open Hand
-        // Logic: Compare distance of fingertips to wrist
-        const tips = [8, 12, 16, 20]; // Index, Middle, Ring, Pinky
-        let extendedFingers = 0;
-
-        // Approximate hand size (wrist to middle finger base)
-        const handSize = Math.hypot(landmarks[9].x - wrist.x, landmarks[9].y - wrist.y);
-        const threshold = handSize * 1.5; // If tip is further than 1.5x handSize, it's open
-
-        tips.forEach(idx => {
-          const dist = Math.hypot(landmarks[idx].x - wrist.x, landmarks[idx].y - wrist.y);
-          if (dist > threshold) extendedFingers++;
-        });
-
-        const isFist = (extendedFingers <= 1); // 0 or 1 finger extended = Fist
-
-        // State Machine Transition
-        if (state.phase === 'IDLE') {
-          if (!isFist) {
-            state.phase = 'TRACKING';
-            statusBar.innerText = "OPEN HAND: TRACKING";
-            statusBar.style.color = "#0088ff";
-            statusBar.style.borderColor = "#0088ff";
-          }
-        } else if (state.phase === 'TRACKING') {
-          if (isFist) {
-            state.phase = 'FLYING';
-            statusBar.innerText = "FIST DETECTED: LAUNCHING";
-            statusBar.style.color = "#ffaa00";
-            statusBar.style.borderColor = "#ffaa00";
-            state.targetPos.copy(getTopLeftCoordinate());
-          } else {
-            // Keep tracking
-            statusBar.innerText = "OPEN HAND: TRACKING";
-          }
-        }
-      } else {
-        // No hand detected
-        if (state.phase === 'TRACKING') {
-          state.phase = 'IDLE';
-          statusBar.innerText = "WAITING FOR HAND";
-        }
-      }
-    }
-
-    const hands = new Hands({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}` });
-    hands.setOptions({ maxNumHands: 1, modelComplexity: 1, minDetectionConfidence: 0.7, minTrackingConfidence: 0.7 });
-    hands.onResults(onResults);
-
-    const videoElement = document.getElementById('webcam');
-    const cameraUtils = new Camera(videoElement, {
-      onFrame: async () => { await hands.send({ image: videoElement }); },
-      width: 1280, height: 720
+    let mode = 'orbit';
+    document.querySelectorAll('.btn[data-mode]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        mode = btn.dataset.mode;
+        document.querySelectorAll('.btn[data-mode]').forEach(b => b.classList.toggle('active', b === btn));
+        const notes = {
+          orbit: '🌀 Steady Orbit: Balanced plasma rings rotate smoothly around the glowing core!',
+          pulse: '⚡ Energy Pulse: Waves of energy expand and contract rhythmically!',
+          burst: '💥 Supernova Burst: High energy pushes particles far outward!',
+          calm: '❄️ Slow Freeze: Lower energy slows particles into a gentle crystal cloud!'
+        };
+        document.getElementById('statusPill').textContent = notes[mode];
+        playTone(mode === 'burst' ? 680 : mode === 'pulse' ? 540 : mode === 'calm' ? 320 : 440);
+      });
     });
-    cameraUtils.start();
 
-    // --- Animation Loop ---
+    document.getElementById('btnReset').addEventListener('click', () => { controls.reset(); camera.position.set(0, 2.2, 8.8); playTone(440); });
+
+    const resize = () => {
+      const w = Math.max(wrap.clientWidth, 1), h = Math.max(wrap.clientHeight, 1);
+      camera.aspect = w / h; camera.updateProjectionMatrix(); renderer.setSize(w, h, false);
+    };
+    if (typeof ResizeObserver !== 'undefined') new ResizeObserver(resize).observe(wrap);
+    else window.addEventListener('resize', resize);
+
     const clock = new THREE.Clock();
-
     function animate() {
       requestAnimationFrame(animate);
-      const dt = clock.getDelta();
-      const time = clock.getElapsedTime();
+      const t = clock.getElapsedTime();
+      const speed = mode === 'calm' ? 0.25 : mode === 'pulse' ? 1.8 : mode === 'burst' ? 2.4 : 1.0;
+      const scaleTarget = mode === 'burst' ? 1.85 : mode === 'pulse' ? 1.0 + Math.sin(t * 4.5) * 0.38 : mode === 'calm' ? 0.85 : 1.0;
 
-      material.uniforms.uTime.value = time;
+      core.rotation.y += 0.01 * speed;
+      core.rotation.x += 0.006 * speed;
+      innerCore.scale.setScalar(0.95 + Math.sin(t * 3 * speed) * 0.08);
+      rings.forEach((r, i) => { r.rotation.x += 0.008 * speed * (i + 1) * 0.5; r.rotation.y += 0.01 * speed; });
 
-      if (state.phase === 'IDLE') {
-        // Shrink and hide
-        state.scale = THREE.MathUtils.lerp(state.scale, 0, 0.1);
-        state.orbPos.lerp(new THREE.Vector3(0, 0, 0), 0.05); // Return to center invisible
-
-      } else if (state.phase === 'TRACKING') {
-        // Grow and Follow
-        state.scale = THREE.MathUtils.lerp(state.scale, 1.2, 0.05); // Grow to 1.2 scale
-        state.orbPos.lerp(state.handPos, 0.15); // Smooth tracking
-        material.uniforms.uExplosion.value = 0; // Reset explosion
-
-      } else if (state.phase === 'FLYING') {
-        // Fly to Top Left
-        const speed = 300 * dt; // Pixels per second
-        const direction = new THREE.Vector3().subVectors(state.targetPos, state.orbPos).normalize();
-        state.orbPos.add(direction.multiplyScalar(speed));
-
-        // Check distance to target
-        if (state.orbPos.distanceTo(state.targetPos) < 10) {
-          state.phase = 'EXPLODING';
-          state.explosion = 0;
-          statusBar.innerText = "IMPACT DETECTED";
-          statusBar.style.color = "#ff0055";
-          statusBar.style.borderColor = "#ff0055";
-        }
-
-      } else if (state.phase === 'EXPLODING') {
-        // Animate Explosion
-        state.explosion += dt * 1.5;
-        material.uniforms.uExplosion.value = state.explosion;
-
-        // When explosion finishes
-        if (state.explosion > 1.0) {
-          state.phase = 'IDLE';
-          state.scale = 0;
-          material.uniforms.uExplosion.value = 0;
-          statusBar.innerText = "WAITING FOR HAND";
-          statusBar.style.color = "#0088ff";
-          statusBar.style.borderColor = "#0088ff";
-        }
+      const attr = pGeo.attributes.position;
+      for (let i = 0; i < COUNT; i++) {
+        const bx = basePos[i * 3], by = basePos[i * 3 + 1], bz = basePos[i * 3 + 2];
+        const wave = mode === 'pulse' ? (1 + 0.22 * Math.sin(t * 5 + i * 0.03)) : 1;
+        const s = scaleTarget * wave;
+        attr.array[i * 3] += (bx * s - attr.array[i * 3]) * 0.06;
+        attr.array[i * 3 + 1] += (by * s - attr.array[i * 3 + 1]) * 0.06;
+        attr.array[i * 3 + 2] += (bz * s - attr.array[i * 3 + 2]) * 0.06;
       }
+      attr.needsUpdate = true;
+      particles.rotation.y += 0.004 * speed;
 
-      // Update Shader Uniforms
-      material.uniforms.uScale.value = state.scale;
-      material.uniforms.uPos.value.copy(state.orbPos);
-
+      controls.update();
       renderer.render(scene, camera);
     }
-
     animate();
 
-    // Handle Resize
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
+    const modal = document.getElementById('pypReflectModal');
+    document.getElementById('btnOpenReflect').addEventListener('click', () => { modal.classList.add('open'); playTone(523); });
+    document.getElementById('btnCloseReflect').addEventListener('click', () => modal.classList.remove('open'));
+    modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
+    document.getElementById('btnClaimStamp').addEventListener('click', () => {
+      try {
+        const raw = localStorage.getItem('ib_pyp_passport');
+        const data = raw ? JSON.parse(raw) : { stamps: [], completed: [] };
+        const stamps = new Set(data.stamps || []), completed = new Set(data.completed || []);
+        stamps.add('Inquirer'); completed.add('science/g1_3D_camera_blueball.html');
+        localStorage.setItem('ib_pyp_passport', JSON.stringify({ stamps: [...stamps], completed: [...completed] }));
+        playTone(659);
+        document.getElementById('pypStampStatus').textContent = '✅ Inquirer stamp saved to your IB PYP Passport!';
+        document.getElementById('btnClaimStamp').textContent = '✅ Stamped!';
+      } catch (_) {}
     });
-
   </script>
-
-  <a class="pyp-map-link" href="../index.html" aria-label="Back to PYP curriculum map">PYP Map</a>
-  <style>
-    .pyp-map-link { position: fixed; top: 12px; right: 12px; z-index: 9999; min-height: 44px; display: inline-flex; align-items: center; border: 2px solid #17211f; border-radius: 8px; padding: 8px 12px; background: #fffaf0; color: #17211f; text-decoration: none; font: 900 14px/1 ui-rounded, "Avenir Next", "Segoe UI", sans-serif; box-shadow: 3px 3px 0 #17211f; letter-spacing: 0; }
-    .pyp-map-link:focus-visible { outline: 3px solid #f2b84b; outline-offset: 2px; }
-    @media print { .pyp-map-link { display: none; } }
-  </style>
 </body>
-
 </html>

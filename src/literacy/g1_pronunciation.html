@@ -1,384 +1,592 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-
+<!doctype html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>单词发音学习</title>
+  <title>Phonics &amp; Soundwave Expression Studio — IB PYP Grade 1</title>
   <style>
-    /* CSS Variables for theming */
     :root {
-      --background-color: #f0f8ff;
-      --text-color: #333;
-      --primary-color: #1a73e8;
-      --primary-hover-color: #1557b0;
-      --border-color: #dfe1e5;
-      --shadow-color: rgba(32, 33, 36, 0.28);
-      --status-color: #5f6368;
-      --font-family: 'Microsoft YaHei', sans-serif;
+      --bg: #FFFDF0;
+      --ink: #111111;
+      --yellow: #FFE156;
+      --coral: #FF6584;
+      --teal: #4ECDC4;
+      --blue: #38B6FF;
+      --purple: #B388FF;
+      --green: #86EFAC;
+      --white: #FFFFFF;
+      --border: 3.5px solid var(--ink);
+      --shadow: 4px 4px 0 var(--ink);
+      --shadow-sm: 2px 2px 0 var(--ink);
+      --radius: 16px;
     }
 
-    /* Dark Mode */
-    .dark-mode {
-      --background-color: #222;
-      --text-color: #eee;
-      --primary-color: #64b5f6;
-      --primary-hover-color: #42a5f5;
-      --border-color: #444;
-      --shadow-color: rgba(0, 0, 0, 0.5);
-      --status-color: #ccc;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; overscroll-behavior: none; }
+    button { user-select: none; -webkit-user-select: none; touch-action: manipulation; }
 
     body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      font-family: ui-rounded, "Avenir Next", "Nunito", system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 12% 12%, rgba(255, 101, 132, 0.16), transparent 36%),
+        radial-gradient(circle at 88% 82%, rgba(56, 182, 255, 0.18), transparent 36%),
+        var(--bg);
+      color: var(--ink);
       min-height: 100vh;
-      margin: 0;
-      font-family: var(--font-family);
-      background: var(--background-color);
-      color: var(--text-color);
-      transition: background 0.3s, color 0.3s;
-      /* Smooth transition for theme change */
+      min-height: 100dvh;
+      padding:
+        calc(10px + env(safe-area-inset-top, 0px))
+        calc(14px + env(safe-area-inset-right, 0px))
+        calc(24px + env(safe-area-inset-bottom, 0px))
+        calc(14px + env(safe-area-inset-left, 0px));
     }
 
-    .container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-top: 10vh;
-      width: 90%;
-      max-width: 600px;
+    .container { container-type: inline-size; max-width: 1320px; margin: 0 auto; }
+
+    .nav-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+    .nav-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+    .pyp-map-link {
+      display: inline-flex; align-items: center; min-height: 44px; padding: 8px 16px;
+      background: var(--yellow); color: var(--ink); text-decoration: none; font-weight: 900;
+      font-size: 0.92rem; border: var(--border); border-radius: var(--radius); box-shadow: var(--shadow);
+    }
+    .pyp-map-link:active { transform: translate(2px, 2px); box-shadow: var(--shadow-sm); }
+
+    .unit-tag {
+      display: inline-flex; align-items: center; min-height: 44px; padding: 6px 14px;
+      background: var(--purple); color: var(--white); border: var(--border); border-radius: var(--radius);
+      box-shadow: var(--shadow); font-weight: 900; font-size: 0.86rem;
     }
 
-    .logo {
-      font-size: 4rem;
-      margin-bottom: 2rem;
-      color: var(--primary-color);
-      font-weight: bold;
+    .btn-reflect-pill {
+      display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 6px 14px;
+      background: linear-gradient(135deg, #ffe156, #86efac); color: #111; border: 3px solid #111;
+      border-radius: 12px; box-shadow: 3px 3px 0 #111; font: inherit; font-weight: 900; font-size: 0.86rem; cursor: pointer;
     }
 
-    .search-box {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 100%;
+    /* Neobrutalism TTS Radio Dropdown */
+    .tts-dropdown-wrap { position: relative; display: inline-block; user-select: none; }
+    .tts-trigger {
+      display: inline-flex; align-items: center; gap: 6px; background: #FFF;
+      border: 2.5px solid var(--ink); border-radius: 10px; box-shadow: 3px 3px 0 var(--ink);
+      padding: 6px 12px; font: inherit; font-size: 0.85rem; font-weight: 800; color: var(--ink); cursor: pointer; min-height: 44px;
+    }
+    .tts-arrow { font-size: 0.75rem; transition: transform 0.15s ease; }
+    .tts-dropdown-wrap.open .tts-arrow { transform: rotate(180deg); }
+    .tts-menu {
+      display: none; position: absolute; top: calc(100% + 6px); right: 0;
+      min-width: 250px; max-width: 310px; max-height: 280px; overflow-y: auto;
+      background: #FFF; border: 3px solid var(--ink); border-radius: 12px;
+      box-shadow: 4px 4px 0 var(--ink); padding: 6px; z-index: 1000; flex-direction: column; gap: 3px;
+    }
+    .tts-dropdown-wrap.open .tts-menu { display: flex; }
+    .tts-menu-header { font-size: 0.72rem; font-weight: 900; text-transform: uppercase; color: #6B7280; padding: 4px 8px 6px; border-bottom: 2px solid #E5E7EB; }
+    .tts-radio-group { display: flex; flex-direction: column; gap: 3px; }
+    .tts-radio-item {
+      display: flex; align-items: center; gap: 8px; padding: 7px 10px; border: 2px solid transparent;
+      border-radius: 8px; background: transparent; cursor: pointer; font: inherit; font-size: 0.82rem; font-weight: 700; width: 100%; text-align: left;
+    }
+    .tts-radio-item.active { background: #E0F2FE; border-color: var(--ink); font-weight: 800; }
+    .tts-radio-circle { width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--ink); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; background: #FFF; }
+    .tts-radio-item.active .tts-radio-circle::after { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--ink); }
+    .tts-item-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+
+    .btn-speaker {
+      display: inline-flex; align-items: center; justify-content: center; background: #FEF08A;
+      border: 2.5px solid var(--ink); box-shadow: 2px 2px 0 var(--ink); border-radius: 10px;
+      width: 40px; height: 40px; cursor: pointer; font-size: 1.1rem; flex-shrink: 0;
+    }
+    .btn-speaker.speaking { background: var(--green); animation: ttsPulse 0.7s infinite alternate; }
+    @keyframes ttsPulse { from { transform: scale(1); } to { transform: scale(1.1); } }
+
+    .hero-card {
+      background: var(--white); border: var(--border); border-radius: var(--radius); box-shadow: var(--shadow);
+      padding: 10px 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+    .hero-title { display: flex; align-items: center; gap: 10px; }
+    .hero-title h1 { font-size: clamp(1.18rem, 2.3vw, 1.65rem); font-weight: 900; }
+
+    .mode-switch { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn {
+      min-height: 44px; padding: 8px 14px; background: var(--yellow); color: var(--ink);
+      border: var(--border); border-radius: 12px; box-shadow: var(--shadow-sm);
+      font: inherit; font-weight: 900; font-size: 0.9rem; cursor: pointer;
+    }
+    .btn:active { transform: translate(2px, 2px); box-shadow: none; }
+    .btn.secondary { background: var(--white); }
+    .btn.active-mode { background: var(--coral); color: var(--white); }
+
+    .play-grid { display: grid; grid-template-columns: 1.05fr 1.25fr; gap: 14px; align-items: start; }
+    @container (max-width: 780px) { .play-grid { grid-template-columns: 1fr; } }
+
+    .panel { background: var(--white); border: var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 14px; }
+
+    .wave-stage {
+      background: #131a34; border: 3px solid var(--ink); border-radius: 14px;
+      padding: 12px; color: #FFF; margin-bottom: 12px;
+    }
+    #waveCanvas { width: 100%; height: clamp(130px, 22dvh, 210px); display: block; border-radius: 10px; background: #0b1024; }
+    .spotlight-box {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      margin-top: 10px; padding: 10px 12px; background: #1e294d; border: 2px solid #38b6ff; border-radius: 12px;
+    }
+    .spotlight-phoneme { font-size: 2.2rem; font-weight: 900; color: var(--yellow); line-height: 1; }
+    .spotlight-word { font-size: 1.15rem; font-weight: 900; }
+    .spotlight-tip { font-size: 0.84rem; color: #cbd5e1; font-weight: 700; margin-top: 2px; }
+
+    .cat-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .cat-tab {
+      min-height: 44px; padding: 6px 14px; border: 2.5px solid var(--ink); border-radius: 12px;
+      background: var(--white); box-shadow: var(--shadow-sm); font: inherit; font-weight: 900; font-size: 0.86rem; cursor: pointer;
+    }
+    .cat-tab.active { background: var(--teal); }
+
+    .tile-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: 10px; }
+    .sound-tile {
+      min-height: 92px; padding: 10px; border: 2.5px solid var(--ink); border-radius: 14px;
+      background: var(--white); box-shadow: 3px 3px 0 var(--ink); font: inherit; cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+      transition: transform 0.1s;
+    }
+    .sound-tile:active { transform: translate(2px, 2px); box-shadow: none; }
+    .sound-tile.active { background: var(--yellow); }
+    .sound-tile .ph { font-size: 1.55rem; font-weight: 900; color: #d91c5c; }
+    .sound-tile .wd { font-size: 0.9rem; font-weight: 900; }
+
+    @media (hover: hover) and (pointer: fine) {
+      .sound-tile:hover { transform: translate(-1px, -1px); background: #FEF9C3; }
     }
 
-    .search-input {
-      width: 100%;
-      height: 44px;
-      border: 1px solid var(--border-color);
-      border-radius: 24px;
-      padding: 0 20px;
-      font-size: 16px;
-      outline: none;
-      box-shadow: none;
-      transition: box-shadow 0.3s, border-color 0.3s;
-      background-color: transparent;
-      /* Make the input field transparent */
-      color: var(--text-color);
+    .hidden { display: none !important; }
+    .mystery-card {
+      background: #FFFBEB; border: 3px dashed var(--ink); border-radius: 14px;
+      padding: 16px; text-align: center; margin-bottom: 12px; display: grid; gap: 10px; justify-items: center;
     }
-
-    .search-input:hover,
-    .search-input:focus {
-      box-shadow: 0 1px 6px var(--shadow-color);
-      border-color: var(--primary-color);
+    .choice-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 12px; }
+    .choice-btn {
+      min-height: 62px; padding: 10px; border: 2.5px solid var(--ink); border-radius: 12px;
+      background: var(--white); box-shadow: 3px 3px 0 var(--ink); font: inherit; font-weight: 900; font-size: 1.1rem; cursor: pointer;
     }
+    .choice-btn.active { background: var(--yellow); }
 
-    .buttons {
-      margin-top: 20px;
-      display: flex;
-      gap: 10px;
+    .feedback-bar {
+      min-height: 48px; padding: 10px 12px; border: 2.5px solid var(--ink); border-radius: 12px;
+      background: #F1F5F9; font-weight: 800; font-size: 0.9rem; display: flex; align-items: center;
     }
+    .feedback-bar.good { background: var(--green); }
+    .feedback-bar.warn { background: #FEF08A; }
 
-    .button {
-      background-color: var(--primary-color);
-      border: 1px solid var(--primary-color);
-      border-radius: 4px;
-      color: white;
-      font-size: 14px;
-      padding: 0 16px;
-      height: 36px;
-      cursor: pointer;
-      user-select: none;
-      transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
-    }
-
-    .button:hover {
-      background-color: var(--primary-hover-color);
-      border-color: var(--primary-hover-color);
-      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-    }
-
-    .status {
-      margin-top: 20px;
-      color: var(--status-color);
-      font-size: 14px;
-    }
-
-    .rate-control {
-      width: 100%;
-      margin-top: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .rate-control label {
-      font-size: 14px;
-      color: var(--status-color);
-    }
-
-    .rate-slider {
-      width: 100%;
-      accent-color: var(--primary-color);
-    }
-
-    #downloadBtn {
-      display: none;
-      margin-top: 10px;
-      text-decoration: none;
-      background-color: var(--primary-color);
-      color: white;
-      padding: 8px 16px;
-      border-radius: 4px;
-      font-size: 14px;
-      transition: background-color 0.3s;
-    }
-
-    #downloadBtn:hover {
-      background-color: var(--primary-hover-color);
-    }
-
-    /* Responsive Design */
-    @media (max-width: 600px) {
-      .logo {
-        font-size: 3rem;
-      }
-
-      .search-input {
-        font-size: 14px;
-      }
-
-      .button {
-        font-size: 12px;
-        padding: 0 12px;
-      }
-    }
-
-    /* Theme Toggle Button */
-    .theme-toggle {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      cursor: pointer;
-      background-color: transparent;
-      border: none;
-      font-size: 24px;
-      color: var(--text-color);
-    }
-
+    /* IB PYP Reflection Modal */
+    .pyp-modal-backdrop { position: fixed; inset: 0; z-index: 2000; background: rgba(15, 23, 42, 0.72); backdrop-filter: blur(6px); display: none; place-items: center; padding: 16px; }
+    .pyp-modal-backdrop.open { display: grid; }
+    .pyp-modal-card { width: min(560px, 100%); background: #FFFDF0; border: 4px solid #111; border-radius: 20px; box-shadow: 8px 8px 0 #111; padding: 20px 22px; display: grid; gap: 12px; }
+    .pyp-modal-badge { display: inline-flex; align-items: center; gap: 8px; width: fit-content; padding: 6px 14px; background: #FFE156; border: 3px solid #111; border-radius: 999px; font-weight: 900; font-size: 0.9rem; }
+    .pyp-modal-box { background: #FFF; border: 2.5px solid #111; border-radius: 12px; padding: 10px 14px; font-size: 0.92rem; line-height: 1.45; }
+    .pyp-modal-box strong { display: block; font-size: 0.78rem; text-transform: uppercase; color: #0ea5a4; margin-bottom: 3px; }
+    .pyp-modal-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .pyp-modal-btn { flex: 1; min-height: 46px; padding: 10px 14px; border: 3px solid #111; border-radius: 12px; box-shadow: 3px 3px 0 #111; font: inherit; font-weight: 900; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; color: #111; background: #FFF; }
+    .pyp-modal-btn.primary { background: #86EFAC; }
   </style>
 </head>
-
 <body>
-  <button class="theme-toggle" id="themeToggle">☀️</button>
   <div class="container">
-    <div class="logo">Pronunciation</div>
-    <div class="search-box">
-      <input type="text" class="search-input" placeholder="输入要朗读的单词..." id="wordInput">
-      <div class="buttons">
-        <button class="button" onclick="getAudio('en-US')">美式发音</button>
-        <button class="button" onclick="getAudio('en-GB')">英式发音</button>
+    <nav class="nav-bar">
+      <div class="nav-left">
+        <a class="pyp-map-link" href="../index.html">← PYP Map</a>
+        <span class="unit-tag">🗣️ Grade 1 · Literacy · How We Express Ourselves</span>
+        <button type="button" class="btn-reflect-pill" id="btnOpenReflect">🗣️ Reflect &amp; Stamp</button>
       </div>
-      <div class="rate-control">
-        <label for="rateSlider">语速: <span id="rateValue">0.7</span></label>
-        <input id="rateSlider" class="rate-slider" type="range" min="0.1" max="1.3" step="0.1" value="0.7">
+      <div class="tts-dropdown-wrap" id="ttsDropdownWrap">
+        <button type="button" class="tts-trigger" id="ttsTrigger" aria-haspopup="menu" aria-expanded="false">
+          <span class="tts-trigger-flag" id="ttsFlag">🇬🇧</span>
+          <span class="tts-trigger-label" id="ttsLabel">Voice</span>
+          <span class="tts-arrow">▾</span>
+        </button>
+        <div class="tts-menu" id="ttsMenu" role="menu">
+          <div class="tts-menu-header">Select Voice Accent</div>
+          <div class="tts-radio-group" id="ttsRadioList" role="radiogroup"></div>
+        </div>
+      </div>
+    </nav>
+
+    <header class="hero-card">
+      <div class="hero-title">
+        <h1>Phonics &amp; Soundwave Studio 🎙️✨</h1>
+        <button type="button" class="btn-speaker" id="btnSpeakTitle" aria-label="Read title">🔊</button>
+      </div>
+      <div class="mode-switch">
+        <button type="button" class="btn active-mode" id="tabExplore">1. Explore Sounds 🎵</button>
+        <button type="button" class="btn secondary" id="tabDetective">2. Sound Detective 🕵️</button>
+      </div>
+    </header>
+
+    <main class="play-grid">
+      <section class="panel">
+        <div class="wave-stage">
+          <canvas id="waveCanvas" width="640" height="180"></canvas>
+          <div class="spotlight-box">
+            <div>
+              <div class="spotlight-phoneme" id="spotPhoneme">sh</div>
+              <div class="spotlight-word" id="spotWord">🦈 shark · 🐚 shell</div>
+              <div class="spotlight-tip" id="spotTip">Tap any phonics tile to see the soundwave dance and repeat aloud!</div>
+            </div>
+            <button type="button" class="btn-speaker" id="btnReplaySpot" aria-label="Replay sound">🔊</button>
+          </div>
+        </div>
+        <div class="feedback-bar" id="exploreNote">
+          💡 Key Concept (Form): Letters work alone or in teams to make clear speech sounds.
+        </div>
+      </section>
+
+      <section class="panel" id="explorePanel">
+        <div class="cat-tabs" id="catTabs"></div>
+        <div class="tile-grid" id="tileGrid"></div>
+      </section>
+
+      <section class="panel hidden" id="detectivePanel">
+        <div class="mystery-card">
+          <div style="font-weight:900; font-size:0.9rem; color:#475569;" id="qCounter">Sound Mission 1 / 5 · ⭐ Score: 0</div>
+          <button type="button" class="btn" id="btnHearMystery" style="font-size:1.05rem;">🔊 Tap to Hear Mystery Sound</button>
+          <div style="font-size:0.86rem; font-weight:800;" id="qHintText">Listen closely and pick the matching phonics team below!</div>
+        </div>
+        <div class="choice-grid" id="choiceGrid"></div>
+        <div style="display:flex; gap:8px; margin-bottom:10px;">
+          <button type="button" class="btn active-mode" id="btnCheckSound" style="flex:1;">Check Answer ✨</button>
+          <button type="button" class="btn secondary" id="btnNextSound">Next Sound →</button>
+        </div>
+        <div class="feedback-bar" id="detectiveFeedback" aria-live="polite">
+          Tap the speaker button, then pick the matching sound tile!
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="pyp-modal-backdrop" id="pypReflectModal" role="dialog" aria-modal="true">
+    <div class="pyp-modal-card">
+      <div class="pyp-modal-badge">🗣️ Learner Profile Stamp: Communicator</div>
+      <h2 style="font-size:1.35rem; font-weight:900;">🌟 IB PYP Reflection &amp; Action</h2>
+      <div class="pyp-modal-box">
+        <strong>Key Concept · Form &amp; Function</strong>
+        <span>Listening closely to letter sounds and repeating clearly helps us read and share our ideas with confidence.</span>
+      </div>
+      <div class="pyp-modal-box" style="background:#ECFDF5;">
+        <strong>🚀 Take Action in Real Life</strong>
+        <span>Teach one digraph sound (like sh, ch, or th) and two example words to someone in your family tonight!</span>
+      </div>
+      <div id="pypStampStatus" style="font-weight:900; font-size:0.88rem; color:#15803d;"></div>
+      <div class="pyp-modal-actions">
+        <button type="button" class="pyp-modal-btn primary" id="btnClaimStamp">🗣️ Stamp My Passport!</button>
+        <a class="pyp-modal-btn" href="../index.html">🗺️ View Passport</a>
+        <button type="button" class="pyp-modal-btn" id="btnCloseReflect">Keep Exploring</button>
       </div>
     </div>
   </div>
 
-  <div class="container" style="margin-top: 50px;">
-    <div class="search-box">
-      <select id="voiceSelect" class="search-input" style="margin-bottom: 20px;">
-        <option value="">选择语音</option>
-      </select>
-      <button class="button" onclick="useBrowserTTS()">使用Browser TTS</button>
-    </div>
-  </div>
-  <div class="status" id="status"></div>
   <script>
-    // Theme Toggle Logic
-    const themeToggle = document.getElementById('themeToggle');
-    const body = document.body;
-    const rateSlider = document.getElementById('rateSlider');
-    const rateValue = document.getElementById('rateValue');
-
-    themeToggle.addEventListener('click', () => {
-      body.classList.toggle('dark-mode');
-      if (body.classList.contains('dark-mode')) {
-        themeToggle.textContent = '🌙';
-      } else {
-        themeToggle.textContent = '☀️';
+    class SoundFX {
+      constructor() { this.ctx = null; }
+      init() {
+        try {
+          if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+          if (this.ctx.state === "suspended") this.ctx.resume();
+        } catch (_) {}
       }
-    });
-
-    function getSpeechRate() {
-      return Number(rateSlider.value);
+      playPop(freq = 540) {
+        this.init(); if (!this.ctx) return;
+        const t = this.ctx.currentTime, o = this.ctx.createOscillator(), g = this.ctx.createGain();
+        o.frequency.setValueAtTime(freq, t); o.frequency.exponentialRampToValueAtTime(freq * 0.6, t + 0.06);
+        g.gain.setValueAtTime(0.11, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+        o.connect(g); g.connect(this.ctx.destination); o.start(t); o.stop(t + 0.065);
+      }
+      playCorrect() {
+        this.init(); if (!this.ctx) return;
+        const t = this.ctx.currentTime;
+        [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
+          const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+          o.frequency.setValueAtTime(f, t + i * 0.055);
+          g.gain.setValueAtTime(0.14, t + i * 0.055); g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.055 + 0.22);
+          o.connect(g); g.connect(this.ctx.destination); o.start(t + i * 0.055); o.stop(t + i * 0.055 + 0.24);
+        });
+      }
+      playBuzz() {
+        this.init(); if (!this.ctx) return;
+        const t = this.ctx.currentTime, o = this.ctx.createOscillator(), g = this.ctx.createGain();
+        o.type = "triangle"; o.frequency.setValueAtTime(175, t);
+        g.gain.setValueAtTime(0.12, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+        o.connect(g); g.connect(this.ctx.destination); o.start(t); o.stop(t + 0.2);
+      }
     }
+    const sfx = new SoundFX();
 
-    rateSlider.addEventListener('input', () => {
-      rateValue.textContent = rateSlider.value;
-    });
-
-    // 获取浏览器支持的语音列表
-    function populateVoiceList() {
-      const voices = speechSynthesis.getVoices();
-      const voiceSelect = document.getElementById('voiceSelect');
-      const currentSelection = voiceSelect.value;  // Store current selection
-
-      // Clear existing options except the first one
-      while (voiceSelect.options.length > 1) {
-        voiceSelect.remove(1);
-      }
-
-      voices.forEach(voice => {
-        if (voice.lang.startsWith('en')) {
-          const option = document.createElement('option');
-          option.value = voice.name;
-          option.textContent = `${voice.name} (${voice.lang})`;
-          voiceSelect.appendChild(option);
-
-          // Restore previous selection if it matches
-          if (voice.name === currentSelection) {
-            option.selected = true;
-          }
+    const TTS_MANAGER = {
+      currentVoiceName: "", wrap: null, trigger: null, flag: null, label: null, list: null,
+      init() {
+        this.wrap = document.getElementById("ttsDropdownWrap");
+        this.trigger = document.getElementById("ttsTrigger");
+        this.flag = document.getElementById("ttsFlag");
+        this.label = document.getElementById("ttsLabel");
+        this.list = document.getElementById("ttsRadioList");
+        this.trigger.addEventListener("click", e => { e.stopPropagation(); this.wrap.classList.toggle("open"); });
+        document.addEventListener("click", e => { if (!this.wrap.contains(e.target)) this.wrap.classList.remove("open"); });
+        if (window.speechSynthesis) {
+          this.populateVoices();
+          if (window.speechSynthesis.onvoiceschanged !== undefined) window.speechSynthesis.onvoiceschanged = () => this.populateVoices();
         }
+      },
+      populateVoices() {
+        const voices = window.speechSynthesis.getVoices();
+        if (!voices.length) return;
+        let available = voices.filter(v => (v.lang || "").toLowerCase().replace("_", "-").startsWith("en"));
+        if (!available.length) available = voices;
+        const saved = localStorage.getItem("ib_pyp_voice_name");
+        let selected = (saved && available.find(v => v.name === saved)) || available.find(v => (v.lang || "").toLowerCase().includes("gb")) || available.find(v => (v.lang || "").toLowerCase().includes("us")) || available.find(v => v.default) || available[0];
+        this.currentVoiceName = selected ? selected.name : "";
+        this.list.innerHTML = "";
+        available.slice(0, 15).forEach(v => {
+          const lang = (v.lang || "").toLowerCase().replace("_", "-");
+          const flag = lang.includes("au") ? "🇦🇺" : lang.includes("gb") ? "🇬🇧" : lang.includes("us") || lang.startsWith("en") ? "🇺🇸" : "🌐";
+          const region = lang.includes("au") ? "AU" : lang.includes("gb") ? "UK" : lang.includes("us") ? "US" : (v.lang || "System");
+          const btn = document.createElement("button");
+          btn.type = "button"; btn.className = "tts-radio-item" + (v.name === this.currentVoiceName ? " active" : "");
+          btn.innerHTML = `<span class="tts-radio-circle"></span><span>${flag}</span><span class="tts-item-name">${v.name} (${region})</span>`;
+          btn.addEventListener("click", e => {
+            e.stopPropagation(); this.currentVoiceName = v.name; localStorage.setItem("ib_pyp_voice_name", v.name);
+            this.updateTriggerUI(v);
+            this.list.querySelectorAll(".tts-radio-item").forEach(b => b.classList.toggle("active", b === btn));
+            this.wrap.classList.remove("open");
+          });
+          this.list.appendChild(btn);
+        });
+        this.updateTriggerUI(selected);
+      },
+      updateTriggerUI(v) {
+        if (!v) return;
+        const lang = (v.lang || "").toLowerCase().replace("_", "-");
+        this.flag.textContent = lang.includes("au") ? "🇦🇺" : lang.includes("gb") ? "🇬🇧" : lang.includes("us") || lang.startsWith("en") ? "🇺🇸" : "🌐";
+        let s = (v.name || "Voice").replace(/^(Google|Microsoft|Apple)\s+/i, "");
+        this.label.textContent = s.length > 14 ? s.slice(0, 12) + "..." : s;
+      },
+      speak(text, btn) {
+        if (!window.speechSynthesis || !text) return;
+        window.speechSynthesis.cancel();
+        waveEnergy = 1.0;
+        const u = new SpeechSynthesisUtterance(text);
+        const voices = window.speechSynthesis.getVoices();
+        const chosen = voices.find(v => v.name === this.currentVoiceName) || voices.find(v => v.default) || voices[0];
+        if (chosen) u.voice = chosen;
+        u.rate = 0.85;
+        if (btn) { btn.classList.add("speaking"); u.onend = u.onerror = () => btn.classList.remove("speaking"); }
+        window.speechSynthesis.speak(u);
+      }
+    };
+    TTS_MANAGER.init();
+
+    // Live Animated Soundwave Canvas
+    const waveCanvas = document.getElementById("waveCanvas");
+    const wCtx = waveCanvas.getContext("2d");
+    let waveEnergy = 0.15;
+    let wavePhase = 0;
+
+    function drawWave() {
+      requestAnimationFrame(drawWave);
+      wavePhase += 0.07;
+      waveEnergy = Math.max(0.14, waveEnergy * 0.965);
+      const w = waveCanvas.width, h = waveCanvas.height, mid = h / 2;
+      wCtx.fillStyle = "#0b1024";
+      wCtx.fillRect(0, 0, w, h);
+
+      const colors = ["#FFE156", "#4ECDC4", "#FF6584"];
+      colors.forEach((col, cIdx) => {
+        wCtx.beginPath();
+        wCtx.strokeStyle = col;
+        wCtx.lineWidth = 4 - cIdx * 0.8;
+        for (let x = 0; x <= w; x += 6) {
+          const env = Math.sin((x / w) * Math.PI);
+          const y = mid + Math.sin(x * (0.025 + cIdx * 0.008) + wavePhase + cIdx) * (58 * waveEnergy * env);
+          if (x === 0) wCtx.moveTo(x, y); else wCtx.lineTo(x, y);
+        }
+        wCtx.stroke();
+      });
+    }
+    drawWave();
+
+    const DECKS = {
+      vowels: {
+        label: "🅰️ Short Vowels",
+        items: [
+          { ph: "a", word: "🍎 apple", speak: "a, as in apple and ant.", tip: "Open your mouth wide like taking a bite of an apple!" },
+          { ph: "e", word: "🥚 egg", speak: "e, as in egg and elephant.", tip: "Smile gently and say a short crisp e." },
+          { ph: "i", word: "🦎 iguana", speak: "i, as in iguana and igloo.", tip: "Quick and bright like a tiny smile!" },
+          { ph: "o", word: "🐙 octopus", speak: "o, as in octopus and otter.", tip: "Shape your lips into a round circle O." },
+          { ph: "u", word: "☂️ umbrella", speak: "u, as in umbrella and up.", tip: "Short relaxed sound from the middle of your mouth." }
+        ]
+      },
+      digraphs: {
+        label: "🤝 Digraph Teams",
+        items: [
+          { ph: "sh", word: "🦈 shark", speak: "sh, as in shark and shell.", tip: "Round your lips gently like saying shhh!" },
+          { ph: "ch", word: "🚂 choo-choo", speak: "ch, as in cheese and train.", tip: "Make a crisp puff of air like a steam train!" },
+          { ph: "th", word: "👍 thumb", speak: "th, as in thumb and think.", tip: "Peek your tongue tip gently between your teeth." },
+          { ph: "wh", word: "🐋 whale", speak: "wh, as in whale and wheel.", tip: "Blow a soft breeze with round lips." },
+          { ph: "ph", word: "📱 phone", speak: "ph, sounds like f, as in phone and dolphin.", tip: "P and H team up to make the f sound!" }
+        ]
+      },
+      blends: {
+        label: "🚀 Starting Blends",
+        items: [
+          { ph: "st", word: "⭐ star", speak: "st, as in star and stop.", tip: "Slide smoothly from s right into t!" },
+          { ph: "br", word: "🍞 bread", speak: "br, as in bread and bridge.", tip: "Blend b and r together quickly." },
+          { ph: "cl", word: "☁️ cloud", speak: "cl, as in cloud and clap.", tip: "Crisp c sliding smoothly into l." },
+          { ph: "fr", word: "🐸 frog", speak: "fr, as in frog and friend.", tip: "Gentle f sound hopping straight into r!" },
+          { ph: "sp", word: "🕷️ spider", speak: "sp, as in spider and space.", tip: "Hiss softly on s then pop p!" }
+        ]
+      }
+    };
+
+    let activeCat = "digraphs";
+    let activeSpot = DECKS.digraphs.items[0];
+
+    function renderExplore() {
+      const catTabs = document.getElementById("catTabs");
+      catTabs.innerHTML = "";
+      Object.entries(DECKS).forEach(([key, d]) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "cat-tab" + (key === activeCat ? " active" : "");
+        b.textContent = d.label;
+        b.addEventListener("click", () => { sfx.playPop(580); activeCat = key; renderExplore(); });
+        catTabs.appendChild(b);
+      });
+
+      const grid = document.getElementById("tileGrid");
+      grid.innerHTML = "";
+      DECKS[activeCat].items.forEach(item => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "sound-tile" + (activeSpot.ph === item.ph ? " active" : "");
+        b.innerHTML = `<span class="ph">${item.ph}</span><span class="wd">${item.word}</span>`;
+        b.addEventListener("click", () => {
+          sfx.playPop(620);
+          activeSpot = item;
+          document.getElementById("spotPhoneme").textContent = item.ph;
+          document.getElementById("spotWord").textContent = item.word;
+          document.getElementById("spotTip").textContent = item.tip;
+          renderExplore();
+          TTS_MANAGER.speak(item.speak, document.getElementById("btnReplaySpot"));
+        });
+        grid.appendChild(b);
       });
     }
 
-    // 初始化时获取语音列表
-    populateVoiceList();
-    if (speechSynthesis.onvoiceschanged !== undefined) {
-      speechSynthesis.onvoiceschanged = populateVoiceList;
+    document.getElementById("btnReplaySpot").addEventListener("click", e => {
+      sfx.playPop(620);
+      TTS_MANAGER.speak(activeSpot.speak, e.currentTarget);
+    });
+    document.getElementById("btnSpeakTitle").addEventListener("click", e => {
+      sfx.playPop(540);
+      TTS_MANAGER.speak("Phonics and Soundwave Studio. Tap sound tiles to hear phonics and watch the soundwaves dance!", e.currentTarget);
+    });
+
+    // Mode 2: Sound Detective (Zero Pre-Selection!)
+    const ALL_ITEMS = [...DECKS.vowels.items, ...DECKS.digraphs.items, ...DECKS.blends.items];
+    const shuffle = a => [...a].sort(() => Math.random() - 0.5);
+    let dTarget = null, dChoices = [], dSelected = null, dScore = 0, dRound = 1;
+
+    function loadDetectiveRound() {
+      dSelected = null;
+      const pool = shuffle(ALL_ITEMS);
+      dTarget = pool[0];
+      dChoices = shuffle(pool.slice(0, 4));
+      document.getElementById("qCounter").textContent = `Sound Mission ${dRound} · ⭐ Score: ${dScore}`;
+      const grid = document.getElementById("choiceGrid");
+      grid.innerHTML = "";
+      dChoices.forEach((item, i) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "choice-btn";
+        b.textContent = `${item.ph} — ${item.word}`;
+        b.addEventListener("click", () => {
+          sfx.playPop(560);
+          dSelected = i;
+          grid.querySelectorAll(".choice-btn").forEach((el, j) => el.classList.toggle("active", j === i));
+        });
+        grid.appendChild(b);
+      });
+      const fb = document.getElementById("detectiveFeedback");
+      fb.className = "feedback-bar";
+      fb.textContent = "Tap 'Hear Mystery Sound', then pick the matching phonics tile!";
     }
 
-    // 使用Browser TTS播放
-    function useBrowserTTS() {
-      const word = document.getElementById('wordInput').value.trim();
-      const voiceSelect = document.getElementById('voiceSelect');
-      const selectedVoice = voiceSelect.value;
+    document.getElementById("btnHearMystery").addEventListener("click", () => {
+      if (!dTarget) return;
+      sfx.playPop(640);
+      TTS_MANAGER.speak(dTarget.speak);
+    });
 
-      if (!word) {
-        document.getElementById('status').textContent = '请输入单词';
+    document.getElementById("btnCheckSound").addEventListener("click", () => {
+      const fb = document.getElementById("detectiveFeedback");
+      if (dSelected === null) {
+        sfx.playBuzz();
+        fb.className = "feedback-bar warn";
+        fb.textContent = "👆 Please tap one of the phonics choices first!";
         return;
       }
-
-      if (!selectedVoice) {
-        document.getElementById('status').textContent = '请选择语音';
-        return;
+      if (dChoices[dSelected].ph === dTarget.ph) {
+        sfx.playCorrect();
+        waveEnergy = 1.1;
+        dScore += 1;
+        document.getElementById("qCounter").textContent = `Sound Mission ${dRound} · ⭐ Score: ${dScore}`;
+        fb.className = "feedback-bar good";
+        fb.textContent = `🎉 Great Communicator! That was "${dTarget.ph}" as in ${dTarget.word}!`;
+      } else {
+        sfx.playBuzz();
+        fb.className = "feedback-bar warn";
+        fb.textContent = "🤔 Listen one more time! Tap 'Hear Mystery Sound' and check the beginning sound.";
       }
+    });
 
-      document.getElementById('status').textContent = '正在播放发音...';
+    document.getElementById("btnNextSound").addEventListener("click", () => {
+      sfx.playPop(540);
+      dRound += 1;
+      loadDetectiveRound();
+    });
 
+    // Mode Toggle
+    function setMode(m) {
+      const isExp = m === "explore";
+      document.getElementById("explorePanel").classList.toggle("hidden", !isExp);
+      document.getElementById("detectivePanel").classList.toggle("hidden", isExp);
+      document.getElementById("tabExplore").classList.toggle("active-mode", isExp);
+      document.getElementById("tabExplore").classList.toggle("secondary", !isExp);
+      document.getElementById("tabDetective").classList.toggle("active-mode", !isExp);
+      document.getElementById("tabDetective").classList.toggle("secondary", isExp);
+      if (!isExp && !dTarget) loadDetectiveRound();
+    }
+    document.getElementById("tabExplore").addEventListener("click", () => { sfx.playPop(); setMode("explore"); });
+    document.getElementById("tabDetective").addEventListener("click", () => { sfx.playPop(); setMode("detective"); });
+
+    // Reflection Modal + Passport Stamp
+    const modal = document.getElementById("pypReflectModal");
+    document.getElementById("btnOpenReflect").addEventListener("click", () => { sfx.playPop(); modal.classList.add("open"); });
+    document.getElementById("btnCloseReflect").addEventListener("click", () => modal.classList.remove("open"));
+    modal.addEventListener("click", e => { if (e.target === modal) modal.classList.remove("open"); });
+    document.getElementById("btnClaimStamp").addEventListener("click", () => {
       try {
-        const utterance = new SpeechSynthesisUtterance(word);
-        const voices = speechSynthesis.getVoices();
-        utterance.voice = voices.find(voice => voice.name === selectedVoice);
-        utterance.rate = getSpeechRate();
+        const raw = localStorage.getItem("ib_pyp_passport");
+        const data = raw ? JSON.parse(raw) : { stamps: [], completed: [] };
+        const stamps = new Set(data.stamps || []);
+        const completed = new Set(data.completed || []);
+        stamps.add("Communicator");
+        completed.add("literacy/g1_pronunciation.html");
+        localStorage.setItem("ib_pyp_passport", JSON.stringify({ stamps: [...stamps], completed: [...completed] }));
+        sfx.playCorrect();
+        document.getElementById("pypStampStatus").textContent = "✅ Communicator stamp saved to your IB PYP Passport!";
+        document.getElementById("btnClaimStamp").textContent = "✅ Stamped!";
+      } catch (_) {}
+    });
 
-        utterance.onend = function () {
-          document.getElementById('status').textContent = '';
-        };
-
-        speechSynthesis.speak(utterance);
-      } catch (error) {
-        console.error('Error:', error);
-        document.getElementById('status').textContent = '播放发音时出错，请重试';
-      }
-    }
-
-    const PREFERRED_VOICES = {
-      'en-US': [
-        'Google US English 2 (Natural)',
-        'Samantha',
-        'Alex',
-        'Microsoft Jenny Online (Natural) - English (United States)',
-        'Google US English'
-      ],
-      'en-GB': [
-        'Google UK English 2 (Natural)',
-        'Serena',
-        'Daniel',
-        'Microsoft Sonia Online (Natural) - English (United Kingdom)',
-        'Google UK English Female',
-        'Google UK English Male'
-      ]
-    };
-
-    function findPreferredVoice(accent) {
-      const voices = speechSynthesis.getVoices();
-      const preferredNames = PREFERRED_VOICES[accent] || [];
-
-      for (const name of preferredNames) {
-        const match = voices.find((voice) => voice.name === name);
-        if (match) {
-          return match;
-        }
-      }
-
-      return voices.find((voice) => voice.lang === accent)
-        || voices.find((voice) => voice.lang.startsWith(accent.split('-')[0]))
-        || null;
-    }
-
-    function getAudio(accent) {
-      const word = document.getElementById('wordInput').value.trim();
-      if (!word) {
-        document.getElementById('status').textContent = '请输入单词';
-        return;
-      }
-
-      document.getElementById('status').textContent = '正在播放发音...';
-
-      try {
-        speechSynthesis.cancel();
-
-        const utterance = new SpeechSynthesisUtterance(word);
-        const preferredVoice = findPreferredVoice(accent);
-
-        if (preferredVoice) {
-          utterance.voice = preferredVoice;
-          utterance.lang = preferredVoice.lang;
-        } else {
-          utterance.lang = accent;
-        }
-
-        utterance.rate = getSpeechRate();
-
-        utterance.onend = function () {
-          document.getElementById('status').textContent = '';
-        };
-
-        utterance.onerror = function () {
-          document.getElementById('status').textContent = '播放发音时出错，请重试';
-        };
-
-        speechSynthesis.speak(utterance);
-      } catch (error) {
-        console.error('Error:', error);
-        document.getElementById('status').textContent = '播放发音时出错，请重试';
-      }
-    }
+    renderExplore();
   </script>
-
-  <a class="pyp-map-link" href="../index.html" aria-label="Back to PYP curriculum map">PYP Map</a>
-  <style>
-    .pyp-map-link { position: fixed; top: 12px; right: 12px; z-index: 9999; min-height: 44px; display: inline-flex; align-items: center; border: 2px solid #17211f; border-radius: 8px; padding: 8px 12px; background: #fffaf0; color: #17211f; text-decoration: none; font: 900 14px/1 ui-rounded, "Avenir Next", "Segoe UI", sans-serif; box-shadow: 3px 3px 0 #17211f; letter-spacing: 0; }
-    .pyp-map-link:focus-visible { outline: 3px solid #f2b84b; outline-offset: 2px; }
-    @media print { .pyp-map-link { display: none; } }
-  </style>
 </body>
-
 </html>

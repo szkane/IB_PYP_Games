@@ -1,603 +1,238 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>UOI5 Hand Motion Energy Lab</title>
+  <title>Star Energy Morph 3D Lab — IB PYP Science</title>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
   <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      background-color: #000;
-      font-family: 'Segoe UI', sans-serif;
+    :root { --ink: #111; --yellow: #FFE156; --coral: #FF6584; --teal: #4ECDC4; --green: #86EFAC; --border: 3px solid #111; --shadow: 4px 4px 0 #111; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-tap-highlight-color: transparent; overscroll-behavior: none; }
+    body { font-family: ui-rounded, "Avenir Next", system-ui, sans-serif; background: #14091f; color: #FFF; height: 100vh; height: 100dvh; overflow: hidden; display: flex; flex-direction: column; }
+    .hud-top {
+      position: relative; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;
+      padding: calc(10px + env(safe-area-inset-top, 0px)) 14px 10px; background: rgba(20, 9, 31, 0.88); border-bottom: 3px solid #111;
     }
-
-    #container {
-      position: relative;
-      width: 100vw;
-      height: 100vh;
+    .hud-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .pyp-map-link { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 16px; background: var(--yellow); color: var(--ink); text-decoration: none; font-weight: 900; border: var(--border); border-radius: 14px; box-shadow: var(--shadow); }
+    .unit-tag { display: inline-flex; align-items: center; min-height: 44px; padding: 6px 14px; background: var(--coral); color: #FFF; border: var(--border); border-radius: 14px; box-shadow: var(--shadow); font-weight: 900; font-size: 0.86rem; }
+    .btn-reflect-pill { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 6px 14px; background: linear-gradient(135deg, #ffe156, #86efac); color: #111; border: 3px solid #111; border-radius: 12px; box-shadow: 3px 3px 0 #111; font: inherit; font-weight: 900; font-size: 0.86rem; cursor: pointer; }
+    .stage-wrap { position: relative; flex: 1; min-height: 0; width: 100%; touch-action: none; }
+    #morphCanvas { width: 100%; height: 100%; display: block; cursor: grab; }
+    .hud-bottom {
+      position: relative; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;
+      padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px)); background: rgba(20, 9, 31, 0.92); border-top: 3px solid #111;
     }
-
-    /* 镜像翻转视频 */
-    #input_video {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transform: scaleX(-1);
-      z-index: 0;
-    }
-
-    /* 背景压暗层 */
-    #overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(5, 5, 10, 0.9);
-      /* 深色背景突出光效 */
-      z-index: 1;
-      pointer-events: none;
-    }
-
-    #output_canvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 2;
-    }
-
-    /* UI 样式 */
-    #ui-layer {
-      position: absolute;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 85%;
-      max-width: 700px;
-      background: rgba(20, 20, 20, 0.7);
-      border: 1px solid rgba(255, 165, 0, 0.2);
-      border-radius: 16px;
-      padding: 20px;
-      color: #fff;
-      z-index: 3;
-      backdrop-filter: blur(10px);
-      display: flex;
-      gap: 20px;
-      box-shadow: 0 0 20px rgba(255, 100, 0, 0.1);
-    }
-
-    .hand-status {
-      flex: 1;
-    }
-
-    .hand-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #444;
-      padding-bottom: 5px;
-      margin-bottom: 8px;
-    }
-
-    .hand-title {
-      font-weight: 700;
-      font-size: 14px;
-      color: #ffaa00;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .hand-state {
-      font-size: 12px;
-      font-weight: bold;
-      color: #555;
-      background: #111;
-      padding: 2px 8px;
-      border-radius: 4px;
-      transition: all 0.3s;
-    }
-
-    /* 状态颜色 */
-    .state-tracking {
-      color: #ffaa00;
-      border: 1px solid #ffaa00;
-      background: rgba(255, 170, 0, 0.1);
-      box-shadow: 0 0 8px rgba(255, 170, 0, 0.2);
-    }
-
-    .state-released {
-      color: #ff3333;
-      border: 1px solid #ff3333;
-      background: rgba(255, 50, 50, 0.1);
-      box-shadow: 0 0 10px rgba(255, 0, 0, 0.4);
-    }
-
-    .meter-container {
-      display: flex;
-      align-items: center;
-      font-size: 11px;
-      color: #888;
-      gap: 10px;
-    }
-
-    .progress-bg {
-      flex: 1;
-      height: 4px;
-      background: #333;
-      border-radius: 2px;
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      height: 100%;
-      width: 0%;
-      background: #ffaa00;
-      transition: width 0.1s;
-    }
-
-    #loading {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      color: #ffaa00;
-      font-size: 18px;
-      z-index: 10;
-      font-weight: bold;
-      letter-spacing: 2px;
-    }
-
+    .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn { min-height: 44px; padding: 8px 14px; background: #FFF; color: #111; border: var(--border); border-radius: 12px; box-shadow: 3px 3px 0 #000; font: inherit; font-weight: 900; font-size: 0.88rem; cursor: pointer; touch-action: manipulation; user-select: none; }
+    .btn.active { background: var(--yellow); }
+    .btn:active { transform: translate(2px, 2px); box-shadow: none; }
+    .inquiry-pill { font-size: 0.88rem; font-weight: 800; color: #fde68a; }
+    .pyp-modal-backdrop { position: fixed; inset: 0; z-index: 2000; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(6px); display: none; place-items: center; padding: 16px; }
+    .pyp-modal-backdrop.open { display: grid; }
+    .pyp-modal-card { width: min(540px, 100%); background: #FFFDF0; color: #111; border: 4px solid #111; border-radius: 20px; box-shadow: 8px 8px 0 #111; padding: 20px; display: grid; gap: 12px; }
+    .pyp-modal-badge { width: fit-content; padding: 6px 14px; background: var(--yellow); border: 3px solid #111; border-radius: 999px; font-weight: 900; }
+    .pyp-modal-box { background: #FFF; border: 2.5px solid #111; border-radius: 12px; padding: 10px 14px; font-size: 0.92rem; line-height: 1.45; }
+    .pyp-modal-box strong { display: block; font-size: 0.78rem; text-transform: uppercase; color: #0ea5a4; margin-bottom: 3px; }
+    .pyp-modal-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .pyp-modal-btn { flex: 1; min-height: 46px; padding: 10px; border: 3px solid #111; border-radius: 12px; box-shadow: 3px 3px 0 #111; font: inherit; font-weight: 900; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; color: #111; background: #FFF; }
+    .pyp-modal-btn.primary { background: var(--green); }
   </style>
 </head>
-
 <body>
+  <header class="hud-top">
+    <div class="hud-left">
+      <a class="pyp-map-link" href="../index.html">← PYP Map</a>
+      <span class="unit-tag">🌟 Star Particle Morph 3D · Patterns &amp; Form</span>
+      <button type="button" class="btn-reflect-pill" id="btnOpenReflect">🔍 Reflect &amp; Stamp</button>
+    </div>
+    <span class="inquiry-pill" id="statusPill">✨ Tap any cosmic shape below to watch 1,600 stars morph in 3D!</span>
+  </header>
 
-  <div id="container">
-    <video id="input_video" playsinline></video>
-    <div id="overlay"></div>
-    <canvas id="output_canvas"></canvas>
-    <div id="loading">Loading hand motion lab...</div>
+  <main class="stage-wrap" id="stageWrap">
+    <canvas id="morphCanvas"></canvas>
+  </main>
 
-    <div id="ui-layer">
-      <div class="hand-status" id="ui-left">
-        <div class="hand-header">
-          <span class="hand-title">Left Hand Explorer</span>
-          <span class="hand-state" id="state-left">WAITING</span>
-        </div>
-        <div class="meter-container">
-          <span>Motion Energy</span>
-          <div class="progress-bg">
-            <div class="progress-fill" id="tension-left"></div>
-          </div>
-        </div>
+  <footer class="hud-bottom">
+    <div class="btn-group">
+      <button type="button" class="btn active" data-shape="sphere">🔮 Energy Sphere</button>
+      <button type="button" class="btn" data-shape="galaxy">🌀 Spiral Galaxy</button>
+      <button type="button" class="btn" data-shape="saturn">🪐 Saturn Rings</button>
+      <button type="button" class="btn" data-shape="cube">🧊 Crystal Cube</button>
+    </div>
+    <button type="button" class="btn" id="btnReset">Reset View ↺</button>
+  </footer>
+
+  <div class="pyp-modal-backdrop" id="pypReflectModal" role="dialog" aria-modal="true">
+    <div class="pyp-modal-card">
+      <div class="pyp-modal-badge">🔍 Learner Profile Stamp: Inquirer</div>
+      <h2 style="font-size:1.35rem; font-weight:900;">🌟 IB PYP Reflection &amp; Action</h2>
+      <div class="pyp-modal-box">
+        <strong>Key Concept · Form &amp; Change</strong>
+        <span>The exact same 1,600 tiny particles can organize into spheres, spirals, rings, and cubes depending on their pattern rules!</span>
       </div>
-      <div class="hand-status" id="ui-right">
-        <div class="hand-header">
-          <span class="hand-title">Right Hand Explorer</span>
-          <span class="hand-state" id="state-right">WAITING</span>
-        </div>
-        <div class="meter-container">
-          <span>Motion Energy</span>
-          <div class="progress-bg">
-            <div class="progress-fill" id="tension-right"></div>
-          </div>
-        </div>
+      <div class="pyp-modal-box" style="background:#ECFDF5;">
+        <strong>🚀 Take Action in Real Life</strong>
+        <span>Use 20 building blocks or buttons at home to arrange them into 3 different shapes (circle, square, spiral)!</span>
+      </div>
+      <div id="pypStampStatus" style="font-weight:900; font-size:0.88rem; color:#15803d;"></div>
+      <div class="pyp-modal-actions">
+        <button type="button" class="pyp-modal-btn primary" id="btnClaimStamp">🔍 Stamp My Passport!</button>
+        <a class="pyp-modal-btn" href="../index.html">🗺️ View Passport</a>
+        <button type="button" class="pyp-modal-btn" id="btnCloseReflect">Keep Exploring</button>
       </div>
     </div>
   </div>
 
-  <!-- 依赖库 -->
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
-
   <script type="module">
-    import * as THREE from 'https://cdn.skypack.dev/three@0.136.0';
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-    // --- 配置 ---
-    const CONFIG = {
-      particleCount: 2000,
-      // 颜色定义
-      colorOrange: new THREE.Color(0xffaa00), // 边缘亮橙
-      colorDark: new THREE.Color(0xcc5500), // 核心深橙
-      colorRed: new THREE.Color(0xff2222), // 爆炸红
-      triggerFrames: 8,   // 握拳确认帧数
-      lossThreshold: 35,  // 丢失缓冲帧数 (约0.6秒)
-      flySpeed: 0.9
-    };
-
-    // --- 纹理生成：高亮核心 ---
-    function createParticleTexture() {
-      const size = 64;
-      const canvas = document.createElement('canvas');
-      canvas.width = size; canvas.height = size;
-      const ctx = canvas.getContext('2d');
-      const center = size / 2;
-      const grad = ctx.createRadialGradient(center, center, 0, center, center, center);
-
-      grad.addColorStop(0, 'rgba(255, 255, 255, 1)'); // 纯白核心
-      grad.addColorStop(0.3, 'rgba(255, 255, 255, 0.4)');
-      grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, size, size);
-      return new THREE.CanvasTexture(canvas);
+    let audioCtx = null;
+    function playChime(freq) {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const t = audioCtx.currentTime;
+        [freq, freq * 1.25].forEach((f, i) => {
+          const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+          o.frequency.setValueAtTime(f, t + i * 0.05);
+          g.gain.setValueAtTime(0.11, t + i * 0.05); g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.05 + 0.24);
+          o.connect(g); g.connect(audioCtx.destination); o.start(t + i * 0.05); o.stop(t + i * 0.05 + 0.26);
+        });
+      } catch (_) {}
     }
 
-    // --- 场景初始化 ---
-    const canvas = document.getElementById('output_canvas');
+    function makeSprite() {
+      const c = document.createElement('canvas'); c.width = 64; c.height = 64;
+      const ctx = c.getContext('2d');
+      const g = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+      g.addColorStop(0, 'rgba(255,255,255,1)');
+      g.addColorStop(0.35, 'rgba(255,205,86,0.9)');
+      g.addColorStop(1, 'rgba(255,101,132,0)');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, 64, 64);
+      return new THREE.CanvasTexture(c);
+    }
+
+    const wrap = document.getElementById('stageWrap');
+    const canvas = document.getElementById('morphCanvas');
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x05050a, 0.02); // 黑色雾
+    scene.background = new THREE.Color(0x14091f);
 
-    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 25;
+    const camera = new THREE.PerspectiveCamera(48, Math.max(wrap.clientWidth, 1) / Math.max(wrap.clientHeight, 1), 0.1, 100);
+    camera.position.set(0, 2.6, 8.8);
 
-    const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(wrap.clientWidth, wrap.clientHeight, false);
 
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
 
-    // --- 粒子系统类 ---
-    class HandParticleSystem {
-      constructor(uiId) {
-        this.uiId = uiId; // 'left' or 'right'
-        this.state = 'IDLE';
+    const N = 1600;
+    const shapes = { sphere: new Float32Array(N * 3), galaxy: new Float32Array(N * 3), saturn: new Float32Array(N * 3), cube: new Float32Array(N * 3) };
+    const current = new Float32Array(N * 3);
 
-        // 物理向量
-        this.targetPos = new THREE.Vector3();
-        this.currentPos = new THREE.Vector3();
+    for (let i = 0; i < N; i++) {
+      // Sphere
+      const r = 2.6 + (Math.random() - 0.5) * 0.35;
+      const th = Math.random() * Math.PI * 2, ph = Math.acos(2 * Math.random() - 1);
+      shapes.sphere[i * 3] = current[i * 3] = r * Math.sin(ph) * Math.cos(th);
+      shapes.sphere[i * 3 + 1] = current[i * 3 + 1] = r * Math.sin(ph) * Math.sin(th);
+      shapes.sphere[i * 3 + 2] = current[i * 3 + 2] = r * Math.cos(ph);
 
-        // 状态变量
-        this.fistCounter = 0;
-        this.tension = 0;
-        this.baseScale = 0;
+      // Spiral Galaxy
+      const arm = i % 3;
+      const gr = Math.random() * 4.4;
+      const ga = gr * 1.45 + (arm * Math.PI * 2) / 3 + (Math.random() - 0.5) * 0.45;
+      shapes.galaxy[i * 3] = Math.cos(ga) * gr;
+      shapes.galaxy[i * 3 + 1] = (Math.random() - 0.5) * 0.55;
+      shapes.galaxy[i * 3 + 2] = Math.sin(ga) * gr;
 
-        // 稳定性变量 (NEW)
-        this.lossCounter = 0;
-
-        this.initMesh();
+      // Saturn (ball + flat ring)
+      if (i < N * 0.45) {
+        const sr = 1.55;
+        shapes.saturn[i * 3] = sr * Math.sin(ph) * Math.cos(th);
+        shapes.saturn[i * 3 + 1] = sr * Math.sin(ph) * Math.sin(th);
+        shapes.saturn[i * 3 + 2] = sr * Math.cos(ph);
+      } else {
+        const rr = 2.45 + Math.random() * 1.85;
+        const ra = Math.random() * Math.PI * 2;
+        shapes.saturn[i * 3] = Math.cos(ra) * rr;
+        shapes.saturn[i * 3 + 1] = Math.sin(ra) * rr * 0.32;
+        shapes.saturn[i * 3 + 2] = Math.sin(ra) * rr * 0.92;
       }
 
-      initMesh() {
-        this.geometry = new THREE.BufferGeometry();
-        const pos = [];
-        const orig = [];
-        const vel = [];
-        const colors = [];
-
-        // 黄金螺旋分布
-        for (let i = 0; i < CONFIG.particleCount; i++) {
-          const phi = Math.acos(-1 + (2 * i) / CONFIG.particleCount);
-          const theta = Math.sqrt(CONFIG.particleCount * Math.PI) * phi;
-
-          const r = 3.0 + Math.random() * 0.4; // 空心球壳
-
-          const x = r * Math.cos(theta) * Math.sin(phi);
-          const y = r * Math.sin(theta) * Math.sin(phi);
-          const z = r * Math.cos(phi);
-
-          pos.push(x, y, z);
-          orig.push(x, y, z);
-          vel.push(0, 0, 0);
-          colors.push(1, 0.6, 0); // 初始颜色占位
-        }
-
-        this.geometry.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-        this.geometry.setAttribute('original', new THREE.Float32BufferAttribute(orig, 3));
-        this.geometry.setAttribute('velocity', new THREE.Float32BufferAttribute(vel, 3));
-        this.geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-
-        this.material = new THREE.PointsMaterial({
-          size: 0.5,
-          map: createParticleTexture(),
-          transparent: true,
-          opacity: 1,
-          vertexColors: true,
-          blending: THREE.AdditiveBlending,
-          depthWrite: false
-        });
-
-        this.mesh = new THREE.Points(this.geometry, this.material);
-        this.mesh.visible = false;
-        scene.add(this.mesh);
-      }
-
-      detectGesture(landmarks) {
-        if (!landmarks) return { tension: 0, isFist: false };
-
-        const fingers = [{ t: 8, b: 5 }, { t: 12, b: 9 }, { t: 16, b: 13 }, { t: 20, b: 17 }];
-        const wrist = landmarks[0];
-        let curled = 0;
-        const dist = (a, b) => Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2 + (a.z - b.z) ** 2);
-
-        // 判断指尖是否比指关节更靠近手腕
-        fingers.forEach(f => {
-          if (dist(landmarks[f.t], wrist) < dist(landmarks[f.b], wrist) * 1.1) curled++;
-        });
-        if (dist(landmarks[4], landmarks[17]) < dist(landmarks[4], landmarks[2])) curled++;
-
-        return { tension: curled / 5, isFist: curled >= 4 };
-      }
-
-      update(landmarks) {
-        const positions = this.geometry.attributes.position.array;
-        const originals = this.geometry.attributes.original.array;
-        const colors = this.geometry.attributes.color.array;
-        const vels = this.geometry.attributes.velocity.array;
-
-        let targetWorldPos = new THREE.Vector3();
-
-        // --- 1. 逻辑与状态机 (含防抖优化) ---
-        if (landmarks) {
-          // 有数据：重置丢失计数
-          this.lossCounter = 0;
-
-          // 坐标计算
-          const wrist = landmarks[0];
-          const middle = landmarks[9];
-          const z = -wrist.z * 15;
-          const x = (1 - middle.x) * 2 - 1;
-          const y = -(middle.y * 2 - 1);
-
-          const vec = new THREE.Vector3(x, y, 0.5);
-          vec.unproject(camera);
-          const dir = vec.sub(camera.position).normalize();
-          const distToCam = Math.max(5, Math.min((z - camera.position.z) / dir.z, 40));
-
-          targetWorldPos = camera.position.clone().add(dir.multiplyScalar(distToCam));
-          targetWorldPos.y += 2;
-
-          const { tension, isFist } = this.detectGesture(landmarks);
-          this.tension = THREE.MathUtils.lerp(this.tension, tension, 0.2);
-
-          if (this.state === 'IDLE' || this.state === 'SHRINKING') {
-            this.state = 'TRACKING';
-            this.mesh.visible = true;
-            this.baseScale = 0.1;
-            this.resetShape();
-            this.currentPos.copy(targetWorldPos);
-          }
-
-          if (this.state === 'TRACKING') {
-            if (this.baseScale < 2.0) this.baseScale += 0.05;
-            if (isFist) this.fistCounter++;
-            else this.fistCounter = Math.max(0, this.fistCounter - 2);
-
-            if (this.fistCounter > CONFIG.triggerFrames) {
-              this.state = 'FLYING';
-              this.fistCounter = 0;
-            }
-          }
-        } else {
-          // 无数据：执行防抖逻辑
-          if (this.state === 'TRACKING') {
-            this.lossCounter++;
-            // 如果丢失时间超过阈值，才真正判定为丢失
-            if (this.lossCounter > CONFIG.lossThreshold) {
-              this.state = 'SHRINKING';
-            } else {
-              // 否则，保持目标位置为上一次的位置（悬停）
-              targetWorldPos.copy(this.currentPos);
-            }
-          }
-        }
-
-        // --- 2. 渲染与动画 ---
-
-        if (this.state === 'TRACKING' || this.state === 'SHRINKING') {
-          // 如果正在缓冲期，平滑度降低一点让它看起来像是停滞
-          const lerpFactor = (this.lossCounter > 0) ? 0.05 : 0.15;
-          this.currentPos.lerp(targetWorldPos, lerpFactor);
-          this.mesh.position.copy(this.currentPos);
-
-          const scale = this.baseScale * (1 + this.tension * 0.5);
-          this.mesh.scale.setScalar(scale);
-
-          this.mesh.rotation.y += 0.03 + this.tension * 0.1;
-          this.mesh.rotation.z += 0.01;
-
-          // --- Rim Light 效果 (中心暗，边缘亮) ---
-          this.mesh.updateMatrixWorld();
-          const worldRot = this.mesh.quaternion;
-
-          for (let i = 0; i < CONFIG.particleCount; i++) {
-            // 原始法线
-            const nx = originals[i * 3];
-            const ny = originals[i * 3 + 1];
-            const nz = originals[i * 3 + 2];
-            const len = Math.sqrt(nx * nx + ny * ny + nz * nz);
-            const normal = new THREE.Vector3(nx / len, ny / len, nz / len);
-
-            // 旋转法线到世界空间
-            normal.applyQuaternion(worldRot);
-
-            // 计算视线点积 (Dot)
-            const dot = Math.abs(normal.z);
-            // 边缘系数 (Rim Factor)
-            const rim = Math.pow(1.0 - dot, 1.8); // 1.8 次方增加对比度
-
-            // 颜色混合: 深橙 -> 亮橙
-            const r = THREE.MathUtils.lerp(CONFIG.colorDark.r, CONFIG.colorOrange.r, rim);
-            const g = THREE.MathUtils.lerp(CONFIG.colorDark.g, CONFIG.colorOrange.g, rim);
-            const b = THREE.MathUtils.lerp(CONFIG.colorDark.b, CONFIG.colorOrange.b, rim);
-
-            // 震动
-            const jitter = (Math.random() - 0.5) * this.tension * 0.2;
-            positions[i * 3] = originals[i * 3] + jitter;
-            positions[i * 3 + 1] = originals[i * 3 + 1] + jitter;
-            positions[i * 3 + 2] = originals[i * 3 + 2] + jitter;
-
-            colors[i * 3] = r; colors[i * 3 + 1] = g; colors[i * 3 + 2] = b;
-          }
-          this.geometry.attributes.position.needsUpdate = true;
-          this.geometry.attributes.color.needsUpdate = true;
-
-          if (this.state === 'SHRINKING') {
-            this.baseScale *= 0.85;
-            if (this.baseScale < 0.05) { this.state = 'IDLE'; this.mesh.visible = false; }
-          }
-
-        } else if (this.state === 'FLYING') {
-          // 飞行动画
-          const flyTarget = new THREE.Vector3(-0.9, 0.9, 0.5);
-          flyTarget.unproject(camera);
-
-          const dir = new THREE.Vector3().subVectors(flyTarget, this.mesh.position).normalize();
-          this.mesh.position.add(dir.multiplyScalar(CONFIG.flySpeed));
-          this.mesh.rotation.z += 0.3;
-          this.mesh.scale.multiplyScalar(0.96);
-
-          // 变红
-          const currR = colors[0];
-          const mixR = THREE.MathUtils.lerp(currR, CONFIG.colorRed.r, 0.15);
-          const mixG = THREE.MathUtils.lerp(colors[1], CONFIG.colorRed.g, 0.15);
-          const mixB = THREE.MathUtils.lerp(colors[2], CONFIG.colorRed.b, 0.15);
-
-          for (let i = 0; i < CONFIG.particleCount; i++) {
-            colors[i * 3] = mixR; colors[i * 3 + 1] = mixG; colors[i * 3 + 2] = mixB;
-          }
-          this.geometry.attributes.color.needsUpdate = true;
-
-          if (this.mesh.position.distanceTo(flyTarget) < 4) {
-            this.state = 'EXPLODING';
-            this.initExplosion();
-          }
-
-        } else if (this.state === 'EXPLODING') {
-          this.mesh.scale.setScalar(1);
-          for (let i = 0; i < CONFIG.particleCount; i++) {
-            positions[i * 3] += vels[i * 3];
-            positions[i * 3 + 1] += vels[i * 3 + 1];
-            positions[i * 3 + 2] += vels[i * 3 + 2];
-            vels[i * 3] *= 0.95; vels[i * 3 + 1] *= 0.95; vels[i * 3 + 2] *= 0.95;
-
-            colors[i * 3] = 1; colors[i * 3 + 1] = 0.1; colors[i * 3 + 2] = 0.1; // 保持纯红
-          }
-          this.geometry.attributes.position.needsUpdate = true;
-          this.geometry.attributes.color.needsUpdate = true;
-          this.material.opacity *= 0.9;
-
-          if (this.material.opacity < 0.01) {
-            this.state = 'IDLE';
-            this.mesh.visible = false;
-          }
-        }
-
-        this.updateUI();
-      }
-
-      initExplosion() {
-        const vels = this.geometry.attributes.velocity.array;
-        const positions = this.geometry.attributes.position.array;
-        for (let i = 0; i < CONFIG.particleCount; i++) {
-          vels[i * 3] = (Math.random() - 0.5) * 2;
-          vels[i * 3 + 1] = (Math.random() - 0.5) * 2;
-          vels[i * 3 + 2] = (Math.random() - 0.5) * 2;
-          // 收缩回中心再爆炸
-          positions[i * 3] *= 0.1; positions[i * 3 + 1] *= 0.1; positions[i * 3 + 2] *= 0.1;
-        }
-        this.geometry.attributes.velocity.needsUpdate = true;
-      }
-
-      resetShape() {
-        const pos = this.geometry.attributes.position.array;
-        const orig = this.geometry.attributes.original.array;
-        for (let i = 0; i < pos.length; i++) pos[i] = orig[i];
-        this.geometry.attributes.position.needsUpdate = true;
-        this.material.opacity = 1;
-      }
-
-      updateUI() {
-        const elStatus = document.getElementById(`state-${this.uiId}`);
-        const elBar = document.getElementById(`tension-${this.uiId}`);
-
-        if (this.state === 'TRACKING') {
-          elStatus.innerText = "ACTIVE";
-          elStatus.className = "hand-state state-tracking";
-          elBar.style.width = `${this.tension * 100}%`;
-          elBar.style.backgroundColor = '#ffaa00';
-        } else if (this.state === 'FLYING') {
-          elStatus.innerText = "RELEASED";
-          elStatus.className = "hand-state state-released";
-          elBar.style.backgroundColor = '#ff3333';
-        } else {
-          elStatus.innerText = "WAITING";
-          elStatus.className = "hand-state";
-          elBar.style.width = '0%';
-        }
-      }
+      // Crystal Cube
+      shapes.cube[i * 3] = (Math.random() - 0.5) * 4.2;
+      shapes.cube[i * 3 + 1] = (Math.random() - 0.5) * 4.2;
+      shapes.cube[i * 3 + 2] = (Math.random() - 0.5) * 4.2;
     }
 
-    const systems = {
-      'left': new HandParticleSystem('left'),
-      'right': new HandParticleSystem('right')
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(current, 3));
+    const points = new THREE.Points(geo, new THREE.PointsMaterial({
+      size: 0.28, map: makeSprite(), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false
+    }));
+    scene.add(points);
+
+    let activeShape = 'sphere';
+    document.querySelectorAll('.btn[data-shape]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeShape = btn.dataset.shape;
+        document.querySelectorAll('.btn[data-shape]').forEach(b => b.classList.toggle('active', b === btn));
+        document.getElementById('statusPill').textContent = `✨ Morphing 1,600 particles into ${btn.textContent}!`;
+        playChime(activeShape === 'galaxy' ? 587 : activeShape === 'saturn' ? 659 : activeShape === 'cube' ? 523 : 494);
+      });
+    });
+
+    document.getElementById('btnReset').addEventListener('click', () => { controls.reset(); camera.position.set(0, 2.6, 8.8); playChime(440); });
+
+    const resize = () => {
+      const w = Math.max(wrap.clientWidth, 1), h = Math.max(wrap.clientHeight, 1);
+      camera.aspect = w / h; camera.updateProjectionMatrix(); renderer.setSize(w, h, false);
     };
-
-    // --- MediaPipe 配置 ---
-    const videoElement = document.getElementById('input_video');
-    const hands = new Hands({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}` });
-
-    hands.setOptions({
-      maxNumHands: 2,
-      modelComplexity: 1,
-      minDetectionConfidence: 0.5,
-      minTrackingConfidence: 0.5
-    });
-
-    // 左右手映射反转
-    const uiMap = { 'Left': 'right', 'Right': 'left' };
-
-    hands.onResults(results => {
-      const detected = { 'left': false, 'right': false };
-
-      if (results.multiHandLandmarks) {
-        for (let i = 0; i < results.multiHandLandmarks.length; i++) {
-          const landmarks = results.multiHandLandmarks[i];
-          const label = results.multiHandedness[i].label;
-
-          const uiId = uiMap[label];
-          if (systems[uiId]) {
-            systems[uiId].update(landmarks);
-            detected[uiId] = true;
-          }
-        }
-      }
-
-      // 未检测到的手传入 null 以触发防抖/消失逻辑
-      if (!detected['left']) systems['left'].update(null);
-      if (!detected['right']) systems['right'].update(null);
-    });
-
-    const cameraUtils = new Camera(videoElement, {
-      onFrame: async () => { await hands.send({ image: videoElement }); },
-      width: 1280, height: 720
-    });
-    cameraUtils.start().then(() => document.getElementById('loading').style.display = 'none');
+    if (typeof ResizeObserver !== 'undefined') new ResizeObserver(resize).observe(wrap);
+    else window.addEventListener('resize', resize);
 
     function animate() {
       requestAnimationFrame(animate);
+      const target = shapes[activeShape];
+      const arr = geo.attributes.position.array;
+      for (let i = 0; i < arr.length; i++) {
+        arr[i] += (target[i] - arr[i]) * 0.065;
+      }
+      geo.attributes.position.needsUpdate = true;
+      points.rotation.y += 0.0045;
+      controls.update();
       renderer.render(scene, camera);
     }
     animate();
 
+    const modal = document.getElementById('pypReflectModal');
+    document.getElementById('btnOpenReflect').addEventListener('click', () => { modal.classList.add('open'); playChime(523); });
+    document.getElementById('btnCloseReflect').addEventListener('click', () => modal.classList.remove('open'));
+    modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
+    document.getElementById('btnClaimStamp').addEventListener('click', () => {
+      try {
+        const raw = localStorage.getItem('ib_pyp_passport');
+        const data = raw ? JSON.parse(raw) : { stamps: [], completed: [] };
+        const stamps = new Set(data.stamps || []), completed = new Set(data.completed || []);
+        stamps.add('Inquirer'); completed.add('science/g1_3D_camera_dragonball.html');
+        localStorage.setItem('ib_pyp_passport', JSON.stringify({ stamps: [...stamps], completed: [...completed] }));
+        playChime(659);
+        document.getElementById('pypStampStatus').textContent = '✅ Inquirer stamp saved to your IB PYP Passport!';
+        document.getElementById('btnClaimStamp').textContent = '✅ Stamped!';
+      } catch (_) {}
+    });
   </script>
-
-  <a class="pyp-map-link" href="../index.html" aria-label="Back to PYP curriculum map">PYP Map</a>
-  <style>
-    .pyp-map-link { position: fixed; top: 12px; right: 12px; z-index: 9999; min-height: 44px; display: inline-flex; align-items: center; border: 2px solid #17211f; border-radius: 8px; padding: 8px 12px; background: #fffaf0; color: #17211f; text-decoration: none; font: 900 14px/1 ui-rounded, "Avenir Next", "Segoe UI", sans-serif; box-shadow: 3px 3px 0 #17211f; letter-spacing: 0; }
-    .pyp-map-link:focus-visible { outline: 3px solid #f2b84b; outline-offset: 2px; }
-    @media print { .pyp-map-link { display: none; } }
-  </style>
 </body>
-
 </html>

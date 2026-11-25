@@ -25,7 +25,7 @@
 
     body {
       margin: 0;
-      min-height: 100vh;
+      min-height: 100vh; min-height: 100dvh;
       overflow: hidden;
       font-family: "Trebuchet MS", "Segoe UI", sans-serif;
       background:
@@ -60,7 +60,7 @@
       grid-template-columns: minmax(250px, 300px) 1fr minmax(260px, 320px);
       gap: 16px;
       width: 100vw;
-      height: 100vh;
+      height: 100vh; height: 100dvh;
       padding: 16px;
       pointer-events: none;
     }
@@ -508,7 +508,7 @@
         grid-template-columns: 1fr;
         grid-template-rows: auto minmax(380px, 48vh) auto;
         height: auto;
-        min-height: 100vh;
+        min-height: 100vh; min-height: 100dvh;
         padding: 12px;
       }
 
@@ -554,6 +554,8 @@
         bottom: 12px;
       }
     }
+  
+    html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
   </style>
 </head>
 
@@ -1210,6 +1212,14 @@
     }
 
     window.addEventListener('resize', onWindowResize);
+  </script>
+<script>
+    if (typeof ResizeObserver !== "undefined") {
+      window.addEventListener("DOMContentLoaded", () => {
+        const host = document.querySelector("#canvas-container, #viewport, .stage-3d, canvas")?.parentElement;
+        if (host) new ResizeObserver(() => window.dispatchEvent(new Event("resize"))).observe(host);
+      });
+    }
   </script>
 </body>
 

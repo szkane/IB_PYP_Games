@@ -32,7 +32,7 @@
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: var(--bg);
       color: #F3F4F6;
-      min-height: 100vh;
+      min-height: 100vh; min-height: 100dvh;
       padding: 12px 16px 28px;
       overflow-x: hidden;
     }
@@ -478,6 +478,8 @@
       text-overflow: ellipsis;
       flex: 1;
     }
+  
+    html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
   </style>
 </head>
 
@@ -1474,6 +1476,14 @@
     };
 
     TTS_MANAGER.init();
+  </script>
+<script>
+    if (typeof ResizeObserver !== "undefined") {
+      window.addEventListener("DOMContentLoaded", () => {
+        const host = document.querySelector("#canvas-container, #viewport, .stage-3d, canvas")?.parentElement;
+        if (host) new ResizeObserver(() => window.dispatchEvent(new Event("resize"))).observe(host);
+      });
+    }
   </script>
 </body>
 
