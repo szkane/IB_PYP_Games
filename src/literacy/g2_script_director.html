@@ -4,7 +4,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Script Director & Grammar Lab 3D</title>
+  <title>Script Director &amp; Grammar Lab 3D</title>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
   <style>
     :root {
       --bg: #FFF7E0;
@@ -13,6 +21,7 @@
       --yellow: #FFE156;
       --coral: #FF6584;
       --teal: #4ECDC4;
+      --mint: #86EFAC;
       --blue: #38B6FF;
       --purple: #B388FF;
       --white: #FFFFFF;
@@ -28,18 +37,30 @@
       padding: 0;
     }
 
+    html {
+      -webkit-tap-highlight-color: transparent;
+      -webkit-text-size-adjust: 100%;
+    }
+
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: ui-rounded, "Avenir Next", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: var(--bg);
       color: var(--ink);
-      min-height: 100vh; min-height: 100dvh;
-      padding: 10px 16px 24px;
+      min-height: 100vh;
+      min-height: 100dvh;
+      overscroll-behavior: none;
       overflow-x: hidden;
+      padding: max(8px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+    }
+
+    button, a, [role="button"] {
+      touch-action: manipulation;
     }
 
     .container {
-      max-width: 1240px;
+      max-width: 1360px;
       margin: 0 auto;
+      container-type: inline-size;
     }
 
     /* Top Nav */
@@ -47,30 +68,38 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 12px;
+      gap: 8px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .nav-left,
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
       flex-wrap: wrap;
     }
 
     .pyp-map-link {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       background: var(--yellow);
       color: var(--ink);
       text-decoration: none;
       font-weight: 900;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       border: var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 8px 16px;
+      padding: 6px 14px;
       min-height: 44px;
       cursor: pointer;
-      transition: transform 0.1s ease;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
     }
 
-    .pyp-map-link:active,
-    .pyp-map-link:hover {
+    .pyp-map-link:active {
       transform: translate(2px, 2px);
       box-shadow: var(--shadow-sm);
     }
@@ -81,12 +110,41 @@
       border: var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 8px 14px;
+      padding: 6px 12px;
       font-weight: 800;
-      font-size: 0.88rem;
+      font-size: 0.85rem;
       min-height: 44px;
       display: inline-flex;
       align-items: center;
+    }
+
+    .btn-reflect-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: #DCFCE7;
+      color: var(--ink);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 6px 13px;
+      font-family: inherit;
+      font-weight: 900;
+      font-size: 0.85rem;
+      min-height: 44px;
+      cursor: pointer;
+      transition: transform 0.1s ease;
+    }
+
+    .btn-reflect-pill.stamped {
+      background: var(--mint);
+      color: #065F46;
+    }
+
+    .btn-reflect-pill:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--shadow-sm);
     }
 
     /* Hero Header */
@@ -95,23 +153,23 @@
       border: var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 12px 18px;
-      margin-bottom: 14px;
+      padding: 8px 16px;
+      margin-bottom: 10px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       flex-wrap: wrap;
     }
 
     .hero-title h1 {
-      font-size: clamp(1.2rem, 2.5vw, 1.55rem);
+      font-size: clamp(1.12rem, 2.2vw, 1.45rem);
       font-weight: 900;
       color: var(--ink);
     }
 
     .hero-title p {
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       font-weight: 700;
       color: #374151;
     }
@@ -126,9 +184,9 @@
     .score-badge {
       border: 2.5px solid var(--ink);
       border-radius: 10px;
-      padding: 6px 14px;
+      padding: 6px 12px;
       font-weight: 900;
-      font-size: 0.9rem;
+      font-size: 0.86rem;
       box-shadow: var(--shadow-sm);
       min-height: 44px;
       display: inline-flex;
@@ -138,29 +196,10 @@
       color: var(--ink);
     }
 
-    .btn-reflect-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: #DCFCE7;
-      color: var(--ink);
-      border: var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 8px 14px;
-      font-family: inherit;
-      font-weight: 900;
-      font-size: 0.88rem;
-      min-height: 44px;
-      cursor: pointer;
-      transition: transform 0.1s ease;
-    }
-    .btn-reflect-pill:active { transform: translate(2px, 2px); box-shadow: var(--shadow-sm); }
-
     /* 3D Studio Layout */
     .director-grid {
       display: grid;
-      grid-template-columns: 1fr 400px;
+      grid-template-columns: 1fr 460px;
       gap: 14px;
       align-items: stretch;
     }
@@ -170,19 +209,49 @@
       border: var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 16px;
+      padding: 12px 14px;
       display: flex;
       flex-direction: column;
+      gap: 10px;
+    }
+
+    .stage-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
     .card-title {
-      font-size: 1.05rem;
+      font-size: 1rem;
       font-weight: 900;
       color: var(--ink);
-      margin-bottom: 10px;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 7px;
+    }
+
+    .btn-reset-cam {
+      font-family: inherit;
+      background: #FEF3C7;
+      color: var(--ink);
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
+      box-shadow: var(--shadow-sm);
+      padding: 6px 12px;
+      min-height: 44px;
+      font-size: 0.82rem;
+      font-weight: 900;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .btn-reset-cam:active {
+      transform: translate(1px, 1px);
+      box-shadow: 1px 1px 0 var(--ink);
     }
 
     /* 3D Stage Container */
@@ -191,10 +260,9 @@
       border: 3.5px solid var(--ink);
       border-radius: 12px;
       box-shadow: var(--shadow-sm);
-      height: clamp(340px, 48dvh, 430px);
+      height: clamp(320px, 44dvh, 410px);
       position: relative;
       overflow: hidden;
-      margin-bottom: 12px;
     }
 
     #stageCanvas {
@@ -202,6 +270,11 @@
       height: 100%;
       display: block;
       touch-action: none;
+      cursor: grab;
+    }
+
+    #stageCanvas:active {
+      cursor: grabbing;
     }
 
     .stage-hud {
@@ -215,11 +288,11 @@
     }
 
     .hud-chip {
-      background: rgba(17, 17, 24, 0.85);
-      border: 2px solid #374151;
-      border-radius: 6px;
+      background: rgba(17, 17, 24, 0.86);
+      border: 2px solid #4B5563;
+      border-radius: 7px;
       padding: 4px 10px;
-      font-size: 0.75rem;
+      font-size: 0.74rem;
       font-weight: 800;
       color: var(--yellow);
     }
@@ -230,11 +303,15 @@
       border: 3px solid var(--ink);
       border-radius: 10px;
       box-shadow: var(--shadow-sm);
-      padding: 10px 14px;
-      font-size: 0.92rem;
+      padding: 10px 12px;
+      font-size: 0.9rem;
       font-weight: 800;
       line-height: 1.45;
       color: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
     }
 
     .actor-name {
@@ -247,6 +324,7 @@
       font-style: italic;
       font-weight: 900;
     }
+
     .stage-direction.revealed {
       color: #047857;
       background: #D1FAE5;
@@ -254,69 +332,173 @@
       border-radius: 6px;
     }
 
-    /* Right Options Column */
-    .question-prompt {
-      font-size: 0.98rem;
+    /* Right Panel: Step 1 Sandbox + Step 2 Mission Tabs */
+    .mode-switch-bar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .mode-pill-btn {
+      font-family: inherit;
+      background: #F3F4F6;
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
+      box-shadow: var(--shadow-sm);
+      padding: 6px 10px;
+      min-height: 44px;
+      font-size: 0.82rem;
       font-weight: 900;
       color: var(--ink);
-      margin-bottom: 12px;
-      line-height: 1.35;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    .mode-pill-btn.active {
+      background: var(--yellow);
+    }
+
+    .sandbox-panel {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .sandbox-panel.open {
+      display: flex;
+    }
+
+    .sandbox-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .sandbox-prep-btn {
+      font-family: inherit;
+      background: #FFFDF7;
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
+      box-shadow: var(--shadow-sm);
+      padding: 9px 10px;
+      min-height: 48px;
+      font-size: 0.88rem;
+      font-weight: 900;
+      color: var(--ink);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .sandbox-prep-btn.active {
+      background: var(--teal);
+    }
+
+    .mission-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .mission-panel.hidden {
+      display: none;
+    }
+
+    .case-tabs-strip {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .case-tab-btn {
+      min-width: 44px;
+      min-height: 44px;
+      padding: 4px 9px;
+      background: #F3F4F6;
+      border: 2px solid var(--ink);
+      border-radius: 9px;
+      box-shadow: 2px 2px 0 var(--ink);
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 900;
+      color: var(--ink);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+    }
+
+    .case-tab-btn.active { background: var(--yellow); }
+    .case-tab-btn.done { background: #DCFCE7; border-color: #15803D; }
+
+    .question-prompt {
+      font-size: 0.94rem;
+      font-weight: 900;
+      color: var(--ink);
+      line-height: 1.32;
+      flex: 1;
     }
 
     .options-list {
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      margin-bottom: 14px;
+      gap: 7px;
+    }
+
+    .option-row {
+      display: flex;
+      align-items: stretch;
+      gap: 7px;
     }
 
     .option-btn {
+      flex: 1;
       font-family: inherit;
       background: #FFFDF7;
       color: var(--ink);
       border: 2.5px solid var(--ink);
       border-radius: 10px;
-      padding: 10px 14px;
-      font-size: 0.9rem;
+      padding: 8px 12px;
+      font-size: 0.88rem;
       font-weight: 800;
-      min-height: 48px;
+      min-height: 46px;
       cursor: pointer;
       text-align: left;
       box-shadow: var(--shadow-sm);
-      transition: all 0.1s ease;
-    }
-
-    .option-btn:hover:not(:disabled) {
-      background: #FEF9C3;
+      transition: background-color 0.1s ease, transform 0.1s ease;
     }
 
     .option-btn.active {
       background: var(--yellow);
-      color: var(--ink);
-      border-color: var(--ink);
       transform: translate(1px, 1px);
       box-shadow: 1px 1px 0 var(--ink);
     }
 
     .option-btn.correct {
-      background: #86EFAC;
-      color: var(--ink);
+      background: var(--mint);
+      border-color: #15803D;
     }
 
     .option-btn:disabled {
       cursor: default;
-      opacity: 0.85;
+      opacity: 0.9;
     }
 
-    /* Feedback Banner */
     .feedback-box {
       display: none;
-      padding: 10px 14px;
-      border-radius: 8px;
+      padding: 9px 12px;
+      border-radius: 9px;
       border: 2.5px solid var(--ink);
-      font-size: 0.88rem;
+      font-size: 0.85rem;
       font-weight: 800;
-      margin-bottom: 14px;
       line-height: 1.35;
     }
 
@@ -339,10 +521,10 @@
       color: var(--ink);
       border: var(--border);
       border-radius: 10px;
-      font-size: 1rem;
+      font-size: 0.98rem;
       font-weight: 900;
-      padding: 12px 18px;
-      min-height: 48px;
+      padding: 10px 16px;
+      min-height: 46px;
       cursor: pointer;
       box-shadow: var(--shadow);
       margin-top: auto;
@@ -354,17 +536,66 @@
       box-shadow: var(--shadow-sm);
     }
 
-    /* Modal */
+    .btn-speaker {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #FEF08A;
+      border: 2.5px solid var(--ink);
+      box-shadow: 2px 2px 0 var(--ink);
+      border-radius: 10px;
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      min-height: 44px;
+      cursor: pointer;
+      font-size: 1.05rem;
+      line-height: 1;
+      flex-shrink: 0;
+      transition: transform 0.1s, box-shadow 0.1s, background-color 0.1s;
+    }
+
+    .btn-speaker:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0 0 0 var(--ink);
+    }
+
+    .btn-speaker.speaking {
+      background: var(--mint);
+      animation: ttsPulse 0.7s infinite alternate;
+    }
+
+    @keyframes ttsPulse {
+      from { transform: scale(1); }
+      to { transform: scale(1.08); }
+    }
+
+    /* Confetti Canvas */
+    .confetti-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 2000;
+    }
+
+    /* Modals */
     .modal-overlay {
       display: none;
       position: fixed;
       inset: 0;
       background: rgba(0, 0, 0, 0.7);
       backdrop-filter: blur(4px);
-      z-index: 100;
+      z-index: 1500;
       align-items: center;
       justify-content: center;
       padding: 16px;
+    }
+
+    .modal-overlay.open {
+      display: flex;
     }
 
     .modal-card {
@@ -373,30 +604,15 @@
       border: 4px solid var(--ink);
       border-radius: 18px;
       box-shadow: 8px 8px 0 var(--ink);
-      padding: 24px;
+      padding: 22px;
       max-width: 520px;
       width: 100%;
       text-align: center;
     }
 
-    .modal-badge {
-      font-size: 3rem;
-      margin-bottom: 4px;
-    }
-
-    .modal-title {
-      font-size: 1.5rem;
-      font-weight: 900;
-      margin-bottom: 8px;
-    }
-
-    .modal-desc {
-      font-size: 0.94rem;
-      font-weight: 700;
-      color: #374151;
-      margin-bottom: 12px;
-      line-height: 1.4;
-    }
+    .modal-badge { font-size: 2.8rem; margin-bottom: 4px; }
+    .modal-title { font-size: 1.45rem; font-weight: 900; margin-bottom: 8px; }
+    .modal-desc { font-size: 0.92rem; font-weight: 700; color: #374151; margin-bottom: 12px; line-height: 1.4; }
 
     .pyp-badge {
       display: inline-flex;
@@ -407,7 +623,7 @@
       border: 3px solid var(--ink);
       border-radius: 999px;
       font-weight: 900;
-      font-size: 0.85rem;
+      font-size: 0.84rem;
       margin-bottom: 8px;
     }
 
@@ -425,7 +641,7 @@
 
     .pyp-box strong {
       display: block;
-      font-size: 0.75rem;
+      font-size: 0.74rem;
       text-transform: uppercase;
       color: #0F766E;
       margin-bottom: 2px;
@@ -440,14 +656,14 @@
 
     .modal-btn {
       flex: 1;
-      min-width: 135px;
+      min-width: 125px;
       min-height: 46px;
       padding: 10px 14px;
       border: 3px solid var(--ink);
       border-radius: 12px;
       box-shadow: 3px 3px 0 var(--ink);
       font-family: inherit;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       font-weight: 900;
       cursor: pointer;
       text-decoration: none;
@@ -457,205 +673,90 @@
       color: var(--ink);
       background: #FFFFFF;
     }
-    .modal-btn.stamp { background: #86EFAC; }
+
+    .modal-btn.stamp { background: var(--mint); }
     .modal-btn.map { background: var(--yellow); }
     .modal-btn.replay { background: var(--teal); }
     .modal-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
 
-    @media (max-width: 820px) {
-      .director-grid {
-        grid-template-columns: 1fr;
-      }
-      .stage-wrapper {
-        height: 320px;
-      }
-    }
-
     /* Neobrutalism TTS Radio Dropdown */
-    .tts-dropdown-wrap {
-      position: relative;
-      display: inline-block;
-      user-select: none;
-      font-family: inherit;
-    }
+    .tts-dropdown-wrap { position: relative; display: inline-block; user-select: none; font-family: inherit; }
     .tts-trigger {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: #FFF;
-      border: 2.5px solid var(--ink);
-      border-radius: 10px;
-      box-shadow: 3px 3px 0 var(--ink);
-      padding: 6px 12px;
-      font-family: inherit;
-      font-size: 0.85rem;
-      font-weight: 800;
-      color: var(--ink);
-      cursor: pointer;
-      min-height: 38px;
-      transition: transform 0.1s, box-shadow 0.1s;
+      display: inline-flex; align-items: center; gap: 6px; background: #FFF;
+      border: 2.5px solid var(--ink); border-radius: 10px; box-shadow: 3px 3px 0 var(--ink);
+      padding: 6px 12px; font-family: inherit; font-size: 0.84rem; font-weight: 800;
+      color: var(--ink); cursor: pointer; min-height: 44px; min-width: 44px;
     }
-    .tts-trigger:hover {
-      background: #FEF08A;
-      transform: translate(-1px, -1px);
-      box-shadow: 4px 4px 0 var(--ink);
-    }
-    .tts-trigger:active {
-      transform: translate(2px, 2px);
-      box-shadow: 1px 1px 0 var(--ink);
-    }
-    .tts-arrow {
-      font-size: 0.75rem;
-      transition: transform 0.15s ease;
-    }
-    .tts-dropdown-wrap.open .tts-arrow {
-      transform: rotate(180deg);
-    }
+    .tts-trigger:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+    .tts-arrow { font-size: 0.75rem; transition: transform 0.15s ease; }
+    .tts-dropdown-wrap.open .tts-arrow { transform: rotate(180deg); }
     .tts-menu {
-      display: none;
-      position: absolute;
-      top: calc(100% + 6px);
-      right: 0;
-      min-width: 250px;
-      max-width: 320px;
-      max-height: 290px;
-      overflow-y: auto;
-      background: #FFF;
-      border: 3px solid var(--ink);
-      border-radius: 12px;
-      box-shadow: 4px 4px 0 var(--ink);
-      padding: 6px;
-      z-index: 1000;
-      flex-direction: column;
-      gap: 3px;
+      display: none; position: absolute; top: calc(100% + 6px); right: 0;
+      min-width: 255px; max-width: 320px; max-height: 280px; overflow-y: auto;
+      background: #FFF; border: 3px solid var(--ink); border-radius: 12px;
+      box-shadow: 4px 4px 0 var(--ink); padding: 6px; z-index: 1000;
+      flex-direction: column; gap: 3px;
     }
-    .tts-dropdown-wrap.open .tts-menu {
-      display: flex;
-    }
+    .tts-dropdown-wrap.open .tts-menu { display: flex; }
     .tts-menu-header {
-      font-size: 0.72rem;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      color: #6B7280;
-      padding: 4px 8px 6px;
-      border-bottom: 2px solid #E5E7EB;
-      margin-bottom: 3px;
+      font-size: 0.72rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.6px;
+      color: #6B7280; padding: 4px 8px 6px; border-bottom: 2px solid #E5E7EB; margin-bottom: 3px;
     }
-    .tts-radio-group {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
+    .tts-radio-group { display: flex; flex-direction: column; gap: 3px; }
     .tts-radio-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 7px 10px;
-      border: 2px solid transparent;
-      border-radius: 8px;
-      background: transparent;
-      cursor: pointer;
-      font-family: inherit;
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--ink);
-      text-align: left;
-      width: 100%;
-      transition: background 0.1s, border-color 0.1s;
+      display: flex; align-items: center; gap: 8px; padding: 8px 10px; min-height: 44px;
+      border: 2px solid transparent; border-radius: 8px; background: transparent; cursor: pointer;
+      font-family: inherit; font-size: 0.82rem; font-weight: 700; color: var(--ink);
+      text-align: left; width: 100%;
     }
-    .tts-radio-item:hover {
-      background: #FEF9C3;
-      border-color: var(--ink);
-    }
-    .tts-radio-item.active {
-      background: #E0F2FE;
-      border-color: var(--ink);
-      font-weight: 800;
-    }
+    .tts-radio-item.active { background: #E0F2FE; border-color: var(--ink); font-weight: 800; }
     .tts-radio-circle {
-      width: 15px;
-      height: 15px;
-      border-radius: 50%;
-      border: 2px solid var(--ink);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      background: #FFF;
+      width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--ink);
+      display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; background: #FFF;
     }
-    .tts-radio-item.active .tts-radio-circle::after {
-      content: '';
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--ink);
-    }
-    .tts-item-flag {
-      font-size: 1rem;
-    }
-    .tts-item-name {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      flex: 1;
+    .tts-radio-item.active .tts-radio-circle::after { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--ink); }
+    .tts-item-flag { font-size: 1rem; }
+    .tts-item-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+
+    @media (hover: hover) and (pointer: fine) {
+      .pyp-map-link:hover,
+      .btn-reflect-pill:hover,
+      .btn-reset-cam:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 var(--ink); }
+      .tts-trigger:hover { background: #FEF08A; }
+      .tts-radio-item:hover { background: #FEF9C3; border-color: var(--ink); }
+      .btn-speaker:hover { background: #FDE047; transform: translate(-1px, -1px); }
+      .option-btn:hover:not(:disabled),
+      .sandbox-prep-btn:hover { background: #FEF9C3; }
     }
 
-    .btn-speaker {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: #FEF08A;
-      border: 2px solid var(--ink);
-      box-shadow: 2px 2px 0 var(--ink);
-      border-radius: 8px;
-      width: 34px;
-      height: 34px;
-      cursor: pointer;
-      font-size: 1rem;
-      line-height: 1;
-      flex-shrink: 0;
-      transition: transform 0.1s, box-shadow 0.1s, background-color 0.1s;
+    @container (max-width: 960px) {
+      .director-grid { grid-template-columns: 1fr; }
+      .stage-wrapper { height: 320px; }
     }
-    .btn-speaker:hover {
-      background: #FDE047;
-      transform: translate(-1px, -1px);
-      box-shadow: 3px 3px 0 var(--ink);
-    }
-    .btn-speaker:active {
-      transform: translate(2px, 2px);
-      box-shadow: 0 0 0 var(--ink);
-    }
-    .btn-speaker.speaking {
-      background: #86EFAC;
-      animation: ttsPulse 0.7s infinite alternate;
-    }
-    @keyframes ttsPulse {
-      from { transform: scale(1); }
-      to { transform: scale(1.1); }
-    }
-  
-    html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
   </style>
 </head>
 
 <body>
+  <canvas class="confetti-canvas" id="confettiCanvas"></canvas>
+
   <div class="container">
     <nav class="nav-bar">
-      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+      <div class="nav-left">
         <a class="pyp-map-link" href="../index.html">← PYP Map</a>
         <span class="unit-tag">🎭 Grade 2 · Unit 2: Script 3D Stage</span>
-        <button type="button" class="btn-reflect-pill" id="btnOpenReflect">🗣️ Reflect &amp; Stamp</button>
       </div>
-      <div class="tts-dropdown-wrap" id="ttsDropdownWrap">
-        <button type="button" class="tts-trigger" id="ttsTrigger" aria-haspopup="menu" aria-expanded="false" title="Select Voice Accent">
-          <span class="tts-trigger-flag" id="ttsFlag">🇬🇧</span>
-          <span class="tts-trigger-label" id="ttsLabel">Voice</span>
-          <span class="tts-arrow">▾</span>
-        </button>
-        <div class="tts-menu" id="ttsMenu" role="menu">
-          <div class="tts-menu-header">Select Voice Accent</div>
-          <div class="tts-radio-group" id="ttsRadioList" role="radiogroup"></div>
+      <div class="nav-right">
+        <button type="button" class="btn-reflect-pill" id="btnOpenReflect">🗣️ Reflect &amp; Stamp</button>
+        <div class="tts-dropdown-wrap" id="ttsDropdownWrap">
+          <button type="button" class="tts-trigger" id="ttsTrigger" aria-haspopup="menu" aria-expanded="false" title="Select Voice Accent">
+            <span class="tts-trigger-flag" id="ttsFlag">🇬🇧</span>
+            <span class="tts-trigger-label" id="ttsLabel">Voice</span>
+            <span class="tts-arrow">▾</span>
+          </button>
+          <div class="tts-menu" id="ttsMenu" role="menu">
+            <div class="tts-menu-header">Select Voice Accent</div>
+            <div class="tts-radio-group" id="ttsRadioList" role="radiogroup"></div>
+          </div>
         </div>
       </div>
     </nav>
@@ -663,7 +764,7 @@
     <header class="hero-card">
       <div class="hero-title">
         <h1>Script Director 3D Stage 🎬</h1>
-        <p>Direct actors in 3D space using prepositions of place and verify grammar.</p>
+        <p>Step 1: Rehearse in the 3D Sandbox · Step 2: Direct All 6 Scenes · Step 3: Reflect &amp; Stamp!</p>
       </div>
       <div class="score-tray">
         <div class="score-badge" id="badgeScene">🎬 Scene 1 / 6</div>
@@ -674,46 +775,71 @@
     <main class="director-grid">
       <!-- Left Column: 3D Theater Stage -->
       <section class="card">
-        <h2 class="card-title"><span>🎪</span> 3D Theater Stage View</h2>
+        <div class="stage-toolbar">
+          <h2 class="card-title"><span>🎪</span> 3D Theater Stage View</h2>
+          <button type="button" class="btn-reset-cam" id="btnResetCamera">🔄 Reset Camera</button>
+        </div>
+
         <div class="stage-wrapper">
           <canvas id="stageCanvas"></canvas>
           <div class="stage-hud">
-            <div class="hud-chip">🖐️ Drag in 3D to rotate stage view</div>
+            <div class="hud-chip">🖐️ Drag to orbit · Tap glowing stage spots in Sandbox!</div>
             <div class="hud-chip" id="chipPosition">Actor: Leo</div>
           </div>
         </div>
 
         <div class="script-bubble">
-          <span class="actor-name" id="scriptActor">Leo (The Inquirer)</span>:
-          <span class="stage-direction" id="scriptDirection">(stands _______ the wooden table)</span>
-          <br />
-          <span id="scriptLine" style="color: #1F2937;">"I found the secret clue right here!"</span>
+          <div>
+            <span class="actor-name" id="scriptActor">Leo (The Inquirer)</span>:
+            <span class="stage-direction" id="scriptDirection">(stands _______ the wooden table)</span>
+            <br />
+            <span id="scriptLine" style="color: #1F2937;">"I found the secret clue right here!"</span>
+          </div>
+          <button type="button" class="btn-speaker" id="btnSpeakDialogue" title="Read actor's line aloud" aria-label="Read actor line aloud">🔊</button>
         </div>
       </section>
 
-      <!-- Right Column: Preposition & Grammar Reasoning -->
+      <!-- Right Column: Step 1 Sandbox & Step 2 Missions -->
       <section class="card">
-        <h2 class="card-title"><span>📝</span> Director's Script Decision</h2>
+        <div class="mode-switch-bar">
+          <button type="button" class="mode-pill-btn" id="btnModeSandbox">🎭 Step 1: 3D Sandbox</button>
+          <button type="button" class="mode-pill-btn active" id="btnModeScenes">🎬 Step 2: Direct Scenes</button>
+        </div>
 
-        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px;">
-          <div class="question-prompt" id="questionPrompt" style="margin-bottom: 0;">
-            1. Which preposition describes where Leo is standing on stage?
+        <!-- Step 1: 3D Rehearsal & Directing Sandbox -->
+        <div class="sandbox-panel" id="sandboxPanel">
+          <div style="font-size:0.9rem; font-weight:800; color:#374151; line-height:1.35;">
+            Tap a preposition button below OR tap a glowing gold hotspot on the 3D stage floor to move the actor!
           </div>
-          <button type="button" class="btn-speaker" id="btnSpeakPrompt" title="Read question prompt aloud" aria-label="Read prompt aloud">🔊</button>
+          <div class="sandbox-grid" id="sandboxPrepGrid"></div>
+          <div id="sandboxStatusBox" style="background:#ECFDF5; border:2px solid var(--ink); border-radius:10px; padding:10px 12px; font-size:0.9rem; font-weight:800; color:#065F46;">
+            Pick a stage spot to test it in 3D!
+          </div>
+          <button type="button" class="btn-submit" id="btnSandboxToScenes">Start Directing Scenes ➔</button>
         </div>
 
-        <div class="options-list" id="optionsList">
-          <!-- Rendered by JS -->
+        <!-- Step 2: 6 Script Missions -->
+        <div class="mission-panel" id="missionPanel">
+          <div class="case-tabs-strip" id="sceneTabsStrip"></div>
+
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+            <div class="question-prompt" id="questionPrompt">
+              1. Which preposition describes where Leo is standing on stage?
+            </div>
+            <button type="button" class="btn-speaker" id="btnSpeakPrompt" title="Read question prompt aloud" aria-label="Read prompt aloud">🔊</button>
+          </div>
+
+          <div class="options-list" id="optionsList"></div>
+
+          <div class="feedback-box" id="feedbackBox" aria-live="polite"></div>
+
+          <button class="btn-submit" id="btnCheckAnswer" type="button">Confirm Stage Direction 🎬</button>
         </div>
-
-        <div class="feedback-box" id="feedbackBox"></div>
-
-        <button class="btn-submit" id="btnCheckAnswer" type="button">Confirm Stage Direction 🎬</button>
       </section>
     </main>
   </div>
 
-  <!-- Win & IB PYP Reflection Modal -->
+  <!-- Step 2 Completion Modal (Standing Ovation) -->
   <div class="modal-overlay" id="winModal" role="dialog" aria-modal="true" aria-labelledby="winModalTitle">
     <div class="modal-card">
       <div class="pyp-badge">🗣️ Learner Profile Stamp: Communicator</div>
@@ -722,40 +848,57 @@
       <p class="modal-desc" id="winModalDesc">
         Standing ovation! You mastered 3D stage directions with prepositions of place and perfected every sentence.
       </p>
-      <div class="pyp-box">
-        <strong>IB PYP Reflection · Form &amp; Perspective</strong>
-        Prepositions of place (next to, under, on top of, behind, in front of) and clear grammar help actors and readers picture a story accurately!
-      </div>
-      <div class="pyp-box" style="background:#ECFDF5;">
-        <strong>🚀 Take Action in Real Life</strong>
-        Write a 3-line mini play for your family with stage directions telling each actor where to stand!
-      </div>
-      <div id="pypStampStatus" style="font-weight:900; font-size:0.86rem; color:#15803D; min-height:20px;"></div>
       <div class="modal-actions">
-        <button class="modal-btn stamp" id="btnClaimStamp" type="button">🗣️ Stamp Passport</button>
+        <button class="modal-btn stamp" id="btnWinOpenReflect" type="button">🏅 Reflect &amp; Stamp</button>
         <a class="modal-btn map" href="../index.html">← PYP Map</a>
         <button class="modal-btn replay" id="btnRestart" type="button">Direct Again 🔄</button>
       </div>
     </div>
   </div>
 
-  <!-- Three.js ES Module CDN -->
-  <script type="module">
-    import * as THREE from 'https://esm.sh/three@0.160.0';
-    import { OrbitControls } from 'https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js';
+  <!-- Dedicated Step 3: IB PYP Reflection & Action Modal (NEVER wipes progress!) -->
+  <div class="modal-overlay" id="pypReflectModal" role="dialog" aria-modal="true" aria-labelledby="reflectModalTitle">
+    <div class="modal-card">
+      <div class="pyp-badge">🗣️ Learner Profile Stamp: Communicator</div>
+      <h2 class="modal-title" id="reflectModalTitle">🌟 Step 3: Reflect &amp; Stamp</h2>
+      <div class="pyp-box">
+        <strong>IB PYP Key Concepts · Form &amp; Perspective</strong>
+        Prepositions of place (next to, under, on top of, behind, between, in front of) and clear grammar help actors and readers picture a story accurately from every angle!
+      </div>
+      <div class="pyp-box" style="background:#ECFDF5;">
+        <strong>🚀 Take Action in Real Life</strong>
+        Write a 3-line mini play for your family with stage directions telling each actor where to stand using prepositions of place!
+      </div>
+      <div id="pypStampStatus" style="font-weight:900; font-size:0.86rem; color:#15803D; min-height:20px;"></div>
+      <div class="modal-actions">
+        <button class="modal-btn stamp" id="btnClaimStamp" type="button">🗣️ Stamp Passport</button>
+        <a class="modal-btn map" href="../index.html">← PYP Map</a>
+        <button class="modal-btn replay" id="btnKeepDirecting" type="button">Keep Directing</button>
+      </div>
+    </div>
+  </div>
 
-    // Audio Synthesizer
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    // Audio Synthesizer (Organic triangle/sine SFX only)
     class DirectorAudio {
       constructor() { this.ctx = null; }
       init() {
-        if (!this.ctx) {
-          const AudioContext = window.AudioContext || window.webkitAudioContext;
-          this.ctx = new AudioContext();
-        }
-        if (this.ctx.state === 'suspended') this.ctx.resume();
+        try {
+          if (!this.ctx) {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (AudioContext) this.ctx = new AudioContext();
+          }
+          if (this.ctx && this.ctx.state === 'suspended') {
+            this.ctx.resume().catch(() => {});
+          }
+        } catch (_) {}
       }
       playCorrect() {
         this.init();
+        if (!this.ctx) return;
         const now = this.ctx.currentTime;
         [523.25, 659.25, 783.99, 1046.5].forEach((freq, idx) => {
           const osc = this.ctx.createOscillator();
@@ -770,25 +913,46 @@
           osc.stop(now + idx * 0.06 + 0.24);
         });
       }
+      playFanfare() {
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        [523.25, 659.25, 783.99, 1046.5, 1318.5].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+          gain.gain.setValueAtTime(0.18, now + idx * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.35);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.08);
+          osc.stop(now + idx * 0.08 + 0.38);
+        });
+      }
       playBuzz() {
         this.init();
+        if (!this.ctx) return;
         const now = this.ctx.currentTime;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(160, now);
-        gain.gain.setValueAtTime(0.15, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(190, now);
+        osc.frequency.linearRampToValueAtTime(135, now + 0.18);
+        gain.gain.setValueAtTime(0.13, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.19);
         osc.connect(gain);
         gain.connect(this.ctx.destination);
         osc.start(now);
-        osc.stop(now + 0.2);
+        osc.stop(now + 0.21);
       }
       playClick() {
         this.init();
+        if (!this.ctx) return;
         const now = this.ctx.currentTime;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
+        osc.type = 'sine';
         osc.frequency.setValueAtTime(500, now);
         gain.gain.setValueAtTime(0.08, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
@@ -800,292 +964,710 @@
     }
     const audio = new DirectorAudio();
 
+    function safeGetStorage(key) {
+      try { return localStorage.getItem(key); } catch (_) { return null; }
+    }
+    function safeSetStorage(key, val) {
+      try { localStorage.setItem(key, val); } catch (_) {}
+    }
+
+    // Procedural Canvas PBR Textures (Offline, zero external image files)
+    function makeWoodFloorTexture() {
+      const c = document.createElement('canvas');
+      c.width = 512; c.height = 512;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#9C6635';
+      ctx.fillRect(0, 0, 512, 512);
+      for (let row = 0; row < 8; row++) {
+        const y = row * 64;
+        ctx.fillStyle = row % 2 === 0 ? '#A56D3B' : '#8F5A2B';
+        ctx.fillRect(0, y, 512, 62);
+        ctx.fillStyle = 'rgba(40, 20, 5, 0.22)';
+        for (let g = 0; g < 18; g++) {
+          ctx.fillRect(0, y + 4 + g * 3, 512, 1);
+        }
+        ctx.fillStyle = '#4A2B11';
+        ctx.fillRect(0, y + 62, 512, 2);
+      }
+      const tex = new THREE.CanvasTexture(c);
+      tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+      tex.repeat.set(2, 2);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      return tex;
+    }
+
+    function makeVelvetCurtainTexture() {
+      const c = document.createElement('canvas');
+      c.width = 256; c.height = 256;
+      const ctx = c.getContext('2d');
+      for (let x = 0; x < 256; x++) {
+        const pleat = Math.sin((x / 256) * Math.PI * 12) * 0.5 + 0.5;
+        const r = Math.round(135 + pleat * 68);
+        const g = Math.round(16 + pleat * 18);
+        const b = Math.round(24 + pleat * 20);
+        ctx.fillStyle = `rgb(${r},${g},${b})`;
+        ctx.fillRect(x, 0, 1, 256);
+      }
+      // Gold trim at bottom & top
+      ctx.fillStyle = '#FACC15';
+      ctx.fillRect(0, 0, 256, 12);
+      ctx.fillRect(0, 244, 256, 12);
+      const tex = new THREE.CanvasTexture(c);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      return tex;
+    }
+
+    function makePropWoodTexture() {
+      const c = document.createElement('canvas');
+      c.width = 256; c.height = 256;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#6E421E';
+      ctx.fillRect(0, 0, 256, 256);
+      ctx.fillStyle = 'rgba(30, 15, 5, 0.25)';
+      for (let i = 0; i < 40; i++) {
+        ctx.fillRect(0, i * 6, 256, 2);
+      }
+      const tex = new THREE.CanvasTexture(c);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      return tex;
+    }
+
     // Three.js Stage Setup
     const canvas = document.getElementById('stageCanvas');
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
     renderer.shadowMap.enabled = true;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.08;
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x12121C);
+    scene.background = new THREE.Color(0x141524);
+
+    const DEFAULT_CAM_POS = new THREE.Vector3(0.4, 4.3, 9.4);
+    const DEFAULT_TARGET = new THREE.Vector3(0.2, 1.0, 0);
 
     const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth / Math.max(canvas.clientHeight, 1), 0.1, 100);
-    camera.position.set(0, 4, 9);
+    camera.position.copy(DEFAULT_CAM_POS);
 
     const controls = new OrbitControls(camera, canvas);
+    controls.target.copy(DEFAULT_TARGET);
     controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    controls.maxPolarAngle = Math.PI / 2 - 0.05;
+    controls.dampingFactor = 0.06;
+    controls.enablePan = false;
+    controls.minDistance = 4.5;
+    controls.maxDistance = 15;
+    controls.minPolarAngle = 0.25;
+    controls.maxPolarAngle = Math.PI / 2 - 0.06;
 
-    // Lighting
-    const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.7);
+    document.getElementById('btnResetCamera').addEventListener('click', () => {
+      audio.playClick();
+      camera.position.copy(DEFAULT_CAM_POS);
+      controls.target.copy(DEFAULT_TARGET);
+      controls.update();
+    });
+
+    // Lighting + Soft Volumetric Spotlight Cone
+    const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.65);
     scene.add(ambientLight);
 
-    const hemiLight = new THREE.HemisphereLight(0xFFFBEB, 0x334155, 0.6);
+    const hemiLight = new THREE.HemisphereLight(0xFFFBEB, 0x334155, 0.55);
     scene.add(hemiLight);
 
-    const spotLight = new THREE.SpotLight(0xFFE156, 110, 30, Math.PI / 3, 0.4);
-    spotLight.position.set(0, 8, 4);
+    const spotLight = new THREE.SpotLight(0xFFE57F, 120, 32, Math.PI / 3.2, 0.45);
+    spotLight.position.set(0.2, 8.2, 4.2);
     spotLight.castShadow = true;
     scene.add(spotLight);
 
-    // Stage Floor (top surface strictly at y = 0)
-    const floorGeo = new THREE.BoxGeometry(10, 0.4, 8);
-    const floorMat = new THREE.MeshStandardMaterial({ color: 0x8B5A2B, roughness: 0.6 });
-    const stageFloor = new THREE.Mesh(floorGeo, floorMat);
+    const coneGeo = new THREE.ConeGeometry(3.8, 7.6, 28, 1, true);
+    const coneMat = new THREE.MeshBasicMaterial({
+      color: 0xFEF08A,
+      transparent: true,
+      opacity: 0.08,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending
+    });
+    const spotCone = new THREE.Mesh(coneGeo, coneMat);
+    spotCone.position.set(0.2, 3.8, 0.3);
+    scene.add(spotCone);
+
+    // Stage Floor with PBR Wood Plank Texture (top at y = 0)
+    const floorMat = new THREE.MeshStandardMaterial({
+      map: makeWoodFloorTexture(),
+      roughness: 0.62,
+      metalness: 0.04
+    });
+    const stageFloor = new THREE.Mesh(new THREE.BoxGeometry(11.2, 0.4, 8.4), floorMat);
     stageFloor.position.y = -0.2;
     stageFloor.receiveShadow = true;
     scene.add(stageFloor);
 
-    // Red Curtains Backdrop & Wings
-    const curtainMat = new THREE.MeshStandardMaterial({ color: 0xB91C1C, roughness: 0.5 });
-    const backWall = new THREE.Mesh(new THREE.BoxGeometry(10, 5, 0.3), curtainMat);
-    backWall.position.set(0, 2.5, -4);
+    // Stage Front Trim
+    const stageTrim = new THREE.Mesh(
+      new THREE.BoxGeometry(11.3, 0.16, 0.25),
+      new THREE.MeshStandardMaterial({ color: 0xFACC15, roughness: 0.35, metalness: 0.3 })
+    );
+    stageTrim.position.set(0, -0.05, 4.22);
+    scene.add(stageTrim);
+
+    // Pleated Crimson Velvet Curtains + Gold Valance
+    const curtainMat = new THREE.MeshStandardMaterial({
+      map: makeVelvetCurtainTexture(),
+      roughness: 0.68
+    });
+    const backWall = new THREE.Mesh(new THREE.BoxGeometry(11.2, 5.2, 0.3), curtainMat);
+    backWall.position.set(0, 2.6, -4.0);
     scene.add(backWall);
 
-    const leftCurtain = new THREE.Mesh(new THREE.BoxGeometry(1.5, 5, 1), curtainMat);
-    leftCurtain.position.set(-4.2, 2.5, -2);
+    // Left Curtain Wing positioned cleanly so Sam can peek out from behind its inner edge!
+    const leftCurtain = new THREE.Mesh(new THREE.BoxGeometry(1.75, 5.2, 0.32), curtainMat);
+    leftCurtain.position.set(-4.05, 2.6, -1.55);
+    leftCurtain.castShadow = true;
     scene.add(leftCurtain);
 
-    const rightCurtain = new THREE.Mesh(new THREE.BoxGeometry(1.5, 5, 1), curtainMat);
-    rightCurtain.position.set(4.2, 2.5, -2);
+    const rightCurtain = new THREE.Mesh(new THREE.BoxGeometry(1.75, 5.2, 0.32), curtainMat);
+    rightCurtain.position.set(4.05, 2.6, -1.55);
+    rightCurtain.castShadow = true;
     scene.add(rightCurtain);
 
-    // Stage Prop: Wooden Table (table top bottom y = 1.2, top surface y = 1.4)
-    const tableGroup = new THREE.Group();
-    const tableTop = new THREE.Mesh(
-      new THREE.BoxGeometry(3, 0.2, 1.8),
-      new THREE.MeshStandardMaterial({ color: 0x5C3818 })
+    const topValance = new THREE.Mesh(
+      new THREE.BoxGeometry(11.2, 0.65, 0.45),
+      curtainMat
     );
+    topValance.position.set(0, 4.95, -1.55);
+    scene.add(topValance);
+
+    // Prop 1: Wooden Table (centered at x = -1.0, width = 2.4 -> x in [-2.2, 0.2], top surface y = 1.4)
+    const propWoodMat = new THREE.MeshStandardMaterial({ map: makePropWoodTexture(), roughness: 0.55 });
+    const tableGroup = new THREE.Group();
+    tableGroup.position.set(-1.0, 0, 0);
+    const tableTop = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.2, 1.6), propWoodMat);
     tableTop.position.y = 1.3;
     tableTop.castShadow = true;
     tableTop.receiveShadow = true;
     tableGroup.add(tableTop);
 
-    [[-1.3, -0.7], [1.3, -0.7], [-1.3, 0.7], [1.3, 0.7]].forEach(([x, z]) => {
+    [[-1.02, -0.62], [1.02, -0.62], [-1.02, 0.62], [1.02, 0.62]].forEach(([x, z]) => {
       const leg = new THREE.Mesh(
-        new THREE.BoxGeometry(0.18, 1.3, 0.18),
-        new THREE.MeshStandardMaterial({ color: 0x3D240E })
+        new THREE.BoxGeometry(0.16, 1.2, 0.16),
+        new THREE.MeshStandardMaterial({ color: 0x3D240E, roughness: 0.7 })
       );
-      leg.position.set(x, 0.65, z);
+      leg.position.set(x, 0.6, z);
       leg.castShadow = true;
       tableGroup.add(leg);
     });
     scene.add(tableGroup);
 
-    // Cute Blocky 3D Actor Factory (feet sit cleanly at local y = 0!)
-    function createActorFigure(shirtHex, hairHex) {
+    // Prop 2: Glowing Lantern Treasure Chest (centered at x = 2.45, z = 0)
+    const chestGroup = new THREE.Group();
+    chestGroup.position.set(2.45, 0, 0);
+    const chestBody = new THREE.Mesh(
+      new THREE.BoxGeometry(1.1, 0.72, 0.86),
+      propWoodMat
+    );
+    chestBody.position.y = 0.36;
+    chestBody.castShadow = true;
+    chestBody.receiveShadow = true;
+    chestGroup.add(chestBody);
+
+    const chestBand = new THREE.Mesh(
+      new THREE.BoxGeometry(1.14, 0.12, 0.9),
+      new THREE.MeshStandardMaterial({ color: 0xFACC15, metalness: 0.45, roughness: 0.3 })
+    );
+    chestBand.position.y = 0.64;
+    chestGroup.add(chestBand);
+
+    // Glowing Lantern atop the chest
+    const lanternGlass = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.17, 0.17, 0.32, 10),
+      new THREE.MeshStandardMaterial({ color: 0xFEF08A, emissive: 0xF59E0B, emissiveIntensity: 1.4, roughness: 0.2 })
+    );
+    lanternGlass.position.set(0, 0.92, 0);
+    chestGroup.add(lanternGlass);
+
+    const lanternCap = new THREE.Mesh(
+      new THREE.ConeGeometry(0.24, 0.16, 10),
+      new THREE.MeshStandardMaterial({ color: 0x1E293B, metalness: 0.5, roughness: 0.4 })
+    );
+    lanternCap.position.set(0, 1.15, 0);
+    chestGroup.add(lanternCap);
+
+    const lanternLight = new THREE.PointLight(0xFBBF24, 3.2, 5.5);
+    lanternLight.position.set(0, 1.0, 0);
+    chestGroup.add(lanternLight);
+    scene.add(chestGroup);
+
+    // Distinct 3D Actor Factory with real articulated legs for true crouched/seated pose!
+    function createActorFigure({ shirtHex, pantsHex, hairHex, roleType }) {
       const g = new THREE.Group();
-      const legMat = new THREE.MeshStandardMaterial({ color: 0x1E293B, roughness: 0.6 });
-      const leftLeg = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.48, 0.28), legMat);
-      leftLeg.position.set(-0.16, 0.24, 0);
-      leftLeg.castShadow = true;
-      const rightLeg = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.48, 0.28), legMat);
-      rightLeg.position.set(0.16, 0.24, 0);
-      rightLeg.castShadow = true;
-
+      const legMat = new THREE.MeshStandardMaterial({ color: pantsHex, roughness: 0.6 });
       const shirtMat = new THREE.MeshStandardMaterial({ color: shirtHex, roughness: 0.45 });
-      const body = new THREE.Mesh(new THREE.BoxGeometry(0.66, 0.64, 0.36), shirtMat);
-      body.position.y = 0.8;
-      body.castShadow = true;
-
       const skinMat = new THREE.MeshStandardMaterial({ color: 0xFCD34D, roughness: 0.45 });
-      const leftArm = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.56, 0.22), shirtMat);
-      leftArm.position.set(-0.44, 0.78, 0);
+      const darkMat = new THREE.MeshStandardMaterial({ color: 0x1E293B, roughness: 0.5 });
+
+      // Upper & lower leg groups for real crouched bent-knee pose
+      const legsPivot = new THREE.Group();
+      const upperLegL = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.28, 0.24), legMat);
+      upperLegL.position.set(-0.15, 0.36, 0);
+      upperLegL.castShadow = true;
+      const upperLegR = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.28, 0.24), legMat);
+      upperLegR.position.set(0.15, 0.36, 0);
+      upperLegR.castShadow = true;
+
+      const lowerLegL = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.26, 0.24), legMat);
+      lowerLegL.position.set(-0.15, 0.13, 0);
+      lowerLegL.castShadow = true;
+      const lowerLegR = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.26, 0.24), legMat);
+      lowerLegR.position.set(0.15, 0.13, 0);
+      lowerLegR.castShadow = true;
+      legsPivot.add(upperLegL, upperLegR, lowerLegL, lowerLegR);
+
+      // Upper body group (lowers cleanly during crouch without squashing head/torso!)
+      const upperBody = new THREE.Group();
+
+      const torso = new THREE.Mesh(new THREE.BoxGeometry(0.66, 0.62, 0.36), shirtMat);
+      torso.position.y = 0.8;
+      torso.castShadow = true;
+
+      const leftArm = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.52, 0.22), shirtMat);
+      leftArm.position.set(-0.44, 0.8, 0);
       leftArm.castShadow = true;
-      const rightArm = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.56, 0.22), shirtMat);
-      rightArm.position.set(0.44, 0.78, 0);
+      const rightArm = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.52, 0.22), shirtMat);
+      rightArm.position.set(0.44, 0.8, 0);
       rightArm.castShadow = true;
 
-      const head = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.62, 0.62), skinMat);
-      head.position.y = 1.44;
+      const head = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.6, 0.6), skinMat);
+      head.position.y = 1.42;
       head.castShadow = true;
 
       const hair = new THREE.Mesh(
-        new THREE.BoxGeometry(0.66, 0.16, 0.66),
+        new THREE.BoxGeometry(0.64, 0.16, 0.64),
         new THREE.MeshStandardMaterial({ color: hairHex, roughness: 0.6 })
       );
-      hair.position.y = 1.78;
+      hair.position.y = 1.76;
       hair.castShadow = true;
 
       const eyeMat = new THREE.MeshBasicMaterial({ color: 0x111111 });
-      const eyeL = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.11, 0.04), eyeMat);
-      eyeL.position.set(-0.14, 1.48, 0.32);
-      const eyeR = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.11, 0.04), eyeMat);
-      eyeR.position.set(0.14, 1.48, 0.32);
+      const eyeL = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.1, 0.04), eyeMat);
+      eyeL.position.set(-0.13, 1.45, 0.31);
+      const eyeR = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.1, 0.04), eyeMat);
+      eyeR.position.set(0.13, 1.45, 0.31);
 
       const smile = new THREE.Mesh(
-        new THREE.BoxGeometry(0.22, 0.055, 0.04),
+        new THREE.BoxGeometry(0.2, 0.05, 0.04),
         new THREE.MeshBasicMaterial({ color: 0x991B1B })
       );
-      smile.position.set(0, 1.31, 0.32);
+      smile.position.set(0, 1.29, 0.31);
 
-      g.add(leftLeg, rightLeg, body, leftArm, rightArm, head, hair, eyeL, eyeR, smile);
+      upperBody.add(torso, leftArm, rightArm, head, hair, eyeL, eyeR, smile);
+
+      // Role-specific outfits & accessories
+      if (roleType === 'leo') {
+        const capBrim = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.07, 0.32), new THREE.MeshStandardMaterial({ color: 0x0284C7 }));
+        capBrim.position.set(0, 1.78, 0.3);
+        const backpack = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.44, 0.2), new THREE.MeshStandardMaterial({ color: 0xF59E0B }));
+        backpack.position.set(0, 0.82, -0.26);
+        upperBody.add(capBrim, backpack);
+      } else if (roleType === 'maya') {
+        const headband = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.08, 0.65), new THREE.MeshStandardMaterial({ color: 0xFACC15 }));
+        headband.position.y = 1.66;
+        const scroll = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.42, 8), new THREE.MeshStandardMaterial({ color: 0xFEF3C7 }));
+        scroll.rotation.z = Math.PI / 2.6;
+        scroll.position.set(0.48, 0.72, 0.16);
+        upperBody.add(headband, scroll);
+      } else if (roleType === 'sam') {
+        const visor = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.18, 0.68), darkMat);
+        visor.position.y = 1.78;
+        const badge = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.16, 0.04), new THREE.MeshStandardMaterial({ color: 0xFACC15 }));
+        badge.position.set(0.16, 0.9, 0.19);
+        upperBody.add(visor, badge);
+      }
+
+      g.add(legsPivot, upperBody);
+      g.userData = {
+        upperBody,
+        upperLegL,
+        upperLegR,
+        lowerLegL,
+        lowerLegR,
+        crouchAmount: 0
+      };
       return g;
     }
 
-    const actorGroup = createActorFigure(0x38B6FF, 0x451A03);
-    scene.add(actorGroup);
+    function applyCrouchPose(actor, amount) {
+      const { upperBody, upperLegL, upperLegR, lowerLegL, lowerLegR } = actor.userData;
+      // Smoothly transition from standing (0) to bent-knee crouched (1) keeping feet at y >= 0!
+      upperBody.position.y = -0.34 * amount;
+      upperBody.rotation.x = 0.22 * amount;
+      upperLegL.rotation.x = -1.25 * amount;
+      upperLegR.rotation.x = -1.25 * amount;
+      upperLegL.position.set(-0.15, 0.36 - 0.14 * amount, 0.12 * amount);
+      upperLegR.position.set(0.15, 0.36 - 0.14 * amount, 0.12 * amount);
+      lowerLegL.position.set(-0.15, 0.13, 0.24 * amount);
+      lowerLegR.position.set(0.15, 0.13, 0.24 * amount);
+    }
 
-    // 2nd Performer for Scene 6 Grand Finale ("both performers bow")
-    const actor2Group = createActorFigure(0xFF6584, 0x1E1B4B);
-    actor2Group.visible = false;
-    actor2Group.position.set(0.85, 0, 2.0);
-    scene.add(actor2Group);
+    const actors = {
+      leo: createActorFigure({ shirtHex: 0x38B6FF, pantsHex: 0x1E293B, hairHex: 0x451A03, roleType: 'leo' }),
+      maya: createActorFigure({ shirtHex: 0xFF6584, pantsHex: 0x0D9488, hairHex: 0x1E1B4B, roleType: 'maya' }),
+      sam: createActorFigure({ shirtHex: 0x22C55E, pantsHex: 0x1F2937, hairHex: 0x78350F, roleType: 'sam' })
+    };
 
-    // 6 Script Scenes (with maskedDirection to prevent spoilers before answering!)
+    const primaryActorWrap = new THREE.Group();
+    primaryActorWrap.add(actors.leo, actors.maya, actors.sam);
+    scene.add(primaryActorWrap);
+
+    // 2nd Performer (Maya) for Scene 6 Grand Finale
+    const finaleMaya = createActorFigure({ shirtHex: 0xFF6584, pantsHex: 0x0D9488, hairHex: 0x1E1B4B, roleType: 'maya' });
+    finaleMaya.visible = false;
+    scene.add(finaleMaya);
+
+    function showPrimaryActor(key) {
+      actors.leo.visible = key === 'leo';
+      actors.maya.visible = key === 'maya';
+      actors.sam.visible = key === 'sam';
+    }
+
+    // Step 1 Sandbox Hotspots (clickable 3D stage rings + buttons)
+    const SANDBOX_SPOTS = [
+      { id: 'next_to', label: 'next to', text: 'Leo stands next to the wooden table.', pos: [-2.75, 0, 0], crouch: 0, rotY: 0.25, marker: [-2.75, 0.02, 0] },
+      { id: 'under', label: 'under', text: 'Maya hides under the wooden table.', pos: [-1.0, 0, 0], crouch: 1, rotY: 0, marker: [-1.0, 0.02, 0.5] },
+      { id: 'on_top_of', label: 'on top of', text: 'Leo climbs on top of the wooden table.', pos: [-1.0, 1.4, 0], crouch: 0, rotY: 0, marker: [-1.0, 1.41, 0] },
+      { id: 'behind', label: 'behind', text: 'Sam peeks behind the red curtain.', pos: [-3.02, 0, -2.15], crouch: 0, rotY: 0.45, marker: [-3.02, 0.02, -2.15] },
+      { id: 'between', label: 'between', text: 'Sam stands between the table and the lantern chest.', pos: [0.95, 0, 0], crouch: 0, rotY: 0, marker: [0.95, 0.02, 0] },
+      { id: 'in_front_of', label: 'in front of', text: 'Leo stands in front of the wooden table.', pos: [-1.0, 0, 1.85], crouch: 0, rotY: 0, marker: [-1.0, 0.02, 1.85] }
+    ];
+
+    const hotspotGroup = new THREE.Group();
+    const hotspotMeshes = [];
+    SANDBOX_SPOTS.forEach(spot => {
+      const ring = new THREE.Mesh(
+        new THREE.RingGeometry(0.28, 0.44, 24),
+        new THREE.MeshBasicMaterial({ color: 0xFFE156, side: THREE.DoubleSide, transparent: true, opacity: 0.85 })
+      );
+      ring.rotation.x = -Math.PI / 2;
+      ring.position.set(spot.marker[0], spot.marker[1], spot.marker[2]);
+      ring.userData.spotId = spot.id;
+
+      // Invisible larger tap sphere for easy iPad touching
+      const hitDisc = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.55, 0.55, 0.16, 16),
+        new THREE.MeshBasicMaterial({ visible: false })
+      );
+      hitDisc.position.set(spot.marker[0], spot.marker[1] + 0.05, spot.marker[2]);
+      hitDisc.userData.spotId = spot.id;
+
+      hotspotGroup.add(ring, hitDisc);
+      hotspotMeshes.push(hitDisc);
+    });
+    scene.add(hotspotGroup);
+
+    // 6 Script Scenes (with real between two props & per-scene hints)
     const scenes = [
       {
+        actorKey: "leo",
         actor: "Leo (The Inquirer)",
         maskedDirection: "(stands _______ the wooden table)",
         direction: "(stands next to the wooden table)",
         line: `"I found the secret clue right here!"`,
-        actor3DPos: [2.3, 0, 0], // next to table
-        actor3DScale: [1, 1, 1],
+        actor3DPos: [-2.75, 0, 0],
+        actorRotY: 0.25,
+        crouch: 0,
         showSecondActor: false,
+        hint: "Look beside the left side of the wooden table—Leo is standing right beside it!",
         prompt: "1. Which preposition of place describes Leo's position in 3D?",
         options: [
           { text: "Leo stands next to the table.", correct: true },
           { text: "Leo hides under the table.", correct: false },
           { text: "Leo dances behind the curtain.", correct: false },
-          { text: "Leo flies above the roof.", correct: false }
+          { text: "Leo sits inside the lantern chest.", correct: false }
         ]
       },
       {
+        actorKey: "maya",
         actor: "Maya (The Communicator)",
         maskedDirection: "(hides _______ the wooden table)",
         direction: "(hides under the wooden table)",
         line: `"Quiet! The guards are marching past!"`,
-        actor3DPos: [0, 0, 0], // cleanly on floor (y >= 0), crouched scale under table!
-        actor3DScale: [1, 0.56, 1],
+        actor3DPos: [-1.0, 0, 0],
+        actorRotY: 0,
+        crouch: 1,
         showSecondActor: false,
+        hint: "Look beneath the wooden tabletop—Maya is crouched low beneath it!",
         prompt: "2. Where is Maya positioned on the 3D stage?",
         options: [
-          { text: "Maya is on the table.", correct: false },
+          { text: "Maya is on top of the table.", correct: false },
           { text: "Maya is under the table.", correct: true },
-          { text: "Maya is far outside.", correct: false },
+          { text: "Maya is behind the red curtain.", correct: false },
           { text: "Maya is in front of the audience.", correct: false }
         ]
       },
       {
+        actorKey: "leo",
         actor: "Leo (The Inquirer)",
         maskedDirection: "(climbs _______ the wooden table)",
         direction: "(climbs on top of the wooden table)",
         line: `"Look at the view from up here!"`,
-        actor3DPos: [0, 1.4, 0], // standing cleanly on top of table
-        actor3DScale: [1, 1, 1],
+        actor3DPos: [-1.0, 1.4, 0],
+        actorRotY: 0,
+        crouch: 0,
         showSecondActor: false,
-        prompt: "3. Which sentence has correct subject-verb agreement and preposition?",
+        hint: "Check both where Leo stands AND that one actor ('Leo') matches the verb ending in -s ('stands').",
+        prompt: "3. Which sentence has the matching verb and preposition?",
         options: [
           { text: "Leo stands on top of the sturdy table.", correct: true },
           { text: "Leo stand on top of the sturdy table.", correct: false },
-          { text: "Leo is stands under the sturdy table.", correct: false },
-          { text: "Leo standed inside the sturdy table.", correct: false }
+          { text: "Leo sits under the sturdy table.", correct: false },
+          { text: "Leo stands behind the red curtain.", correct: false }
         ]
       },
       {
+        actorKey: "sam",
         actor: "Sam (The Guard)",
         maskedDirection: "(peeks _______ the red curtain)",
         direction: "(peeks behind the red curtain)",
         line: `"I thought I heard whispers in the room."`,
-        actor3DPos: [-4.2, 0, -2.8], // behind left curtain
-        actor3DScale: [1, 1, 1],
+        actor3DPos: [-3.02, 0, -2.15],
+        actorRotY: 0.45,
+        crouch: 0,
         showSecondActor: false,
-        prompt: "4. Which direction correctly specifies Sam's stage entrance?",
+        hint: "Look at the left red curtain wing—Sam is peeking out from the back side of it!",
+        prompt: "4. Which direction correctly describes Sam's stage spot?",
         options: [
-          { text: "Sam emerges from behind the red curtain.", correct: true },
+          { text: "Sam peeks from behind the red curtain.", correct: true },
           { text: "Sam jumps under the red curtain.", correct: false },
-          { text: "Sam sits on the red curtain.", correct: false },
-          { text: "Sam walks through the ceiling.", correct: false }
+          { text: "Sam climbs on top of the chest.", correct: false },
+          { text: "Sam stands in front of the table.", correct: false }
         ]
       },
       {
-        actor: "Script Doctor Grammar",
-        maskedDirection: "(proofreads the script — check grammar & punctuation!)",
-        direction: "(proofreads the script at center stage)",
-        line: `"Check the actor's lines for plural nouns and punctuation."`,
-        actor3DPos: [-2.0, 0, 1.2],
-        actor3DScale: [1, 1, 1],
+        actorKey: "sam",
+        actor: "Sam (The Guard)",
+        maskedDirection: "(stands _______ the table and the lantern chest)",
+        direction: "(stands between the table and the lantern chest)",
+        line: `"Both props are safe! Check the capital letter and period too."`,
+        actor3DPos: [0.95, 0, 0],
+        actorRotY: 0,
+        crouch: 0,
         showSecondActor: false,
-        prompt: "5. Which script line has correct capital letter, plural noun, and ending period?",
+        hint: "Sam has the wooden table on his right and the glowing lantern chest on his left—plus check the capital 'S' and ending period!",
+        prompt: "5. Which stage direction matches Sam's spot AND has clean capitalization and punctuation?",
         options: [
-          { text: "Two brave actors hold the wooden props.", correct: true },
-          { text: "two brave actor hold the wooden props.", correct: false },
-          { text: "Two brave actors holds the wooden props", correct: false },
-          { text: "two brave actors hold the wooden props?", correct: false }
+          { text: "Sam stands between the table and the chest.", correct: true },
+          { text: "sam stands between the table and the chest.", correct: false },
+          { text: "Sam stands between the table and the chest", correct: false },
+          { text: "Sam stands under the lantern chest.", correct: false }
         ]
       },
       {
+        actorKey: "leo",
         actor: "Grand Finale",
         maskedDirection: "(both performers bow _______ the wooden table)",
         direction: "(both performers take a bow in front of the table)",
         line: `"Thank you all for listening to our story!"`,
-        actor3DPos: [-0.85, 0, 2.0], // in front of table alongside performer 2
-        actor3DScale: [1, 1, 1],
+        actor3DPos: [-1.45, 0, 1.85],
+        actorRotY: 0,
+        crouch: 0,
         showSecondActor: true,
-        actor2Pos: [0.85, 0, 2.0],
+        actor2Pos: [-0.55, 0, 1.85],
+        hint: "Leo and Maya stepped forward toward the audience, closer to the front edge than the table!",
         prompt: "6. Where do the performers stand for their final bow?",
         options: [
           { text: "They bow in front of the table.", correct: true },
-          { text: "They bow under the floor.", correct: false },
-          { text: "They bows behind the stage.", correct: false },
-          { text: "They is standing above the curtain.", correct: false }
+          { text: "They bow under the table.", correct: false },
+          { text: "They bow behind the red curtain.", correct: false },
+          { text: "They bow on top of the lantern.", correct: false }
         ]
       }
     ];
 
+    let currentMode = 'scenes'; // 'sandbox' | 'scenes'
     let currentSceneIdx = 0;
     let score = 0;
     let selectedOptionIdx = null;
     let sceneSolved = false;
     let isFirstRender = true;
+    const solvedScenes = new Set();
+    const sceneOptionsCache = new Map();
 
-    const targetActorPos = new THREE.Vector3(2.3, 0, 0);
-    const targetActorScale = new THREE.Vector3(1, 1, 1);
-    const targetActor2Pos = new THREE.Vector3(0.85, 0, 2.0);
+    const targetActorPos = new THREE.Vector3(-2.75, 0, 0);
+    const targetActor2Pos = new THREE.Vector3(-0.55, 0, 1.85);
+    let targetRotY = 0.25;
+    let targetCrouch = 0;
+    let currentCrouch = 0;
+    let activeActorKey = 'leo';
+
+    const sandboxPanel = document.getElementById('sandboxPanel');
+    const missionPanel = document.getElementById('missionPanel');
+    const btnModeSandbox = document.getElementById('btnModeSandbox');
+    const btnModeScenes = document.getElementById('btnModeScenes');
+
+    function setMode(mode) {
+      currentMode = mode;
+      const isSandbox = mode === 'sandbox';
+      sandboxPanel.classList.toggle('open', isSandbox);
+      missionPanel.classList.toggle('hidden', isSandbox);
+      btnModeSandbox.classList.toggle('active', isSandbox);
+      btnModeScenes.classList.toggle('active', !isSandbox);
+      hotspotGroup.visible = isSandbox;
+      if (isSandbox) {
+        activateSandboxSpot(SANDBOX_SPOTS[0].id, false);
+      } else {
+        renderScene();
+      }
+    }
+
+    btnModeSandbox.addEventListener('click', () => { audio.playClick(); setMode('sandbox'); });
+    btnModeScenes.addEventListener('click', () => { audio.playClick(); setMode('scenes'); });
+    document.getElementById('btnSandboxToScenes').addEventListener('click', () => { audio.playClick(); setMode('scenes'); });
+
+    function activateSandboxSpot(spotId, speakNow = true) {
+      const spot = SANDBOX_SPOTS.find(s => s.id === spotId);
+      if (!spot) return;
+
+      activeActorKey = spot.id === 'under' ? 'maya' : (spot.id === 'behind' || spot.id === 'between' ? 'sam' : 'leo');
+      showPrimaryActor(activeActorKey);
+      finaleMaya.visible = false;
+
+      targetActorPos.set(spot.pos[0], spot.pos[1], spot.pos[2]);
+      targetRotY = spot.rotY;
+      targetCrouch = spot.crouch;
+
+      document.getElementById('chipPosition').textContent = `Sandbox: ${spot.label}`;
+      document.getElementById('scriptActor').textContent = `Sandbox Actor`;
+      const dirEl = document.getElementById('scriptDirection');
+      dirEl.textContent = `(${spot.label})`;
+      dirEl.classList.add('revealed');
+      document.getElementById('scriptLine').textContent = spot.text;
+      document.getElementById('sandboxStatusBox').textContent = `🎬 Live Stage Direction: ${spot.text}`;
+
+      document.querySelectorAll('.sandbox-prep-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.spotId === spotId);
+      });
+
+      if (speakNow) {
+        audio.playCorrect();
+        TTS_MANAGER.speak(spot.text);
+      }
+    }
+
+    function renderSandboxButtons() {
+      const grid = document.getElementById('sandboxPrepGrid');
+      grid.innerHTML = '';
+      SANDBOX_SPOTS.forEach(spot => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'sandbox-prep-btn';
+        btn.dataset.spotId = spot.id;
+        btn.textContent = spot.label;
+        btn.addEventListener('click', () => activateSandboxSpot(spot.id, true));
+        grid.appendChild(btn);
+      });
+    }
+
+    // Drag-safe (<= 8px) Raycasting for 3D Stage Floor Hotspots
+    const raycaster = new THREE.Raycaster();
+    const pointerDownPos = { x: 0, y: 0 };
+
+    canvas.addEventListener('pointerdown', (e) => {
+      pointerDownPos.x = e.clientX;
+      pointerDownPos.y = e.clientY;
+    });
+
+    canvas.addEventListener('pointerup', (e) => {
+      if (currentMode !== 'sandbox') return;
+      const dist = Math.hypot(e.clientX - pointerDownPos.x, e.clientY - pointerDownPos.y);
+      if (dist > 8) return; // User was orbiting camera, not tapping a hotspot
+
+      const rect = canvas.getBoundingClientRect();
+      const ndc = new THREE.Vector2(
+        ((e.clientX - rect.left) / rect.width) * 2 - 1,
+        -((e.clientY - rect.top) / rect.height) * 2 + 1
+      );
+      raycaster.setFromCamera(ndc, camera);
+      const hits = raycaster.intersectObjects(hotspotMeshes, false);
+      if (hits.length > 0) {
+        const spotId = hits[0].object.userData.spotId;
+        if (spotId) activateSandboxSpot(spotId, true);
+      }
+    });
+
+    function renderSceneTabs() {
+      const strip = document.getElementById('sceneTabsStrip');
+      strip.innerHTML = '';
+      scenes.forEach((_, idx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        const isDone = solvedScenes.has(idx);
+        btn.className = `case-tab-btn ${idx === currentSceneIdx ? 'active' : ''} ${isDone ? 'done' : ''}`;
+        btn.textContent = isDone ? `✅${idx + 1}` : `${idx + 1}`;
+        btn.addEventListener('click', () => {
+          audio.playClick();
+          currentSceneIdx = idx;
+          renderScene();
+        });
+        strip.appendChild(btn);
+      });
+    }
+
+    function getSceneOptions(idx) {
+      if (sceneOptionsCache.has(idx)) return sceneOptionsCache.get(idx);
+      const shuffled = [...scenes[idx].options].sort(() => Math.random() - 0.5);
+      sceneOptionsCache.set(idx, shuffled);
+      return shuffled;
+    }
 
     function renderScene() {
       const s = scenes[currentSceneIdx];
-      sceneSolved = false;
+      const alreadySolved = solvedScenes.has(currentSceneIdx);
+      sceneSolved = alreadySolved;
       selectedOptionIdx = null;
 
       document.getElementById('badgeScene').textContent = `🎬 Scene ${currentSceneIdx + 1} / ${scenes.length}`;
       document.getElementById('badgeScore').textContent = `⭐ Score: ${score}`;
       document.getElementById('scriptActor').textContent = s.actor;
       const dirEl = document.getElementById('scriptDirection');
-      dirEl.textContent = s.maskedDirection;
-      dirEl.classList.remove('revealed');
+      dirEl.textContent = alreadySolved ? s.direction : s.maskedDirection;
+      dirEl.classList.toggle('revealed', alreadySolved);
       document.getElementById('scriptLine').textContent = s.line;
       document.getElementById('questionPrompt').textContent = s.prompt;
       document.getElementById('chipPosition').textContent = `Actor: ${s.actor}`;
 
-      // Set smooth lerp targets for 3D Actor(s)
+      activeActorKey = s.actorKey;
+      showPrimaryActor(s.actorKey);
       targetActorPos.set(s.actor3DPos[0], s.actor3DPos[1], s.actor3DPos[2]);
-      targetActorScale.set(s.actor3DScale[0], s.actor3DScale[1], s.actor3DScale[2]);
+      targetRotY = s.actorRotY || 0;
+      targetCrouch = s.crouch || 0;
+
       if (isFirstRender) {
-        actorGroup.position.copy(targetActorPos);
-        actorGroup.scale.copy(targetActorScale);
+        primaryActorWrap.position.copy(targetActorPos);
+        primaryActorWrap.rotation.y = targetRotY;
+        currentCrouch = targetCrouch;
+        applyCrouchPose(actors[activeActorKey], currentCrouch);
         isFirstRender = false;
       }
 
-      actor2Group.visible = Boolean(s.showSecondActor);
+      finaleMaya.visible = Boolean(s.showSecondActor);
       if (s.showSecondActor && s.actor2Pos) {
         targetActor2Pos.set(s.actor2Pos[0], s.actor2Pos[1], s.actor2Pos[2]);
-        actor2Group.position.copy(targetActor2Pos);
+        finaleMaya.position.copy(targetActor2Pos);
       }
 
       const optionsList = document.getElementById('optionsList');
       optionsList.innerHTML = '';
+      const currentOptions = getSceneOptions(currentSceneIdx);
 
-      // Randomize options so the correct answer is not always first
-      s.currentOptions = [...s.options].sort(() => Math.random() - 0.5);
+      currentOptions.forEach((opt, idx) => {
+        const row = document.createElement('div');
+        row.className = 'option-row';
 
-      s.currentOptions.forEach((opt, idx) => {
         const btn = document.createElement('button');
-        btn.className = 'option-btn';
+        btn.className = `option-btn ${alreadySolved && opt.correct ? 'correct' : ''}`;
         btn.type = 'button';
         btn.textContent = opt.text;
+        btn.disabled = alreadySolved;
         btn.addEventListener('click', () => {
           if (sceneSolved) return;
           audio.playClick();
@@ -1093,30 +1675,93 @@
           btn.classList.add('active');
           selectedOptionIdx = idx;
         });
-        optionsList.appendChild(btn);
+
+        const spkBtn = document.createElement('button');
+        spkBtn.type = 'button';
+        spkBtn.className = 'btn-speaker';
+        spkBtn.title = 'Read option aloud';
+        spkBtn.setAttribute('aria-label', `Read option: ${opt.text}`);
+        spkBtn.textContent = '🔊';
+        spkBtn.addEventListener('click', () => {
+          audio.playClick();
+          TTS_MANAGER.speak(opt.text, () => spkBtn.classList.remove('speaking'), spkBtn);
+        });
+
+        row.appendChild(btn);
+        row.appendChild(spkBtn);
+        optionsList.appendChild(row);
       });
 
       const feedback = document.getElementById('feedbackBox');
-      feedback.className = 'feedback-box';
-      feedback.textContent = '';
-      document.getElementById('btnCheckAnswer').textContent = 'Confirm Stage Direction 🎬';
+      if (alreadySolved) {
+        feedback.className = 'feedback-box success';
+        feedback.textContent = '🎯 Scene directed! Tap another scene tab or continue.';
+        document.getElementById('btnCheckAnswer').textContent = currentSceneIdx + 1 < scenes.length ? 'Next Scene ➔' : 'See Standing Ovation 🏆';
+      } else {
+        feedback.className = 'feedback-box';
+        feedback.textContent = '';
+        document.getElementById('btnCheckAnswer').textContent = 'Confirm Stage Direction 🎬';
+      }
+
+      renderSceneTabs();
     }
 
-    // Single clean click listener driven by sceneSolved state (no double-firing!)
+    function launchConfetti() {
+      const c = document.getElementById('confettiCanvas');
+      const ctx = c.getContext('2d');
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      c.width = Math.round(w * dpr);
+      c.height = Math.round(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const colors = ['#FFE156', '#FF6584', '#4ECDC4', '#38B6FF', '#B388FF', '#86EFAC'];
+      const parts = Array.from({ length: 85 }, () => ({
+        x: w / 2, y: h / 2,
+        vx: (Math.random() - 0.5) * 16,
+        vy: (Math.random() - 0.5) * 16 - 3,
+        size: Math.random() * 8 + 4,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        rot: Math.random() * 360,
+        vRot: (Math.random() - 0.5) * 10
+      }));
+      let f = 0;
+      function tick() {
+        ctx.clearRect(0, 0, w, h);
+        parts.forEach(p => {
+          p.x += p.vx; p.y += p.vy; p.vy += 0.35; p.rot += p.vRot;
+          ctx.save(); ctx.translate(p.x, p.y); ctx.rotate((p.rot * Math.PI) / 180);
+          ctx.fillStyle = p.color; ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+          ctx.restore();
+        });
+        f++;
+        if (f < 85) requestAnimationFrame(tick);
+        else ctx.clearRect(0, 0, w, h);
+      }
+      tick();
+    }
+
     document.getElementById('btnCheckAnswer').addEventListener('click', () => {
       const s = scenes[currentSceneIdx];
       const feedback = document.getElementById('feedbackBox');
       const btn = document.getElementById('btnCheckAnswer');
+      const currentOptions = getSceneOptions(currentSceneIdx);
 
       if (sceneSolved) {
         audio.playClick();
-        if (currentSceneIdx + 1 < scenes.length) {
-          currentSceneIdx++;
+        const nextUnsolved = scenes.findIndex((_, i) => i > currentSceneIdx && !solvedScenes.has(i));
+        if (solvedScenes.size === scenes.length) {
+          audio.playFanfare();
+          launchConfetti();
+          document.getElementById('winModalDesc').textContent =
+            `Standing ovation! You earned ${score} points directing all ${scenes.length} scenes with accurate prepositions and grammar.`;
+          document.getElementById('winModal').classList.add('open');
+        } else if (nextUnsolved !== -1) {
+          currentSceneIdx = nextUnsolved;
           renderScene();
         } else {
-          document.getElementById('winModalTitle').textContent = 'Star Script Director!';
-          document.getElementById('winModalDesc').textContent = `Standing ovation! You earned ${score} points directing all ${scenes.length} scenes with accurate prepositions and grammar.`;
-          document.getElementById('winModal').style.display = 'flex';
+          currentSceneIdx = (currentSceneIdx + 1) % scenes.length;
+          renderScene();
         }
         return;
       }
@@ -1124,84 +1769,124 @@
       if (selectedOptionIdx === null) {
         audio.playBuzz();
         feedback.className = 'feedback-box error';
-        feedback.textContent = 'Please select a stage direction option!';
+        feedback.textContent = 'Please select a stage direction option first!';
         return;
       }
 
-      if (s.currentOptions[selectedOptionIdx].correct) {
+      if (currentOptions[selectedOptionIdx].correct) {
         sceneSolved = true;
+        if (!solvedScenes.has(currentSceneIdx)) {
+          solvedScenes.add(currentSceneIdx);
+          score += 15;
+        }
         audio.playCorrect();
-        score += 15;
         document.getElementById('badgeScore').textContent = `⭐ Score: ${score}`;
         feedback.className = 'feedback-box success';
         feedback.textContent = '🎯 Superb direction! That matches the 3D stage position and grammar.';
 
-        // Reveal the full stage direction on success
         const dirEl = document.getElementById('scriptDirection');
         dirEl.textContent = s.direction;
         dirEl.classList.add('revealed');
 
-        // Lock options and highlight the correct one
         const optionBtns = document.querySelectorAll('#optionsList .option-btn');
         optionBtns.forEach((b, idx) => {
           b.disabled = true;
           if (idx === selectedOptionIdx) b.classList.add('correct');
         });
 
-        btn.textContent = currentSceneIdx + 1 < scenes.length ? 'Next Scene ➔' : 'See Standing Ovation 🏆';
+        renderSceneTabs();
+        btn.textContent = solvedScenes.size === scenes.length ? 'See Standing Ovation 🏆' : 'Next Scene ➔';
       } else {
         audio.playBuzz();
         feedback.className = 'feedback-box error';
-        feedback.textContent = 'Look at where the actor is positioned relative to the table and curtains!';
+        feedback.textContent = `💡 Hint: ${s.hint}`;
       }
     });
 
     document.getElementById('btnRestart').addEventListener('click', () => {
       audio.playClick();
+      solvedScenes.clear();
+      sceneOptionsCache.clear();
       currentSceneIdx = 0;
       score = 0;
       isFirstRender = true;
-      document.getElementById('winModal').style.display = 'none';
-      renderScene();
+      document.getElementById('winModal').classList.remove('open');
+      setMode('scenes');
     });
 
-    // IB PYP Reflection & Passport Stamp wiring
+    // Separate Reflection Modal vs Win Modal (NEVER wipes progress!)
+    const PASSPORT_GAME_PATH = 'literacy/g2_script_director.html';
     const winModal = document.getElementById('winModal');
+    const pypReflectModal = document.getElementById('pypReflectModal');
     const btnOpenReflect = document.getElementById('btnOpenReflect');
     const btnClaimStamp = document.getElementById('btnClaimStamp');
     const pypStampStatus = document.getElementById('pypStampStatus');
 
-    if (btnOpenReflect && winModal) {
-      btnOpenReflect.addEventListener('click', () => {
-        audio.playClick();
-        document.getElementById('winModalTitle').textContent = 'IB PYP Director Reflection';
-        document.getElementById('winModalDesc').textContent = `Current Score: ${score} pts · Reflect on how prepositions and grammar communicate clear stage directions!`;
-        winModal.style.display = 'flex';
-      });
-    }
-    if (winModal) {
-      winModal.addEventListener('click', (e) => {
-        if (e.target === winModal) winModal.style.display = 'none';
-      });
-    }
-    if (btnClaimStamp) {
-      btnClaimStamp.addEventListener('click', () => {
-        audio.playCorrect();
-        try {
-          const raw = localStorage.getItem('ib_pyp_passport');
-          const data = raw ? JSON.parse(raw) : { stamps: [], completed: [] };
-          const stamps = new Set(Array.isArray(data.stamps) ? data.stamps : []);
-          const completed = new Set(Array.isArray(data.completed) ? data.completed : []);
-          stamps.add('Communicator');
-          completed.add('literacy/g2_script_director.html');
-          localStorage.setItem('ib_pyp_passport', JSON.stringify({ stamps: [...stamps], completed: [...completed] }));
-          if (pypStampStatus) pypStampStatus.textContent = '✅ Communicator stamp saved to your IB PYP Passport!';
-          btnClaimStamp.textContent = '✅ Stamped!';
-        } catch (_) {}
-      });
+    function hasPassportStamp() {
+      try {
+        const raw = safeGetStorage('ib_pyp_passport');
+        const data = raw ? JSON.parse(raw) : null;
+        return Boolean(data && Array.isArray(data.completed) && data.completed.includes(PASSPORT_GAME_PATH));
+      } catch (_) {
+        return false;
+      }
     }
 
-    // DPR-aware Resize Handling (zero 60fps thrashing)
+    function updatePassportUI() {
+      const stamped = hasPassportStamp();
+      btnOpenReflect.classList.toggle('stamped', stamped);
+      btnOpenReflect.textContent = stamped ? '✅ Reflect & Stamped' : '🗣️ Reflect & Stamp';
+      btnClaimStamp.textContent = stamped ? '✅ Stamped in Passport!' : '🗣️ Stamp Passport';
+      pypStampStatus.textContent = stamped
+        ? '✅ Communicator stamp saved to your IB PYP Passport!'
+        : 'Tap "Stamp Passport" when you finish reflecting.';
+    }
+
+    btnOpenReflect.addEventListener('click', () => {
+      audio.playClick();
+      updatePassportUI();
+      pypReflectModal.classList.add('open');
+    });
+    document.getElementById('btnWinOpenReflect').addEventListener('click', () => {
+      audio.playClick();
+      winModal.classList.remove('open');
+      updatePassportUI();
+      pypReflectModal.classList.add('open');
+    });
+    document.getElementById('btnKeepDirecting').addEventListener('click', () => {
+      audio.playClick();
+      pypReflectModal.classList.remove('open');
+    });
+    pypReflectModal.addEventListener('click', (e) => {
+      if (e.target === pypReflectModal) pypReflectModal.classList.remove('open');
+    });
+    winModal.addEventListener('click', (e) => {
+      if (e.target === winModal) winModal.classList.remove('open');
+    });
+    btnClaimStamp.addEventListener('click', () => {
+      audio.playCorrect();
+      try {
+        const raw = safeGetStorage('ib_pyp_passport');
+        const data = raw ? JSON.parse(raw) : { stamps: [], completed: [] };
+        const stamps = new Set(Array.isArray(data.stamps) ? data.stamps : []);
+        const completed = new Set(Array.isArray(data.completed) ? data.completed : []);
+        stamps.add('Communicator');
+        completed.add(PASSPORT_GAME_PATH);
+        safeSetStorage('ib_pyp_passport', JSON.stringify({ stamps: [...stamps], completed: [...completed] }));
+        updatePassportUI();
+        launchConfetti();
+      } catch (_) {}
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        winModal.classList.remove('open');
+        pypReflectModal.classList.remove('open');
+        TTS_MANAGER.closeMenu();
+      }
+    });
+
+    // DPR-aware Resize Handling
     function resize() {
       const width = canvas.clientWidth;
       const height = canvas.clientHeight;
@@ -1223,18 +1908,19 @@
     }
     window.addEventListener('resize', resize);
 
-    // Animation Loop (smooth actor lerp + gentle finale bow)
     function animate() {
       requestAnimationFrame(animate);
-      actorGroup.position.lerp(targetActorPos, 0.12);
-      actorGroup.scale.lerp(targetActorScale, 0.12);
+      primaryActorWrap.position.lerp(targetActorPos, 0.14);
+      primaryActorWrap.rotation.y += (targetRotY - primaryActorWrap.rotation.y) * 0.12;
+      currentCrouch += (targetCrouch - currentCrouch) * 0.14;
+      applyCrouchPose(actors[activeActorKey], currentCrouch);
 
-      if (actor2Group.visible) {
-        const bowAngle = Math.sin(Date.now() * 0.003) * 0.18 + 0.18;
-        actorGroup.rotation.x = bowAngle;
-        actor2Group.rotation.x = bowAngle;
+      if (finaleMaya.visible) {
+        const bowAngle = Math.sin(Date.now() * 0.003) * 0.16 + 0.16;
+        primaryActorWrap.rotation.x = bowAngle;
+        finaleMaya.rotation.x = bowAngle;
       } else {
-        actorGroup.rotation.x *= 0.85;
+        primaryActorWrap.rotation.x *= 0.85;
       }
 
       controls.update();
@@ -1243,17 +1929,22 @@
     animate();
 
     // ----------------------------------------------------
-    // TTS MANAGER (Neobrutalism Radio Group Dropdown)
+    // Unified TTS MANAGER
     // ----------------------------------------------------
     const JOKE_VOICES = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|hysterical|pipe organ|trinoids|whisper|zarvox|fred|junior|kathy|ralph|wobble/i;
+
+    function getVoiceRegionInfo(langStr) {
+      const lang = (langStr || '').toLowerCase().replace('_', '-');
+      if (lang.includes('-au') || lang === 'au') return { flag: '🇦🇺', region: 'AU' };
+      if (lang.includes('-gb') || lang === 'gb' || lang.includes('uk')) return { flag: '🇬🇧', region: 'UK' };
+      if (lang.includes('-us') || lang === 'us') return { flag: '🇺🇸', region: 'US' };
+      return { flag: '🌐', region: (langStr || 'EN').slice(0, 5) };
+    }
+
     const TTS_MANAGER = {
       currentVoiceName: '',
-      wrap: null,
-      trigger: null,
-      menu: null,
-      flag: null,
-      label: null,
-      list: null,
+      wrap: null, trigger: null, menu: null, flag: null, label: null, list: null,
+      activeSpeakTimer: null,
 
       init() {
         this.wrap = document.getElementById('ttsDropdownWrap');
@@ -1262,27 +1953,18 @@
         this.flag = document.getElementById('ttsFlag');
         this.label = document.getElementById('ttsLabel');
         this.list = document.getElementById('ttsRadioList');
-
         if (!this.trigger) return;
 
         this.trigger.addEventListener('click', (e) => {
           e.stopPropagation();
           audio.playClick();
           this.wrap.classList.toggle('open');
-          this.trigger.setAttribute('aria-expanded', this.wrap.classList.contains('open'));
+          this.trigger.setAttribute('aria-expanded', String(this.wrap.classList.contains('open')));
         });
 
         document.addEventListener('click', (e) => {
           if (this.wrap && !this.wrap.contains(e.target)) {
-            this.wrap.classList.remove('open');
-            this.trigger.setAttribute('aria-expanded', 'false');
-          }
-        });
-
-        document.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape' && this.wrap) {
-            this.wrap.classList.remove('open');
-            this.trigger.setAttribute('aria-expanded', 'false');
+            this.closeMenu();
           }
         });
 
@@ -1292,6 +1974,12 @@
             window.speechSynthesis.onvoiceschanged = () => this.populateVoices();
           }
         }
+      },
+
+      closeMenu() {
+        if (!this.wrap || !this.trigger) return;
+        this.wrap.classList.remove('open');
+        this.trigger.setAttribute('aria-expanded', 'false');
       },
 
       populateVoices() {
@@ -1332,27 +2020,19 @@
           return aName.localeCompare(bName);
         });
 
-        const saved = localStorage.getItem('ib_pyp_voice_name');
-        let selected = null;
-        if (saved) selected = englishVoices.find(v => v.name === saved);
-        if (!selected) selected = englishVoices.find(v => v.name.includes('Google UK English Female') || (v.name.includes('UK English') && v.name.includes('Female')));
-        if (!selected) selected = englishVoices.find(v => v.name.includes('Google US English'));
-        if (!selected) selected = englishVoices.find(v => v.lang.toLowerCase().includes('gb'));
-        if (!selected) selected = englishVoices.find(v => v.lang.toLowerCase().includes('us'));
+        const saved = safeGetStorage('ib_pyp_voice_name');
+        let selected = saved ? englishVoices.find(v => v.name === saved) : null;
         if (!selected) selected = englishVoices[0];
 
         this.currentVoiceName = selected ? selected.name : '';
-
         this.renderMenu(englishVoices);
         this.updateTriggerUI(selected);
       },
 
       renderMenu(voices) {
         this.list.innerHTML = '';
-        voices.forEach(v => {
-          const isUK = v.lang.toLowerCase().replace('_', '-').includes('gb');
-          const flag = isUK ? '🇬🇧' : '🇺🇸';
-          const region = isUK ? 'UK' : 'US';
+        voices.slice(0, 15).forEach(v => {
+          const { flag, region } = getVoiceRegionInfo(v.lang);
           const isActive = v.name === this.currentVoiceName;
 
           const btn = document.createElement('button');
@@ -1360,7 +2040,7 @@
           btn.className = `tts-radio-item ${isActive ? 'active' : ''}`;
           btn.dataset.voice = v.name;
           btn.setAttribute('role', 'menuitemradio');
-          btn.setAttribute('aria-checked', isActive ? 'true' : 'false');
+          btn.setAttribute('aria-checked', String(isActive));
           btn.innerHTML = `
             <span class="tts-radio-circle"></span>
             <span class="tts-item-flag">${flag}</span>
@@ -1371,8 +2051,7 @@
             e.stopPropagation();
             audio.playClick();
             this.selectVoice(v);
-            this.wrap.classList.remove('open');
-            this.trigger.setAttribute('aria-expanded', 'false');
+            this.closeMenu();
           });
 
           this.list.appendChild(btn);
@@ -1381,61 +2060,91 @@
 
       selectVoice(v) {
         this.currentVoiceName = v.name;
-        localStorage.setItem('ib_pyp_voice_name', v.name);
+        safeSetStorage('ib_pyp_voice_name', v.name);
         this.updateTriggerUI(v);
         this.list.querySelectorAll('.tts-radio-item').forEach(btn => {
           const isMatch = btn.dataset.voice === v.name;
           btn.classList.toggle('active', isMatch);
-          btn.setAttribute('aria-checked', isMatch ? 'true' : 'false');
+          btn.setAttribute('aria-checked', String(isMatch));
         });
         if (window.speechSynthesis) window.speechSynthesis.cancel();
       },
 
       updateTriggerUI(v) {
         if (!v) return;
-        const isUK = v.lang.toLowerCase().replace('_', '-').includes('gb');
-        this.flag.textContent = isUK ? '🇬🇧' : '🇺🇸';
+        const { flag } = getVoiceRegionInfo(v.lang);
+        this.flag.textContent = flag;
         let shortName = v.name.replace(/^(Google|Microsoft|Apple)\s+/i, '');
         if (shortName.length > 14) shortName = shortName.substring(0, 12) + '...';
         this.label.textContent = shortName;
       },
 
-      speak(text, onEnd) {
-        if (!window.speechSynthesis) return;
+      speak(text, onEnd, triggerBtn) {
+        const finish = () => {
+          if (this.activeSpeakTimer) {
+            clearTimeout(this.activeSpeakTimer);
+            this.activeSpeakTimer = null;
+          }
+          if (triggerBtn) triggerBtn.classList.remove('speaking');
+          if (typeof onEnd === 'function') onEnd();
+        };
+
+        if (!window.speechSynthesis || !text || !text.trim()) {
+          finish();
+          return;
+        }
         window.speechSynthesis.cancel();
-        if (!text || !text.trim()) return;
+        if (triggerBtn) triggerBtn.classList.add('speaking');
 
         const utterance = new SpeechSynthesisUtterance(text);
         const voices = window.speechSynthesis.getVoices();
-        const voiceName = this.currentVoiceName || localStorage.getItem('ib_pyp_voice_name');
-        if (voiceName) {
-          const match = voices.find(v => v.name === voiceName);
-          if (match) utterance.voice = match;
+        const voiceName = this.currentVoiceName || safeGetStorage('ib_pyp_voice_name');
+        if (voices && voices.length > 0) {
+          const match = (voiceName && voices.find(v => v.name === voiceName))
+            || voices.find(v => v.default)
+            || voices[0];
+          if (match) {
+            utterance.voice = match;
+            utterance.lang = match.lang;
+          }
         }
         utterance.rate = 0.85;
-        if (onEnd) {
-          utterance.onend = onEnd;
-          utterance.onerror = onEnd;
-        }
+
+        let settled = false;
+        const safeFinish = () => {
+          if (settled) return;
+          settled = true;
+          finish();
+        };
+        utterance.onend = safeFinish;
+        utterance.onerror = safeFinish;
+        this.activeSpeakTimer = setTimeout(safeFinish, 12000);
         window.speechSynthesis.speak(utterance);
       }
     };
 
-    // Voice Prompt Button Listener
     const btnSpeakPrompt = document.getElementById('btnSpeakPrompt');
     if (btnSpeakPrompt) {
       btnSpeakPrompt.addEventListener('click', () => {
         audio.playClick();
         const promptText = document.getElementById('questionPrompt').textContent.trim();
-        btnSpeakPrompt.classList.add('speaking');
-        TTS_MANAGER.speak(promptText, () => {
-          btnSpeakPrompt.classList.remove('speaking');
-        });
+        TTS_MANAGER.speak(promptText, () => btnSpeakPrompt.classList.remove('speaking'), btnSpeakPrompt);
+      });
+    }
+
+    const btnSpeakDialogue = document.getElementById('btnSpeakDialogue');
+    if (btnSpeakDialogue) {
+      btnSpeakDialogue.addEventListener('click', () => {
+        audio.playClick();
+        const lineText = document.getElementById('scriptLine').textContent.replace(/["']/g, '').trim();
+        TTS_MANAGER.speak(lineText, () => btnSpeakDialogue.classList.remove('speaking'), btnSpeakDialogue);
       });
     }
 
     TTS_MANAGER.init();
-    renderScene();
+    renderSandboxButtons();
+    updatePassportUI();
+    setMode('scenes');
   </script>
 </body>
 

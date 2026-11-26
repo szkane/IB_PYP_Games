@@ -3,8 +3,8 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Array & Equal Groups Visualizer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Array &amp; Equal Groups Visualizer</title>
   <style>
     :root {
       --bg: #FFFDF0;
@@ -14,911 +14,591 @@
       --teal: #4ECDC4;
       --blue: #38B6FF;
       --purple: #B388FF;
+      --green: #86EFAC;
       --white: #FFFFFF;
-      --border: 3.5px solid var(--ink);
+      --border: 3px solid var(--ink);
       --shadow: 4px 4px 0 var(--ink);
       --shadow-sm: 2px 2px 0 var(--ink);
       --radius: 14px;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      overscroll-behavior: none;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-text-size-adjust: 100%;
     }
 
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: ui-rounded, "SF Pro Rounded", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: var(--bg);
       background-image:
-        radial-gradient(circle at 10% 20%, rgba(255, 225, 86, 0.15) 0%, transparent 25%),
-        radial-gradient(circle at 90% 80%, rgba(78, 205, 196, 0.15) 0%, transparent 25%);
+        radial-gradient(circle at 10% 20%, rgba(255, 225, 86, 0.14) 0%, transparent 25%),
+        radial-gradient(circle at 90% 80%, rgba(78, 205, 196, 0.14) 0%, transparent 25%);
       color: var(--ink);
-      min-height: 100vh; min-height: 100dvh;
-      padding: 14px 16px 36px;
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding: max(10px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
     }
+
+    button, a, input { touch-action: manipulation; font-family: inherit; }
 
     .container {
-      max-width: 1200px;
+      max-width: 1340px;
       margin: 0 auto;
+      container-type: inline-size;
+      container-name: arrays;
     }
 
-    /* Top Nav */
     .nav-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 14px;
-      flex-wrap: wrap;
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 10px; margin-bottom: 10px; flex-wrap: wrap;
     }
+    .nav-left, .nav-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
     .pyp-map-link {
-      display: inline-flex;
-      align-items: center;
-      background: var(--yellow);
-      color: var(--ink);
-      text-decoration: none;
-      font-weight: 900;
-      font-size: 0.95rem;
-      border: var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 8px 16px;
-      min-height: 44px;
-      cursor: pointer;
-      transition: transform 0.1s ease;
-    }
-
-    .pyp-map-link:active,
-    .pyp-map-link:hover {
-      transform: translate(2px, 2px);
-      box-shadow: var(--shadow-sm);
+      display: inline-flex; align-items: center; background: var(--yellow); color: var(--ink);
+      text-decoration: none; font-weight: 900; font-size: 0.9rem; border: var(--border);
+      border-radius: 12px; box-shadow: var(--shadow-sm); padding: 8px 14px; min-height: 44px;
     }
 
     .unit-tag {
-      background: var(--yellow);
-      border: var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 8px 14px;
-      font-weight: 800;
-      font-size: 0.88rem;
-      min-height: 44px;
-      display: inline-flex;
-      align-items: center;
+      background: var(--yellow); border: var(--border); border-radius: 12px;
+      box-shadow: var(--shadow-sm); padding: 8px 12px; font-weight: 900; font-size: 0.86rem;
+      min-height: 44px; display: inline-flex; align-items: center;
     }
 
-    /* Hero Header */
-    .hero-card {
-      background: var(--white);
-      border: var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 14px 18px;
-      margin-bottom: 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
+    .step-switch {
+      display: inline-flex; background: #F3F4F6; border: var(--border); border-radius: 12px;
+      padding: 3px; gap: 4px; box-shadow: var(--shadow-sm);
     }
-
-    .hero-title h1 {
-      font-size: clamp(1.2rem, 2.5vw, 1.6rem);
-      font-weight: 900;
-      margin-bottom: 2px;
+    .mode-pill {
+      border: 2px solid transparent; border-radius: 9px; background: transparent;
+      color: var(--ink); font-weight: 900; font-size: 0.86rem; padding: 6px 12px;
+      min-height: 44px; cursor: pointer;
     }
-
-    .hero-title p {
-      font-size: 0.88rem;
-      font-weight: 700;
-      color: #4B5563;
-    }
-
-    .score-tray {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
+    .mode-pill.active { background: var(--teal); border-color: var(--ink); box-shadow: 2px 2px 0 var(--ink); }
 
     .score-badge {
-      border: 2.5px solid var(--ink);
-      border-radius: 10px;
-      padding: 6px 14px;
-      font-weight: 900;
-      font-size: 0.9rem;
-      box-shadow: var(--shadow-sm);
-      min-height: 44px;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--teal);
+      border: var(--border); border-radius: 12px; padding: 6px 12px; font-weight: 900;
+      font-size: 0.88rem; box-shadow: var(--shadow-sm); min-height: 44px;
+      display: inline-flex; align-items: center; gap: 6px; background: #FEF9C3;
     }
 
-    /* Main Grid */
+    .btn-reflect-pill {
+      display: inline-flex; align-items: center; gap: 6px; background: var(--green); color: var(--ink);
+      border: var(--border); border-radius: 12px; box-shadow: var(--shadow-sm);
+      padding: 8px 14px; font-weight: 900; font-size: 0.86rem; min-height: 44px; cursor: pointer;
+    }
+
+    .hero-card {
+      background: var(--white); border: var(--border); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 10px 16px; margin-bottom: 10px;
+      display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+    .hero-card h1 { font-size: clamp(1.15rem, 2.2vw, 1.48rem); font-weight: 900; }
+    .hero-card p { font-size: 0.84rem; font-weight: 700; color: #4B5563; }
+
     .math-grid {
       display: grid;
       grid-template-columns: 1.15fr 1fr;
-      gap: 16px;
-      margin-bottom: 18px;
+      gap: 12px;
+      align-items: stretch;
     }
 
     .card {
-      background: var(--white);
-      border: var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 18px;
-      display: flex;
-      flex-direction: column;
+      background: var(--white); border: var(--border); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 14px; display: flex; flex-direction: column; gap: 10px;
     }
 
     .card-title {
-      font-size: 1.1rem;
-      font-weight: 900;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
+      font-size: 1.04rem; font-weight: 900; display: flex; align-items: center;
+      justify-content: space-between; gap: 8px;
     }
 
-    .card-title-left {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
+    /* Case Tabs */
+    .case-chips { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+    .case-chip {
+      min-width: 44px; min-height: 44px; padding: 0 10px; border: 2px solid var(--ink);
+      border-radius: 10px; background: #FFF; font-weight: 900; font-size: 0.86rem;
+      cursor: pointer; box-shadow: 2px 2px 0 var(--ink);
     }
+    .case-chip.active { background: var(--blue); color: #FFF; }
+    .case-chip.solved { background: #DCFCE7; color: #065F46; }
+    .case-chip.active.solved { background: #10B981; color: #FFF; }
 
-    /* Interactive Matrix Array Display */
-    .array-board {
+    /* Step 1: 6x6 Interactive Array Builder */
+    .builder-grid-6x6 {
+      display: grid;
+      grid-template-columns: repeat(6, clamp(40px, 5vw, 52px));
+      gap: 6px;
+      padding: 12px;
       background: #F8FAFC;
       border: 3px solid var(--ink);
       border-radius: 12px;
-      padding: 16px;
-      min-height: 280px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 12px;
-      position: relative;
-      gap: 10px;
-    }
-
-    .matrix-container {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .matrix-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: #E2E8F0;
-      padding: 6px 10px;
-      border-radius: 8px;
-      border: 2px dashed #94A3B8;
-      cursor: pointer;
-      transition: background-color 0.15s, border-color 0.15s, transform 0.12s;
-    }
-
-    .matrix-row:hover {
-      background: #FEF9C3;
-      border-color: var(--ink);
-    }
-
-    .matrix-row.counted {
-      background: #D1FAE5;
-      border: 2.5px solid var(--ink);
-      box-shadow: 2px 2px 0 var(--ink);
-      transform: translateX(3px);
-    }
-
-    .row-skip-badge {
-      min-width: 38px;
-      height: 32px;
-      padding: 0 8px;
-      border-radius: 999px;
-      border: 2px solid var(--ink);
-      background: var(--yellow);
-      color: var(--ink);
-      font-size: 0.85rem;
-      font-weight: 900;
-      display: none;
-      align-items: center;
       justify-content: center;
     }
-
-    .matrix-row.counted .row-skip-badge {
-      display: inline-flex;
-    }
-
-    .skip-count-tip {
-      font-size: 0.85rem;
-      font-weight: 800;
-      color: #475569;
-      text-align: center;
-    }
-
-    .matrix-item {
-      width: 44px;
-      height: 44px;
-      background: var(--white);
-      border: 2.5px solid var(--ink);
-      border-radius: 8px;
-      box-shadow: 2px 2px 0 var(--ink);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.6rem;
-      user-select: none;
-      transition: transform 0.1s ease;
-    }
-
-    .matrix-item:hover {
-      transform: scale(1.1);
-    }
-
-    /* Mathematical Relationships Banner */
-    .equation-banner {
-      background: #FEF3C7;
-      border: 2.5px solid var(--ink);
-      border-radius: 10px;
-      padding: 12px 14px;
-      text-align: center;
-      font-family: monospace;
-      font-size: 1.35rem;
-      font-weight: 900;
-      margin-bottom: 14px;
-    }
-
-    /* Question & Input Form */
-    .question-block {
-      background: #F3F4F6;
-      border: 2px solid var(--ink);
-      border-radius: 10px;
-      padding: 14px;
-      margin-bottom: 14px;
-    }
-
-    .input-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
-      gap: 8px;
-    }
-
-    .input-row label {
-      font-weight: 800;
-      font-size: 0.9rem;
-    }
-
-    .stepper-control {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .step-btn {
-      font-family: inherit;
-      width: 44px;
-      height: 44px;
+    .builder-cell {
+      width: clamp(40px, 5vw, 52px);
+      height: clamp(40px, 5vw, 52px);
       min-height: 44px;
-      background: var(--yellow);
-      color: var(--ink);
-      border: 2.5px solid var(--ink);
-      border-radius: 8px;
-      font-size: 1.3rem;
-      font-weight: 900;
+      border: 2.5px solid #CBD5E1;
+      border-radius: 10px;
+      background: #FFFFFF;
+      font-size: 1.35rem;
       cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: transform 0.15s ease, background-color 0.15s ease;
+    }
+    .builder-cell.selected {
+      background: #FEF08A;
+      border-color: var(--ink);
+      box-shadow: 2px 2px 0 var(--ink);
+    }
+    .builder-cell.row-hi {
+      background: #D1FAE5;
+    }
+
+    /* Step 2: Array Board with SVG Row Braces */
+    .array-board {
+      background: #F8FAFC; border: 3px solid var(--ink); border-radius: 12px;
+      padding: 12px; min-height: 250px; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 8px; flex: 1;
+    }
+    .matrix-with-braces {
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 2px 2px 0 var(--ink);
-      transition: all 0.1s ease;
-      user-select: none;
+      gap: 10px;
+    }
+    .matrix-container { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+    .matrix-row {
+      display: flex; align-items: center; gap: 6px; background: #E2E8F0;
+      padding: 4px 8px; border-radius: 10px; border: 2px dashed #94A3B8;
+      cursor: pointer; min-height: 44px;
+    }
+    .matrix-row.counted {
+      background: #D1FAE5; border: 2.5px solid var(--ink); box-shadow: 2px 2px 0 var(--ink);
+    }
+    .row-brace-label {
+      font-size: 0.74rem; font-weight: 900; color: #334155; min-width: 48px;
+      display: inline-flex; align-items: center; gap: 4px;
+    }
+    .matrix-item {
+      width: clamp(30px, 3.6vw, 42px);
+      height: clamp(30px, 3.6vw, 42px);
+      background: var(--white); border: 2px solid var(--ink); border-radius: 8px;
+      box-shadow: 2px 2px 0 var(--ink); display: flex; align-items: center; justify-content: center;
+      font-size: clamp(1.1rem, 2.2vw, 1.45rem); user-select: none;
+    }
+    .row-skip-badge {
+      min-width: 34px; height: 28px; padding: 0 7px; border-radius: 999px;
+      border: 2px solid var(--ink); background: var(--yellow); color: var(--ink);
+      font-size: 0.8rem; font-weight: 900; display: none; align-items: center; justify-content: center;
+    }
+    .matrix-row.counted .row-skip-badge { display: inline-flex; }
+    .skip-count-tip { font-size: 0.84rem; font-weight: 800; color: #475569; text-align: center; }
+
+    .equation-banner {
+      background: #FEF3C7; border: 2.5px solid var(--ink); border-radius: 10px;
+      padding: 10px 12px; text-align: center; font-family: monospace; font-size: 1.2rem; font-weight: 900;
     }
 
-    .step-btn:hover {
-      background: #FFF9D2;
+    /* Step 2 Controls & Mini Number Pad */
+    .question-block {
+      background: #F3F4F6; border: 2.5px solid var(--ink); border-radius: 12px;
+      padding: 10px 12px; display: flex; flex-direction: column; gap: 8px;
     }
+    .input-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+    .input-row label { font-weight: 800; font-size: 0.88rem; }
 
-    .step-btn:active {
-      transform: translate(2px, 2px);
-      box-shadow: 0 0 0;
+    .stepper-control { display: inline-flex; align-items: center; gap: 5px; }
+    .step-btn {
+      min-width: 44px; min-height: 44px; padding: 0 8px; background: var(--yellow);
+      color: var(--ink); border: 2px solid var(--ink); border-radius: 8px;
+      font-size: 0.96rem; font-weight: 900; cursor: pointer; box-shadow: 2px 2px 0 var(--ink);
     }
-
     .input-box {
-      font-family: monospace;
-      font-size: 1.25rem;
-      font-weight: 900;
-      width: 65px;
-      height: 44px;
-      padding: 6px;
-      border: 2.5px solid var(--ink);
-      border-radius: 8px;
-      text-align: center;
-      box-shadow: var(--shadow-sm);
-      background: #FFFFFF;
-      transition: background-color 0.15s, border-color 0.15s;
+      font-family: monospace; font-size: 1.2rem; font-weight: 900; width: 64px; height: 44px;
+      border: 2.5px solid var(--ink); border-radius: 8px; text-align: center;
+      box-shadow: var(--shadow-sm); background: #FFFFFF; cursor: pointer;
     }
+    .input-box.active-field { background: #FEF9C3; box-shadow: inset 0 0 0 2px #0284C7; }
+    .input-box.input-error { background: #FEE2E2; border-color: #DC2626; color: #991B1B; }
+    .input-box.input-ok { background: #D1FAE5; border-color: #059669; color: #065F46; }
 
-    .input-box.input-error {
-      background: #FEE2E2;
-      border-color: #DC2626;
-      color: #991B1B;
+    .numpad-strip {
+      display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px;
     }
-
-    .input-box.input-ok {
-      background: #D1FAE5;
-      border-color: #059669;
-      color: #065F46;
+    .numpad-key {
+      min-height: 44px; border: 2px solid var(--ink); border-radius: 8px; background: #FFF;
+      font-weight: 900; font-size: 0.96rem; cursor: pointer; box-shadow: 2px 2px 0 var(--ink);
     }
-
-    .hint-area {
-      margin-bottom: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      align-items: flex-start;
-    }
+    .numpad-key.del { background: #FEE2E2; }
+    .numpad-key.clr { background: #E0F2FE; }
 
     .btn-hint-toggle {
-      font-family: inherit;
-      background: #E0F2FE;
-      color: var(--ink);
-      border: 2.5px solid var(--ink);
-      border-radius: 10px;
-      box-shadow: 2px 2px 0 var(--ink);
-      padding: 7px 14px;
-      font-size: 0.86rem;
-      font-weight: 800;
-      cursor: pointer;
-      min-height: 40px;
-      transition: transform 0.1s, box-shadow 0.1s, background-color 0.15s;
+      background: #E0F2FE; color: var(--ink); border: 2.5px solid var(--ink); border-radius: 10px;
+      box-shadow: 2px 2px 0 var(--ink); padding: 8px 14px; font-size: 0.85rem; font-weight: 900;
+      cursor: pointer; min-height: 44px;
     }
-
-    .btn-hint-toggle:hover {
-      background: #BAE6FD;
-      transform: translate(-1px, -1px);
-      box-shadow: 3px 3px 0 var(--ink);
-    }
-
-    .btn-hint-toggle:active {
-      transform: translate(2px, 2px);
-      box-shadow: 0 0 0 var(--ink);
-    }
-
     .repeated-addition-box {
-      display: none;
-      width: 100%;
-      background: #FEF9C3;
-      border: 2px dashed var(--ink);
-      border-radius: 10px;
-      padding: 8px 12px;
-      font-size: 0.92rem;
-      font-weight: 800;
-      color: #713F12;
+      display: none; width: 100%; background: #FEF9C3; border: 2px dashed var(--ink);
+      border-radius: 10px; padding: 8px 12px; font-size: 0.88rem; font-weight: 800; color: #713F12;
     }
+    .repeated-addition-box.open { display: block; }
 
-    .repeated-addition-box.open {
-      display: block;
+    .feedback-box {
+      display: none; padding: 10px 12px; border-radius: 10px; border: 2.5px solid var(--ink);
+      font-size: 0.88rem; font-weight: 800; line-height: 1.35;
     }
+    .feedback-box.success { display: block; background: #D1FAE5; color: #065F46; }
+    .feedback-box.error { display: block; background: #FEE2E2; color: #991B1B; }
 
-    /* Neobrutalism TTS Radio Dropdown */
-    .tts-dropdown-wrap {
-      position: relative;
-      display: inline-block;
-      user-select: none;
-      font-family: inherit;
+    .btn-submit, .btn-next-quest, .mini-btn {
+      border: var(--border); border-radius: 12px; font-size: 0.96rem; font-weight: 900;
+      padding: 10px 16px; min-height: 46px; cursor: pointer; box-shadow: var(--shadow-sm);
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
     }
-    .tts-trigger {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: #FFF;
-      border: 2.5px solid var(--ink);
-      border-radius: 10px;
-      box-shadow: 3px 3px 0 var(--ink);
-      padding: 6px 12px;
-      font-family: inherit;
-      font-size: 0.85rem;
-      font-weight: 800;
-      color: var(--ink);
-      cursor: pointer;
-      min-height: 40px;
-      transition: transform 0.1s, box-shadow 0.1s;
-    }
-    .tts-trigger:hover {
-      background: #FEF08A;
-      transform: translate(-1px, -1px);
-      box-shadow: 4px 4px 0 var(--ink);
-    }
-    .tts-trigger:active {
-      transform: translate(2px, 2px);
-      box-shadow: 1px 1px 0 var(--ink);
-    }
-    .tts-arrow {
-      font-size: 0.75rem;
-      transition: transform 0.15s ease;
-    }
-    .tts-dropdown-wrap.open .tts-arrow {
-      transform: rotate(180deg);
-    }
-    .tts-menu {
-      display: none;
-      position: absolute;
-      top: calc(100% + 6px);
-      right: 0;
-      min-width: 250px;
-      max-width: 320px;
-      max-height: 290px;
-      overflow-y: auto;
-      background: #FFF;
-      border: 3px solid var(--ink);
-      border-radius: 12px;
-      box-shadow: 4px 4px 0 var(--ink);
-      padding: 6px;
-      z-index: 1000;
-      flex-direction: column;
-      gap: 3px;
-    }
-    .tts-dropdown-wrap.open .tts-menu {
-      display: flex;
-    }
-    .tts-menu-header {
-      font-size: 0.72rem;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      color: #6B7280;
-      padding: 4px 8px 6px;
-      border-bottom: 2px solid #E5E7EB;
-      margin-bottom: 3px;
-    }
-    .tts-radio-group {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-    .tts-radio-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 7px 10px;
-      border: 2px solid transparent;
-      border-radius: 8px;
-      background: transparent;
-      cursor: pointer;
-      font-family: inherit;
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--ink);
-      text-align: left;
-      width: 100%;
-      transition: background 0.1s, border-color 0.1s;
-    }
-    .tts-radio-item:hover {
-      background: #FEF9C3;
-      border-color: var(--ink);
-    }
-    .tts-radio-item.active {
-      background: #E0F2FE;
-      border-color: var(--ink);
-      font-weight: 800;
-    }
-    .tts-radio-circle {
-      width: 15px;
-      height: 15px;
-      border-radius: 50%;
-      border: 2px solid var(--ink);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      background: #FFF;
-    }
-    .tts-radio-item.active .tts-radio-circle::after {
-      content: '';
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--ink);
-    }
-    .tts-item-flag { font-size: 1rem; }
-    .tts-item-name {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      flex: 1;
-    }
+    .btn-submit { background: var(--coral); color: var(--white); width: 100%; }
+    .btn-next-quest { background: var(--yellow); color: var(--ink); width: 100%; }
+    .mini-btn { background: var(--white); color: var(--ink); }
+    .mini-btn.teal { background: var(--teal); }
+    .mini-btn.yellow { background: var(--yellow); }
 
     .btn-speaker {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: #FEF08A;
-      border: 2.5px solid var(--ink);
-      box-shadow: 2px 2px 0 var(--ink);
-      border-radius: 8px;
-      min-width: 38px;
-      height: 38px;
-      padding: 0 10px;
-      cursor: pointer;
-      font-family: inherit;
-      font-size: 0.9rem;
-      font-weight: 800;
-      gap: 5px;
-      flex-shrink: 0;
-      transition: transform 0.1s, box-shadow 0.1s, background-color 0.1s;
+      display: inline-flex; align-items: center; justify-content: center;
+      background: #FEF08A; border: 2.5px solid var(--ink); box-shadow: 2px 2px 0 var(--ink);
+      border-radius: 10px; min-width: 44px; min-height: 44px; padding: 0 10px; cursor: pointer;
+      font-size: 0.88rem; font-weight: 900; gap: 5px; flex-shrink: 0;
     }
-    .btn-speaker:hover {
-      background: #FDE047;
-      transform: translate(-1px, -1px);
-      box-shadow: 3px 3px 0 var(--ink);
-    }
-    .btn-speaker:active {
-      transform: translate(2px, 2px);
-      box-shadow: 0 0 0 var(--ink);
-    }
-    .btn-speaker.speaking {
-      background: #86EFAC;
-      animation: ttsPulse 0.7s infinite alternate;
-    }
-    @keyframes ttsPulse {
-      from { transform: scale(1); }
-      to { transform: scale(1.06); }
-    }
+    .btn-speaker.speaking { background: var(--green); animation: ttsPulse 0.7s infinite alternate; }
+    @keyframes ttsPulse { from { transform: scale(1); } to { transform: scale(1.06); } }
 
-    .pyp-reflect-card {
-      background: #FFFDE8;
-      border: 2.5px solid var(--ink);
-      border-radius: 12px;
-      box-shadow: 3px 3px 0 var(--ink);
-      padding: 14px 16px;
-      margin-bottom: 16px;
-      text-align: left;
+    /* Unified TTS Dropdown */
+    .tts-dropdown-wrap { position: relative; display: inline-block; user-select: none; }
+    .tts-trigger {
+      display: inline-flex; align-items: center; gap: 6px; background: #FFF;
+      border: var(--border); border-radius: 12px; box-shadow: var(--shadow-sm);
+      padding: 6px 12px; font-size: 0.85rem; font-weight: 800; color: var(--ink);
+      cursor: pointer; min-height: 44px;
+    }
+    .tts-arrow { font-size: 0.75rem; transition: transform 0.15s ease; }
+    .tts-dropdown-wrap.open .tts-arrow { transform: rotate(180deg); }
+    .tts-menu {
+      display: none; position: absolute; top: calc(100% + 6px); right: 0;
+      min-width: 260px; max-width: 320px; max-height: 290px; overflow-y: auto;
+      background: #FFF; border: 3px solid var(--ink); border-radius: 12px;
+      box-shadow: var(--shadow); padding: 6px; z-index: 1000; flex-direction: column; gap: 3px;
+    }
+    .tts-dropdown-wrap.open .tts-menu { display: flex; }
+    .tts-menu-header {
+      font-size: 0.72rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.6px;
+      color: #6B7280; padding: 4px 8px 6px; border-bottom: 2px solid #E5E7EB; margin-bottom: 3px;
+    }
+    .tts-radio-group { display: flex; flex-direction: column; gap: 3px; }
+    .tts-radio-item {
+      display: flex; align-items: center; gap: 8px; padding: 7px 10px;
+      border: 2px solid transparent; border-radius: 8px; background: transparent;
+      cursor: pointer; font-size: 0.82rem; font-weight: 700; color: var(--ink);
+      text-align: left; width: 100%; min-height: 44px;
+    }
+    .tts-radio-item.active { background: #E0F2FE; border-color: var(--ink); font-weight: 800; }
+    .tts-radio-circle {
+      width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--ink);
+      display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; background: #FFF;
+    }
+    .tts-radio-item.active .tts-radio-circle::after {
+      content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--ink);
+    }
+    .tts-item-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+
+    /* Modal */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.72);
+      backdrop-filter: blur(5px); z-index: 2000; align-items: center; justify-content: center; padding: 16px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-card {
+      background: #FFFDF0; border: 4px solid var(--ink); border-radius: 20px;
+      box-shadow: 8px 8px 0 var(--ink); padding: 22px; max-width: 540px; width: 100%;
+      text-align: center; display: grid; gap: 10px;
     }
     .pyp-reflect-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--yellow);
-      color: var(--ink);
-      border: 2px solid var(--ink);
-      border-radius: 999px;
-      padding: 3px 12px;
-      font-size: 0.78rem;
-      font-weight: 900;
-      margin-bottom: 6px;
+      display: inline-flex; align-items: center; gap: 6px; background: var(--yellow); color: var(--ink);
+      border: 2.5px solid var(--ink); border-radius: 999px; padding: 4px 14px;
+      font-size: 0.82rem; font-weight: 900; width: fit-content; margin: 0 auto;
     }
-    .pyp-stamp-status {
-      font-size: 0.88rem;
-      font-weight: 900;
-      color: #047857;
-      margin-top: 8px;
-      min-height: 20px;
+    .pyp-modal-box {
+      background: #FFF; border: 2.5px solid var(--ink); border-radius: 12px; padding: 10px 14px;
+      font-size: 0.88rem; line-height: 1.45; font-weight: 700; text-align: left;
     }
+    .pyp-modal-box strong { display: block; font-size: 0.74rem; text-transform: uppercase; color: #0F766E; margin-bottom: 2px; }
+    .modal-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .modal-actions .mini-btn { flex: 1; min-width: 135px; text-decoration: none; }
 
-    /* Feedback Box */
-    .feedback-box {
-      display: none;
-      padding: 10px 14px;
-      border-radius: 8px;
-      border: 2.5px solid var(--ink);
-      font-size: 0.9rem;
-      font-weight: 800;
-      margin-bottom: 12px;
-      line-height: 1.35;
-    }
+    .hidden { display: none !important; }
 
-    .feedback-box.success {
-      display: block;
-      background: #D1FAE5;
-      color: #065F46;
-    }
-
-    .feedback-box.error {
-      display: block;
-      background: #FEE2E2;
-      color: #991B1B;
-    }
-
-    .btn-submit {
-      font-family: inherit;
-      width: 100%;
-      background: var(--coral);
-      color: var(--white);
-      border: var(--border);
-      border-radius: 10px;
-      font-size: 1.05rem;
-      font-weight: 900;
-      padding: 12px 18px;
-      min-height: 48px;
-      cursor: pointer;
-      box-shadow: var(--shadow);
-      margin-top: auto;
-      transition: transform 0.1s ease;
-    }
-
-    .btn-submit:active {
-      transform: translate(2px, 2px);
-      box-shadow: var(--shadow-sm);
-    }
-
-    .btn-next-quest {
-      width: 100%;
-      background: var(--yellow);
-      color: var(--ink);
-      border: var(--border);
-      border-radius: 10px;
-      font-size: 1.05rem;
-      font-weight: 900;
-      padding: 12px 18px;
-      min-height: 48px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      box-shadow: var(--shadow);
-      margin-top: auto;
-      transition: transform 0.1s ease;
-    }
-
-    .btn-next-quest:hover {
-      transform: translate(-2px, -2px);
-      box-shadow: 5px 5px 0 var(--ink);
-    }
-
-    .btn-next-quest:active {
-      transform: translate(2px, 2px);
-      box-shadow: var(--shadow-sm);
-    }
-
-    /* Win Modal */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(4px);
-      z-index: 100;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-    }
-
-    .modal-card {
-      background: var(--white);
-      border: 4px solid var(--ink);
-      border-radius: 18px;
-      box-shadow: 8px 8px 0 var(--ink);
-      padding: 28px;
-      max-width: 480px;
-      width: 100%;
-      text-align: center;
-    }
-
-    .modal-badge {
-      font-size: 4rem;
-      margin-bottom: 8px;
-    }
-
-    .modal-title {
-      font-size: 1.6rem;
-      font-weight: 900;
-      margin-bottom: 8px;
-    }
-
-    .modal-desc {
-      font-size: 0.98rem;
-      font-weight: 700;
-      color: #4B5563;
-      margin-bottom: 20px;
-      line-height: 1.4;
-    }
-
-    @media (max-width: 820px) {
-      .math-grid {
-        grid-template-columns: 1fr;
+    @media (hover: hover) and (pointer: fine) {
+      .pyp-map-link:hover, .btn-reflect-pill:hover, .mode-pill:hover, .case-chip:hover,
+      .step-btn:hover, .numpad-key:hover, .btn-hint-toggle:hover, .btn-submit:hover,
+      .btn-next-quest:hover, .mini-btn:hover, .tts-trigger:hover, .btn-speaker:hover {
+        transform: translate(-1px, -1px);
       }
+      .tts-radio-item:hover { background: #FEF9C3; border-color: var(--ink); }
     }
-  
-    html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
+
+    @container arrays (max-width: 920px) {
+      .math-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 
 <body>
   <div class="container">
     <nav class="nav-bar">
-      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+      <div class="nav-left">
         <a class="pyp-map-link" href="../index.html">← PYP Map</a>
-        <span class="unit-tag">✖️ Grade 2 · Unit 2: Multiplication Arrays</span>
+        <span class="unit-tag">✖️ Grade 2 · Unit 2: Arrays</span>
+        <div class="step-switch" role="tablist">
+          <button type="button" class="mode-pill active" id="tabStep1" role="tab" aria-selected="true">1. Array Flip Lab</button>
+          <button type="button" class="mode-pill" id="tabStep2" role="tab" aria-selected="false">2. Array Missions (6)</button>
+        </div>
       </div>
-      <div class="tts-dropdown-wrap" id="ttsDropdownWrap">
-        <button type="button" class="tts-trigger" id="ttsTrigger" aria-haspopup="menu" aria-expanded="false" title="Select Voice Accent">
-          <span class="tts-trigger-flag" id="ttsFlag">🇬🇧</span>
-          <span class="tts-trigger-label" id="ttsLabel">Voice</span>
-          <span class="tts-arrow">▾</span>
-        </button>
-        <div class="tts-menu" id="ttsMenu" role="menu">
-          <div class="tts-menu-header">Select Voice Accent</div>
-          <div class="tts-radio-group" id="ttsRadioList" role="radiogroup"></div>
+      <div class="nav-right">
+        <div class="score-badge" id="badgeScore">⭐ Score: 0</div>
+        <button type="button" class="btn-reflect-pill" id="btnOpenReflect">🏅 Reflect &amp; Stamp</button>
+        <div class="tts-dropdown-wrap" id="ttsDropdownWrap">
+          <button type="button" class="tts-trigger" id="ttsTrigger" aria-haspopup="menu" aria-expanded="false" title="Select Voice Accent">
+            <span id="ttsFlag">🇬🇧</span>
+            <span id="ttsLabel">Voice</span>
+            <span class="tts-arrow">▾</span>
+          </button>
+          <div class="tts-menu" id="ttsMenu" role="menu">
+            <div class="tts-menu-header">Select Voice Accent</div>
+            <div class="tts-radio-group" id="ttsRadioList" role="radiogroup"></div>
+          </div>
         </div>
       </div>
     </nav>
 
     <header class="hero-card">
-      <div class="hero-title">
-        <h1>Array & Equal Groups Visualizer 🍎</h1>
-        <p>Understand multiplication as equal groups, arrays, and repeated addition.</p>
+      <div>
+        <h1>Array &amp; Equal Groups Visualizer 🍎</h1>
+        <p id="heroSub">Step 1: Build any array on the 6×6 grid and rotate 90° to see why 3 × 4 = 4 × 3!</p>
       </div>
-      <div class="score-tray">
-        <div class="score-badge" id="badgeRound">🎯 Challenge 1 / 6</div>
-        <div class="score-badge" style="background: var(--yellow);" id="badgeScore">⭐ Score: 0</div>
-      </div>
+      <div class="case-chips hidden" id="missionChips"></div>
     </header>
 
-    <main class="math-grid">
-      <!-- Left Column: Visual Array Board -->
-      <section class="card">
-        <h2 class="card-title">
-          <span class="card-title-left"><span>📦</span> Visual Array Matrix</span>
-          <button type="button" class="btn-speaker" id="btnSpeakArray" title="Read aloud prompt or multiplication sentence">🔊 Read Aloud</button>
-        </h2>
-        <div class="array-board" id="arrayBoard">
-          <!-- Rendered by JS -->
+    <!-- STEP 1: INTERACTIVE 6x6 ARRAY BUILDER & 90° COMMUTATIVE FLIP LAB -->
+    <section id="step1View" class="math-grid">
+      <div class="card">
+        <div class="card-title">
+          <span>🧱 6×6 Array Builder Grid (Tap any corner!)</span>
+          <button type="button" class="btn-speaker" id="btnSpeakLab">🔊 Hear Fact</button>
         </div>
+        <div class="builder-grid-6x6" id="builderGrid6x6" aria-label="6 by 6 array builder"></div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center;">
+          <button type="button" class="mini-btn yellow" id="btnFlip90">🔄 Rotate 90° (Flip!)</button>
+          <button type="button" class="mini-btn" id="btnLabSkipCount">🎵 Musical Skip-Count</button>
+        </div>
+      </div>
 
-        <div class="equation-banner" id="equationHint">
-          ? rows × ? in each row = ?
+      <aside class="card">
+        <div class="card-title"><span>🔄 Commutative Flip Discovery</span></div>
+        <div class="equation-banner" id="labEquation">3 rows × 4 in each = 12</div>
+        <div class="pyp-modal-box" style="background:#FFFDE8;">
+          <strong>Repeated Addition</strong>
+          <span id="labRepeatText">4 + 4 + 4 = 12</span>
         </div>
+        <div class="pyp-modal-box" style="background:#ECFDF5;">
+          <strong>Why Rotate 90° Works!</strong>
+          <span id="labExplainText">Turning a 3 × 4 array 90° makes a 4 × 3 array. The total stays 12!</span>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:auto;">
+          <button type="button" class="mini-btn teal" id="btnGoStep2" style="width:100%;">Start Step 2 Array Missions ➔</button>
+        </div>
+      </aside>
+    </section>
+
+    <!-- STEP 2: ARRAY MISSIONS -->
+    <main id="step2View" class="math-grid hidden">
+      <section class="card">
+        <div class="card-title">
+          <span id="badgeRound">🎯 Mission 1 / 6</span>
+          <button type="button" class="btn-speaker" id="btnSpeakArray" title="Read aloud">🔊 Read Aloud</button>
+        </div>
+        <div class="array-board" id="arrayBoard"></div>
+        <div class="equation-banner" id="equationHint">? rows × ? in each row = ?</div>
       </section>
 
-      <!-- Right Column: Group, Each, Total Inquiry -->
       <section class="card">
-        <h2 class="card-title"><span class="card-title-left"><span>🔢</span> Multiplication Reasoning</span></h2>
+        <div class="card-title"><span>🔢 Multiplication Reasoning</span></div>
 
         <div class="question-block">
           <div class="input-row">
-            <label for="inpGroups">1. Number of Groups (Rows):</label>
+            <label for="inpGroups">1. Rows (Groups):</label>
             <div class="stepper-control">
               <button type="button" class="step-btn" data-target="inpGroups" data-delta="-1">−</button>
-              <input type="number" id="inpGroups" class="input-box" min="1" max="10" placeholder="?" />
-              <button type="button" class="step-btn" data-target="inpGroups" data-delta="1">+</button>
+              <input type="text" inputmode="none" readonly id="inpGroups" class="input-box active-field" placeholder="?" />
+              <button type="button" class="step-btn" data-target="inpGroups" data-delta="1">+1</button>
             </div>
           </div>
 
           <div class="input-row">
-            <label for="inpEach">2. Number in Each Group (Items):</label>
+            <label for="inpEach">2. Each Row (Items):</label>
             <div class="stepper-control">
               <button type="button" class="step-btn" data-target="inpEach" data-delta="-1">−</button>
-              <input type="number" id="inpEach" class="input-box" min="1" max="10" placeholder="?" />
-              <button type="button" class="step-btn" data-target="inpEach" data-delta="1">+</button>
+              <input type="text" inputmode="none" readonly id="inpEach" class="input-box" placeholder="?" />
+              <button type="button" class="step-btn" data-target="inpEach" data-delta="1">+1</button>
             </div>
           </div>
 
           <div class="input-row">
-            <label for="inpTotal">3. Total Items (Group × Each):</label>
+            <label for="inpTotal">3. Total Items:</label>
             <div class="stepper-control">
               <button type="button" class="step-btn" data-target="inpTotal" data-delta="-1">−</button>
-              <input type="number" id="inpTotal" class="input-box" min="1" max="100" placeholder="?" />
-              <button type="button" class="step-btn" data-target="inpTotal" data-delta="1">+</button>
+              <input type="text" inputmode="none" readonly id="inpTotal" class="input-box" placeholder="?" />
+              <button type="button" class="step-btn" data-target="inpTotal" data-delta="1">+1</button>
+              <button type="button" class="step-btn" data-target="inpTotal" data-delta="5">+5</button>
             </div>
+          </div>
+
+          <!-- Built-in Neobrutalism Mini Number Pad (zero iOS keyboard!) -->
+          <div class="numpad-strip" id="numpadStrip" aria-label="Number pad">
+            <button type="button" class="numpad-key" data-key="1">1</button>
+            <button type="button" class="numpad-key" data-key="2">2</button>
+            <button type="button" class="numpad-key" data-key="3">3</button>
+            <button type="button" class="numpad-key" data-key="4">4</button>
+            <button type="button" class="numpad-key" data-key="5">5</button>
+            <button type="button" class="numpad-key del" data-key="del">⌫</button>
+            <button type="button" class="numpad-key" data-key="6">6</button>
+            <button type="button" class="numpad-key" data-key="7">7</button>
+            <button type="button" class="numpad-key" data-key="8">8</button>
+            <button type="button" class="numpad-key" data-key="9">9</button>
+            <button type="button" class="numpad-key" data-key="0">0</button>
+            <button type="button" class="numpad-key clr" data-key="clr">Clear</button>
           </div>
         </div>
 
-        <div class="hint-area">
-          <button type="button" class="btn-hint-toggle" id="btnToggleHint" aria-expanded="false">💡 Show Repeated Addition Hint</button>
-          <div class="repeated-addition-box" id="repeatedAdditionText">Repeated Addition: ?</div>
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <button type="button" class="btn-hint-toggle" id="btnToggleHint" aria-expanded="false">💡 Hint 1: Skip-Count Rows</button>
+          <div class="repeated-addition-box" id="repeatedAdditionText"></div>
         </div>
 
         <div class="feedback-box" id="feedbackBox"></div>
 
-        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: auto;">
+        <div style="display:flex; flex-direction:column; gap:8px; margin-top:auto;">
           <button class="btn-submit" id="btnCheckArray" type="button">Verify My Multiplication 🚀</button>
-          <button class="btn-next-quest" id="btnNextArray" type="button" style="display: none;">Next Mission ➔</button>
+          <button class="btn-next-quest" id="btnNextArray" type="button" style="display:none;">Next Mission ➔</button>
         </div>
       </section>
     </main>
   </div>
 
-  <!-- Win Modal -->
-  <div class="modal-overlay" id="winModal">
+  <!-- STEP 3: IB PYP REFLECTION & PASSPORT MODAL -->
+  <div class="modal-overlay" id="winModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-card">
-      <div class="modal-badge">🌟</div>
-      <h2 class="modal-title">Multiplication Architect!</h2>
-      <p class="modal-desc">
-        Brilliant! You mastered arrays, equal groups, and repeated addition. You are ready for fast times tables!
-      </p>
-      <div class="pyp-reflect-card">
-        <div class="pyp-reflect-badge">💡 IB PYP Learner Profile · Thinker</div>
-        <p style="font-size: 0.9rem; font-weight: 700; color: #374151; line-height: 1.45;">
-          <strong>Reflection:</strong> Organizing items into equal rows lets us skip-count and multiply instead of counting one by one!
-        </p>
-        <div class="pyp-stamp-status" id="pypStampStatus"></div>
+      <div class="pyp-reflect-badge">💡 IB PYP Learner Profile · Thinker</div>
+      <div style="font-size:2.8rem; line-height:1;">🌟</div>
+      <h2 id="modalTitle" style="font-size:1.45rem; font-weight:900;">Multiplication Architect!</h2>
+      <p id="modalSummary" style="font-weight:700; color:#374151;"></p>
+      <div class="pyp-modal-box">
+        <strong>Key Concepts · Form &amp; Pattern</strong>
+        Organizing items into equal rows lets us skip-count and multiply instead of counting one by one—and rotating an array keeps the total the same!
       </div>
-      <div style="display: flex; flex-direction: column; gap: 10px;">
-        <button class="btn-next-quest" id="btnClaimStamp" type="button" style="background: var(--purple); color: var(--white);">💡 Stamp My Passport!</button>
-        <button class="btn-submit" id="btnRestart" type="button">Build New Arrays 🔄</button>
-        <a class="pyp-map-link" href="../index.html" style="justify-content: center;">🗺️ View Passport on PYP Map</a>
+      <div class="pyp-modal-box" style="background:#ECFDF5;">
+        <strong>🚀 Take Action in Real Life</strong>
+        Look at an egg carton, muffin tray, or Lego brick studs at home: count the rows and columns to say the multiplication fact!
+      </div>
+      <div id="pypStampStatus" style="font-weight:900; font-size:0.88rem; color:#047857; min-height:20px;"></div>
+      <div class="modal-actions">
+        <button class="mini-btn" id="btnClaimStamp" type="button" style="background:var(--green);">🏅 Claim Passport Stamp</button>
+        <a class="mini-btn yellow" href="../index.html">🗺️ View Passport</a>
+        <button class="mini-btn" id="btnKeepExploring" type="button">Keep Exploring</button>
       </div>
     </div>
   </div>
 
   <script>
-    // Web Audio Synthesizer
+    // Safe Organic Web Audio (triangle & sine only)
     class ArrayAudio {
       constructor() { this.ctx = null; }
       init() {
-        if (!this.ctx) {
-          const AudioContext = window.AudioContext || window.webkitAudioContext;
-          this.ctx = new AudioContext();
-        }
-        if (this.ctx.state === 'suspended') this.ctx.resume();
+        try {
+          if (!this.ctx) {
+            const AC = window.AudioContext || window.webkitAudioContext;
+            if (AC) this.ctx = new AC();
+          }
+          if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+        } catch (_) {}
       }
-      playCorrect() {
+      tone(freq, delay, dur, type, vol) {
         this.init();
-        const now = this.ctx.currentTime;
-        [523.25, 659.25, 783.99, 1046.5].forEach((freq, idx) => {
+        if (!this.ctx) return;
+        try {
+          const now = this.ctx.currentTime + delay;
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(freq, now + idx * 0.06);
-          gain.gain.setValueAtTime(0.16, now + idx * 0.06);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.22);
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, now);
+          gain.gain.setValueAtTime(vol, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
           osc.connect(gain);
           gain.connect(this.ctx.destination);
-          osc.start(now + idx * 0.06);
-          osc.stop(now + idx * 0.06 + 0.24);
-        });
+          osc.start(now);
+          osc.stop(now + dur + 0.02);
+        } catch (_) {}
       }
-      playBuzz() {
-        this.init();
-        const now = this.ctx.currentTime;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(160, now);
-        gain.gain.setValueAtTime(0.15, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.2);
-      }
-      playClick(pitch = 500) {
-        this.init();
-        const now = this.ctx.currentTime;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.frequency.setValueAtTime(pitch, now);
-        gain.gain.setValueAtTime(0.08, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.07);
-      }
+      playClick(pitch = 500) { this.tone(pitch, 0, 0.06, 'sine', 0.08); }
+      playCorrect() { [523.25, 659.25, 783.99, 1046.5].forEach((f, idx) => this.tone(f, idx * 0.06, 0.22, 'triangle', 0.16)); }
+      playBuzz() { this.tone(250, 0, 0.11, 'triangle', 0.11); this.tone(195, 0.08, 0.15, 'sine', 0.1); }
     }
     const audio = new ArrayAudio();
 
+    function launchConfetti() {
+      const cvs = document.createElement('canvas');
+      cvs.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:3000;';
+      document.body.appendChild(cvs);
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const w = window.innerWidth, h = window.innerHeight;
+      cvs.width = Math.round(w * dpr); cvs.height = Math.round(h * dpr);
+      const ctx = cvs.getContext('2d');
+      ctx.scale(dpr, dpr);
+      const colors = ['#FFE156', '#FF6584', '#4ECDC4', '#38B6FF', '#86EFAC'];
+      const pieces = Array.from({ length: 60 }, () => ({
+        x: Math.random() * w, y: -20 - Math.random() * h * 0.25,
+        vx: (Math.random() - 0.5) * 6, vy: 3 + Math.random() * 5,
+        size: 7 + Math.random() * 6, rot: Math.random() * 6, vr: (Math.random() - 0.5) * 0.2,
+        color: colors[Math.floor(Math.random() * colors.length)]
+      }));
+      let frame = 0;
+      function tick() {
+        frame++;
+        ctx.clearRect(0, 0, w, h);
+        pieces.forEach(p => {
+          p.x += p.vx; p.y += p.vy; p.vy += 0.12; p.rot += p.vr;
+          ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+          ctx.fillStyle = p.color; ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.65);
+          ctx.restore();
+        });
+        if (frame < 105) requestAnimationFrame(tick); else cvs.remove();
+      }
+      requestAnimationFrame(tick);
+    }
+
+    // Unified TTS Manager
     const JOKE_VOICES = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|hysterical|pipe organ|trinoids|whisper|zarvox|fred|junior|kathy|ralph|wobble/i;
-
+    function getVoiceBadge(langRaw) {
+      const lang = (langRaw || '').toLowerCase().replace('_', '-');
+      if (lang.includes('-au')) return { flag: '🇦🇺', region: 'AU' };
+      if (lang.includes('-gb') || lang.includes('en-uk')) return { flag: '🇬🇧', region: 'UK' };
+      if (lang.includes('-us')) return { flag: '🇺🇸', region: 'US' };
+      return { flag: '🌐', region: (lang.split('-')[1] || 'EN').toUpperCase() };
+    }
     const TTS_MANAGER = {
-      currentVoiceName: '',
-      wrap: null,
-      trigger: null,
-      menu: null,
-      flag: null,
-      label: null,
-      list: null,
-
+      currentVoiceName: '', wrap: null, trigger: null, menu: null, flag: null, label: null, list: null,
       init() {
         this.wrap = document.getElementById('ttsDropdownWrap');
         this.trigger = document.getElementById('ttsTrigger');
@@ -927,188 +607,199 @@
         this.label = document.getElementById('ttsLabel');
         this.list = document.getElementById('ttsRadioList');
         if (!this.trigger) return;
-
         this.trigger.addEventListener('click', (e) => {
-          e.stopPropagation();
-          audio.playClick();
-          this.wrap.classList.toggle('open');
-          this.trigger.setAttribute('aria-expanded', this.wrap.classList.contains('open'));
+          e.stopPropagation(); audio.playClick();
+          const open = this.wrap.classList.toggle('open');
+          this.trigger.setAttribute('aria-expanded', String(open));
         });
-
         document.addEventListener('click', (e) => {
           if (this.wrap && !this.wrap.contains(e.target)) {
-            this.wrap.classList.remove('open');
-            this.trigger.setAttribute('aria-expanded', 'false');
+            this.wrap.classList.remove('open'); this.trigger.setAttribute('aria-expanded', 'false');
           }
         });
-
-        document.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape' && this.wrap) {
-            this.wrap.classList.remove('open');
-            this.trigger.setAttribute('aria-expanded', 'false');
-          }
-        });
-
         if (window.speechSynthesis) {
           this.populateVoices();
-          if (window.speechSynthesis.onvoiceschanged !== undefined) {
-            window.speechSynthesis.onvoiceschanged = () => this.populateVoices();
-          }
+          if (window.speechSynthesis.onvoiceschanged !== undefined) window.speechSynthesis.onvoiceschanged = () => this.populateVoices();
         }
       },
-
       populateVoices() {
         if (!window.speechSynthesis || !this.list) return;
         const voices = window.speechSynthesis.getVoices();
-        let englishVoices = voices.filter(v => {
-          const lang = v.lang.toLowerCase().replace('_', '-');
-          return lang.startsWith('en') && !JOKE_VOICES.test(v.name);
-        });
+        let englishVoices = voices.filter(v => (v.lang || '').toLowerCase().replace('_', '-').startsWith('en') && !JOKE_VOICES.test(v.name));
         if (englishVoices.length === 0) englishVoices = voices.filter(v => !JOKE_VOICES.test(v.name));
         if (englishVoices.length === 0) englishVoices = voices;
         if (englishVoices.length === 0) return;
-
         englishVoices.sort((a, b) => {
-          const aName = a.name;
-          const bName = b.name;
-          const isA_UK_Fem = aName.includes('Google UK English Female') || (aName.includes('UK English') && aName.includes('Female'));
-          const isB_UK_Fem = bName.includes('Google UK English Female') || (bName.includes('UK English') && bName.includes('Female'));
-          if (isA_UK_Fem && !isB_UK_Fem) return -1;
-          if (!isA_UK_Fem && isB_UK_Fem) return 1;
-          const isA_US = aName.includes('Google US English') || (aName.includes('US English') && aName.includes('Female'));
-          const isB_US = bName.includes('Google US English') || (bName.includes('US English') && bName.includes('Female'));
-          if (isA_US && !isB_US) return -1;
-          if (!isA_US && isB_US) return 1;
-          const aUK = a.lang.toLowerCase().includes('gb');
-          const bUK = b.lang.toLowerCase().includes('gb');
-          if (aUK && !bUK) return -1;
-          if (!aUK && bUK) return 1;
-          return aName.localeCompare(bName);
+          const score = (v) => v.name.includes('Google UK English Female') ? 0 : v.name.includes('Google US English') ? 1 : (v.lang || '').toLowerCase().includes('gb') ? 2 : (v.lang || '').toLowerCase().includes('au') ? 3 : 4;
+          return score(a) - score(b) || a.name.localeCompare(b.name);
         });
-
+        const capped = englishVoices.slice(0, 15);
         const saved = localStorage.getItem('ib_pyp_voice_name');
-        let selected = saved ? englishVoices.find(v => v.name === saved) : null;
-        if (!selected) selected = englishVoices.find(v => v.name.includes('Google UK English Female') || (v.name.includes('UK English') && v.name.includes('Female')));
-        if (!selected) selected = englishVoices.find(v => v.name.includes('Google US English'));
-        if (!selected) selected = englishVoices[0];
-
+        let selected = saved ? capped.find(v => v.name === saved) : null;
+        if (!selected) selected = capped[0];
         this.currentVoiceName = selected ? selected.name : '';
-        this.renderMenu(englishVoices);
+        this.renderMenu(capped);
         this.updateTriggerUI(selected);
       },
-
       renderMenu(voices) {
         this.list.innerHTML = '';
         voices.forEach(v => {
-          const isUK = v.lang.toLowerCase().replace('_', '-').includes('gb');
-          const flag = isUK ? '🇬🇧' : '🇺🇸';
-          const region = isUK ? 'UK' : 'US';
+          const { flag, region } = getVoiceBadge(v.lang);
           const isActive = v.name === this.currentVoiceName;
           const btn = document.createElement('button');
-          btn.type = 'button';
-          btn.className = `tts-radio-item ${isActive ? 'active' : ''}`;
-          btn.setAttribute('role', 'menuitemradio');
+          btn.type = 'button'; btn.className = `tts-radio-item ${isActive ? 'active' : ''}`;
+          btn.dataset.voice = v.name; btn.setAttribute('role', 'menuitemradio');
           btn.setAttribute('aria-checked', isActive ? 'true' : 'false');
-          btn.innerHTML = `
-            <span class="tts-radio-circle"></span>
-            <span class="tts-item-flag">${flag}</span>
-            <span class="tts-item-name">${v.name} (${region})</span>
-          `;
+          btn.innerHTML = `<span class="tts-radio-circle"></span><span>${flag}</span><span class="tts-item-name">${v.name} (${region})</span>`;
           btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            audio.playClick();
-            this.selectVoice(v);
-            this.wrap.classList.remove('open');
-            this.trigger.setAttribute('aria-expanded', 'false');
+            e.stopPropagation(); audio.playClick(); this.selectVoice(v);
+            this.wrap.classList.remove('open'); this.trigger.setAttribute('aria-expanded', 'false');
           });
           this.list.appendChild(btn);
         });
       },
-
       selectVoice(v) {
-        this.currentVoiceName = v.name;
-        localStorage.setItem('ib_pyp_voice_name', v.name);
+        this.currentVoiceName = v.name; localStorage.setItem('ib_pyp_voice_name', v.name);
         this.updateTriggerUI(v);
         this.list.querySelectorAll('.tts-radio-item').forEach(btn => {
-          const isMatch = btn.querySelector('.tts-item-name').textContent.includes(v.name);
-          btn.classList.toggle('active', isMatch);
-          btn.setAttribute('aria-checked', isMatch ? 'true' : 'false');
+          const isMatch = btn.dataset.voice === v.name;
+          btn.classList.toggle('active', isMatch); btn.setAttribute('aria-checked', isMatch ? 'true' : 'false');
         });
         if (window.speechSynthesis) window.speechSynthesis.cancel();
       },
-
       updateTriggerUI(v) {
         if (!v) return;
-        const isUK = v.lang.toLowerCase().replace('_', '-').includes('gb');
-        this.flag.textContent = isUK ? '🇬🇧' : '🇺🇸';
+        this.flag.textContent = getVoiceBadge(v.lang).flag;
         let shortName = v.name.replace(/^(Google|Microsoft|Apple)\s+/i, '');
-        if (shortName.length > 14) shortName = shortName.substring(0, 12) + '...';
+        if (shortName.length > 14) shortName = shortName.substring(0, 12) + '…';
         this.label.textContent = shortName;
       },
-
       speak(text, onEnd) {
-        if (!window.speechSynthesis) {
-          if (onEnd) onEnd();
-          return;
+        const finish = () => { if (typeof onEnd === 'function') onEnd(); };
+        if (!window.speechSynthesis || !text || !text.trim()) {
+          if (window.speechSynthesis) window.speechSynthesis.cancel();
+          finish(); return;
         }
         window.speechSynthesis.cancel();
-        if (!text || !text.trim()) {
-          if (onEnd) onEnd();
-          return;
-        }
         const utterance = new SpeechSynthesisUtterance(text);
         const voices = window.speechSynthesis.getVoices();
         const voiceName = this.currentVoiceName || localStorage.getItem('ib_pyp_voice_name');
-        if (voiceName) {
-          const match = voices.find(v => v.name === voiceName);
-          if (match) utterance.voice = match;
-        }
-        utterance.rate = 0.85;
-        if (onEnd) {
-          utterance.onend = onEnd;
-          utterance.onerror = onEnd;
-        }
+        let match = voiceName ? voices.find(v => v.name === voiceName) : null;
+        if (!match) match = voices.find(v => v.default) || voices[0] || null;
+        if (match) utterance.voice = match;
+        utterance.rate = 0.88;
+        utterance.onend = finish;
+        utterance.onerror = finish;
         window.speechSynthesis.speak(utterance);
       }
     };
 
-    // 6 Array Configurations (Minecraft items & fruits)
+    // ----------------------------------------------------
+    // STEP 1: 6x6 ARRAY BUILDER & 90° COMMUTATIVE FLIP LAB
+    // ----------------------------------------------------
+    let labRows = 3, labCols = 4;
+    let labSkipTimers = [];
+
+    function renderLab(highlightRow = -1) {
+      const grid = document.getElementById('builderGrid6x6');
+      grid.innerHTML = '';
+      for (let r = 1; r <= 6; r++) {
+        for (let c = 1; c <= 6; c++) {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          const inArray = r <= labRows && c <= labCols;
+          const isRowHi = r === highlightRow && c <= labCols;
+          btn.className = `builder-cell ${inArray ? 'selected' : ''} ${isRowHi ? 'row-hi' : ''}`;
+          btn.textContent = inArray ? '🍎' : '';
+          btn.setAttribute('aria-label', `${r} rows by ${c} columns`);
+          btn.addEventListener('click', () => {
+            labSkipTimers.forEach(clearTimeout);
+            labRows = r; labCols = c;
+            audio.playClick(420 + r * 40);
+            renderLab();
+          });
+          grid.appendChild(btn);
+        }
+      }
+      const total = labRows * labCols;
+      document.getElementById('labEquation').textContent = `${labRows} rows × ${labCols} in each = ${total}`;
+      document.getElementById('labRepeatText').textContent = `${Array(labRows).fill(labCols).join(' + ')} = ${total}`;
+      document.getElementById('labExplainText').textContent = `Turning ${labRows} × ${labCols} by 90° makes ${labCols} × ${labRows}. Both equal ${total}!`;
+    }
+
+    document.getElementById('btnFlip90').addEventListener('click', () => {
+      labSkipTimers.forEach(clearTimeout);
+      [labRows, labCols] = [labCols, labRows];
+      audio.playCorrect();
+      renderLab();
+    });
+
+    document.getElementById('btnLabSkipCount').addEventListener('click', () => {
+      labSkipTimers.forEach(clearTimeout);
+      labSkipTimers = [];
+      for (let r = 1; r <= labRows; r++) {
+        const t = setTimeout(() => {
+          audio.playClick(400 + r * 65);
+          renderLab(r);
+          if (r === labRows) {
+            setTimeout(() => renderLab(-1), 450);
+          }
+        }, (r - 1) * 380);
+        labSkipTimers.push(t);
+      }
+    });
+
+    document.getElementById('btnSpeakLab').addEventListener('click', () => {
+      audio.playClick();
+      const b = document.getElementById('btnSpeakLab');
+      b.classList.add('speaking');
+      TTS_MANAGER.speak(`${labRows} rows of ${labCols} equals ${labRows * labCols}.`, () => b.classList.remove('speaking'));
+    });
+
+    // ----------------------------------------------------
+    // STEP 2: 6 ARRAY MISSIONS WITH SVG ROW BRACES & NUMPAD
+    // ----------------------------------------------------
     const challenges = [
-      { rows: 3, cols: 4, icon: "🍎", name: "Apples" },
-      { rows: 4, cols: 5, icon: "💎", name: "Diamonds" },
-      { rows: 2, cols: 6, icon: "🍪", name: "Cookies" },
-      { rows: 5, cols: 3, icon: "🥕", name: "Carrots" },
-      { rows: 3, cols: 5, icon: "🍞", name: "Minecraft Bread" },
-      { rows: 4, cols: 4, icon: "🧱", name: "Stone Bricks" }
+      { rows: 3, cols: 4, icon: '🍎', name: 'Apples' },
+      { rows: 4, cols: 5, icon: '💎', name: 'Diamonds' },
+      { rows: 2, cols: 6, icon: '🍪', name: 'Cookies' },
+      { rows: 5, cols: 3, icon: '🥕', name: 'Carrots' },
+      { rows: 3, cols: 5, icon: '🍞', name: 'Bread Loaves' },
+      { rows: 4, cols: 4, icon: '🧱', name: 'Stone Bricks' }
     ];
 
     let currentIdx = 0;
     let score = 0;
     let isSolved = false;
     let countedUpTo = 0;
+    let hintStage = 0;
+    let activeInputId = 'inpGroups';
+    const solvedSet = new Set();
 
-    function recordPassportStamp(silent) {
-      try {
-        const raw = localStorage.getItem('ib_pyp_passport');
-        const data = raw ? JSON.parse(raw) : { stamps: [], completed: [] };
-        const stamps = new Set(Array.isArray(data.stamps) ? data.stamps : []);
-        const completed = new Set(Array.isArray(data.completed) ? data.completed : []);
-        stamps.add('Thinker');
-        completed.add('math/g2_array_equal_groups.html');
-        localStorage.setItem('ib_pyp_passport', JSON.stringify({ stamps: [...stamps], completed: [...completed] }));
-        if (!silent) {
-          const status = document.getElementById('pypStampStatus');
-          const claimBtn = document.getElementById('btnClaimStamp');
-          if (status) status.textContent = '✅ Thinker stamp saved to your IB PYP Passport!';
-          if (claimBtn) claimBtn.textContent = '✅ Stamped!';
-        }
-      } catch (_) {}
+    function setActiveInput(id) {
+      activeInputId = id;
+      ['inpGroups', 'inpEach', 'inpTotal'].forEach(fid => {
+        document.getElementById(fid).classList.toggle('active-field', fid === id);
+      });
     }
 
-    function clearInputStates() {
-      ['inpGroups', 'inpEach', 'inpTotal'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.classList.remove('input-error', 'input-ok');
+    ['inpGroups', 'inpEach', 'inpTotal'].forEach(id => {
+      document.getElementById(id).addEventListener('click', () => {
+        audio.playClick();
+        setActiveInput(id);
+      });
+    });
+
+    function renderMissionChips() {
+      const wrap = document.getElementById('missionChips');
+      wrap.innerHTML = '';
+      challenges.forEach((_, idx) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = `case-chip ${idx === currentIdx ? 'active' : ''} ${solvedSet.has(idx) ? 'solved' : ''}`;
+        b.textContent = solvedSet.has(idx) ? `${idx + 1}✅` : String(idx + 1);
+        b.addEventListener('click', () => { audio.playClick(); currentIdx = idx; renderChallenge(); });
+        wrap.appendChild(b);
       });
     }
 
@@ -1130,16 +821,16 @@
 
     function renderChallenge() {
       const ch = challenges[currentIdx];
-      isSolved = false;
-      countedUpTo = 0;
+      isSolved = solvedSet.has(currentIdx);
+      countedUpTo = isSolved ? ch.rows : 0;
+      hintStage = 0;
       if (window.speechSynthesis) window.speechSynthesis.cancel();
-      const speakBtn = document.getElementById('btnSpeakArray');
-      if (speakBtn) speakBtn.classList.remove('speaking');
+      document.getElementById('btnSpeakArray').classList.remove('speaking');
 
-      document.getElementById('badgeRound').textContent = `🎯 Challenge ${currentIdx + 1} / ${challenges.length}`;
+      renderMissionChips();
+      document.getElementById('badgeRound').textContent = `🎯 Mission ${currentIdx + 1} / ${challenges.length}`;
       document.getElementById('badgeScore').textContent = `⭐ Score: ${score}`;
 
-      // Build interactive tap-to-skip-count visual array
       const board = document.getElementById('arrayBoard');
       board.innerHTML = '';
       const matrix = document.createElement('div');
@@ -1150,7 +841,18 @@
         rowDiv.className = 'matrix-row';
         rowDiv.setAttribute('role', 'button');
         rowDiv.setAttribute('tabindex', '0');
-        rowDiv.setAttribute('aria-label', `Tap to skip-count up to row ${r + 1}`);
+
+        // Crisp SVG Row Brace
+        const brace = document.createElement('span');
+        brace.className = 'row-brace-label';
+        brace.innerHTML = `
+          <svg width="10" height="28" viewBox="0 0 10 28" aria-hidden="true">
+            <path d="M9 2 Q3 2 3 9 L3 12 Q3 14 0 14 Q3 14 3 16 L3 19 Q3 26 9 26" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span>R${r + 1}</span>
+        `;
+        rowDiv.appendChild(brace);
+
         for (let c = 0; c < ch.cols; c++) {
           const item = document.createElement('div');
           item.className = 'matrix-item';
@@ -1169,10 +871,7 @@
         };
         rowDiv.addEventListener('click', handleRowTap);
         rowDiv.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            handleRowTap();
-          }
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleRowTap(); }
         });
         matrix.appendChild(rowDiv);
       }
@@ -1181,36 +880,55 @@
       const tip = document.createElement('div');
       tip.className = 'skip-count-tip';
       tip.id = 'skipCountTip';
-      tip.textContent = '💡 Tap any row above to highlight and skip-count!';
       board.appendChild(tip);
+      updateSkipCountVisuals(ch);
 
-      document.getElementById('equationHint').textContent = `? groups × ? in each = ?`;
+      document.getElementById('equationHint').textContent = isSolved
+        ? `${ch.rows} × ${ch.cols} = ${ch.rows * ch.cols}`
+        : `? rows × ? in each = ?`;
+
       const hintBox = document.getElementById('repeatedAdditionText');
       const hintBtn = document.getElementById('btnToggleHint');
-      hintBox.textContent = `Repeated Addition: ${Array(ch.rows).fill(ch.cols).join(' + ')}`;
       hintBox.classList.remove('open');
       hintBtn.setAttribute('aria-expanded', 'false');
-      hintBtn.textContent = '💡 Show Repeated Addition Hint';
+      hintBtn.textContent = '💡 Hint 1: Skip-Count Rows';
 
-      document.getElementById('inpGroups').value = '';
-      document.getElementById('inpEach').value = '';
-      document.getElementById('inpTotal').value = '';
-      clearInputStates();
+      document.getElementById('inpGroups').value = isSolved ? ch.rows : '';
+      document.getElementById('inpEach').value = isSolved ? ch.cols : '';
+      document.getElementById('inpTotal').value = isSolved ? ch.rows * ch.cols : '';
+      ['inpGroups', 'inpEach', 'inpTotal'].forEach(id => document.getElementById(id).classList.remove('input-error', 'input-ok'));
+      setActiveInput('inpGroups');
 
       const feedback = document.getElementById('feedbackBox');
       feedback.className = 'feedback-box';
       feedback.textContent = '';
-      document.getElementById('btnCheckArray').style.display = 'block';
-      document.getElementById('btnNextArray').style.display = 'none';
+      document.getElementById('btnCheckArray').style.display = isSolved ? 'none' : 'inline-flex';
+      document.getElementById('btnNextArray').style.display = isSolved ? 'inline-flex' : 'none';
     }
 
+    // Progressive Hint (never spoils both groups & each on tap 1!)
     document.getElementById('btnToggleHint').addEventListener('click', () => {
       audio.playClick();
+      const ch = challenges[currentIdx];
       const hintBox = document.getElementById('repeatedAdditionText');
       const hintBtn = document.getElementById('btnToggleHint');
-      const isOpen = hintBox.classList.toggle('open');
-      hintBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-      hintBtn.textContent = isOpen ? '🙈 Hide Repeated Addition Hint' : '💡 Show Repeated Addition Hint';
+      hintStage = (hintStage + 1) % 3;
+      if (hintStage === 1) {
+        countedUpTo = ch.rows;
+        updateSkipCountVisuals(ch);
+        hintBox.textContent = `Row Braces Hint: Tap R1, R2... to skip-count by the items in one row!`;
+        hintBox.classList.add('open');
+        hintBtn.setAttribute('aria-expanded', 'true');
+        hintBtn.textContent = '💡 Hint 2: Show Repeated Addition';
+      } else if (hintStage === 2) {
+        hintBox.textContent = `Repeated Addition: ${Array(ch.rows).fill(ch.cols).join(' + ')}`;
+        hintBox.classList.add('open');
+        hintBtn.textContent = '🙈 Hide Hints';
+      } else {
+        hintBox.classList.remove('open');
+        hintBtn.setAttribute('aria-expanded', 'false');
+        hintBtn.textContent = '💡 Hint 1: Skip-Count Rows';
+      }
     });
 
     document.getElementById('btnSpeakArray').addEventListener('click', () => {
@@ -1219,16 +937,47 @@
       const speakBtn = document.getElementById('btnSpeakArray');
       speakBtn.classList.add('speaking');
       const text = isSolved
-        ? `${ch.rows} groups of ${ch.cols} ${ch.name} equals ${ch.rows * ch.cols}. ${ch.rows} times ${ch.cols} equals ${ch.rows * ch.cols}.`
+        ? `${ch.rows} rows of ${ch.cols} ${ch.name} equals ${ch.rows * ch.cols}.`
         : `Look at the array of ${ch.name}. Count how many rows there are, how many items are in each row, and find the total.`;
-      TTS_MANAGER.speak(text, () => {
-        speakBtn.classList.remove('speaking');
+      TTS_MANAGER.speak(text, () => speakBtn.classList.remove('speaking'));
+    });
+
+    // Built-in Mini Numpad & Stepper (Fixed minus-on-empty bug!)
+    document.querySelectorAll('#numpadStrip .numpad-key').forEach(btn => {
+      btn.addEventListener('click', () => {
+        audio.playClick();
+        const input = document.getElementById(activeInputId);
+        if (!input) return;
+        const k = btn.dataset.key;
+        if (k === 'clr') {
+          input.value = '';
+        } else if (k === 'del') {
+          input.value = input.value.slice(0, -1);
+        } else if (input.value.length < 2) {
+          input.value = (input.value === '0' ? '' : input.value) + k;
+        }
+        input.classList.remove('input-error', 'input-ok');
       });
     });
 
-    ['inpGroups', 'inpEach', 'inpTotal'].forEach(id => {
-      document.getElementById(id).addEventListener('input', (e) => {
-        e.target.classList.remove('input-error', 'input-ok');
+    document.querySelectorAll('.step-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        audio.playClick();
+        const targetId = btn.dataset.target;
+        setActiveInput(targetId);
+        const delta = parseInt(btn.dataset.delta, 10);
+        const input = document.getElementById(targetId);
+        let val = parseInt(input.value, 10);
+        if (isNaN(val)) {
+          val = delta > 0 ? delta : 1; // Never set 0 on empty minus tap!
+        } else {
+          val += delta;
+        }
+        const max = targetId === 'inpTotal' ? 100 : 10;
+        if (val < 1) val = 1;
+        if (val > max) val = max;
+        input.value = String(val);
+        input.classList.remove('input-error', 'input-ok');
       });
     });
 
@@ -1236,64 +985,54 @@
       audio.playClick();
       const ch = challenges[currentIdx];
       const feedback = document.getElementById('feedbackBox');
-      const inpGroups = document.getElementById('inpGroups');
-      const inpEach = document.getElementById('inpEach');
-      const inpTotal = document.getElementById('inpTotal');
+      const inpG = document.getElementById('inpGroups');
+      const inpE = document.getElementById('inpEach');
+      const inpT = document.getElementById('inpTotal');
 
-      const userGroups = parseInt(inpGroups.value, 10);
-      const userEach = parseInt(inpEach.value, 10);
-      const userTotal = parseInt(inpTotal.value, 10);
-
-      clearInputStates();
-
-      if (isNaN(userGroups) || isNaN(userEach) || isNaN(userTotal)) {
-        if (isNaN(userGroups)) inpGroups.classList.add('input-error');
-        if (isNaN(userEach)) inpEach.classList.add('input-error');
-        if (isNaN(userTotal)) inpTotal.classList.add('input-error');
+      const g = parseInt(inpG.value, 10), e = parseInt(inpE.value, 10), t = parseInt(inpT.value, 10);
+      if (isNaN(g) || isNaN(e) || isNaN(t)) {
+        if (isNaN(g)) inpG.classList.add('input-error');
+        if (isNaN(e)) inpE.classList.add('input-error');
+        if (isNaN(t)) inpT.classList.add('input-error');
         feedback.className = 'feedback-box error';
-        feedback.textContent = 'Please fill in all three boxes: Groups, Each, and Total!';
+        feedback.textContent = 'Fill in Rows, Each Row, and Total using the number pad!';
+        audio.playBuzz();
         return;
       }
 
       const expectedTotal = ch.rows * ch.cols;
-      const isGroupsOk = (userGroups === ch.rows);
-      const isEachOk = (userEach === ch.cols);
-      const isTotalOk = (userTotal === expectedTotal);
+      const gOk = g === ch.rows, eOk = e === ch.cols, tOk = t === expectedTotal;
+      inpG.classList.toggle('input-ok', gOk); inpG.classList.toggle('input-error', !gOk);
+      inpE.classList.toggle('input-ok', eOk); inpE.classList.toggle('input-error', !eOk);
+      inpT.classList.toggle('input-ok', tOk); inpT.classList.toggle('input-error', !tOk);
 
-      inpGroups.classList.add(isGroupsOk ? 'input-ok' : 'input-error');
-      inpEach.classList.add(isEachOk ? 'input-ok' : 'input-error');
-      inpTotal.classList.add(isTotalOk ? 'input-ok' : 'input-error');
-
-      if (isGroupsOk && isEachOk && isTotalOk) {
+      if (gOk && eOk && tOk) {
         isSolved = true;
+        if (!solvedSet.has(currentIdx)) {
+          solvedSet.add(currentIdx);
+          score += 15;
+          document.getElementById('badgeScore').textContent = `⭐ Score: ${score}`;
+        }
+        renderMissionChips();
         countedUpTo = ch.rows;
         updateSkipCountVisuals(ch);
         audio.playCorrect();
-        score += 15;
-        document.getElementById('badgeScore').textContent = `⭐ Score: ${score}`;
         document.getElementById('equationHint').textContent = `${ch.rows} × ${ch.cols} = ${expectedTotal}`;
-        const hintBox = document.getElementById('repeatedAdditionText');
-        const hintBtn = document.getElementById('btnToggleHint');
-        hintBox.textContent = `Repeated Addition: ${Array(ch.rows).fill(ch.cols).join(' + ')} = ${expectedTotal}`;
-        hintBox.classList.add('open');
-        hintBtn.setAttribute('aria-expanded', 'true');
-        hintBtn.textContent = '🙈 Hide Repeated Addition Hint';
-
         feedback.className = 'feedback-box success';
-        feedback.textContent = `🎉 Spot on! ${ch.rows} groups with ${ch.cols} each gives ${expectedTotal} in total!`;
-
+        feedback.textContent = `🎉 Spot on! ${ch.rows} rows of ${ch.cols} gives ${expectedTotal} in total!`;
         document.getElementById('btnCheckArray').style.display = 'none';
         document.getElementById('btnNextArray').style.display = 'inline-flex';
+
+        if (solvedSet.size === challenges.length) {
+          launchConfetti();
+          setTimeout(() => openReflectModal(), 650);
+        }
       } else {
         audio.playBuzz();
         feedback.className = 'feedback-box error';
-        if (!isGroupsOk) {
-          feedback.textContent = 'Look closely at Box 1 (Rows): count each horizontal row from top to bottom.';
-        } else if (!isEachOk) {
-          feedback.textContent = 'Rows look great! Now check Box 2 (Items in Each Group): count the items across one single row.';
-        } else {
-          feedback.textContent = 'Your rows and items per row are right! Now check Box 3 (Total) — try tapping each row to skip-count!';
-        }
+        if (!gOk) { setActiveInput('inpGroups'); feedback.textContent = 'Check Box 1 (Rows): count the row braces R1, R2... from top to bottom!'; }
+        else if (!eOk) { setActiveInput('inpEach'); feedback.textContent = 'Rows look great! Now count how many items are across 1 row for Box 2.'; }
+        else { setActiveInput('inpTotal'); feedback.textContent = 'Rows & Each Row are right! Tap the rows to skip-count for Total!'; }
       }
     });
 
@@ -1303,57 +1042,65 @@
         currentIdx++;
         renderChallenge();
       } else {
-        document.getElementById('winModal').style.display = 'flex';
-        audio.playCorrect();
-        recordPassportStamp(true);
-        const status = document.getElementById('pypStampStatus');
-        const claimBtn = document.getElementById('btnClaimStamp');
-        if (status) status.textContent = '✨ Tap "Stamp My Passport!" to celebrate your Thinker badge!';
-        if (claimBtn) claimBtn.textContent = '💡 Stamp My Passport!';
+        openReflectModal();
       }
     });
 
+    // Step Switching
+    function switchStep(step) {
+      if (window.speechSynthesis) window.speechSynthesis.cancel();
+      document.getElementById('tabStep1').classList.toggle('active', step === 1);
+      document.getElementById('tabStep2').classList.toggle('active', step === 2);
+      document.getElementById('step1View').classList.toggle('hidden', step !== 1);
+      document.getElementById('step2View').classList.toggle('hidden', step !== 2);
+      document.getElementById('missionChips').classList.toggle('hidden', step !== 2);
+      document.getElementById('heroSub').textContent = step === 1
+        ? 'Step 1: Build any array on the 6×6 grid and rotate 90° to see why 3 × 4 = 4 × 3!'
+        : 'Step 2: Count equal rows, items in each row, and total items!';
+      if (step === 1) renderLab();
+      else renderChallenge();
+    }
+    document.getElementById('tabStep1').addEventListener('click', () => { audio.playClick(); switchStep(1); });
+    document.getElementById('tabStep2').addEventListener('click', () => { audio.playClick(); switchStep(2); });
+    document.getElementById('btnGoStep2').addEventListener('click', () => { audio.playClick(); switchStep(2); });
+
+    // Step 3 Modal & Explicit Passport Stamp
+    const winModal = document.getElementById('winModal');
+    function openReflectModal() {
+      document.getElementById('modalSummary').textContent = `Solved ${solvedSet.size} of ${challenges.length} array missions · Score: ${score} ⭐`;
+      winModal.classList.add('open');
+    }
+    document.getElementById('btnOpenReflect').addEventListener('click', () => { audio.playClick(); openReflectModal(); });
+    document.getElementById('btnKeepExploring').addEventListener('click', () => { audio.playClick(); winModal.classList.remove('open'); });
+    winModal.addEventListener('click', (e) => { if (e.target === winModal) winModal.classList.remove('open'); });
     document.getElementById('btnClaimStamp').addEventListener('click', () => {
       audio.playCorrect();
-      recordPassportStamp(false);
+      launchConfetti();
+      try {
+        const raw = localStorage.getItem('ib_pyp_passport');
+        const data = raw ? JSON.parse(raw) : { stamps: [], completed: [] };
+        const stamps = new Set(Array.isArray(data.stamps) ? data.stamps : []);
+        const completed = new Set(Array.isArray(data.completed) ? data.completed : []);
+        stamps.add('Thinker');
+        completed.add('math/g2_array_equal_groups.html');
+        localStorage.setItem('ib_pyp_passport', JSON.stringify({ stamps: [...stamps], completed: [...completed] }));
+        document.getElementById('pypStampStatus').textContent = '✅ Thinker stamp saved to your IB PYP Passport!';
+        document.getElementById('btnClaimStamp').textContent = '✅ Stamped!';
+      } catch (_) {}
     });
 
-    // Stepper buttons for iPad ease-of-use with playClick sound
-    document.querySelectorAll('.step-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        audio.playClick();
-        const targetId = btn.dataset.target;
-        const delta = parseInt(btn.dataset.delta, 10);
-        const input = document.getElementById(targetId);
-        if (!input) return;
-
-        let val = parseInt(input.value, 10);
-        if (isNaN(val)) {
-          val = delta > 0 ? 1 : 0;
-        } else {
-          val += delta;
-        }
-
-        const min = parseInt(input.min, 10) || 0;
-        const max = parseInt(input.max, 10) || 100;
-        if (val < min) val = min;
-        if (val > max) val = max;
-
-        input.value = val;
-        input.classList.remove('input-error', 'input-ok');
-      });
-    });
-
-    document.getElementById('btnRestart').addEventListener('click', () => {
-      audio.playClick();
-      currentIdx = 0;
-      score = 0;
-      document.getElementById('winModal').style.display = 'none';
-      renderChallenge();
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const wrap = document.getElementById('ttsDropdownWrap');
+        const trig = document.getElementById('ttsTrigger');
+        if (wrap) wrap.classList.remove('open');
+        if (trig) trig.setAttribute('aria-expanded', 'false');
+        winModal.classList.remove('open');
+      }
     });
 
     TTS_MANAGER.init();
-    renderChallenge();
+    renderLab();
   </script>
 </body>
 

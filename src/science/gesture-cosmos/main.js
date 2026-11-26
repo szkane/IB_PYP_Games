@@ -72,6 +72,12 @@ const touchBtn = document.getElementById('explore-touch');
 const gestureIndicator = document.getElementById('gesture-indicator');
 const toastEl = document.getElementById('toast');
 const videoEl = document.querySelector('.input_video');
+const cameraPip = document.getElementById('camera-pip');
+const pipSkeleton = document.getElementById('pip-skeleton');
+const pipToggleBtn = document.getElementById('pip-toggle-btn');
+const pipReopenBtn = document.getElementById('pip-reopen-btn');
+const navGestureToggle = document.getElementById('nav-gesture-toggle');
+const permissionHint = document.getElementById('permission-hint');
 
 // Field Card & PYP Reflection DOM refs
 const fieldCardEl = document.getElementById('field-card');
@@ -262,8 +268,17 @@ const textureLoader = new THREE.TextureLoader();
 // Core modules
 const handEngine = new HandEngine();
 const gestureRouter = new GestureRouter();
+if (pipSkeleton) handEngine.setSkeletonCanvas(pipSkeleton);
 const cameraRig = new CameraRig(camera, renderer.domElement);
 const sceneHost = new SceneHost();
+
+window.__cosmosDebug = {
+  handEngine,
+  gestureRouter,
+  processLandmarks: (r) => {
+    handEngine.lastResults = r;
+  }
+};
 
 // Context passed to every scene
 const ctx = {
@@ -354,44 +369,110 @@ navBar.addEventListener('click', (e) => {
 });
 
 // Dual Entry CTAs: Touch / Mouse (zero camera prompt) vs Hand Gestures
+function syncGestureButtons() {
+  const isCam = interactionMode === 'camera';
+  if (navGestureToggle) {
+    navGestureToggle.textContent = isCam ? '✋ Gestures: ON' : '✋ Gestures: OFF';
+    navGestureToggle.classList.toggle('on', isCam);
+  }
+}
+
+function stopCameraMode() {
+  handEngine.stop();
+  interactionMode = 'touch';
+  if (cameraPip) {
+    cameraPip.classList.add('inactive');
+    cameraPip.classList.remove('minimized');
+  }
+  if (pipReopenBtn) pipReopenBtn.classList.remove('visible');
+  syncGestureButtons();
+  gestureIndicator.classList.add('visible');
+  setGestureIndicator('👆 Touch / Mouse Mode · Drag to orbit · Scroll/Pinch to zoom · Tap planets');
+}
+
+async function startCameraMode(triggerBtn = null) {
+  unlockAudio();
+  playCosmicChime(587.33);
+
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    const diag = 'Camera access requires HTTPS or localhost. Using Touch / Mouse controls!';
+    if (permissionHint) permissionHint.textContent = diag;
+    showToast(diag, 4500);
+    if (interactionMode === 'pending') {
+      stopCameraMode();
+      permissionOverlay.classList.remove('visible');
+    }
+    return;
+  }
+
+  const origLabel = triggerBtn ? triggerBtn.textContent : '';
+  if (triggerBtn) {
+    triggerBtn.disabled = true;
+    triggerBtn.textContent = 'STARTING CAMERA...';
+  }
+  try {
+    // Call getUserMedia FIRST inside click handler so Safari user activation never expires
+    await handEngine.startCamera(videoEl);
+    await handEngine.init(videoEl);
+    interactionMode = 'camera';
+    permissionOverlay.classList.remove('visible');
+    if (cameraPip) {
+      cameraPip.classList.remove('inactive', 'minimized');
+    }
+    if (pipReopenBtn) pipReopenBtn.classList.remove('visible');
+    syncGestureButtons();
+    gestureIndicator.classList.add('visible');
+    setGestureIndicator('👋 Hand Tracking Ready · Show your open palm to explore');
+    showToast('Hand gestures active — open palm to rotate & scale, make a fist to burst particles!');
+  } catch (err) {
+    console.error('[Hub] Camera/MediaPipe init failed:', err);
+    stopCameraMode();
+    permissionOverlay.classList.remove('visible');
+    showToast(`${err.message || 'Camera unavailable'} — switched to Touch / Mouse controls`, 4000);
+  } finally {
+    if (triggerBtn) {
+      triggerBtn.disabled = false;
+      triggerBtn.textContent = origLabel;
+    }
+    syncGestureButtons();
+  }
+}
+
 if (touchBtn) {
   touchBtn.addEventListener('click', () => {
     unlockAudio();
     playCosmicChime(523.25);
-    interactionMode = 'touch';
     permissionOverlay.classList.remove('visible');
-    gestureIndicator.classList.add('visible');
-    setGestureIndicator('👆 Touch / Mouse Mode · Drag to orbit · Scroll/Pinch to zoom · Tap planets');
+    stopCameraMode();
     showToast('Touch & Mouse exploration active — drag to orbit and tap planets to follow them!');
   });
 }
 
 if (enableBtn) {
-  enableBtn.addEventListener('click', async () => {
-    unlockAudio();
-    playCosmicChime(587.33);
-    enableBtn.disabled = true;
-    const origLabel = enableBtn.textContent;
-    enableBtn.textContent = 'STARTING CAMERA...';
-    try {
-      await handEngine.init(videoEl);
-      await handEngine.startCamera();
-      interactionMode = 'camera';
-      permissionOverlay.classList.remove('visible');
-      gestureIndicator.classList.add('visible');
-      setGestureIndicator('👋 Hand Tracking Ready · Show your open palm to explore');
-      showToast('Hand gestures active — open palm to rotate & scale, make a fist to burst particles!');
-    } catch (err) {
-      console.error('[Hub] Camera/MediaPipe init failed:', err);
-      interactionMode = 'touch';
-      permissionOverlay.classList.remove('visible');
-      gestureIndicator.classList.add('visible');
-      setGestureIndicator('👆 Touch / Mouse Mode · Drag to orbit · Scroll/Pinch to zoom · Tap planets');
-      showToast('Camera unavailable — switched smoothly to Touch / Mouse controls');
-    } finally {
-      enableBtn.disabled = false;
-      enableBtn.textContent = origLabel;
+  enableBtn.addEventListener('click', () => startCameraMode(enableBtn));
+}
+
+if (navGestureToggle) {
+  navGestureToggle.addEventListener('click', () => {
+    if (interactionMode === 'camera') {
+      stopCameraMode();
+      showToast('Camera stopped — Touch / Mouse controls active');
+    } else {
+      startCameraMode(navGestureToggle);
     }
+  });
+}
+
+if (pipToggleBtn && cameraPip) {
+  pipToggleBtn.addEventListener('click', () => {
+    cameraPip.classList.add('minimized');
+    if (pipReopenBtn) pipReopenBtn.classList.add('visible');
+  });
+}
+if (pipReopenBtn && cameraPip) {
+  pipReopenBtn.addEventListener('click', () => {
+    cameraPip.classList.remove('minimized');
+    pipReopenBtn.classList.remove('visible');
   });
 }
 

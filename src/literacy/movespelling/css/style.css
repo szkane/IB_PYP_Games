@@ -121,41 +121,94 @@ body {
   pointer-events: none;
 }
 
-/* Camera overlay - Semi-transparent dark layer for better visibility */
+/* Camera overlay - Semi-transparent dark layer so mirrored camera stays visible */
 .camera-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(
-    0,
-    0,
-    0,
-    0.9
-  ); /* Very dark overlay - only show faint silhouette */
+  background: rgba(10, 16, 32, 0.58);
   z-index: 0;
   pointer-events: none;
 }
 
-/* Debug camera preview - smaller and less intrusive */
-#camera-preview {
-  position: absolute;
-  top: var(--spacing-unit);
-  right: var(--spacing-unit);
-  width: clamp(120px, 15vw, 180px);
-  height: clamp(90px, 11vw, 135px);
-  border: 3px solid var(--primary-color);
+/* Live Hand Status Pill (Camera Mode) */
+.hand-status-pill {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 950;
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.9);
+  border: 2.5px solid #17211f;
+  box-shadow: 3px 3px 0 #17211f;
+  color: #ffe156;
+  font-family: var(--font-primary);
+  font-size: 0.92rem;
+  font-weight: 700;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.hand-status-pill.open { color: #ffe156; border-color: #f2b84b; }
+.hand-status-pill.grabbing { background: #14532d; color: #86efac; border-color: #2d9d78; }
+.hand-status-pill.hidden { display: none; }
+
+/* Bottom-right Camera & Skeleton PiP + Toggle */
+.cam-preview-toggle {
+  position: fixed;
+  right: 14px;
+  bottom: 14px;
+  z-index: 960;
+  min-height: 44px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  border: 2.5px solid #17211f;
+  background: #ffe156;
+  color: #17211f;
+  box-shadow: 3px 3px 0 #17211f;
+  font-family: var(--font-primary);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.cam-preview-toggle.hidden { display: none; }
+
+.camera-pip {
+  position: fixed;
+  right: 14px;
+  bottom: 66px;
+  width: clamp(140px, 16vw, 196px);
+  aspect-ratio: 4 / 3;
+  border: 3px solid #17211f;
   border-radius: 15px;
   overflow: hidden;
-  opacity: 0.9;
-  z-index: 100;
-  transform: scaleX(-1);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  background: #0a1020;
+  z-index: 950;
+  box-shadow: 4px 4px 0 #17211f;
 }
 
-#camera-preview.hidden {
-  display: none;
+.camera-pip.inactive,
+.camera-pip.collapsed {
+  position: fixed;
+  width: 1px;
+  height: 1px;
+  opacity: 0.001;
+  pointer-events: none;
+  border: none;
+  box-shadow: none;
+}
+
+#camera-preview,
+#camera-skeleton {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
 }
 
 /* Phaser Canvas */

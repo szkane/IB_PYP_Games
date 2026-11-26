@@ -772,6 +772,10 @@ function createUI() {
 export function update(dt, cmd) {
   if (!_ctx || !_solarRoot) return;
 
+  if (cmd && (Math.abs(cmd.rotateY) > 0.008 || cmd.fist)) {
+    _focusedBody = null;
+  }
+
   applyGestureControl(_solarRoot, cmd, _gs, dt);
 
   _celestialBodies.forEach(body => {

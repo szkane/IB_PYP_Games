@@ -3,10 +3,10 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>G2 Time & Mental Math Quest</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>G2 Time &amp; Mental Math Quest</title>
   <meta name="description"
-    content="Interactive digital clock reading, calendar inquiry, and 3-number mental math arcade for Grade 2 learners." />
+    content="Interactive draggable 1-12 analog clock, calendar hop explorer, and two-step number line quest for Grade 2 learners." />
   <style>
     :root {
       --bg: #FFFDF0;
@@ -16,36 +16,61 @@
       --teal: #4ECDC4;
       --blue: #38B6FF;
       --purple: #B388FF;
+      --green: #86EFAC;
       --white: #FFFFFF;
       --border: 3px solid var(--ink);
       --shadow: 4px 4px 0 var(--ink);
-      --radius: 12px;
+      --shadow-sm: 2px 2px 0 var(--ink);
+      --radius: 14px;
       --font-rounded: ui-rounded, "SF Pro Rounded", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
+    html, body {
+      overscroll-behavior: none;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-text-size-adjust: 100%;
+    }
+
     body {
       font-family: var(--font-rounded);
       background: var(--bg);
-      background-image: 
-        radial-gradient(circle at 10% 20%, rgba(78, 205, 196, 0.12) 0%, transparent 30%),
-        radial-gradient(circle at 90% 80%, rgba(255, 101, 132, 0.12) 0%, transparent 30%),
-        radial-gradient(circle at 50% 50%, rgba(255, 225, 86, 0.1) 0%, transparent 50%);
-      min-height: 100vh; min-height: 100dvh;
-      padding: 16px 16px 40px;
+      background-image:
+        radial-gradient(circle at 10% 18%, rgba(78, 205, 196, 0.14) 0%, transparent 30%),
+        radial-gradient(circle at 90% 82%, rgba(255, 101, 132, 0.12) 0%, transparent 30%);
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding: max(10px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
       color: var(--ink);
     }
 
-    .container { max-width: 1160px; margin: 0 auto; }
+    button, a, input, select {
+      touch-action: manipulation;
+      font-family: inherit;
+    }
+
+    .container {
+      max-width: 1360px;
+      margin: 0 auto;
+      container-type: inline-size;
+      container-name: shell;
+    }
 
     /* Compact Top Nav */
     .nav-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 14px;
-      gap: 12px;
+      margin-bottom: 10px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .nav-left, .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
       flex-wrap: wrap;
     }
 
@@ -56,1131 +81,829 @@
       color: var(--ink);
       text-decoration: none;
       font-weight: 900;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       border: var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 8px 16px;
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+      padding: 8px 14px;
       min-height: 44px;
       cursor: pointer;
-    }
-
-    .pyp-map-link:active, .pyp-map-link:hover {
-      transform: translate(2px, 2px);
-      box-shadow: 2px 2px 0 var(--ink);
     }
 
     .unit-tag {
       background: var(--purple);
       color: var(--white);
       border: var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 8px 14px;
-      font-weight: 800;
-      font-size: 0.9rem;
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+      padding: 8px 12px;
+      font-weight: 900;
+      font-size: 0.86rem;
       min-height: 44px;
       display: inline-flex;
       align-items: center;
     }
 
-    .hero-card {
+    .step-switch {
+      display: inline-flex;
+      background: #F3F4F6;
+      border: var(--border);
+      border-radius: 12px;
+      padding: 3px;
+      gap: 4px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .mode-pill {
+      border: 2px solid transparent;
+      border-radius: 9px;
+      background: transparent;
+      color: var(--ink);
+      font-weight: 900;
+      font-size: 0.86rem;
+      padding: 6px 12px;
+      min-height: 44px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .mode-pill.active {
+      background: var(--teal);
+      border-color: var(--ink);
+      box-shadow: 2px 2px 0 var(--ink);
+    }
+
+    .score-pill {
+      background: #FEF9C3;
+      border: var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+      padding: 6px 12px;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 900;
+      font-size: 0.88rem;
+    }
+
+    .btn-reflect-pill {
+      background: var(--green);
+      color: var(--ink);
+      border: var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+      padding: 8px 14px;
+      min-height: 44px;
+      font-weight: 900;
+      font-size: 0.86rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Unified TTS Radio Dropdown */
+    .tts-dropdown-wrap { position: relative; display: inline-block; user-select: none; }
+    .tts-trigger {
+      display: inline-flex; align-items: center; gap: 6px; background: #FFF;
+      border: var(--border); border-radius: 12px; box-shadow: var(--shadow-sm);
+      padding: 6px 12px; font-size: 0.85rem; font-weight: 800; color: var(--ink);
+      cursor: pointer; min-height: 44px;
+    }
+    .tts-arrow { font-size: 0.75rem; transition: transform 0.15s ease; }
+    .tts-dropdown-wrap.open .tts-arrow { transform: rotate(180deg); }
+    .tts-menu {
+      display: none; position: absolute; top: calc(100% + 6px); right: 0;
+      min-width: 260px; max-width: 320px; max-height: 290px; overflow-y: auto;
+      background: #FFF; border: 3px solid var(--ink); border-radius: 12px;
+      box-shadow: var(--shadow); padding: 6px; z-index: 1000;
+      flex-direction: column; gap: 3px;
+    }
+    .tts-dropdown-wrap.open .tts-menu { display: flex; }
+    .tts-menu-header {
+      font-size: 0.72rem; font-weight: 900; text-transform: uppercase;
+      letter-spacing: 0.6px; color: #6B7280; padding: 4px 8px 6px;
+      border-bottom: 2px solid #E5E7EB; margin-bottom: 3px;
+    }
+    .tts-radio-group { display: flex; flex-direction: column; gap: 3px; }
+    .tts-radio-item {
+      display: flex; align-items: center; gap: 8px; padding: 7px 10px;
+      border: 2px solid transparent; border-radius: 8px; background: transparent;
+      cursor: pointer; font-size: 0.82rem; font-weight: 700; color: var(--ink);
+      text-align: left; width: 100%; min-height: 44px;
+    }
+    .tts-radio-item.active { background: #E0F2FE; border-color: var(--ink); font-weight: 800; }
+    .tts-radio-circle {
+      width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--ink);
+      display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; background: #FFF;
+    }
+    .tts-radio-item.active .tts-radio-circle::after {
+      content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--ink);
+    }
+    .tts-item-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+
+    .btn-speaker {
+      display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+      background: #FEF08A; border: 2.5px solid var(--ink); box-shadow: 2px 2px 0 var(--ink);
+      border-radius: 10px; min-width: 44px; min-height: 44px; padding: 0 12px;
+      cursor: pointer; font-size: 0.95rem; font-weight: 900; color: var(--ink); flex-shrink: 0;
+    }
+    .btn-speaker.speaking { background: var(--green); animation: ttsPulse 0.7s infinite alternate; }
+    @keyframes ttsPulse { from { transform: scale(1); } to { transform: scale(1.06); } }
+
+    /* Compact Hero Strip */
+    .hero-strip {
       background: var(--white);
       border: var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 12px 18px;
-      margin-bottom: 14px;
+      padding: 10px 16px;
+      margin-bottom: 10px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 10px;
       flex-wrap: wrap;
+    }
+    .hero-strip h1 { font-size: clamp(1.15rem, 2.2vw, 1.5rem); font-weight: 900; }
+    .hero-strip p { font-size: 0.86rem; font-weight: 700; color: #4B5563; }
+
+    /* 2-Column Studio Grid (@container driven) */
+    .studio-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 0.95fr;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .card {
+      background: var(--white);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
       gap: 10px;
     }
 
-    .hero-card h1 {
-      font-family: var(--font-rounded);
-      font-size: clamp(1.2rem, 2.5vw, 1.6rem);
-      font-weight: 900;
-    }
-
-    /* Scoreboard */
-    .status-bar {
+    /* Sub-tool tabs & Quest Stage tabs */
+    .subtool-tabs, .stage-tabs {
       display: flex;
-      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      background: #F9FAFB;
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
+      box-shadow: var(--shadow-sm);
+      padding: 8px 12px;
+      min-height: 44px;
+      font-weight: 900;
+      font-size: 0.86rem;
+      color: var(--ink);
+      cursor: pointer;
+      display: inline-flex;
       align-items: center;
-      background: var(--white);
-      border: var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 10px 18px;
-      margin-bottom: 16px;
-      font-weight: 800;
-      font-size: 0.95rem;
+      gap: 6px;
     }
+    .tab-btn.active { background: var(--yellow); transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--ink); }
 
-    /* Quest Board */
-    .quest-card {
-      background: var(--white);
-      border: var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 22px 20px;
-      margin-bottom: 20px;
+    .case-chips {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+      align-items: center;
     }
-
-    .quest-step-badge {
-      display: inline-block;
-      background: var(--coral);
-      color: var(--white);
+    .case-chip {
+      min-width: 44px;
+      min-height: 44px;
+      padding: 0 8px;
       border: 2px solid var(--ink);
-      border-radius: 6px;
-      padding: 4px 10px;
-      font-size: 0.8rem;
+      border-radius: 10px;
+      background: #FFFFFF;
       font-weight: 900;
+      font-size: 0.84rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
       box-shadow: 2px 2px 0 var(--ink);
-      margin-bottom: 8px;
     }
+    .case-chip.active { background: var(--blue); color: #FFF; }
+    .case-chip.solved { background: #DCFCE7; color: #065F46; }
+    .case-chip.active.solved { background: #10B981; color: #FFF; }
 
-    .quest-title {
-      font-family: var(--font-rounded);
-      font-size: 1.45rem;
-      font-weight: 900;
-      margin-bottom: 6px;
-    }
-
-    .quest-desc {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: #374151;
-      margin-bottom: 18px;
-    }
-
-    /* Interactive Visual Canvas */
+    /* Interactive Stage Surface */
     .interactive-display {
       background: #FFFDE8;
-      border: var(--border);
-      border-radius: var(--radius);
-      padding: 20px;
-      margin-bottom: 20px;
+      border: 3px solid var(--ink);
+      border-radius: 12px;
+      padding: 12px 14px;
       box-shadow: 2px 2px 0 var(--ink);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      gap: 10px;
+      min-height: 330px;
+      flex: 1;
     }
 
-    /* SVG Analogue + Digital Clock Dual Display */
-    .clock-duo {
+    /* Draggable Analog + Digital Clock */
+    .clock-studio {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 28px;
+      gap: 20px;
       flex-wrap: wrap;
+      width: 100%;
     }
-
     .analog-clock-svg {
-      width: 130px;
-      height: 130px;
+      width: clamp(220px, 28vw, 275px);
+      height: clamp(220px, 28vw, 275px);
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      cursor: grab;
     }
+    .analog-clock-svg:active { cursor: grabbing; }
 
+    .clock-readout-col {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: center;
+      min-width: 210px;
+    }
     .digital-clock-lcd {
       background: #111111;
       color: #00F0FF;
       font-family: "Courier New", Courier, monospace;
-      font-size: clamp(2.4rem, 6vw, 3.4rem);
+      font-size: clamp(1.85rem, 3.2vw, 2.5rem);
       font-weight: 900;
-      padding: 12px 28px;
+      padding: 10px 18px;
       border: 3px solid var(--ink);
       border-radius: 10px;
-      box-shadow: inset 0 0 10px rgba(0, 240, 255, 0.4), 3px 3px 0 var(--ink);
-      letter-spacing: 3px;
+      box-shadow: inset 0 0 10px rgba(0, 240, 255, 0.35), 3px 3px 0 var(--ink);
+      letter-spacing: 2px;
+      text-align: center;
+    }
+    .clock-sub-lcd {
+      font-size: 0.85rem;
+      font-weight: 900;
+      background: #E0F2FE;
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      padding: 4px 10px;
+    }
+    .clock-controls-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: center;
     }
 
-    /* Calendar Display */
+    .mini-btn {
+      background: #FFFFFF;
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
+      box-shadow: 2px 2px 0 var(--ink);
+      padding: 6px 10px;
+      min-height: 44px;
+      min-width: 44px;
+      font-weight: 900;
+      font-size: 0.84rem;
+      cursor: pointer;
+      color: var(--ink);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+    .mini-btn.yellow { background: var(--yellow); }
+    .mini-btn.teal { background: var(--teal); }
+    .mini-btn.coral { background: var(--coral); color: #FFF; }
+    .mini-btn.blue { background: var(--blue); color: #FFF; }
+
+    /* Interactive Calendar */
+    .calendar-wrap { width: 100%; max-width: 440px; }
     .calendar-mockup {
       background: var(--white);
       border: var(--border);
       border-radius: 10px;
       box-shadow: 3px 3px 0 var(--ink);
-      width: 100%;
-      max-width: 420px;
       overflow: hidden;
     }
-
     .cal-header {
       background: var(--coral);
       color: var(--white);
-      padding: 8px;
+      padding: 7px 10px;
       text-align: center;
       font-weight: 900;
-      font-size: 1.05rem;
+      font-size: 0.96rem;
       border-bottom: 2px solid var(--ink);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-
     .cal-weekdays {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
       background: #F3F4F6;
-      border-bottom: 1px solid var(--ink);
+      border-bottom: 2px solid var(--ink);
       text-align: center;
       font-weight: 900;
-      font-size: 0.78rem;
-      padding: 6px 0;
+      font-size: 0.76rem;
+      padding: 5px 0;
     }
-
     .cal-days-grid {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
       text-align: center;
       font-weight: 800;
-      font-size: 0.9rem;
+      font-size: 0.86rem;
     }
-
     .cal-day-cell {
-      padding: 7px 3px;
+      min-height: 44px;
       border-right: 1px solid #E5E7EB;
       border-bottom: 1px solid #E5E7EB;
-    }
-
-    .cal-day-cell.highlight {
-      background: var(--yellow);
+      background: #FFFFFF;
+      border-left: 0;
+      border-top: 0;
+      font-weight: 900;
+      font-size: 0.88rem;
       color: var(--ink);
-      font-weight: 900;
-      border: 2px solid var(--ink);
-      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 2px;
     }
+    .cal-day-cell.empty { background: #F9FAFB; cursor: default; }
+    .cal-day-cell.start-day { background: #FFE156; box-shadow: inset 0 0 0 2.5px #111; }
+    .cal-day-cell.end-day { background: #4ECDC4; box-shadow: inset 0 0 0 2.5px #111; }
+    .cal-day-cell.hop-path { background: #E0F2FE; color: #0369A1; }
+    .cal-day-cell.week-marker { background: #DDD6FE; color: #4C1D95; }
+    .cal-hop-tag { font-size: 0.62rem; font-weight: 900; line-height: 1; }
 
-    .cal-day-cell.in-range {
-      background: #E0F2FE;
-      color: #0369A1;
-      font-weight: 900;
-    }
-
-    /* Number Line Math Display */
+    /* Number Line SVG */
     .numberline-svg {
       width: 100%;
-      max-width: 560px;
-      height: 112px;
-      margin-top: 4px;
-    }
-
-    .equation-large {
-      font-family: var(--font-rounded);
-      font-size: clamp(2rem, 5vw, 2.8rem);
-      font-weight: 900;
-      margin-bottom: 8px;
-    }
-
-    .pyp-reflect-card {
-      background: #FFFDE8;
-      border: 2.5px solid var(--ink);
-      border-radius: 12px;
-      box-shadow: 3px 3px 0 var(--ink);
-      padding: 16px 18px;
       max-width: 600px;
-      margin: 0 auto 20px;
-      text-align: left;
+      height: 170px;
+      background: #FFFFFF;
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
+      box-shadow: 2px 2px 0 var(--ink);
     }
 
-    .pyp-reflect-badge {
+    .nl-step-inputs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+    }
+    .nl-step-pill {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: var(--yellow);
-      color: var(--ink);
-      border: 2px solid var(--ink);
-      border-radius: 999px;
-      padding: 4px 12px;
-      font-size: 0.8rem;
+      background: #FFFFFF;
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
+      padding: 6px 10px;
       font-weight: 900;
-      margin-bottom: 8px;
+      font-size: 0.88rem;
+      box-shadow: 2px 2px 0 var(--ink);
     }
-
-    .pyp-stamp-status {
-      font-size: 0.9rem;
+    .nl-val-btn {
+      min-width: 56px;
+      min-height: 44px;
+      border: 2.5px solid var(--ink);
+      border-radius: 8px;
+      background: #F3F4F6;
       font-weight: 900;
-      color: #047857;
-      margin-top: 8px;
-      min-height: 20px;
+      font-size: 1.05rem;
+      cursor: pointer;
+      padding: 0 10px;
     }
+    .nl-val-btn.active { background: #FEF08A; box-shadow: inset 0 0 0 2px #0284C7; }
+    .nl-val-btn.ok { background: #DCFCE7; color: #065F46; }
+    .nl-val-btn.err { background: #FEE2E2; color: #991B1B; }
 
-    /* Answer Choices */
-    .answers-grid {
+    /* Built-in Touch Keypad (avoids iOS keyboard popups) */
+    .keypad-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 12px;
-      margin-bottom: 18px;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 6px;
+      width: 100%;
+      max-width: 420px;
     }
+    .key-btn {
+      min-height: 44px;
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      background: #FFFFFF;
+      font-weight: 900;
+      font-size: 1rem;
+      box-shadow: 2px 2px 0 var(--ink);
+      cursor: pointer;
+    }
+    .key-btn.del { background: #FEE2E2; }
+    .key-btn.ok { background: var(--teal); }
 
+    /* Right Panel Questions & Feedback */
+    .quest-step-badge {
+      display: inline-block;
+      background: var(--coral);
+      color: var(--white);
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      font-weight: 900;
+      box-shadow: 2px 2px 0 var(--ink);
+    }
+    .quest-title { font-size: 1.25rem; font-weight: 900; line-height: 1.25; }
+    .quest-desc { font-size: 0.96rem; font-weight: 700; color: #374151; line-height: 1.4; }
+
+    .answers-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
     .answer-btn {
       background: var(--white);
       border: var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 14px;
-      font-family: inherit;
-      font-size: 1.15rem;
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+      padding: 10px 14px;
+      font-size: 1rem;
       font-weight: 800;
       color: var(--ink);
       cursor: pointer;
-      min-height: 52px;
-      transition: all 0.12s ease;
-      text-align: center;
+      min-height: 48px;
+      text-align: left;
     }
-
-    .answer-btn:hover {
-      background: #F0FDF4;
-      transform: translate(-1px, -1px);
-      box-shadow: 5px 5px 0 var(--ink);
-    }
-
-    .answer-btn:active {
-      transform: translate(2px, 2px);
-      box-shadow: 1px 1px 0 var(--ink);
-    }
-
     .answer-btn.correct { background: var(--teal); }
     .answer-btn.wrong { background: #FEE2E2; }
 
-    /* Feedback Banner */
     .quest-feedback {
       background: #ECFDF5;
-      border: 2px solid var(--ink);
-      border-radius: var(--radius);
+      border: 2.5px solid var(--ink);
+      border-radius: 10px;
       box-shadow: 2px 2px 0 var(--ink);
-      padding: 14px 18px;
-      font-weight: 700;
-      font-size: 1rem;
-      margin-bottom: 18px;
+      padding: 10px 12px;
+      font-weight: 800;
+      font-size: 0.9rem;
+      line-height: 1.35;
       display: none;
     }
-
     .quest-feedback.active { display: block; }
     .quest-feedback.error { background: #FEF2F2; color: #991B1B; }
+
+    .action-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      margin-top: auto;
+    }
 
     .btn-next-quest {
       background: var(--blue);
       color: var(--white);
       border: var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      font-family: inherit;
-      font-size: 1.05rem;
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+      font-size: 0.96rem;
       font-weight: 900;
-      padding: 12px 26px;
-      min-height: 48px;
+      padding: 10px 18px;
+      min-height: 46px;
       cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .btn-next-quest:hover {
-      transform: translate(-2px, -2px);
-      box-shadow: 6px 6px 0 var(--ink);
-    }
-
-    /* Finish Card */
-    .finish-card {
-      display: none;
-      background: var(--white);
-      border: var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 36px 20px;
-      text-align: center;
-    }
-
-    .finish-card.active { display: block; }
-
-    /* Neobrutalism TTS Radio Dropdown */
-    .tts-dropdown-wrap {
-      position: relative;
-      display: inline-block;
-      user-select: none;
-      font-family: inherit;
-    }
-    .tts-trigger {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: #FFF;
+    }
+
+    .sandbox-callout {
+      background: #F0FDF4;
       border: 2.5px solid var(--ink);
-      border-radius: 10px;
-      box-shadow: 3px 3px 0 var(--ink);
-      padding: 6px 12px;
-      font-family: inherit;
-      font-size: 0.85rem;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 0.92rem;
       font-weight: 800;
+      line-height: 1.45;
+    }
+
+    /* Accessible Modal */
+    .pyp-modal-backdrop {
+      position: fixed; inset: 0; z-index: 2000;
+      background: rgba(15, 23, 42, 0.72);
+      backdrop-filter: blur(5px);
+      display: none; place-items: center; padding: 16px;
+    }
+    .pyp-modal-backdrop.open { display: grid; }
+    .pyp-modal-card {
+      width: min(560px, 100%);
+      background: #FFFDF0;
       color: var(--ink);
-      cursor: pointer;
-      min-height: 38px;
-      transition: transform 0.1s, box-shadow 0.1s;
+      border: 4px solid var(--ink);
+      border-radius: 20px;
+      box-shadow: 8px 8px 0 var(--ink);
+      padding: 20px 22px;
+      display: grid;
+      gap: 12px;
     }
-    .tts-trigger:hover {
-      background: #FEF08A;
-      transform: translate(-1px, -1px);
-      box-shadow: 4px 4px 0 var(--ink);
+    .pyp-modal-badge {
+      display: inline-flex; align-items: center; gap: 6px; width: fit-content;
+      padding: 5px 12px; background: var(--yellow); border: 2.5px solid var(--ink);
+      border-radius: 999px; font-weight: 900; font-size: 0.84rem;
     }
-    .tts-trigger:active {
+    .pyp-modal-box {
+      background: #FFFFFF; border: 2.5px solid var(--ink); border-radius: 12px;
+      padding: 10px 14px; font-size: 0.9rem; line-height: 1.45; font-weight: 700;
+    }
+    .pyp-modal-box strong { display: block; font-size: 0.76rem; text-transform: uppercase; color: #0F766E; margin-bottom: 3px; }
+    .pyp-modal-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .pyp-modal-btn {
+      flex: 1; min-width: 140px; min-height: 46px; padding: 10px 14px;
+      border: 3px solid var(--ink); border-radius: 12px; box-shadow: 3px 3px 0 var(--ink);
+      font-weight: 900; cursor: pointer; text-decoration: none;
+      display: inline-flex; align-items: center; justify-content: center;
+      color: var(--ink); background: #FFFFFF;
+    }
+    .pyp-modal-btn.primary { background: var(--green); }
+
+    .hidden { display: none !important; }
+
+    /* Capability-gated hover */
+    @media (hover: hover) and (pointer: fine) {
+      .pyp-map-link:hover, .btn-reflect-pill:hover, .mode-pill:hover, .tab-btn:hover,
+      .case-chip:hover, .mini-btn:hover, .answer-btn:hover, .btn-next-quest:hover,
+      .tts-trigger:hover, .btn-speaker:hover, .key-btn:hover {
+        transform: translate(-1px, -1px);
+        box-shadow: 4px 4px 0 var(--ink);
+      }
+      .tts-radio-item:hover { background: #FEF9C3; border-color: var(--ink); }
+    }
+
+    .mini-btn:active, .answer-btn:active, .btn-next-quest:active, .key-btn:active,
+    .pyp-map-link:active, .btn-reflect-pill:active, .tab-btn:active {
       transform: translate(2px, 2px);
       box-shadow: 1px 1px 0 var(--ink);
     }
-    .tts-arrow {
-      font-size: 0.75rem;
-      transition: transform 0.15s ease;
-    }
-    .tts-dropdown-wrap.open .tts-arrow {
-      transform: rotate(180deg);
-    }
-    .tts-menu {
-      display: none;
-      position: absolute;
-      top: calc(100% + 6px);
-      right: 0;
-      min-width: 250px;
-      max-width: 320px;
-      max-height: 290px;
-      overflow-y: auto;
-      background: #FFF;
-      border: 3px solid var(--ink);
-      border-radius: 12px;
-      box-shadow: 4px 4px 0 var(--ink);
-      padding: 6px;
-      z-index: 1000;
-      flex-direction: column;
-      gap: 3px;
-    }
-    .tts-dropdown-wrap.open .tts-menu {
-      display: flex;
-    }
-    .tts-menu-header {
-      font-size: 0.72rem;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      color: #6B7280;
-      padding: 4px 8px 6px;
-      border-bottom: 2px solid #E5E7EB;
-      margin-bottom: 3px;
-    }
-    .tts-radio-group {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-    .tts-radio-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 7px 10px;
-      border: 2px solid transparent;
-      border-radius: 8px;
-      background: transparent;
-      cursor: pointer;
-      font-family: inherit;
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--ink);
-      text-align: left;
-      width: 100%;
-      transition: background 0.1s, border-color 0.1s;
-    }
-    .tts-radio-item:hover {
-      background: #FEF9C3;
-      border-color: var(--ink);
-    }
-    .tts-radio-item.active {
-      background: #E0F2FE;
-      border-color: var(--ink);
-      font-weight: 800;
-    }
-    .tts-radio-circle {
-      width: 15px;
-      height: 15px;
-      border-radius: 50%;
-      border: 2px solid var(--ink);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      background: #FFF;
-    }
-    .tts-radio-item.active .tts-radio-circle::after {
-      content: '';
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--ink);
-    }
-    .tts-item-flag {
-      font-size: 1rem;
-    }
-    .tts-item-name {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      flex: 1;
-    }
 
-    .btn-speaker {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: #FEF08A;
-      border: 2px solid var(--ink);
-      box-shadow: 2px 2px 0 var(--ink);
-      border-radius: 8px;
-      width: 34px;
-      height: 34px;
-      cursor: pointer;
-      font-size: 1rem;
-      line-height: 1;
-      flex-shrink: 0;
-      transition: transform 0.1s, box-shadow 0.1s, background-color 0.1s;
+    @container shell (max-width: 960px) {
+      .studio-grid { grid-template-columns: 1fr; }
+      .interactive-display { min-height: 280px; }
     }
-    .btn-speaker:hover {
-      background: #FDE047;
-      transform: translate(-1px, -1px);
-      box-shadow: 3px 3px 0 var(--ink);
-    }
-    .btn-speaker:active {
-      transform: translate(2px, 2px);
-      box-shadow: 0 0 0 var(--ink);
-    }
-    .btn-speaker.speaking {
-      background: #86EFAC;
-      animation: ttsPulse 0.7s infinite alternate;
-    }
-    @keyframes ttsPulse {
-      from { transform: scale(1); }
-      to { transform: scale(1.1); }
-    }
-
-    @media (max-width: 820px) {
-      .answers-grid { grid-template-columns: 1fr; }
-    }
-  
-    html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
   </style>
 </head>
 
 <body>
   <div class="container">
     <nav class="nav-bar">
-      <div style="display: flex; align-items: center; gap: 10px;">
+      <div class="nav-left">
         <a class="pyp-map-link" href="../index.html">← PYP Map</a>
-        <span class="unit-tag">⏰ Grade 2 · Time & Mental Math</span>
+        <span class="unit-tag">⏰ Grade 2 · Time &amp; Math</span>
+        <div class="step-switch" role="tablist" aria-label="Learning Steps">
+          <button type="button" class="mode-pill active" id="tabStep1" role="tab" aria-selected="true">1. Explore Lab</button>
+          <button type="button" class="mode-pill" id="tabStep2" role="tab" aria-selected="false">2. Quest Missions</button>
+        </div>
       </div>
-      <div class="tts-dropdown-wrap" id="ttsDropdownWrap">
-        <button type="button" class="tts-trigger" id="ttsTrigger" aria-haspopup="menu" aria-expanded="false" title="Select Voice Accent">
-          <span class="tts-trigger-flag" id="ttsFlag">🇬🇧</span>
-          <span class="tts-trigger-label" id="ttsLabel">Voice</span>
-          <span class="tts-arrow">▾</span>
-        </button>
-        <div class="tts-menu" id="ttsMenu" role="menu">
-          <div class="tts-menu-header">Select Voice Accent</div>
-          <div class="tts-radio-group" id="ttsRadioList" role="radiogroup"></div>
+      <div class="nav-right">
+        <div class="score-pill" id="scorePill">⭐ <span id="scoreVal">0</span> · Solved <span id="solvedCount">0</span>/12</div>
+        <button type="button" class="btn-reflect-pill" id="btnOpenReflect">🏅 Reflect &amp; Stamp</button>
+        <div class="tts-dropdown-wrap" id="ttsDropdownWrap">
+          <button type="button" class="tts-trigger" id="ttsTrigger" aria-haspopup="menu" aria-expanded="false" title="Select Voice Accent">
+            <span id="ttsFlag">🇬🇧</span>
+            <span id="ttsLabel">Voice</span>
+            <span class="tts-arrow">▾</span>
+          </button>
+          <div class="tts-menu" id="ttsMenu" role="menu">
+            <div class="tts-menu-header">Select Voice Accent</div>
+            <div class="tts-radio-group" id="ttsRadioList" role="radiogroup"></div>
+          </div>
         </div>
       </div>
     </nav>
 
-    <header class="hero-card">
+    <header class="hero-strip">
       <div>
-        <h1>Time & Mental Math Quest 🕒</h1>
-        <p style="font-weight:700; color:#4B5563; font-size:0.9rem;">
-          Connect analogue and digital clocks, analyze calendar durations, and master 3-number mental math strategies!
-        </p>
+        <h1>Time &amp; Mental Math Quest 🕒</h1>
+        <p id="heroSub">Step 1: Play with the draggable 1–12 clock, calendar jumps, and number-line hops!</p>
       </div>
-      <div style="font-weight:900; font-size:0.85rem; color:#4B5563;">
-        Skills: Clock Reading · Calendar Duration · Mental Strategies
+      <div style="font-weight:900; font-size:0.84rem; color:#374151;">
+        Key Concepts: Change &amp; Measurement
       </div>
     </header>
 
-    <div class="status-bar" id="statusBar">
-      <span>Question <strong id="qNum">1</strong> of <span id="qTotal">13</span></span>
-      <span>Quest Score: <strong id="scoreVal">0</strong> / <span id="scoreMax">130</span> ⭐</span>
-    </div>
+    <!-- STEP 1: INTERACTIVE MANIPULATIVES SANDBOX -->
+    <section id="step1View" class="studio-grid">
+      <div class="card">
+        <div class="subtool-tabs" role="tablist" aria-label="Sandbox Tools">
+          <button type="button" class="tab-btn active" data-tool="clock">🕒 Analog &amp; 24h Clock</button>
+          <button type="button" class="tab-btn" data-tool="calendar">📅 Calendar Hop Lab</button>
+          <button type="button" class="tab-btn" data-tool="numberline">🐸 Number-Line Stepper</button>
+        </div>
 
-    <!-- Active Quest Board -->
-    <main class="quest-card" id="questBoard">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-        <span class="quest-step-badge" id="questTypeBadge" style="margin-bottom: 0;">Digital & Analogue Clocks</span>
-        <button type="button" class="btn-speaker" id="btnSpeakQuest" title="Read question aloud" aria-label="Read question aloud">🔊</button>
-      </div>
-      <h2 class="quest-title" id="questPromptTitle">What time is shown on the clock?</h2>
-      <p class="quest-desc" id="questPromptDesc">Look at the clock display and select the accurate time expression in English.</p>
-
-      <div class="interactive-display" id="displayArea">
-        <!-- Injected Clock or Calendar or Number Line -->
+        <div class="interactive-display" id="sandboxStage"></div>
       </div>
 
-      <div class="answers-grid" id="answersGrid">
-        <!-- Options injected by JS -->
+      <aside class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+          <span class="quest-step-badge" style="background:var(--teal); color:var(--ink);">Step 1 · Explore Sandbox</span>
+          <button type="button" class="btn-speaker" id="btnSpeakSandbox" aria-label="Read sandbox tip aloud">🔊 Hear Tip</button>
+        </div>
+        <h2 class="quest-title" id="sandboxTitle">Drag the Clock Hands!</h2>
+        <p class="quest-desc" id="sandboxDesc">Grab the pink minute hand or tap the quick buttons to watch the analog clock, 12-hour clock, and 24-hour digital clock move together.</p>
+        <div class="sandbox-callout" id="sandboxCallout"></div>
+        <div class="action-row">
+          <button type="button" class="mini-btn yellow" id="btnSandboxRandom">🎲 Try Another Example</button>
+          <button type="button" class="btn-next-quest" id="btnGoStep2">Start Step 2 Quest ➔</button>
+        </div>
+      </aside>
+    </section>
+
+    <!-- STEP 2: ZERO-SPOILER 3-STAGE QUEST -->
+    <section id="step2View" class="hidden">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+        <div class="stage-tabs" id="stageTabs">
+          <button type="button" class="tab-btn active" data-stage="0">🕒 Clocks (1–4)</button>
+          <button type="button" class="tab-btn" data-stage="1">📅 Calendars (5–7)</button>
+          <button type="button" class="tab-btn" data-stage="2">🐸 Number Line &amp; Stories (8–12)</button>
+        </div>
+        <div class="case-chips" id="caseChips" aria-label="Quest Mission Numbers"></div>
       </div>
 
-      <div class="quest-feedback" id="feedbackBanner"></div>
+      <div class="studio-grid">
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+            <span class="quest-step-badge" id="questTypeBadge">Stage 1 · Clocks</span>
+            <span style="font-weight:900; font-size:0.86rem; color:#4B5563;" id="questCounterLabel">Mission 1 of 12</span>
+          </div>
+          <div class="interactive-display" id="questDisplayArea"></div>
+        </div>
 
-      <div style="display:flex; justify-content:flex-end;">
-        <button class="btn-next-quest" id="btnNext" type="button" style="display:none;">Next Question ➔</button>
-      </div>
-    </main>
+        <aside class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+            <h2 class="quest-title" id="questPromptTitle">Question Title</h2>
+            <button type="button" class="btn-speaker" id="btnSpeakQuest" title="Read question aloud" aria-label="Read question aloud">🔊</button>
+          </div>
+          <p class="quest-desc" id="questPromptDesc"></p>
 
-    <!-- Completion Screen -->
-    <section class="finish-card" id="finishCard">
-      <div style="font-size: 4rem; margin-bottom: 12px;">⏱️🌟</div>
-      <h2 style="font-family:var(--font-rounded); font-size: 2rem; font-weight: 900; margin-bottom: 8px;">Time & Math Quest Complete!</h2>
-      <p id="finishDesc" style="font-size: 1.15rem; font-weight: 700; max-width: 620px; margin: 0 auto 18px; line-height: 1.6;"></p>
-      <div class="pyp-reflect-card">
-        <div class="pyp-reflect-badge">💡 IB PYP Learner Profile · Thinker</div>
-        <p style="font-size: 0.95rem; font-weight: 800; line-height: 1.45; color: #1F2937;">
-          <strong>Reflection:</strong> Using clocks, calendars, and number-line jumps helps us break tricky problems into clear, logical steps!
-        </p>
-        <div class="pyp-stamp-status" id="pypStampStatus"></div>
-      </div>
-      <div style="display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;">
-        <button class="btn-next-quest" id="btnClaimStamp" type="button" style="background:var(--purple); color:var(--white);">💡 Stamp My Passport!</button>
-        <button class="btn-next-quest" id="btnRestart" type="button" style="background:var(--teal); color:var(--ink);">Play Again 🔄</button>
-        <a class="pyp-map-link" href="../index.html">Back to Learning Map 🗺️</a>
+          <div id="questInteractionArea"></div>
+
+          <div class="quest-feedback" id="feedbackBanner" aria-live="polite"></div>
+
+          <div class="action-row">
+            <button type="button" class="mini-btn" id="btnQuestHint">💡 Show Hint</button>
+            <button type="button" class="btn-next-quest" id="btnNext" style="display:none;">Next Mission ➔</button>
+          </div>
+        </aside>
       </div>
     </section>
   </div>
 
+  <!-- STEP 3: IB PYP REFLECTION & STAMP MODAL -->
+  <div class="pyp-modal-backdrop" id="pypReflectModal" role="dialog" aria-modal="true" aria-labelledby="pypModalTitle">
+    <div class="pyp-modal-card">
+      <div class="pyp-modal-badge">💡 Learner Profile Stamp: Thinker</div>
+      <h2 id="pypModalTitle" style="font-size:1.4rem; font-weight:900;">🌟 IB PYP Reflection &amp; Action</h2>
+      <div class="pyp-modal-box">
+        <strong>Key Concepts · Change &amp; Measurement</strong>
+        <span>Clocks measure passing minutes and hours, calendars track days and weeks, and number-line jumps break big problems into clear, logical steps!</span>
+      </div>
+      <div class="pyp-modal-box" style="background:#EFF6FF;">
+        <strong>📊 My Quest Progress</strong>
+        <span id="modalProgressText">Solved 0 of 12 missions so far!</span>
+      </div>
+      <div class="pyp-modal-box" style="background:#ECFDF5;">
+        <strong>🚀 Take Action in Real Life</strong>
+        <span>Check a clock at home today: say the time out loud, then figure out what time it will be 15 minutes later!</span>
+      </div>
+      <div id="pypStampStatus" style="font-weight:900; font-size:0.9rem; color:#047857; min-height:20px;"></div>
+      <div class="pyp-modal-actions">
+        <button type="button" class="pyp-modal-btn primary" id="btnClaimStamp">🏅 Claim Passport Stamp</button>
+        <a class="pyp-modal-btn" href="../index.html">🗺️ View Passport</a>
+        <button type="button" class="pyp-modal-btn" id="btnCloseReflect">Keep Exploring</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // Web Audio Synthesizer
+    // Safe Organic Web Audio (Triangle & Sine only, zero sound on page load)
     class SoundFX {
       constructor() { this.ctx = null; }
       init() {
-        if (!this.ctx) {
-          const AudioContext = window.AudioContext || window.webkitAudioContext;
-          this.ctx = new AudioContext();
-        }
-        if (this.ctx.state === 'suspended') this.ctx.resume();
+        try {
+          if (!this.ctx) {
+            const AC = window.AudioContext || window.webkitAudioContext;
+            if (AC) this.ctx = new AC();
+          }
+          if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+        } catch (_) {}
       }
-      playCorrect() {
+      tone(freq, delay, dur, type, vol) {
         this.init();
-        const now = this.ctx.currentTime;
-        [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+        if (!this.ctx) return;
+        try {
+          const now = this.ctx.currentTime + delay;
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(freq, now + idx * 0.08);
-          gain.gain.setValueAtTime(0.18, now + idx * 0.08);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.35);
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, now);
+          gain.gain.setValueAtTime(vol, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
           osc.connect(gain);
           gain.connect(this.ctx.destination);
-          osc.start(now + idx * 0.08);
-          osc.stop(now + idx * 0.08 + 0.4);
-        });
+          osc.start(now);
+          osc.stop(now + dur + 0.02);
+        } catch (_) {}
+      }
+      playClick() { this.tone(540, 0, 0.05, 'sine', 0.08); }
+      playHop() { this.tone(660, 0, 0.08, 'triangle', 0.11); }
+      playCorrect() {
+        [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => this.tone(f, i * 0.075, 0.28, 'triangle', 0.14));
       }
       playWrong() {
-        this.init();
-        const now = this.ctx.currentTime;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(190, now);
-        gain.gain.setValueAtTime(0.12, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.25);
+        // Gentle low organic triangle boop (no sawtooth/square)
+        this.tone(260, 0, 0.12, 'triangle', 0.11);
+        this.tone(200, 0.09, 0.16, 'sine', 0.11);
       }
-      playClick() {
-        this.init();
-        const now = this.ctx.currentTime;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.frequency.setValueAtTime(500, now);
-        gain.gain.setValueAtTime(0.08, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.06);
+      playFanfare() {
+        [523.25, 659.25, 783.99, 1046.5, 1318.5].forEach((f, i) => this.tone(f, i * 0.09, 0.36, 'triangle', 0.16));
       }
     }
     const audio = new SoundFX();
 
-    // Visual Helpers: Accurate Trig Analog Clock, Calendar Mockup, Number Line Jumps
-    function renderAnalogClockSVG(hours, minutes) {
-      const cx = 60, cy = 60;
-      const hourAngleDeg = ((hours % 12) + minutes / 60) * 30;
-      const minAngleDeg = minutes * 6;
-      const toRad = (deg) => (deg - 90) * (Math.PI / 180);
-
-      const hourLen = 22;
-      const minLen = 30; // stops well clear of the numerals at r=38
-      const hx = (cx + hourLen * Math.cos(toRad(hourAngleDeg))).toFixed(1);
-      const hy = (cy + hourLen * Math.sin(toRad(hourAngleDeg))).toFixed(1);
-      const mx = (cx + minLen * Math.cos(toRad(minAngleDeg))).toFixed(1);
-      const my = (cy + minLen * Math.sin(toRad(minAngleDeg))).toFixed(1);
-
-      let ticks = '';
-      let numerals = '';
-      for (let i = 1; i <= 12; i++) {
-        const rad = toRad(i * 30);
-        const isCardinal = i % 3 === 0;
-        const rOuter = 50;
-        const rInner = isCardinal ? 45 : 47;
-        const x1 = (cx + rInner * Math.cos(rad)).toFixed(1);
-        const y1 = (cy + rInner * Math.sin(rad)).toFixed(1);
-        const x2 = (cx + rOuter * Math.cos(rad)).toFixed(1);
-        const y2 = (cy + rOuter * Math.sin(rad)).toFixed(1);
-        ticks += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#111111" stroke-width="${isCardinal ? 2.5 : 1.5}" stroke-linecap="round"/>`;
-
-        if (isCardinal) {
-          const rNum = 38;
-          const nx = (cx + rNum * Math.cos(rad)).toFixed(1);
-          const ny = (cy + rNum * Math.sin(rad) + 3.5).toFixed(1);
-          numerals += `<text x="${nx}" y="${ny}" font-size="10" font-weight="900" text-anchor="middle" fill="#111111">${i}</text>`;
-        }
-      }
-
-      return `
-        <svg class="analog-clock-svg" viewBox="0 0 120 120" aria-label="Analog clock showing ${hours}:${String(minutes).padStart(2, '0')}">
-          <circle cx="60" cy="60" r="54" fill="#FFFFFF" stroke="#111111" stroke-width="4"/>
-          ${ticks}
-          ${numerals}
-          <line x1="60" y1="60" x2="${hx}" y2="${hy}" stroke="#111111" stroke-width="4.5" stroke-linecap="round"/>
-          <line x1="60" y1="60" x2="${mx}" y2="${my}" stroke="#FF6584" stroke-width="3" stroke-linecap="round"/>
-          <circle cx="60" cy="60" r="4" fill="#111111"/>
-        </svg>
-      `;
-    }
-
-    function renderCalendarMockup(monthLabel, startWeekday, totalDays, startDay, endDay) {
-      const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      let cells = '';
-      for (let i = 0; i < startWeekday; i++) {
-        cells += `<div class="cal-day-cell" style="background:#F9FAFB;"></div>`;
-      }
-      for (let d = 1; d <= totalDays; d++) {
-        let cls = 'cal-day-cell';
-        if (d === startDay || d === endDay) {
-          cls += ' highlight';
-        } else if (d > startDay && d < endDay) {
-          cls += ' in-range';
-        }
-        cells += `<div class="${cls}">${d}</div>`;
-      }
-      return `
-        <div class="calendar-mockup">
-          <div class="cal-header">${monthLabel}</div>
-          <div class="cal-weekdays">${weekdays.map(w => `<div>${w}</div>`).join('')}</div>
-          <div class="cal-days-grid">${cells}</div>
-        </div>
-      `;
-    }
-
-    function renderNumberLineSVG(startVal, step1Label, midVal, step2Label, direction1, direction2) {
-      // Positions on SVG x-axis so jumps flow clearly left-to-right or right-to-left
-      const isBothForward = direction1 === '+' && direction2 === '+';
-      const isBothBack = direction1 === '-' && direction2 === '-';
-      let x0, x1, x2;
-      if (isBothForward) {
-        x0 = 70; x1 = 270; x2 = 450;
-      } else if (isBothBack) {
-        x0 = 450; x1 = 260; x2 = 80;
-      } else if (direction1 === '+' && direction2 === '-') {
-        x0 = 90; x1 = 440; x2 = 280;
-      } else {
-        x0 = 430; x1 = 100; x2 = 280;
-      }
-      const midArc1X = (x0 + x1) / 2;
-      const midArc2X = (x1 + x2) / 2;
-      const arc1Y = 20;
-      const arc2Y = (direction1 !== direction2) ? 94 : 20;
-      const label2Y = (direction1 !== direction2) ? 106 : 16;
-
-      return `
-        <svg class="numberline-svg" viewBox="0 0 520 112" aria-label="Number line showing two mental math jumps">
-          <line x1="30" y1="64" x2="490" y2="64" stroke="#111111" stroke-width="3.5" stroke-linecap="round"/>
-          <polygon points="490,64 480,58 480,70" fill="#111111"/>
-          <polygon points="30,64 40,58 40,70" fill="#111111"/>
-
-          <!-- Jump 1 -->
-          <path d="M ${x0} 60 Q ${midArc1X} ${arc1Y} ${x1} 60" fill="none" stroke="#38B6FF" stroke-width="3.5" stroke-dasharray="6,4"/>
-          <text x="${midArc1X}" y="18" font-size="14" font-weight="900" text-anchor="middle" fill="#0369A1">${step1Label}</text>
-
-          <!-- Jump 2 -->
-          <path d="M ${x1} 60 Q ${midArc2X} ${arc2Y} ${x2} 60" fill="none" stroke="#FF6584" stroke-width="3.5"/>
-          <text x="${midArc2X}" y="${label2Y}" font-size="14" font-weight="900" text-anchor="middle" fill="#BE123C">${step2Label}</text>
-
-          <!-- Nodes -->
-          <circle cx="${x0}" cy="64" r="6" fill="#111111"/>
-          <text x="${x0}" y="86" font-size="14" font-weight="900" text-anchor="middle" fill="#111111">${startVal}</text>
-
-          <circle cx="${x1}" cy="64" r="6" fill="#38B6FF" stroke="#111111" stroke-width="2"/>
-          <text x="${x1}" y="86" font-size="14" font-weight="900" text-anchor="middle" fill="#0369A1">${midVal}</text>
-
-          <circle cx="${x2}" cy="64" r="7" fill="#FFE156" stroke="#111111" stroke-width="2.5"/>
-          <text x="${x2}" y="86" font-size="15" font-weight="900" text-anchor="middle" fill="#BE123C">?</text>
-        </svg>
-      `;
-    }
-
-    // Comprehensive Grade 2 Curriculum Quest (Pure grammatical English options, zero spoilers)
-    const questions = [
-      // Stage 1: Time, Clocks & Calendars
-      {
-        type: "Stage 1: Digital & Analogue Clocks",
-        render: () => `
-          <div class="clock-duo">
-            ${renderAnalogClockSVG(7, 8)}
-            <div class="digital-clock-lcd">07:08</div>
-          </div>
-        `,
-        title: "Morning Routine: Eating Breakfast",
-        desc: "Maya is eating breakfast at 07:08. What is the correct English phrase to state this time?",
-        options: [
-          { text: "It's seven oh eight.", correct: true },
-          { text: "It's eight oh seven.", correct: false },
-          { text: "It's seven eighteen.", correct: false }
-        ],
-        hint: "When digital minutes are between 01 and 09, pronounce the leading zero as 'oh': 'seven oh eight'."
-      },
-      {
-        type: "Stage 1: Exact Hour Clocks",
-        render: () => `
-          <div class="clock-duo">
-            ${renderAnalogClockSVG(10, 0)}
-            <div class="digital-clock-lcd">10:00</div>
-          </div>
-        `,
-        title: "Morning Recess Hour",
-        desc: "The morning recess bell rings at 10:00 sharp. How do we say this exact hour in English?",
-        options: [
-          { text: "Ten o'clock.", correct: true },
-          { text: "Twelve o'clock.", correct: false },
-          { text: "Ten thirty.", correct: false }
-        ],
-        hint: "When the short hour hand points to 10 and the long minute hand points straight up to 12, it is ten o'clock."
-      },
-      {
-        type: "Stage 1: 12-Hour ⇄ 24-Hour Conversion",
-        render: () => `
-          <div style="background:#FFFFFF; border:3px solid #111; border-radius:12px; padding:16px; text-align:center; max-width:380px; margin:0 auto; box-shadow:3px 3px 0 #111;">
-            <div style="font-weight:900; font-size:1.1rem; margin-bottom:8px; color:#1E3A8A;">School Schedule Conversion</div>
-            <div style="display:flex; justify-content:space-around; gap:12px; font-weight:800; font-size:1.2rem;">
-              <span style="background:#FEF08A; padding:4px 10px; border:2px solid #111; border-radius:8px;">09:00 AM</span>
-              <span style="background:#BAE6FD; padding:4px 10px; border:2px solid #111; border-radius:8px;">04:00 PM</span>
-            </div>
-          </div>
-        `,
-        title: "24-Hour Digital Clock Conversion",
-        desc: "How are 09:00 AM (morning assembly) and 04:00 PM (school dismissal) written in 24-hour format?",
-        options: [
-          { text: "09:00 AM is 09:00, and 04:00 PM is 16:00.", correct: true },
-          { text: "09:00 AM is 19:00, and 04:00 PM is 04:00.", correct: false },
-          { text: "09:00 AM is 09:00, and 04:00 PM is 14:00.", correct: false }
-        ],
-        hint: "AM hours stay the same with a leading zero (09:00). For PM hours, add 12 to the hour: 4 + 12 = 16:00."
-      },
-      {
-        type: "Stage 1: Time Duration by Minutes",
-        render: () => `
-          <div style="text-align:center; background:#F0FDFA; border:3px solid #111; border-radius:12px; padding:14px; max-width:420px; margin:0 auto; box-shadow:3px 3px 0 #111;">
-            <div style="font-weight:900; font-size:1.05rem; color:#0F766E;">Swimming Practice Duration</div>
-            <p style="font-weight:800; margin-top:6px;">Start: <strong>02:15 PM</strong> ➔ Finish: <strong>02:50 PM</strong></p>
-          </div>
-        `,
-        title: "Elapsed Minutes Challenge",
-        desc: "Leo's swim training started at 02:15 PM and ended at 02:50 PM. How many minutes did he swim?",
-        options: [
-          { text: "35 minutes.", correct: true },
-          { text: "25 minutes.", correct: false },
-          { text: "45 minutes.", correct: false }
-        ],
-        hint: "Subtract the start minutes from the end minutes: 50 minus 15 equals 35 minutes."
-      },
-      {
-        type: "Stage 1: Calendar Duration Inquiry",
-        render: () => renderCalendarMockup('April · Science Plant Journal', 2, 30, 6, 20),
-        title: "Counting Weeks on a Calendar",
-        desc: "Maya plants a bean sprout on April 6 and shares her journal on April 20. How many days pass from April 6 to April 20?",
-        options: [
-          { text: "14 days (2 weeks).", correct: true },
-          { text: "10 days.", correct: false },
-          { text: "20 days.", correct: false }
-        ],
-        hint: "April 6 to April 13 is 1 week (7 days), and April 13 to April 20 is 1 more week: 20 - 6 = 14 days (2 weeks)."
-      },
-      {
-        type: "Stage 1: Calendar Duration Inquiry",
-        render: () => renderCalendarMockup('May · Reading Challenge Week', 4, 31, 5, 14),
-        title: "Measuring Days Between Dates",
-        desc: "Sam starts his reading challenge on May 5 and finishes his book on May 14. How many days later does he finish?",
-        options: [
-          { text: "9 days.", correct: true },
-          { text: "7 days.", correct: false },
-          { text: "11 days.", correct: false }
-        ],
-        hint: "Count forward from May 5 to May 14: 14 minus 5 equals 9 days."
-      },
-
-      // Stage 2: 3-Number Mental Math with Number Line Jump Visuals
-      {
-        type: "Stage 2: Number Line Carrying Addition",
-        render: () => `
-          <div style="text-align:center; width:100%;">
-            <div class="equation-large">24 + 28 + 13 = ?</div>
-            ${renderNumberLineSVG(24, '+28', 52, '+13', '+', '+')}
-          </div>
-        `,
-        title: "Two-Step Carrying Addition",
-        desc: "Follow the number line jumps. First, 24 + 28 = 52. Next, jump +13 from 52. Where do you land?",
-        options: [
-          { text: "65", correct: true },
-          { text: "64", correct: false },
-          { text: "75", correct: false }
-        ],
-        hint: "In the ones column: 2 + 3 = 5. In the tens column: 5 + 1 = 6. The final sum is 65."
-      },
-      {
-        type: "Stage 2: Number Line Carrying Addition",
-        render: () => `
-          <div style="text-align:center; width:100%;">
-            <div class="equation-large">27 + 37 + 25 = ?</div>
-            ${renderNumberLineSVG(27, '+37', 64, '+25', '+', '+')}
-          </div>
-        `,
-        title: "Two-Step Carrying Addition",
-        desc: "Step 1 lands on 64 (27 + 37 = 64). Now make the second jump of +25. What is the final sum?",
-        options: [
-          { text: "89", correct: true },
-          { text: "90", correct: false },
-          { text: "87", correct: false }
-        ],
-        hint: "Add ones (4 + 5 = 9) and tens (6 + 2 = 8): 64 + 25 = 89."
-      },
-      {
-        type: "Stage 2: Number Line Subtraction",
-        render: () => `
-          <div style="text-align:center; width:100%;">
-            <div class="equation-large">60 - 25 - 26 = ?</div>
-            ${renderNumberLineSVG(60, '-25', 35, '-26', '-', '-')}
-          </div>
-        `,
-        title: "Sequential Subtraction with Borrowing",
-        desc: "Step 1 jumps back 25 from 60 to reach 35. Now jump back 26 more from 35. What number is left?",
-        options: [
-          { text: "9", correct: true },
-          { text: "15", correct: false },
-          { text: "11", correct: false }
-        ],
-        hint: "In 35 - 26, borrow 1 ten: 15 - 6 = 9, and 2 - 2 = 0. The result is 9."
-      },
-      {
-        type: "Stage 2: Mixed Number Line Strategy",
-        render: () => `
-          <div style="text-align:center; width:100%;">
-            <div class="equation-large">36 + 24 - 15 = ?</div>
-            ${renderNumberLineSVG(36, '+24', 60, '-15', '+', '-')}
-          </div>
-        `,
-        title: "Continuous Mixed Operation (+ and -)",
-        desc: "Jump forward +24 from 36 to reach 60. Then jump backward -15 from 60. Where do you land?",
-        options: [
-          { text: "45", correct: true },
-          { text: "55", correct: false },
-          { text: "35", correct: false }
-        ],
-        hint: "36 + 24 = 60. Then in 60 - 15, borrow 1 ten: 10 - 5 = 5, and 5 - 1 = 4, giving 45."
-      },
-
-      // Stage 3: Word Problems & Complete Math Answer Sentences
-      {
-        type: "Stage 3: Math Word Problem Reasoning",
-        render: () => `
-          <div style="background:#FFF9D2; border:3px solid #111; border-radius:12px; padding:16px; text-align:center; max-width:420px; margin:0 auto; box-shadow:3px 3px 0 #111;">
-            <div style="font-weight:900; font-size:1.15rem; color:#B45309;">Zoe's Art Project</div>
-            <p style="font-weight:800; margin-top:6px;">25 blue beads and 33 yellow beads</p>
-          </div>
-        `,
-        title: "Finding the Total in a Word Problem",
-        desc: "Zoe uses 25 blue beads and 33 yellow beads for her bracelet. Which complete answer sentence matches the problem?",
-        options: [
-          { text: "Zoe has 58 beads in total.", correct: true },
-          { text: "Zoe has 48 beads in total.", correct: false },
-          { text: "Zoe has 8 beads left.", correct: false }
-        ],
-        hint: "Joining two groups uses addition: 25 + 33 = 58. Zoe has 58 beads in total."
-      },
-      {
-        type: "Stage 3: Math Word Problem Reasoning",
-        render: () => `
-          <div style="background:#FEF2F2; border:3px solid #111; border-radius:12px; padding:16px; text-align:center; max-width:420px; margin:0 auto; box-shadow:3px 3px 0 #111;">
-            <div style="font-weight:900; font-size:1.15rem; color:#991B1B;">Ethan's Puzzle Pieces</div>
-            <p style="font-weight:800; margin-top:6px;">Started with 50 pieces · Shared 21 pieces</p>
-          </div>
-        `,
-        title: "Subtraction Word Problem Sentence",
-        desc: "Ethan had 50 puzzle pieces and gave 21 pieces to a classmate. Which complete answer sentence is correct?",
-        options: [
-          { text: "Ethan has 29 puzzle pieces left.", correct: true },
-          { text: "Ethan has 31 puzzle pieces left.", correct: false },
-          { text: "Ethan has 71 puzzle pieces in total.", correct: false }
-        ],
-        hint: "Giving pieces away uses subtraction with borrowing: 50 - 21 = 29. Ethan has 29 puzzle pieces left."
-      },
-      {
-        type: "Stage 3: Math Story & Place Value",
-        render: () => `
-          <div style="background:#F0FDF4; border:3px solid #111; border-radius:12px; padding:16px; text-align:center; max-width:420px; margin:0 auto; box-shadow:3px 3px 0 #111;">
-            <div style="font-weight:900; font-size:1.15rem; color:#166534;">Robot Bank Account</div>
-            <p style="font-weight:800; margin-top:6px;">$22 saved + $87 earned</p>
-          </div>
-        `,
-        title: "Crossing 100 in a Math Story",
-        desc: "A robot has 22 dollars in its bank and earns 87 more dollars. Which complete answer sentence is correct?",
-        options: [
-          { text: "The robot has 109 dollars in total.", correct: true },
-          { text: "The robot has 99 dollars in total.", correct: false },
-          { text: "The robot has 65 dollars left.", correct: false }
-        ],
-        hint: "Add ones (2 + 7 = 9) and tens (20 + 80 = 100): 100 + 9 = 109 dollars in total."
-      }
-    ];
-
-    let currentQ = 0;
-    let score = 0;
-
-    const qNum = document.getElementById('qNum');
-    const qTotal = document.getElementById('qTotal');
-    const scoreVal = document.getElementById('scoreVal');
-    const scoreMax = document.getElementById('scoreMax');
-    const questTypeBadge = document.getElementById('questTypeBadge');
-    const questPromptTitle = document.getElementById('questPromptTitle');
-    const questPromptDesc = document.getElementById('questPromptDesc');
-    const displayArea = document.getElementById('displayArea');
-    const answersGrid = document.getElementById('answersGrid');
-    const feedbackBanner = document.getElementById('feedbackBanner');
-    const btnNext = document.getElementById('btnNext');
-    const questBoard = document.getElementById('questBoard');
-    const finishCard = document.getElementById('finishCard');
-    const finishDesc = document.getElementById('finishDesc');
-    const btnRestart = document.getElementById('btnRestart');
-    const btnClaimStamp = document.getElementById('btnClaimStamp');
-    const pypStampStatus = document.getElementById('pypStampStatus');
-
-    function recordPassportStamp(silent) {
-      try {
-        const raw = localStorage.getItem('ib_pyp_passport');
-        const data = raw ? JSON.parse(raw) : { stamps: [], completed: [] };
-        const stamps = new Set(Array.isArray(data.stamps) ? data.stamps : []);
-        const completed = new Set(Array.isArray(data.completed) ? data.completed : []);
-        stamps.add('Thinker');
-        completed.add('math/g2_time_and_math_quest.html');
-        localStorage.setItem('ib_pyp_passport', JSON.stringify({ stamps: [...stamps], completed: [...completed] }));
-        if (!silent && pypStampStatus && btnClaimStamp) {
-          pypStampStatus.textContent = '✅ Thinker stamp saved to your IB PYP Passport!';
-          btnClaimStamp.textContent = '✅ Stamped!';
-        }
-      } catch (_) {}
-    }
-
-    if (qTotal) qTotal.textContent = questions.length;
-    if (scoreMax) scoreMax.textContent = questions.length * 10;
-
-    function loadQuestion(idx) {
-      const q = questions[idx];
-      qNum.textContent = idx + 1;
-      questTypeBadge.textContent = q.type;
-      questPromptTitle.textContent = q.title;
-      questPromptDesc.textContent = q.desc;
-      displayArea.innerHTML = q.render();
-      answersGrid.innerHTML = '';
-      feedbackBanner.className = 'quest-feedback';
-      feedbackBanner.style.display = 'none';
-      btnNext.style.display = 'none';
-
-      // Randomize / shuffle options so the correct answer is never in a fixed position
-      const shuffledOptions = [...q.options].sort(() => Math.random() - 0.5);
-
-      shuffledOptions.forEach(opt => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'answer-btn';
-        btn.textContent = opt.text;
-        btn.addEventListener('click', () => {
-          audio.playClick();
-          const all = answersGrid.querySelectorAll('.answer-btn');
-          all.forEach(b => b.disabled = true);
-
-          if (opt.correct) {
-            btn.classList.add('correct');
-            score += 10;
-            scoreVal.textContent = score;
-            audio.playCorrect();
-            feedbackBanner.textContent = `🎯 Excellent! ${q.hint}`;
-            feedbackBanner.classList.add('active');
-          } else {
-            btn.classList.add('wrong');
-            audio.playWrong();
-            all.forEach(b => {
-              if (b.textContent === q.options.find(o => o.correct).text) {
-                b.classList.add('correct');
-              }
-            });
-            feedbackBanner.textContent = `💡 Hint: ${q.hint}`;
-            feedbackBanner.classList.add('active', 'error');
-          }
-          btnNext.style.display = 'inline-flex';
+    // DPR-aware Confetti Burst
+    function launchConfetti() {
+      const cvs = document.createElement('canvas');
+      cvs.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:3000;';
+      document.body.appendChild(cvs);
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      cvs.width = Math.round(w * dpr);
+      cvs.height = Math.round(h * dpr);
+      const ctx = cvs.getContext('2d');
+      ctx.scale(dpr, dpr);
+      const colors = ['#FFE156', '#FF6584', '#4ECDC4', '#38B6FF', '#B388FF', '#86EFAC'];
+      const pieces = Array.from({ length: 65 }, () => ({
+        x: Math.random() * w,
+        y: -20 - Math.random() * h * 0.3,
+        vx: (Math.random() - 0.5) * 6,
+        vy: 3 + Math.random() * 5,
+        size: 6 + Math.random() * 7,
+        rot: Math.random() * Math.PI * 2,
+        vr: (Math.random() - 0.5) * 0.2,
+        color: colors[Math.floor(Math.random() * colors.length)]
+      }));
+      let frame = 0;
+      function tick() {
+        frame++;
+        ctx.clearRect(0, 0, w, h);
+        pieces.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.12;
+          p.rot += p.vr;
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rot);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.65);
+          ctx.restore();
         });
-        answersGrid.appendChild(btn);
-      });
-    }
-
-    btnNext.addEventListener('click', () => {
-      audio.playClick();
-      if (window.speechSynthesis) window.speechSynthesis.cancel();
-      currentQ++;
-      if (currentQ < questions.length) {
-        loadQuestion(currentQ);
-      } else {
-        questBoard.style.display = 'none';
-        finishCard.classList.add('active');
-        audio.playCorrect();
-        finishDesc.textContent = `Congratulations! You scored ${score} out of ${questions.length * 10} points! You mastered analogue and digital clocks, calendar durations, number-line mental math, and complete word problem answers!`;
-        recordPassportStamp(true);
-        if (pypStampStatus) pypStampStatus.textContent = '✨ Tap "Stamp My Passport!" to celebrate your Thinker badge!';
-        if (btnClaimStamp) btnClaimStamp.textContent = '💡 Stamp My Passport!';
+        if (frame < 110) requestAnimationFrame(tick);
+        else cvs.remove();
       }
-    });
-
-    if (btnClaimStamp) {
-      btnClaimStamp.addEventListener('click', () => {
-        audio.playCorrect();
-        recordPassportStamp(false);
-      });
+      requestAnimationFrame(tick);
     }
 
-    btnRestart.addEventListener('click', () => {
-      audio.playClick();
-      currentQ = 0;
-      score = 0;
-      scoreVal.textContent = '0';
-      questBoard.style.display = 'block';
-      finishCard.classList.remove('active');
-      loadQuestion(0);
-    });
-
+    // ----------------------------------------------------
+    // UNIFIED TTS MANAGER (Gold Standard)
+    // ----------------------------------------------------
     const JOKE_VOICES = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|hysterical|pipe organ|trinoids|whisper|zarvox|fred|junior|kathy|ralph|wobble/i;
+    function getVoiceBadge(langRaw) {
+      const lang = (langRaw || '').toLowerCase().replace('_', '-');
+      if (lang.includes('-au')) return { flag: '🇦🇺', region: 'AU' };
+      if (lang.includes('-gb') || lang.includes('en-uk')) return { flag: '🇬🇧', region: 'UK' };
+      if (lang.includes('-us')) return { flag: '🇺🇸', region: 'US' };
+      return { flag: '🌐', region: (lang.split('-')[1] || 'EN').toUpperCase() };
+    }
 
-    // ----------------------------------------------------
-    // TTS MANAGER (Neobrutalism Radio Group Dropdown)
-    // ----------------------------------------------------
     const TTS_MANAGER = {
       currentVoiceName: '',
-      wrap: null,
-      trigger: null,
-      menu: null,
-      flag: null,
-      label: null,
-      list: null,
+      wrap: null, trigger: null, menu: null, flag: null, label: null, list: null,
 
       init() {
         this.wrap = document.getElementById('ttsDropdownWrap');
@@ -1189,25 +912,17 @@
         this.flag = document.getElementById('ttsFlag');
         this.label = document.getElementById('ttsLabel');
         this.list = document.getElementById('ttsRadioList');
-
         if (!this.trigger) return;
 
         this.trigger.addEventListener('click', (e) => {
           e.stopPropagation();
           audio.playClick();
-          this.wrap.classList.toggle('open');
-          this.trigger.setAttribute('aria-expanded', this.wrap.classList.contains('open'));
+          const open = this.wrap.classList.toggle('open');
+          this.trigger.setAttribute('aria-expanded', String(open));
         });
 
         document.addEventListener('click', (e) => {
           if (this.wrap && !this.wrap.contains(e.target)) {
-            this.wrap.classList.remove('open');
-            this.trigger.setAttribute('aria-expanded', 'false');
-          }
-        });
-
-        document.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape' && this.wrap) {
             this.wrap.classList.remove('open');
             this.trigger.setAttribute('aria-expanded', 'false');
           }
@@ -1225,74 +940,51 @@
         if (!window.speechSynthesis || !this.list) return;
         const voices = window.speechSynthesis.getVoices();
         let englishVoices = voices.filter(v => {
-          const lang = v.lang.toLowerCase().replace('_', '-');
+          const lang = (v.lang || '').toLowerCase().replace('_', '-');
           return lang.startsWith('en') && !JOKE_VOICES.test(v.name);
         });
-
         if (englishVoices.length === 0) englishVoices = voices.filter(v => !JOKE_VOICES.test(v.name));
         if (englishVoices.length === 0) englishVoices = voices;
         if (englishVoices.length === 0) return;
 
         englishVoices.sort((a, b) => {
-          const aName = a.name;
-          const bName = b.name;
-          const isA_UK_Fem = aName.includes('Google UK English Female') || (aName.includes('UK English') && aName.includes('Female'));
-          const isB_UK_Fem = bName.includes('Google UK English Female') || (bName.includes('UK English') && bName.includes('Female'));
-          if (isA_UK_Fem && !isB_UK_Fem) return -1;
-          if (!isA_UK_Fem && isB_UK_Fem) return 1;
-
-          const isA_US = aName.includes('Google US English') || (aName.includes('US English') && aName.includes('Female'));
-          const isB_US = bName.includes('Google US English') || (bName.includes('US English') && bName.includes('Female'));
-          if (isA_US && !isB_US) return -1;
-          if (!isA_US && isB_US) return 1;
-
-          const aUK = a.lang.toLowerCase().includes('gb');
-          const bUK = b.lang.toLowerCase().includes('gb');
-          if (aUK && !bUK) return -1;
-          if (!aUK && bUK) return 1;
-
-          const aUS = a.lang.toLowerCase().includes('us');
-          const bUS = b.lang.toLowerCase().includes('us');
-          if (aUS && !bUS) return -1;
-          if (!aUS && bUS) return 1;
-
-          return aName.localeCompare(bName);
+          const score = (v) => {
+            if (v.name.includes('Google UK English Female')) return 0;
+            if (v.name.includes('Google US English')) return 1;
+            const l = (v.lang || '').toLowerCase();
+            if (l.includes('gb')) return 2;
+            if (l.includes('au')) return 3;
+            if (l.includes('us')) return 4;
+            return 5;
+          };
+          return score(a) - score(b) || a.name.localeCompare(b.name);
         });
 
+        const capped = englishVoices.slice(0, 15);
         const saved = localStorage.getItem('ib_pyp_voice_name');
-        let selected = null;
-        if (saved) selected = englishVoices.find(v => v.name === saved);
-        if (!selected) selected = englishVoices.find(v => v.name.includes('Google UK English Female') || (v.name.includes('UK English') && v.name.includes('Female')));
-        if (!selected) selected = englishVoices.find(v => v.name.includes('Google US English'));
-        if (!selected) selected = englishVoices.find(v => v.lang.toLowerCase().includes('gb'));
-        if (!selected) selected = englishVoices.find(v => v.lang.toLowerCase().includes('us'));
-        if (!selected) selected = englishVoices[0];
-
+        let selected = saved ? capped.find(v => v.name === saved) : null;
+        if (!selected) selected = capped[0];
         this.currentVoiceName = selected ? selected.name : '';
-
-        this.renderMenu(englishVoices);
+        this.renderMenu(capped);
         this.updateTriggerUI(selected);
       },
 
       renderMenu(voices) {
         this.list.innerHTML = '';
         voices.forEach(v => {
-          const isUK = v.lang.toLowerCase().replace('_', '-').includes('gb');
-          const flag = isUK ? '🇬🇧' : '🇺🇸';
-          const region = isUK ? 'UK' : 'US';
+          const { flag, region } = getVoiceBadge(v.lang);
           const isActive = v.name === this.currentVoiceName;
-
           const btn = document.createElement('button');
           btn.type = 'button';
           btn.className = `tts-radio-item ${isActive ? 'active' : ''}`;
+          btn.dataset.voice = v.name;
           btn.setAttribute('role', 'menuitemradio');
           btn.setAttribute('aria-checked', isActive ? 'true' : 'false');
           btn.innerHTML = `
             <span class="tts-radio-circle"></span>
-            <span class="tts-item-flag">${flag}</span>
+            <span>${flag}</span>
             <span class="tts-item-name">${v.name} (${region})</span>
           `;
-
           btn.addEventListener('click', (e) => {
             e.stopPropagation();
             audio.playClick();
@@ -1300,7 +992,6 @@
             this.wrap.classList.remove('open');
             this.trigger.setAttribute('aria-expanded', 'false');
           });
-
           this.list.appendChild(btn);
         });
       },
@@ -1310,57 +1001,1086 @@
         localStorage.setItem('ib_pyp_voice_name', v.name);
         this.updateTriggerUI(v);
         this.list.querySelectorAll('.tts-radio-item').forEach(btn => {
-          const isMatch = btn.querySelector('.tts-item-name').textContent.includes(v.name);
+          const isMatch = btn.dataset.voice === v.name;
           btn.classList.toggle('active', isMatch);
           btn.setAttribute('aria-checked', isMatch ? 'true' : 'false');
         });
         if (window.speechSynthesis) window.speechSynthesis.cancel();
+        clearSpeakingStates();
       },
 
       updateTriggerUI(v) {
         if (!v) return;
-        const isUK = v.lang.toLowerCase().replace('_', '-').includes('gb');
-        this.flag.textContent = isUK ? '🇬🇧' : '🇺🇸';
+        const { flag } = getVoiceBadge(v.lang);
+        this.flag.textContent = flag;
         let shortName = v.name.replace(/^(Google|Microsoft|Apple)\s+/i, '');
-        if (shortName.length > 14) shortName = shortName.substring(0, 12) + '...';
+        if (shortName.length > 14) shortName = shortName.substring(0, 12) + '…';
         this.label.textContent = shortName;
       },
 
       speak(text, onEnd) {
-        if (!window.speechSynthesis) return;
+        const finish = () => { if (typeof onEnd === 'function') onEnd(); };
+        if (!window.speechSynthesis || !text || !text.trim()) {
+          if (window.speechSynthesis) window.speechSynthesis.cancel();
+          finish();
+          return;
+        }
         window.speechSynthesis.cancel();
-        if (!text || !text.trim()) return;
-
         const utterance = new SpeechSynthesisUtterance(text);
         const voices = window.speechSynthesis.getVoices();
         const voiceName = this.currentVoiceName || localStorage.getItem('ib_pyp_voice_name');
-        if (voiceName) {
-          const match = voices.find(v => v.name === voiceName);
-          if (match) utterance.voice = match;
-        }
-        utterance.rate = 0.85;
-        if (onEnd) {
-          utterance.onend = onEnd;
-          utterance.onerror = onEnd;
-        }
+        let match = voiceName ? voices.find(v => v.name === voiceName) : null;
+        if (!match) match = voices.find(v => v.default) || voices[0] || null;
+        if (match) utterance.voice = match;
+        utterance.rate = 0.88;
+        utterance.onend = finish;
+        utterance.onerror = finish;
         window.speechSynthesis.speak(utterance);
       }
     };
 
-    const btnSpeakQuest = document.getElementById('btnSpeakQuest');
-    if (btnSpeakQuest) {
-      btnSpeakQuest.addEventListener('click', () => {
-        audio.playClick();
-        btnSpeakQuest.classList.add('speaking');
-        const text = `${questPromptTitle.textContent}. ${questPromptDesc.textContent}`;
-        TTS_MANAGER.speak(text, () => {
-          btnSpeakQuest.classList.remove('speaking');
+    function clearSpeakingStates() {
+      document.querySelectorAll('.btn-speaker.speaking').forEach(el => el.classList.remove('speaking'));
+    }
+
+    // ----------------------------------------------------
+    // SPOKEN ENGLISH TIME & CLOCK HELPER (Full 1-12 + 60 ticks + Draggable)
+    // ----------------------------------------------------
+    const NUM_WORDS = [
+      'twelve', 'one', 'two', 'three', 'four', 'five', 'six',
+      'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'
+    ];
+    function numberToWords(n) {
+      const ones = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine',
+        'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+      const tens = ['', '', 'twenty', 'thirty', 'forty', 'fifty'];
+      if (n < 20) return ones[n];
+      const t = Math.floor(n / 10), o = n % 10;
+      return o === 0 ? tens[t] : `${tens[t]} ${ones[o]}`;
+    }
+
+    function formatSpokenTime(h24, m) {
+      const h12 = h24 % 12 === 0 ? 12 : h24 % 12;
+      const period = h24 < 12 ? 'in the morning' : (h24 < 17 ? 'in the afternoon' : 'in the evening');
+      const hWord = NUM_WORDS[h12];
+      if (m === 0) return `${hWord} o'clock ${period}`;
+      if (m < 10) return `${hWord} oh ${numberToWords(m)} ${period}`;
+      return `${hWord} ${numberToWords(m)} ${period}`;
+    }
+
+    function format12h(h24, m) {
+      const h12 = h24 % 12 === 0 ? 12 : h24 % 12;
+      const ap = h24 < 12 ? 'AM' : 'PM';
+      return `${String(h12).padStart(2, '0')}:${String(m).padStart(2, '0')} ${ap}`;
+    }
+
+    function format24h(h24, m) {
+      return `${String(h24).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+    }
+
+    function buildInteractiveClockDOM(container, state, onChange, options = {}) {
+      const { showAMPM = true, showSpeakBtn = true, lockToTarget = false } = options;
+      const cx = 110, cy = 110;
+      const toRad = (deg) => (deg - 90) * (Math.PI / 180);
+
+      let ticks = '';
+      for (let m = 0; m < 60; m++) {
+        const isHour = m % 5 === 0;
+        const rad = toRad(m * 6);
+        const rOut = 96;
+        const rIn = isHour ? 86 : 91;
+        const x1 = (cx + rIn * Math.cos(rad)).toFixed(1);
+        const y1 = (cy + rIn * Math.sin(rad)).toFixed(1);
+        const x2 = (cx + rOut * Math.cos(rad)).toFixed(1);
+        const y2 = (cy + rOut * Math.sin(rad)).toFixed(1);
+        ticks += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${isHour ? '#111111' : '#9CA3AF'}" stroke-width="${isHour ? 3 : 1.5}" stroke-linecap="round"/>`;
+      }
+      let numerals = '';
+      for (let h = 1; h <= 12; h++) {
+        const rad = toRad(h * 30);
+        const rNum = 72;
+        const nx = (cx + rNum * Math.cos(rad)).toFixed(1);
+        const ny = (cy + rNum * Math.sin(rad) + 5).toFixed(1);
+        numerals += `<text x="${nx}" y="${ny}" font-size="14" font-weight="900" text-anchor="middle" fill="#111111">${h}</text>`;
+      }
+
+      container.innerHTML = `
+        <div class="clock-studio">
+          <svg class="analog-clock-svg" viewBox="0 0 220 220" aria-label="Interactive analog clock">
+            <circle cx="110" cy="110" r="102" fill="#FFFFFF" stroke="#111111" stroke-width="5"/>
+            <circle cx="110" cy="110" r="97" fill="none" stroke="#E0F2FE" stroke-width="3"/>
+            ${ticks}
+            ${numerals}
+            <line id="clkHourHand" x1="110" y1="110" x2="110" y2="62" stroke="#111111" stroke-width="6.5" stroke-linecap="round"/>
+            <line id="clkMinHand" x1="110" y1="110" x2="110" y2="34" stroke="#FF6584" stroke-width="4" stroke-linecap="round"/>
+            <circle id="clkMinKnob" cx="110" cy="34" r="9" fill="#FFE156" stroke="#111111" stroke-width="2.5"/>
+            <circle cx="110" cy="110" r="6" fill="#111111"/>
+          </svg>
+          <div class="clock-readout-col">
+            <div class="digital-clock-lcd" id="clkDigital12">07:08 AM</div>
+            <div class="clock-sub-lcd" id="clkDigital24">24-Hour Time: 07:08</div>
+            <div class="clock-controls-row">
+              <button type="button" class="mini-btn" data-dmin="-5">−5m</button>
+              <button type="button" class="mini-btn" data-dmin="-1">−1m</button>
+              <button type="button" class="mini-btn" data-dmin="1">+1m</button>
+              <button type="button" class="mini-btn" data-dmin="5">+5m</button>
+              <button type="button" class="mini-btn" data-dmin="60">+1h</button>
+              ${showAMPM ? '<button type="button" class="mini-btn yellow" id="clkToggleAMPM">AM / PM</button>' : ''}
+            </div>
+            ${showSpeakBtn ? '<button type="button" class="btn-speaker" id="clkSpeakBtn" style="width:100%;">🔊 Hear Spoken Time</button>' : ''}
+          </div>
+        </div>
+      `;
+
+      const svg = container.querySelector('.analog-clock-svg');
+      const hourHand = container.querySelector('#clkHourHand');
+      const minHand = container.querySelector('#clkMinHand');
+      const minKnob = container.querySelector('#clkMinKnob');
+      const lcd12 = container.querySelector('#clkDigital12');
+      const lcd24 = container.querySelector('#clkDigital24');
+
+      function updateHandsUI() {
+        const h12 = state.h24 % 12;
+        const hourDeg = (h12 + state.m / 60) * 30;
+        const minDeg = state.m * 6;
+        const hx = (cx + 48 * Math.cos(toRad(hourDeg))).toFixed(1);
+        const hy = (cy + 48 * Math.sin(toRad(hourDeg))).toFixed(1);
+        const mx = (cx + 78 * Math.cos(toRad(minDeg))).toFixed(1);
+        const my = (cy + 78 * Math.sin(toRad(minDeg))).toFixed(1);
+        hourHand.setAttribute('x2', hx);
+        hourHand.setAttribute('y2', hy);
+        minHand.setAttribute('x2', mx);
+        minHand.setAttribute('y2', my);
+        minKnob.setAttribute('cx', mx);
+        minKnob.setAttribute('cy', my);
+        lcd12.textContent = format12h(state.h24, state.m);
+        lcd24.textContent = `24-Hour Time: ${format24h(state.h24, state.m)}`;
+      }
+
+      function addMinutes(delta) {
+        let total = (state.h24 * 60 + state.m + delta + 1440) % 1440;
+        state.h24 = Math.floor(total / 60);
+        state.m = total % 60;
+        updateHandsUI();
+        if (onChange) onChange();
+      }
+
+      if (!lockToTarget) {
+        let dragging = false;
+        let lastMin = state.m;
+
+        function setFromPointer(e) {
+          const rect = svg.getBoundingClientRect();
+          const px = ((e.clientX - rect.left) / rect.width) * 220;
+          const py = ((e.clientY - rect.top) / rect.height) * 220;
+          let deg = Math.atan2(py - cy, px - cx) * 180 / Math.PI + 90;
+          if (deg < 0) deg += 360;
+          const newMin = Math.round(deg / 6) % 60;
+          // Wrap-around hour adjustment when dragging smoothly across 12
+          if (lastMin > 45 && newMin < 15) {
+            state.h24 = (state.h24 + 1) % 24;
+          } else if (lastMin < 15 && newMin > 45) {
+            state.h24 = (state.h24 + 23) % 24;
+          }
+          if (newMin !== lastMin) {
+            lastMin = newMin;
+            state.m = newMin;
+            updateHandsUI();
+            if (onChange) onChange();
+          }
+        }
+
+        svg.addEventListener('pointerdown', (e) => {
+          audio.init();
+          dragging = true;
+          lastMin = state.m;
+          svg.setPointerCapture(e.pointerId);
+          setFromPointer(e);
         });
+        svg.addEventListener('pointermove', (e) => {
+          if (dragging) setFromPointer(e);
+        });
+        const stopDrag = () => { dragging = false; };
+        svg.addEventListener('pointerup', stopDrag);
+        svg.addEventListener('pointercancel', stopDrag);
+
+        container.querySelectorAll('[data-dmin]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            audio.playClick();
+            addMinutes(parseInt(btn.dataset.dmin, 10));
+          });
+        });
+
+        const ampmBtn = container.querySelector('#clkToggleAMPM');
+        if (ampmBtn) {
+          ampmBtn.addEventListener('click', () => {
+            audio.playClick();
+            state.h24 = (state.h24 + 12) % 24;
+            updateHandsUI();
+            if (onChange) onChange();
+          });
+        }
+      }
+
+      const speakBtn = container.querySelector('#clkSpeakBtn');
+      if (speakBtn) {
+        speakBtn.addEventListener('click', () => {
+          audio.playClick();
+          clearSpeakingStates();
+          speakBtn.classList.add('speaking');
+          TTS_MANAGER.speak(`The clock shows ${formatSpokenTime(state.h24, state.m)}.`, () => {
+            speakBtn.classList.remove('speaking');
+          });
+        });
+      }
+
+      updateHandsUI();
+      return { updateHandsUI };
+    }
+
+    // ----------------------------------------------------
+    // CALENDAR HOP EXPLORER HELPER (Eliminates fencepost error!)
+    // ----------------------------------------------------
+    function buildCalendarHopUI(container, calState, onUpdate) {
+      const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const { monthLabel, startWeekday, totalDays, fixedStart = false, targetEnd = null } = calState;
+
+      function renderCal() {
+        const s = calState.startDay;
+        const e = calState.currentDay;
+        const lo = Math.min(s, e);
+        const hi = Math.max(s, e);
+        const diff = e - s;
+        const weeks = Math.floor(Math.abs(diff) / 7);
+        const remDays = Math.abs(diff) % 7;
+
+        let cells = '';
+        for (let i = 0; i < startWeekday; i++) {
+          cells += `<div class="cal-day-cell empty"></div>`;
+        }
+        for (let d = 1; d <= totalDays; d++) {
+          let cls = 'cal-day-cell';
+          let tag = '';
+          if (d === s) {
+            cls += ' start-day';
+            tag = 'Start';
+          } else if (d === e) {
+            cls += ' end-day';
+            tag = `+${diff}d`;
+          } else if (d > lo && d < hi) {
+            if (diff > 0 && (d - s) % 7 === 0) {
+              cls += ' week-marker';
+              tag = `+${d - s}`;
+            } else {
+              cls += ' hop-path';
+            }
+          }
+          cells += `
+            <button type="button" class="${cls}" data-day="${d}" aria-label="${monthLabel} ${d}">
+              <span>${d}</span>
+              ${tag ? `<span class="cal-hop-tag">${tag}</span>` : ''}
+            </button>
+          `;
+        }
+
+        container.innerHTML = `
+          <div class="calendar-wrap">
+            <div class="calendar-mockup">
+              <div class="cal-header">
+                <span>📅 ${monthLabel}</span>
+                <span style="font-size:0.82rem; background:#FFF; color:#111; padding:2px 8px; border-radius:999px; border:2px solid #111;">${Math.abs(diff)} days (${weeks}w ${remDays}d)</span>
+              </div>
+              <div class="cal-weekdays">${weekdays.map(w => `<div>${w}</div>`).join('')}</div>
+              <div class="cal-days-grid">${cells}</div>
+            </div>
+            <div class="clock-controls-row" style="margin-top:8px;">
+              <button type="button" class="mini-btn yellow" id="calHopWeek">🐸 +7 Days (1 Week)</button>
+              <button type="button" class="mini-btn teal" id="calHopDay">🐸 +1 Day</button>
+              <button type="button" class="mini-btn" id="calResetHop">↩️ Reset Hop</button>
+            </div>
+          </div>
+        `;
+
+        container.querySelectorAll('.cal-day-cell[data-day]').forEach(cell => {
+          cell.addEventListener('click', () => {
+            audio.playHop();
+            const picked = parseInt(cell.dataset.day, 10);
+            if (fixedStart) {
+              calState.currentDay = picked;
+            } else {
+              if (calState.pickMode === 'start' || picked < calState.startDay) {
+                calState.startDay = picked;
+                calState.currentDay = picked;
+                calState.pickMode = 'end';
+              } else {
+                calState.currentDay = picked;
+                calState.pickMode = 'start';
+              }
+            }
+            renderCal();
+            if (onUpdate) onUpdate();
+          });
+        });
+
+        container.querySelector('#calHopWeek').addEventListener('click', () => {
+          if (calState.currentDay + 7 <= totalDays) {
+            audio.playHop();
+            calState.currentDay += 7;
+            renderCal();
+            if (onUpdate) onUpdate();
+          } else {
+            audio.playWrong();
+          }
+        });
+        container.querySelector('#calHopDay').addEventListener('click', () => {
+          if (calState.currentDay + 1 <= totalDays) {
+            audio.playHop();
+            calState.currentDay += 1;
+            renderCal();
+            if (onUpdate) onUpdate();
+          } else {
+            audio.playWrong();
+          }
+        });
+        container.querySelector('#calResetHop').addEventListener('click', () => {
+          audio.playClick();
+          calState.currentDay = calState.startDay;
+          renderCal();
+          if (onUpdate) onUpdate();
+        });
+      }
+
+      renderCal();
+    }
+
+    // ----------------------------------------------------
+    // NUMBER LINE SVG WITH DIRECTIONAL ARROWHEADS & ZERO OVERLAP
+    // ----------------------------------------------------
+    function renderTwoStepNumberLineSVG(startVal, op1, b, midDisplay, op2, c, finalDisplay) {
+      const dir1 = op1 === '+' ? 1 : -1;
+      const dir2 = op2 === '+' ? 1 : -1;
+      const midReal = dir1 > 0 ? startVal + b : startVal - b;
+      const endReal = dir2 > 0 ? midReal + c : midReal - c;
+
+      const vals = [startVal, midReal, endReal];
+      const minV = Math.min(...vals);
+      const maxV = Math.max(...vals);
+      const span = Math.max(10, maxV - minV);
+      const mapX = (v) => 62 + ((v - minV) / span) * 476;
+
+      const x0 = mapX(startVal);
+      const x1 = mapX(midReal);
+      const x2 = mapX(endReal);
+      const axisY = 92;
+
+      const sameDir = dir1 === dir2;
+      // Non-overlapping arcs: if reversing direction, put Jump 2 below axis; else both above with clean spacing
+      const arc1CtrlY = 26;
+      const label1Y = 22;
+      const arc2CtrlY = sameDir ? 26 : 154;
+      const label2Y = sameDir ? 22 : 162;
+
+      const x0LblY = axisY + 22;
+      const x1LblY = (!sameDir && Math.abs(x1 - x0) < 55) ? axisY + 38 : axisY + 22;
+      const x2LblY = (Math.abs(x2 - x0) < 48 || Math.abs(x2 - x1) < 48) ? axisY - 18 : axisY + 22;
+
+      const step1Text = `${op1}${b}`;
+      const step2Text = `${op2}${c}`;
+
+      return `
+        <svg class="numberline-svg" viewBox="0 0 600 175" aria-label="Two-step mental math number line">
+          <defs>
+            <marker id="arrowBlue" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1 L 10 5 L 0 9 z" fill="#0284C7"/>
+            </marker>
+            <marker id="arrowPink" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1 L 10 5 L 0 9 z" fill="#E11D48"/>
+            </marker>
+          </defs>
+
+          <line x1="26" y1="${axisY}" x2="574" y2="${axisY}" stroke="#111111" stroke-width="3.5" stroke-linecap="round"/>
+          <polygon points="578,${axisY} 567,${axisY - 6} 567,${axisY + 6}" fill="#111111"/>
+          <polygon points="22,${axisY} 33,${axisY - 6} 33,${axisY + 6}" fill="#111111"/>
+
+          <!-- Jump 1 -->
+          <path d="M ${x0.toFixed(1)} ${axisY - 5} Q ${((x0 + x1) / 2).toFixed(1)} ${arc1CtrlY} ${x1.toFixed(1)} ${axisY - 8}"
+                fill="none" stroke="#0284C7" stroke-width="3.5" marker-end="url(#arrowBlue)"/>
+          <rect x="${((x0 + x1) / 2 - 22).toFixed(1)}" y="${label1Y - 14}" width="44" height="20" rx="6" fill="#E0F2FE" stroke="#0284C7" stroke-width="1.5"/>
+          <text x="${((x0 + x1) / 2).toFixed(1)}" y="${label1Y}" font-size="13" font-weight="900" text-anchor="middle" fill="#0369A1">${step1Text}</text>
+
+          <!-- Jump 2 -->
+          <path d="M ${x1.toFixed(1)} ${sameDir ? axisY - 5 : axisY + 5} Q ${((x1 + x2) / 2).toFixed(1)} ${arc2CtrlY} ${x2.toFixed(1)} ${sameDir ? axisY - 8 : axisY + 8}"
+                fill="none" stroke="#E11D48" stroke-width="3.5" marker-end="url(#arrowPink)"/>
+          <rect x="${((x1 + x2) / 2 - 22).toFixed(1)}" y="${label2Y - 14}" width="44" height="20" rx="6" fill="#FFE4E6" stroke="#E11D48" stroke-width="1.5"/>
+          <text x="${((x1 + x2) / 2).toFixed(1)}" y="${label2Y}" font-size="13" font-weight="900" text-anchor="middle" fill="#BE123C">${step2Text}</text>
+
+          <!-- Nodes -->
+          <circle cx="${x0.toFixed(1)}" cy="${axisY}" r="7" fill="#111111"/>
+          <text x="${x0.toFixed(1)}" y="${x0LblY}" font-size="14" font-weight="900" text-anchor="middle" fill="#111111">${startVal}</text>
+
+          <circle cx="${x1.toFixed(1)}" cy="${axisY}" r="7" fill="#38B6FF" stroke="#111111" stroke-width="2"/>
+          <text x="${x1.toFixed(1)}" y="${x1LblY}" font-size="14" font-weight="900" text-anchor="middle" fill="#0369A1">${midDisplay}</text>
+
+          <circle cx="${x2.toFixed(1)}" cy="${axisY}" r="8" fill="#FFE156" stroke="#111111" stroke-width="2.5"/>
+          <text x="${x2.toFixed(1)}" y="${x2LblY}" font-size="15" font-weight="900" text-anchor="middle" fill="#BE123C">${finalDisplay}</text>
+        </svg>
+      `;
+    }
+
+    // ----------------------------------------------------
+    // STEP 1 SANDBOX STATE & RENDER
+    // ----------------------------------------------------
+    let activeTool = 'clock';
+    const sandboxClockState = { h24: 7, m: 8 };
+    const sandboxCalState = { monthLabel: 'April Explorer', startWeekday: 2, totalDays: 30, startDay: 6, currentDay: 20, pickMode: 'start' };
+    const sandboxNLState = { start: 24, jumps: [{ op: '+', val: 20 }, { op: '+', val: 8 }] };
+
+    function renderSandbox() {
+      const stage = document.getElementById('sandboxStage');
+      const title = document.getElementById('sandboxTitle');
+      const desc = document.getElementById('sandboxDesc');
+      const callout = document.getElementById('sandboxCallout');
+
+      document.querySelectorAll('#step1View .tab-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.tool === activeTool);
+      });
+
+      if (activeTool === 'clock') {
+        title.textContent = 'Draggable 1–12 & 24-Hour Clock';
+        desc.textContent = 'Drag the pink minute hand around the 60 tick marks or tap +5m / +1m / AM-PM to see how analog and digital clocks match!';
+        const updateCallout = () => {
+          callout.innerHTML = `
+            🗣️ <strong>How we say it:</strong> "${formatSpokenTime(sandboxClockState.h24, sandboxClockState.m)}"<br>
+            🕒 <strong>12h:</strong> ${format12h(sandboxClockState.h24, sandboxClockState.m)} &nbsp;|&nbsp; <strong>24h:</strong> ${format24h(sandboxClockState.h24, sandboxClockState.m)}
+          `;
+        };
+        buildInteractiveClockDOM(stage, sandboxClockState, updateCallout, { showAMPM: true, showSpeakBtn: true });
+        updateCallout();
+      } else if (activeTool === 'calendar') {
+        title.textContent = 'Tap-to-Hop Calendar Explorer';
+        desc.textContent = 'Tap a start date, then tap +7 Days (down one row = 1 week!) or +1 Day frog hops to measure calendar time without counting boxes!';
+        const updateCalCallout = () => {
+          const diff = sandboxCalState.currentDay - sandboxCalState.startDay;
+          const w = Math.floor(Math.abs(diff) / 7);
+          const d = Math.abs(diff) % 7;
+          callout.innerHTML = `
+            📅 <strong>From April ${sandboxCalState.startDay} to April ${sandboxCalState.currentDay}:</strong><br>
+            That is <strong>${Math.abs(diff)} days</strong> (${w} week${w === 1 ? '' : 's'} and ${d} day${d === 1 ? '' : 's'}).
+          `;
+        };
+        buildCalendarHopUI(stage, sandboxCalState, updateCalCallout);
+        updateCalCallout();
+      } else {
+        title.textContent = '2-Step Number-Line Stepper';
+        desc.textContent = 'Tap jump buttons to watch how two small mental math hops make adding and subtracting big numbers easy!';
+        const j1 = sandboxNLState.jumps[0] || { op: '+', val: 0 };
+        const j2 = sandboxNLState.jumps[1] || { op: '+', val: 0 };
+        const mid = j1.op === '+' ? sandboxNLState.start + j1.val : sandboxNLState.start - j1.val;
+        const fin = j2.op === '+' ? mid + j2.val : mid - j2.val;
+
+        stage.innerHTML = `
+          <div style="font-size:1.45rem; font-weight:900;">
+            ${sandboxNLState.start} ${j1.op} ${j1.val} ${j2.op} ${j2.val} = <span style="color:#0284C7;">${fin}</span>
+          </div>
+          ${renderTwoStepNumberLineSVG(sandboxNLState.start, j1.op, j1.val, mid, j2.op, j2.val, fin)}
+          <div class="clock-controls-row">
+            <button type="button" class="mini-btn yellow" data-nl-preset="0">24 + 28 + 13</button>
+            <button type="button" class="mini-btn teal" data-nl-preset="1">60 − 25 − 26</button>
+            <button type="button" class="mini-btn blue" data-nl-preset="2">36 + 24 − 15</button>
+          </div>
+        `;
+        stage.querySelectorAll('[data-nl-preset]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            audio.playHop();
+            const presets = [
+              { start: 24, jumps: [{ op: '+', val: 28 }, { op: '+', val: 13 }] },
+              { start: 60, jumps: [{ op: '-', val: 25 }, { op: '-', val: 26 }] },
+              { start: 36, jumps: [{ op: '+', val: 24 }, { op: '-', val: 15 }] }
+            ];
+            const p = presets[parseInt(btn.dataset.nlPreset, 10)];
+            sandboxNLState.start = p.start;
+            sandboxNLState.jumps = p.jumps;
+            renderSandbox();
+          });
+        });
+        callout.innerHTML = `
+          🐸 <strong>Step 1:</strong> ${sandboxNLState.start} ${j1.op} ${j1.val} = <strong>${mid}</strong><br>
+          🐸 <strong>Step 2:</strong> ${mid} ${j2.op} ${j2.val} = <strong>${fin}</strong>
+        `;
+      }
+    }
+
+    // ----------------------------------------------------
+    // STEP 2: 12 ZERO-SPOILER QUEST MISSIONS (3 STAGES)
+    // ----------------------------------------------------
+    const questions = [
+      // Stage 0: Clocks (Q1 - Q4)
+      {
+        stage: 0,
+        badge: 'Stage 1 · Clocks',
+        kind: 'clock-set',
+        title: 'Breakfast Time: Set the Clock!',
+        desc: 'Maya eats breakfast at seven oh eight in the morning (07:08 AM). Drag the clock hands or tap the minute buttons to set 07:08 AM!',
+        initH24: 6,
+        initM: 30,
+        targetH24: 7,
+        targetM: 8,
+        checkAMPM: true,
+        hint: 'Set the short hour hand just past 7, the minute hand on tick 8, and make sure AM is showing.'
+      },
+      {
+        stage: 0,
+        badge: 'Stage 1 · Clocks',
+        kind: 'clock-set',
+        title: 'Morning Recess Bell',
+        desc: 'Morning recess starts at ten o\'clock in the morning (10:00 AM). Move the hands to 10:00 AM!',
+        initH24: 9,
+        initM: 15,
+        targetH24: 10,
+        targetM: 0,
+        checkAMPM: true,
+        hint: 'For o\'clock, the long minute hand points straight up to 12 (00 minutes) and the hour hand points to 10.'
+      },
+      {
+        stage: 0,
+        badge: 'Stage 1 · Clocks',
+        kind: 'clock-set',
+        title: '24-Hour Afternoon Dismissal',
+        desc: 'School dismissal is at 16:00 in 24-hour time. Set the clock to the matching 12-hour time (check AM / PM)!',
+        initH24: 4,
+        initM: 0,
+        targetH24: 16,
+        targetM: 0,
+        checkAMPM: true,
+        hint: 'Subtract 12 from 16: 16 − 12 = 4. Since 16:00 is after noon, tap AM / PM to make it 04:00 PM!'
+      },
+      {
+        stage: 0,
+        badge: 'Stage 1 · Clocks',
+        kind: 'clock-set',
+        title: 'Swimming Practice Finish Time',
+        desc: 'Leo starts swimming at 02:15 PM and swims for 35 minutes. Drag the clock to show the finish time!',
+        initH24: 14,
+        initM: 15,
+        targetH24: 14,
+        targetM: 50,
+        checkAMPM: true,
+        hint: 'Start at 2:15 PM and add 35 minutes: 15 + 35 = 50 minutes, so it finishes at 02:50 PM!'
+      },
+
+      // Stage 1: Calendars (Q5 - Q7)
+      {
+        stage: 1,
+        badge: 'Stage 2 · Calendars',
+        kind: 'calendar-hop',
+        title: 'Bean Sprout Journal (Calendar Jumps)',
+        desc: 'Maya plants a seed on April 6 and checks it on April 20. Use +7 Days or +1 Day hops to reach April 20, then pick the total days!',
+        cal: { monthLabel: 'April · Plant Journal', startWeekday: 2, totalDays: 30, startDay: 6, currentDay: 6, fixedStart: true },
+        targetDay: 20,
+        options: [
+          { text: '14 days (2 weeks).', correct: true },
+          { text: '15 days.', correct: false },
+          { text: '10 days.', correct: false }
+        ],
+        hint: 'Tap +7 Days twice from April 6: 6 ➔ 13 ➔ 20! Two weeks is 7 + 7 = 14 days.'
+      },
+      {
+        stage: 1,
+        badge: 'Stage 2 · Calendars',
+        kind: 'calendar-hop',
+        title: 'Reading Challenge Jumps',
+        desc: 'Sam starts his book on May 5 and finishes on May 14. Hop from May 5 to May 14, then pick how many days passed!',
+        cal: { monthLabel: 'May · Reading Week', startWeekday: 4, totalDays: 31, startDay: 5, currentDay: 5, fixedStart: true },
+        targetDay: 14,
+        options: [
+          { text: '9 days.', correct: true },
+          { text: '10 days.', correct: false },
+          { text: '7 days.', correct: false }
+        ],
+        hint: 'From May 5, jump +7 Days to May 12, then +2 more days to May 14: 7 + 2 = 9 days!'
+      },
+      {
+        stage: 1,
+        badge: 'Stage 2 · Calendars',
+        kind: 'calendar-date',
+        title: 'Find the Art Fair Date!',
+        desc: 'Today is May 10. The Art Fair is 11 days later! Use the +7 Days and +1 Day hop buttons to land on the Art Fair date, then press Check!',
+        cal: { monthLabel: 'May · Art Fair Countdown', startWeekday: 4, totalDays: 31, startDay: 10, currentDay: 10, fixedStart: true },
+        targetDay: 21,
+        hint: 'Start at May 10. Jump +7 Days to May 17, then jump +1 Day four times (18, 19, 20, 21)!'
+      },
+
+      // Stage 2: Number Line & Word Stories (Q8 - Q12)
+      {
+        stage: 2,
+        badge: 'Stage 3 · Number Line',
+        kind: 'numberline-two',
+        title: 'Two-Step Carrying Addition',
+        desc: 'Complete BOTH jumps on the number line without skipping! First find Jump 1 (24 + 28), then find Jump 2 (+ 13).',
+        startVal: 24, op1: '+', b: 28, op2: '+', c: 13,
+        hint: 'Jump 1: 24 + 28 = 52 (20+20=40, 4+8=12). Jump 2: 52 + 13 = 65!'
+      },
+      {
+        stage: 2,
+        badge: 'Stage 3 · Number Line',
+        kind: 'numberline-two',
+        title: 'Big Leap Carrying Addition',
+        desc: 'Complete BOTH number-line hops! Find where Jump 1 (27 + 37) lands, then add +25 for Jump 2.',
+        startVal: 27, op1: '+', b: 37, op2: '+', c: 25,
+        hint: 'Jump 1: 27 + 37 = 64. Jump 2: 64 + 25 = 89!'
+      },
+      {
+        stage: 2,
+        badge: 'Stage 3 · Number Line',
+        kind: 'numberline-two',
+        title: 'Two-Step Borrowing Subtraction',
+        desc: 'Hop backward twice from 60! First find 60 − 25, then subtract 26 more.',
+        startVal: 60, op1: '-', b: 25, op2: '-', c: 26,
+        hint: 'Jump 1: 60 − 25 = 35. Jump 2: 35 − 26 = 9!'
+      },
+      {
+        stage: 2,
+        badge: 'Stage 3 · Number Line',
+        kind: 'numberline-two',
+        title: 'Forward & Backward Mixed Jumps',
+        desc: 'Jump forward +24 from 36, then hop backward −15! Fill in both landing spots.',
+        startVal: 36, op1: '+', b: 24, op2: '-', c: 15,
+        hint: 'Jump 1: 36 + 24 = 60. Jump 2: 60 − 15 = 45!'
+      },
+      {
+        stage: 2,
+        badge: 'Stage 3 · Word Story',
+        kind: 'mcq',
+        title: 'Ethan\'s Puzzle Pieces Story',
+        desc: 'Ethan had 50 puzzle pieces and gave 21 pieces to a classmate. Which complete answer sentence is correct?',
+        visualHTML: `
+          <div style="background:#FFFFFF; border:3px solid #111; border-radius:14px; padding:18px 22px; text-align:center; max-width:440px; box-shadow:3px 3px 0 #111;">
+            <div style="font-size:2.2rem; margin-bottom:6px;">🧩</div>
+            <div style="font-weight:900; font-size:1.15rem; color:#991B1B;">Ethan's Puzzle Pieces</div>
+            <p style="font-weight:800; font-size:1.05rem; margin-top:6px;">Started with <strong>50</strong> pieces · Gave away <strong>21</strong> pieces</p>
+          </div>
+        `,
+        options: [
+          { text: 'Ethan has 29 puzzle pieces left.', correct: true },
+          { text: 'Ethan has 31 puzzle pieces left.', correct: false },
+          { text: 'Ethan has 71 puzzle pieces in total.', correct: false }
+        ],
+        hint: 'Giving pieces away uses subtraction: 50 − 21 = 29. Ethan has 29 puzzle pieces left.'
+      }
+    ];
+
+    let currentStep = 1;
+    let currentQ = 0;
+    let score = 0;
+    const solvedSet = new Set();
+
+    function updateScoreUI() {
+      document.getElementById('scoreVal').textContent = score;
+      document.getElementById('solvedCount').textContent = solvedSet.size;
+      const modalProg = document.getElementById('modalProgressText');
+      if (modalProg) modalProg.textContent = `Solved ${solvedSet.size} of ${questions.length} missions (${score} stars)!`;
+    }
+
+    function markSolved(idx) {
+      if (!solvedSet.has(idx)) {
+        solvedSet.add(idx);
+        score += 10;
+        updateScoreUI();
+        renderCaseChips();
+        if (solvedSet.size === questions.length) {
+          audio.playFanfare();
+          launchConfetti();
+          setTimeout(() => openReflectModal(), 650);
+        }
+      }
+    }
+
+    function renderCaseChips() {
+      const wrap = document.getElementById('caseChips');
+      wrap.innerHTML = '';
+      questions.forEach((q, idx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `case-chip ${idx === currentQ ? 'active' : ''} ${solvedSet.has(idx) ? 'solved' : ''}`;
+        btn.textContent = solvedSet.has(idx) ? `${idx + 1}✅` : String(idx + 1);
+        btn.setAttribute('aria-label', `Mission ${idx + 1}`);
+        btn.addEventListener('click', () => {
+          audio.playClick();
+          loadQuestion(idx);
+        });
+        wrap.appendChild(btn);
       });
     }
 
+    function showFeedback(text, isError) {
+      const fb = document.getElementById('feedbackBanner');
+      fb.textContent = text;
+      fb.className = isError ? 'quest-feedback active error' : 'quest-feedback active';
+    }
+
+    function loadQuestion(idx) {
+      if (window.speechSynthesis) window.speechSynthesis.cancel();
+      clearSpeakingStates();
+
+      currentQ = idx;
+      const q = questions[idx];
+
+      document.querySelectorAll('#stageTabs .tab-btn').forEach(b => {
+        b.classList.toggle('active', parseInt(b.dataset.stage, 10) === q.stage);
+      });
+      renderCaseChips();
+
+      document.getElementById('questTypeBadge').textContent = q.badge;
+      document.getElementById('questCounterLabel').textContent = `Mission ${idx + 1} of ${questions.length}`;
+      document.getElementById('questPromptTitle').textContent = q.title;
+      document.getElementById('questPromptDesc').textContent = q.desc;
+
+      const fb = document.getElementById('feedbackBanner');
+      fb.className = 'quest-feedback';
+      fb.textContent = '';
+
+      const btnNext = document.getElementById('btnNext');
+      btnNext.style.display = solvedSet.has(idx) ? 'inline-flex' : 'none';
+
+      const displayArea = document.getElementById('questDisplayArea');
+      const interArea = document.getElementById('questInteractionArea');
+      interArea.innerHTML = '';
+
+      if (q.kind === 'clock-set') {
+        const state = { h24: q.initH24, m: q.initM };
+        buildInteractiveClockDOM(displayArea, state, null, { showAMPM: q.checkAMPM, showSpeakBtn: false });
+
+        const checkBtn = document.createElement('button');
+        checkBtn.type = 'button';
+        checkBtn.className = 'mini-btn teal';
+        checkBtn.style.cssText = 'width:100%; min-height:48px; font-size:1rem;';
+        checkBtn.textContent = 'Check My Clock ✅';
+        checkBtn.addEventListener('click', () => {
+          const ok = state.h24 === q.targetH24 && state.m === q.targetM;
+          if (ok) {
+            audio.playCorrect();
+            showFeedback(`🎯 Spot on! That is ${format12h(q.targetH24, q.targetM)} (${formatSpokenTime(q.targetH24, q.targetM)}).`, false);
+            btnNext.style.display = 'inline-flex';
+            markSolved(idx);
+          } else {
+            audio.playWrong();
+            const sameClockFace = (state.h24 % 12) === (q.targetH24 % 12) && state.m === q.targetM;
+            if (sameClockFace) {
+              showFeedback(`Almost! The hands are right (${format24h(state.h24, state.m)}), but check AM vs PM!`, true);
+            } else {
+              showFeedback(`Not quite yet — your clock shows ${format12h(state.h24, state.m)}. Try adjusting the hands and check again!`, true);
+            }
+          }
+        });
+        interArea.appendChild(checkBtn);
+      } else if (q.kind === 'calendar-hop') {
+        const calState = { ...q.cal };
+        buildCalendarHopUI(displayArea, calState);
+
+        const grid = document.createElement('div');
+        grid.className = 'answers-grid';
+        const shuffled = [...q.options].sort(() => Math.random() - 0.5);
+        shuffled.forEach(opt => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'answer-btn';
+          btn.textContent = opt.text;
+          btn.addEventListener('click', () => {
+            if (opt.correct) {
+              grid.querySelectorAll('.answer-btn').forEach(b => b.classList.remove('wrong'));
+              btn.classList.add('correct');
+              audio.playCorrect();
+              showFeedback(`🎯 Correct! ${q.hint}`, false);
+              btnNext.style.display = 'inline-flex';
+              markSolved(idx);
+            } else {
+              btn.classList.add('wrong');
+              audio.playWrong();
+              showFeedback(`Not quite — try tapping +7 Days and +1 Day on the calendar to hop from day ${q.cal.startDay} to day ${q.targetDay}!`, true);
+            }
+          });
+          grid.appendChild(btn);
+        });
+        interArea.appendChild(grid);
+      } else if (q.kind === 'calendar-date') {
+        const calState = { ...q.cal };
+        buildCalendarHopUI(displayArea, calState);
+
+        const checkBtn = document.createElement('button');
+        checkBtn.type = 'button';
+        checkBtn.className = 'mini-btn teal';
+        checkBtn.style.cssText = 'width:100%; min-height:48px; font-size:1rem;';
+        checkBtn.textContent = 'Check Landing Date ✅';
+        checkBtn.addEventListener('click', () => {
+          if (calState.currentDay === q.targetDay) {
+            audio.playCorrect();
+            showFeedback(`🎯 Awesome hopping! May 10 + 11 days = May ${q.targetDay}!`, false);
+            btnNext.style.display = 'inline-flex';
+            markSolved(idx);
+          } else {
+            audio.playWrong();
+            showFeedback(`You landed on May ${calState.currentDay} (+${calState.currentDay - calState.startDay} days). Keep hopping to +11 days!`, true);
+          }
+        });
+        interArea.appendChild(checkBtn);
+      } else if (q.kind === 'numberline-two') {
+        const midReal = q.op1 === '+' ? q.startVal + q.b : q.startVal - q.b;
+        const endReal = q.op2 === '+' ? midReal + q.c : midReal - q.c;
+        let jump1Val = '';
+        let jump2Val = '';
+        let activeBox = 1;
+
+        function redrawNL() {
+          displayArea.innerHTML = `
+            <div style="font-size:clamp(1.5rem,3vw,2.1rem); font-weight:900;">
+              ${q.startVal} ${q.op1} ${q.b} ${q.op2} ${q.c} = ?
+            </div>
+            ${renderTwoStepNumberLineSVG(
+              q.startVal, q.op1, q.b, jump1Val === '' ? '?' : jump1Val,
+              q.op2, q.c, jump2Val === '' ? '?' : jump2Val
+            )}
+            <div class="nl-step-inputs">
+              <div class="nl-step-pill">
+                <span>Jump 1 (${q.startVal} ${q.op1} ${q.b}):</span>
+                <button type="button" class="nl-val-btn ${activeBox === 1 ? 'active' : ''}" id="btnNL1">${jump1Val || '?'}</button>
+              </div>
+              <div class="nl-step-pill">
+                <span>Jump 2 (${q.op2} ${q.c}):</span>
+                <button type="button" class="nl-val-btn ${activeBox === 2 ? 'active' : ''}" id="btnNL2">${jump2Val || '?'}</button>
+              </div>
+            </div>
+          `;
+          displayArea.querySelector('#btnNL1').addEventListener('click', () => {
+            audio.playClick();
+            activeBox = 1;
+            redrawNL();
+          });
+          displayArea.querySelector('#btnNL2').addEventListener('click', () => {
+            audio.playClick();
+            activeBox = 2;
+            redrawNL();
+          });
+        }
+        redrawNL();
+
+        const padWrap = document.createElement('div');
+        padWrap.style.cssText = 'display:flex; flex-direction:column; gap:8px; align-items:center;';
+        padWrap.innerHTML = `
+          <div class="keypad-grid">
+            ${[1,2,3,4,5,6,7,8,9,0].map(n => `<button type="button" class="key-btn" data-k="${n}">${n}</button>`).join('')}
+            <button type="button" class="key-btn del" data-k="del">⌫</button>
+            <button type="button" class="key-btn ok" data-k="check">Check</button>
+          </div>
+        `;
+        padWrap.querySelectorAll('.key-btn').forEach(kbtn => {
+          kbtn.addEventListener('click', () => {
+            const k = kbtn.dataset.k;
+            if (k === 'check') {
+              const v1 = parseInt(jump1Val, 10);
+              const v2 = parseInt(jump2Val, 10);
+              if (isNaN(v1) || isNaN(v2)) {
+                audio.playWrong();
+                showFeedback('Tap Jump 1 and Jump 2 to type both numbers first!', true);
+                return;
+              }
+              if (v1 === midReal && v2 === endReal) {
+                audio.playCorrect();
+                showFeedback(`🎯 Spot on! Jump 1 lands on ${midReal}, and Jump 2 lands on ${endReal}!`, false);
+                btnNext.style.display = 'inline-flex';
+                markSolved(idx);
+              } else {
+                audio.playWrong();
+                if (v1 !== midReal) {
+                  activeBox = 1;
+                  showFeedback(`Check Jump 1 first: ${q.startVal} ${q.op1} ${q.b} — try again!`, true);
+                } else {
+                  activeBox = 2;
+                  showFeedback(`Jump 1 (${midReal}) is right! Now check Jump 2: ${midReal} ${q.op2} ${q.c}.`, true);
+                }
+                redrawNL();
+              }
+              return;
+            }
+            audio.playClick();
+            if (k === 'del') {
+              if (activeBox === 1) jump1Val = jump1Val.slice(0, -1);
+              else jump2Val = jump2Val.slice(0, -1);
+            } else {
+              if (activeBox === 1 && jump1Val.length < 3) jump1Val += k;
+              else if (activeBox === 2 && jump2Val.length < 3) jump2Val += k;
+            }
+            redrawNL();
+          });
+        });
+        interArea.appendChild(padWrap);
+      } else {
+        displayArea.innerHTML = q.visualHTML;
+        const grid = document.createElement('div');
+        grid.className = 'answers-grid';
+        const shuffled = [...q.options].sort(() => Math.random() - 0.5);
+        shuffled.forEach(opt => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'answer-btn';
+          btn.textContent = opt.text;
+          btn.addEventListener('click', () => {
+            if (opt.correct) {
+              grid.querySelectorAll('.answer-btn').forEach(b => b.classList.remove('wrong'));
+              btn.classList.add('correct');
+              audio.playCorrect();
+              showFeedback(`🎯 Excellent! ${q.hint}`, false);
+              btnNext.style.display = 'inline-flex';
+              markSolved(idx);
+            } else {
+              btn.classList.add('wrong');
+              audio.playWrong();
+              showFeedback('Not quite — read the story numbers carefully and try another answer!', true);
+            }
+          });
+          grid.appendChild(btn);
+        });
+        interArea.appendChild(grid);
+      }
+    }
+
+    // Step Switching
+    function switchStep(step) {
+      currentStep = step;
+      if (window.speechSynthesis) window.speechSynthesis.cancel();
+      clearSpeakingStates();
+      document.getElementById('tabStep1').classList.toggle('active', step === 1);
+      document.getElementById('tabStep1').setAttribute('aria-selected', String(step === 1));
+      document.getElementById('tabStep2').classList.toggle('active', step === 2);
+      document.getElementById('tabStep2').setAttribute('aria-selected', String(step === 2));
+      document.getElementById('step1View').classList.toggle('hidden', step !== 1);
+      document.getElementById('step2View').classList.toggle('hidden', step !== 2);
+      document.getElementById('heroSub').textContent = step === 1
+        ? 'Step 1: Play with the draggable 1–12 clock, calendar jumps, and number-line hops!'
+        : 'Step 2: Solve all 12 hands-on clock, calendar, and two-step number line missions!';
+      if (step === 1) renderSandbox();
+      else loadQuestion(currentQ);
+    }
+
+    document.getElementById('tabStep1').addEventListener('click', () => { audio.playClick(); switchStep(1); });
+    document.getElementById('tabStep2').addEventListener('click', () => { audio.playClick(); switchStep(2); });
+    document.getElementById('btnGoStep2').addEventListener('click', () => { audio.playClick(); switchStep(2); });
+
+    document.querySelectorAll('#step1View .tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        audio.playClick();
+        activeTool = btn.dataset.tool;
+        renderSandbox();
+      });
+    });
+
+    document.getElementById('btnSandboxRandom').addEventListener('click', () => {
+      audio.playClick();
+      if (activeTool === 'clock') {
+        sandboxClockState.h24 = Math.floor(Math.random() * 24);
+        sandboxClockState.m = Math.floor(Math.random() * 12) * 5;
+      } else if (activeTool === 'calendar') {
+        sandboxCalState.startDay = 1 + Math.floor(Math.random() * 10);
+        sandboxCalState.currentDay = sandboxCalState.startDay + 5 + Math.floor(Math.random() * 12);
+      } else {
+        const s = 15 + Math.floor(Math.random() * 35);
+        const a = 12 + Math.floor(Math.random() * 20);
+        const b = 10 + Math.floor(Math.random() * 15);
+        sandboxNLState.start = s;
+        sandboxNLState.jumps = [{ op: '+', val: a }, { op: '+', val: b }];
+      }
+      renderSandbox();
+    });
+
+    document.querySelectorAll('#stageTabs .tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        audio.playClick();
+        const stageIdx = parseInt(btn.dataset.stage, 10);
+        const firstIdx = questions.findIndex(q => q.stage === stageIdx);
+        if (firstIdx >= 0) loadQuestion(firstIdx);
+      });
+    });
+
+    document.getElementById('btnQuestHint').addEventListener('click', () => {
+      audio.playClick();
+      showFeedback(`💡 Hint: ${questions[currentQ].hint}`, false);
+    });
+
+    document.getElementById('btnNext').addEventListener('click', () => {
+      audio.playClick();
+      if (window.speechSynthesis) window.speechSynthesis.cancel();
+      clearSpeakingStates();
+      const nextIdx = (currentQ + 1) % questions.length;
+      loadQuestion(nextIdx);
+    });
+
+    document.getElementById('btnSpeakSandbox').addEventListener('click', () => {
+      audio.playClick();
+      const btn = document.getElementById('btnSpeakSandbox');
+      clearSpeakingStates();
+      btn.classList.add('speaking');
+      const txt = `${document.getElementById('sandboxTitle').textContent}. ${document.getElementById('sandboxDesc').textContent}`;
+      TTS_MANAGER.speak(txt, () => btn.classList.remove('speaking'));
+    });
+
+    document.getElementById('btnSpeakQuest').addEventListener('click', () => {
+      audio.playClick();
+      const btn = document.getElementById('btnSpeakQuest');
+      clearSpeakingStates();
+      btn.classList.add('speaking');
+      const txt = `${document.getElementById('questPromptTitle').textContent}. ${document.getElementById('questPromptDesc').textContent}`;
+      TTS_MANAGER.speak(txt, () => btn.classList.remove('speaking'));
+    });
+
+    // Step 3: IB PYP Reflection & Passport Modal
+    const pypModal = document.getElementById('pypReflectModal');
+    function openReflectModal() {
+      updateScoreUI();
+      pypModal.classList.add('open');
+    }
+    function closeReflectModal() {
+      pypModal.classList.remove('open');
+    }
+    document.getElementById('btnOpenReflect').addEventListener('click', () => {
+      audio.playClick();
+      openReflectModal();
+    });
+    document.getElementById('btnCloseReflect').addEventListener('click', () => {
+      audio.playClick();
+      closeReflectModal();
+    });
+    pypModal.addEventListener('click', (e) => {
+      if (e.target === pypModal) closeReflectModal();
+    });
+    document.getElementById('btnClaimStamp').addEventListener('click', () => {
+      audio.playFanfare();
+      launchConfetti();
+      try {
+        const raw = localStorage.getItem('ib_pyp_passport');
+        const data = raw ? JSON.parse(raw) : { stamps: [], completed: [] };
+        const stamps = new Set(Array.isArray(data.stamps) ? data.stamps : []);
+        const completed = new Set(Array.isArray(data.completed) ? data.completed : []);
+        stamps.add('Thinker');
+        completed.add('math/g2_time_and_math_quest.html');
+        localStorage.setItem('ib_pyp_passport', JSON.stringify({ stamps: [...stamps], completed: [...completed] }));
+        document.getElementById('pypStampStatus').textContent = '✅ Thinker stamp saved to your IB PYP Passport!';
+        document.getElementById('btnClaimStamp').textContent = '✅ Stamped!';
+      } catch (_) {}
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const wrap = document.getElementById('ttsDropdownWrap');
+        const trig = document.getElementById('ttsTrigger');
+        if (wrap) wrap.classList.remove('open');
+        if (trig) trig.setAttribute('aria-expanded', 'false');
+        closeReflectModal();
+      }
+    });
+
     TTS_MANAGER.init();
-    loadQuestion(0);
+    updateScoreUI();
+    renderSandbox();
   </script>
 </body>
+
 </html>

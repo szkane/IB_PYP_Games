@@ -72,16 +72,23 @@
   </div>
 
   <!-- Camera background (full-screen behind everything) -->
-  <video id="camera-video" playsinline autoplay muted></video>
+  <video id="camera-video" playsinline webkit-playsinline autoplay muted></video>
 
-  <!-- Dark overlay for camera background -->
+  <!-- Semi-transparent overlay for camera background -->
   <div class="camera-overlay"></div>
+
+  <!-- Live Hand Status Pill & Camera Preview Toggle (Camera Mode) -->
+  <div id="hand-status-pill" class="hand-status-pill hidden" aria-live="polite">👋 Show Hand to Play</div>
+  <button id="cam-preview-toggle" type="button" class="cam-preview-toggle hidden">📷 Hide Cam</button>
+
+  <!-- Bottom-right Camera & Skeleton PiP Window (never display:none so Safari keeps decoding) -->
+  <div id="camera-pip" class="camera-pip inactive" aria-label="Camera and Hand Skeleton Preview">
+    <video id="camera-preview" playsinline webkit-playsinline autoplay muted></video>
+    <canvas id="camera-skeleton" width="320" height="240"></canvas>
+  </div>
 
   <!-- Main Game Container -->
   <div id="game-container">
-    <!-- Camera preview (debug) -->
-    <video id="camera-preview" class="hidden" playsinline autoplay muted></video>
-
     <!-- Phaser canvas will be inserted here -->
   </div>
 

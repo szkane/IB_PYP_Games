@@ -309,8 +309,14 @@ class PlayScene extends Phaser.Scene {
   }
 
   onHandUpdate(data) {
-    const { position, state } = data;
-    this.handCursor.setPosition(position.x, position.y).setVisible(state !== 'IDLE');
+    const { position, state, detected } = data;
+    const isVisible = state !== 'IDLE' && detected !== false;
+    this.handCursor.setPosition(position.x, position.y).setVisible(isVisible);
+    if (!isVisible) {
+      this.menuBtnHoverStart = 0;
+      this.repeatBtnHoverStart = 0;
+      return;
+    }
     this.handCursor.setFillStyle(state === 'FIST' ? 0x2d9d78 : 0xf2b84b, 0.5);
     this.handCursor.setStrokeStyle(4, state === 'FIST' ? 0x2d9d78 : 0xf2b84b);
     this.handCursor.setScale(state === 'FIST' ? 1.2 : 1);
@@ -365,7 +371,7 @@ class PlayScene extends Phaser.Scene {
   onHandStateChange(newState, oldState) {
     if (this.phase !== 'action') return;
     if (newState === 'FIST' && oldState !== 'FIST') this.tryGrabOrb();
-    else if (newState === 'OPEN' && oldState === 'FIST') this.tryDropOrb();
+    else if ((newState === 'OPEN' || newState === 'IDLE') && oldState === 'FIST') this.tryDropOrb();
   }
 
   tryGrabOrb() {

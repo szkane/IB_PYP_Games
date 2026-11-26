@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Star Energy Morph 3D Lab — IB PYP Science</title>
+  <title>Dual-Hand Energy Morph 3D Lab — IB PYP Science</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌟</text></svg>">
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
   <script type="importmap">
   {
     "imports": {
@@ -18,24 +20,74 @@
     html { -webkit-tap-highlight-color: transparent; overscroll-behavior: none; }
     body { font-family: ui-rounded, "Avenir Next", system-ui, sans-serif; background: #14091f; color: #FFF; height: 100vh; height: 100dvh; overflow: hidden; display: flex; flex-direction: column; }
     .hud-top {
-      position: relative; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;
-      padding: calc(10px + env(safe-area-inset-top, 0px)) 14px 10px; background: rgba(20, 9, 31, 0.88); border-bottom: 3px solid #111;
+      position: relative; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;
+      padding: calc(8px + env(safe-area-inset-top, 0px)) 14px 8px; background: rgba(20, 9, 31, 0.9); border-bottom: 3px solid #111;
     }
-    .hud-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .pyp-map-link { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 16px; background: var(--yellow); color: var(--ink); text-decoration: none; font-weight: 900; border: var(--border); border-radius: 14px; box-shadow: var(--shadow); }
+    .hud-left, .hud-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .pyp-map-link { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 14px; background: var(--yellow); color: var(--ink); text-decoration: none; font-weight: 900; border: var(--border); border-radius: 14px; box-shadow: var(--shadow); white-space: nowrap; }
     .unit-tag { display: inline-flex; align-items: center; min-height: 44px; padding: 6px 14px; background: var(--coral); color: #FFF; border: var(--border); border-radius: 14px; box-shadow: var(--shadow); font-weight: 900; font-size: 0.86rem; }
     .btn-reflect-pill { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 6px 14px; background: linear-gradient(135deg, #ffe156, #86efac); color: #111; border: 3px solid #111; border-radius: 12px; box-shadow: 3px 3px 0 #111; font: inherit; font-weight: 900; font-size: 0.86rem; cursor: pointer; }
+    .btn-cam-toggle { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 8px 14px; background: var(--teal); color: #111; border: var(--border); border-radius: 12px; box-shadow: 3px 3px 0 #111; font: inherit; font-weight: 900; font-size: 0.88rem; cursor: pointer; white-space: nowrap; }
+    .btn-cam-toggle.active { background: var(--coral); color: #FFF; }
+    .btn-cam-toggle:active, .btn-reflect-pill:active { transform: translate(2px, 2px); box-shadow: none; }
     .stage-wrap { position: relative; flex: 1; min-height: 0; width: 100%; touch-action: none; }
     #morphCanvas { width: 100%; height: 100%; display: block; cursor: grab; }
+    #morphCanvas:active { cursor: grabbing; }
+
+    /* Dual-Hand Tension HUD Meters */
+    .hand-meters {
+      position: absolute; top: 12px; left: 12px; right: 12px; z-index: 12;
+      display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; pointer-events: none;
+    }
+    .hand-card {
+      width: min(215px, 46vw); padding: 8px 12px; border-radius: 14px;
+      background: rgba(20, 9, 31, 0.88); border: 3px solid #111; box-shadow: 3px 3px 0 #111;
+      display: grid; gap: 5px;
+    }
+    .hand-card-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; font-weight: 900; color: #fde68a; }
+    .hand-state-tag { padding: 2px 7px; border-radius: 999px; background: #2d1b46; color: #fff; font-size: 0.72rem; }
+    .hand-state-tag.charging { background: #f59e0b; color: #111; }
+    .hand-state-tag.exploding { background: #e11d48; color: #fff; }
+    .meter-track { height: 10px; background: #1e1230; border: 2px solid #111; border-radius: 999px; overflow: hidden; }
+    .meter-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #ffe156, #f59e0b, #ef4444); transition: width 0.08s linear; }
+
+    .cam-banner {
+      position: absolute; top: 82px; left: 50%; transform: translateX(-50%); z-index: 15;
+      width: min(520px, calc(100vw - 24px)); padding: 10px 14px; border-radius: 14px;
+      background: #FFFDF0; color: #111; border: 3px solid #111; box-shadow: 4px 4px 0 #111;
+      display: none; align-items: center; justify-content: space-between; gap: 10px; font-size: 0.86rem; font-weight: 800;
+    }
+    .cam-banner.visible { display: flex; }
+    .cam-banner button { min-height: 44px; padding: 6px 12px; background: var(--yellow); color: #111; border: 2.5px solid #111; border-radius: 10px; font: inherit; font-weight: 900; cursor: pointer; white-space: nowrap; }
+
+    /* Bottom-right 2-Hand Camera & Skeleton PiP */
+    .pip-shell {
+      position: fixed; right: 14px; bottom: 78px; z-index: 25;
+      width: 204px; background: #1a0d2e; border: 3px solid #111; border-radius: 16px; box-shadow: 4px 4px 0 #111;
+      overflow: hidden; transition: opacity 0.2s ease;
+    }
+    .pip-shell.inactive, .pip-shell.minimized { width: 1px; height: 1px; opacity: 0.001; pointer-events: none; border: none; box-shadow: none; }
+    .pip-head { display: flex; align-items: center; justify-content: space-between; padding: 4px 8px; background: #261442; border-bottom: 2px solid #111; font-size: 0.74rem; font-weight: 900; color: #fde68a; }
+    .pip-close { min-height: 28px; min-width: 44px; padding: 2px 8px; background: var(--yellow); color: #111; border: 2px solid #111; border-radius: 8px; font: inherit; font-weight: 900; font-size: 0.72rem; cursor: pointer; }
+    .pip-viewport { position: relative; width: 100%; aspect-ratio: 4 / 3; background: #0d0618; }
+    .pip-viewport video, .pip-viewport canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+    .pip-reopen-btn {
+      position: fixed; right: 14px; bottom: 78px; z-index: 26;
+      display: none; align-items: center; gap: 6px; min-height: 44px; padding: 8px 14px;
+      background: var(--yellow); color: #111; border: 3px solid #111; border-radius: 12px; box-shadow: 3px 3px 0 #111;
+      font: inherit; font-weight: 900; font-size: 0.84rem; cursor: pointer;
+    }
+    .pip-reopen-btn.visible { display: inline-flex; }
+
     .hud-bottom {
       position: relative; z-index: 10; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;
-      padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px)); background: rgba(20, 9, 31, 0.92); border-top: 3px solid #111;
+      padding: 8px 14px calc(8px + env(safe-area-inset-bottom, 0px)); background: rgba(20, 9, 31, 0.92); border-top: 3px solid #111;
     }
     .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
-    .btn { min-height: 44px; padding: 8px 14px; background: #FFF; color: #111; border: var(--border); border-radius: 12px; box-shadow: 3px 3px 0 #000; font: inherit; font-weight: 900; font-size: 0.88rem; cursor: pointer; touch-action: manipulation; user-select: none; }
+    .btn { min-height: 44px; padding: 8px 14px; background: #FFF; color: #111; border: var(--border); border-radius: 12px; box-shadow: 3px 3px 0 #000; font: inherit; font-weight: 900; font-size: 0.86rem; cursor: pointer; touch-action: manipulation; user-select: none; }
     .btn.active { background: var(--yellow); }
     .btn:active { transform: translate(2px, 2px); box-shadow: none; }
-    .inquiry-pill { font-size: 0.88rem; font-weight: 800; color: #fde68a; }
+    .inquiry-pill { font-size: 0.84rem; font-weight: 800; color: #fde68a; }
     .pyp-modal-backdrop { position: fixed; inset: 0; z-index: 2000; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(6px); display: none; place-items: center; padding: 16px; }
     .pyp-modal-backdrop.open { display: grid; }
     .pyp-modal-card { width: min(540px, 100%); background: #FFFDF0; color: #111; border: 4px solid #111; border-radius: 20px; box-shadow: 8px 8px 0 #111; padding: 20px; display: grid; gap: 12px; }
@@ -51,15 +103,52 @@
   <header class="hud-top">
     <div class="hud-left">
       <a class="pyp-map-link" href="../index.html">← PYP Map</a>
-      <span class="unit-tag">🌟 Star Particle Morph 3D · Patterns &amp; Form</span>
+      <span class="unit-tag">🌟 Dual-Hand Energy Morph 3D · Patterns &amp; Form</span>
       <button type="button" class="btn-reflect-pill" id="btnOpenReflect">🔍 Reflect &amp; Stamp</button>
     </div>
-    <span class="inquiry-pill" id="statusPill">✨ Tap any cosmic shape below to watch 1,600 stars morph in 3D!</span>
+    <div class="hud-right">
+      <button type="button" class="btn-cam-toggle" id="btnCamToggle">✋ Start Hand Gestures</button>
+      <span class="inquiry-pill" id="statusPill">✨ Morph 1,600 stars or launch dual-hand energy orbs!</span>
+    </div>
   </header>
 
   <main class="stage-wrap" id="stageWrap">
     <canvas id="morphCanvas"></canvas>
+
+    <div class="hand-meters">
+      <div class="hand-card" id="leftHandCard">
+        <div class="hand-card-row">
+          <span>🤚 Left Hand</span>
+          <span class="hand-state-tag" id="leftStateTag">Standby</span>
+        </div>
+        <div class="meter-track"><div class="meter-fill" id="leftTensionBar"></div></div>
+      </div>
+      <div class="hand-card" id="rightHandCard">
+        <div class="hand-card-row">
+          <span>✋ Right Hand</span>
+          <span class="hand-state-tag" id="rightStateTag">Standby</span>
+        </div>
+        <div class="meter-track"><div class="meter-fill" id="rightTensionBar"></div></div>
+      </div>
+    </div>
+
+    <div class="cam-banner" id="camBanner">
+      <span id="camBannerText">Camera requires HTTPS or localhost. Touch / Mouse mode is active!</span>
+      <button type="button" id="btnUseTouchFallback">Use Touch Mode</button>
+    </div>
   </main>
+
+  <div class="pip-shell inactive" id="pipShell" aria-label="Dual-Hand Camera Preview">
+    <div class="pip-head">
+      <span>📷 Dual-Hand Tracker</span>
+      <button type="button" class="pip-close" id="btnHidePip">Hide</button>
+    </div>
+    <div class="pip-viewport">
+      <video id="camVideo" playsinline webkit-playsinline autoplay muted></video>
+      <canvas id="skeletonCanvas" width="320" height="240"></canvas>
+    </div>
+  </div>
+  <button type="button" class="pip-reopen-btn" id="btnShowPip">📷 Show Cam</button>
 
   <footer class="hud-bottom">
     <div class="btn-group">
@@ -77,7 +166,7 @@
       <h2 style="font-size:1.35rem; font-weight:900;">🌟 IB PYP Reflection &amp; Action</h2>
       <div class="pyp-modal-box">
         <strong>Key Concept · Form &amp; Change</strong>
-        <span>The exact same 1,600 tiny particles can organize into spheres, spirals, rings, and cubes depending on their pattern rules!</span>
+        <span>The exact same 1,600 tiny particles can organize into spheres, spirals, rings, and cubes—or charge from golden energy into crimson bursts!</span>
       </div>
       <div class="pyp-modal-box" style="background:#ECFDF5;">
         <strong>🚀 Take Action in Real Life</strong>
@@ -95,6 +184,61 @@
   <script type="module">
     import * as THREE from 'three';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    const HAND_CONNECTIONS = [
+      [0,1],[1,2],[2,3],[3,4],
+      [0,5],[5,6],[6,7],[7,8],
+      [0,9],[9,10],[10,11],[11,12],
+      [0,13],[13,14],[14,15],[15,16],
+      [0,17],[17,18],[18,19],[19,20],
+      [5,9],[9,13],[13,17]
+    ];
+
+    let mpCdnBase = 'https://cdn.jsdelivr.net/npm/@mediapipe/hands';
+    function loadScript(src) {
+      return new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = src;
+        s.crossOrigin = 'anonymous';
+        s.onload = () => resolve();
+        s.onerror = () => reject(new Error(`Failed to load ${src}`));
+        document.head.appendChild(s);
+      });
+    }
+
+    async function ensureMediaPipeHands() {
+      if (typeof window.Hands === 'function') return mpCdnBase;
+      const bases = [
+        'https://cdn.jsdelivr.net/npm/@mediapipe/hands',
+        'https://unpkg.com/@mediapipe/hands'
+      ];
+      for (const base of bases) {
+        try {
+          await loadScript(`${base}/hands.js`);
+          if (typeof window.Hands === 'function') {
+            mpCdnBase = base;
+            return base;
+          }
+        } catch (_) {}
+      }
+      throw new Error('Could not load MediaPipe Hands from CDN.');
+    }
+
+    function computePalmOpenness(landmarks) {
+      const wrist = landmarks[0];
+      const tips = [8, 12, 16, 20];
+      const bases = [5, 9, 13, 17];
+      let tipDist = 0;
+      let palmDist = 0;
+      for (let i = 0; i < 4; i++) {
+        const t = landmarks[tips[i]];
+        const b = landmarks[bases[i]];
+        tipDist += Math.hypot(t.x - wrist.x, t.y - wrist.y, (t.z || 0) - (wrist.z || 0));
+        palmDist += Math.hypot(b.x - wrist.x, b.y - wrist.y, (b.z || 0) - (wrist.z || 0));
+      }
+      const ratio = tipDist / Math.max(palmDist, 0.001);
+      return Math.max(0, Math.min(1, (ratio - 1.05) / 0.80));
+    }
 
     let audioCtx = null;
     function playChime(freq) {
@@ -116,8 +260,8 @@
       const ctx = c.getContext('2d');
       const g = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
       g.addColorStop(0, 'rgba(255,255,255,1)');
-      g.addColorStop(0.35, 'rgba(255,205,86,0.9)');
-      g.addColorStop(1, 'rgba(255,101,132,0)');
+      g.addColorStop(0.35, 'rgba(255,215,96,0.92)');
+      g.addColorStop(1, 'rgba(255,64,96,0)');
       ctx.fillStyle = g; ctx.fillRect(0, 0, 64, 64);
       return new THREE.CanvasTexture(c);
     }
@@ -128,7 +272,7 @@
     scene.background = new THREE.Color(0x14091f);
 
     const camera = new THREE.PerspectiveCamera(48, Math.max(wrap.clientWidth, 1) / Math.max(wrap.clientHeight, 1), 0.1, 100);
-    camera.position.set(0, 2.6, 8.8);
+    camera.position.set(0, 2.2, 9.6);
 
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -142,59 +286,368 @@
     const current = new Float32Array(N * 3);
 
     for (let i = 0; i < N; i++) {
-      // Sphere
-      const r = 2.6 + (Math.random() - 0.5) * 0.35;
+      const r = 2.5 + (Math.random() - 0.5) * 0.35;
       const th = Math.random() * Math.PI * 2, ph = Math.acos(2 * Math.random() - 1);
       shapes.sphere[i * 3] = current[i * 3] = r * Math.sin(ph) * Math.cos(th);
       shapes.sphere[i * 3 + 1] = current[i * 3 + 1] = r * Math.sin(ph) * Math.sin(th);
       shapes.sphere[i * 3 + 2] = current[i * 3 + 2] = r * Math.cos(ph);
 
-      // Spiral Galaxy
       const arm = i % 3;
-      const gr = Math.random() * 4.4;
+      const gr = Math.random() * 4.2;
       const ga = gr * 1.45 + (arm * Math.PI * 2) / 3 + (Math.random() - 0.5) * 0.45;
       shapes.galaxy[i * 3] = Math.cos(ga) * gr;
       shapes.galaxy[i * 3 + 1] = (Math.random() - 0.5) * 0.55;
       shapes.galaxy[i * 3 + 2] = Math.sin(ga) * gr;
 
-      // Saturn (ball + flat ring)
       if (i < N * 0.45) {
-        const sr = 1.55;
+        const sr = 1.5;
         shapes.saturn[i * 3] = sr * Math.sin(ph) * Math.cos(th);
         shapes.saturn[i * 3 + 1] = sr * Math.sin(ph) * Math.sin(th);
         shapes.saturn[i * 3 + 2] = sr * Math.cos(ph);
       } else {
-        const rr = 2.45 + Math.random() * 1.85;
+        const rr = 2.35 + Math.random() * 1.75;
         const ra = Math.random() * Math.PI * 2;
         shapes.saturn[i * 3] = Math.cos(ra) * rr;
         shapes.saturn[i * 3 + 1] = Math.sin(ra) * rr * 0.32;
         shapes.saturn[i * 3 + 2] = Math.sin(ra) * rr * 0.92;
       }
 
-      // Crystal Cube
-      shapes.cube[i * 3] = (Math.random() - 0.5) * 4.2;
-      shapes.cube[i * 3 + 1] = (Math.random() - 0.5) * 4.2;
-      shapes.cube[i * 3 + 2] = (Math.random() - 0.5) * 4.2;
+      shapes.cube[i * 3] = (Math.random() - 0.5) * 4.0;
+      shapes.cube[i * 3 + 1] = (Math.random() - 0.5) * 4.0;
+      shapes.cube[i * 3 + 2] = (Math.random() - 0.5) * 4.0;
     }
 
+    const spriteTex = makeSprite();
+
+    // Central Touch/Idle Morph Cloud
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.BufferAttribute(current, 3));
-    const points = new THREE.Points(geo, new THREE.PointsMaterial({
-      size: 0.28, map: makeSprite(), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false
-    }));
-    scene.add(points);
+    const centerMat = new THREE.PointsMaterial({
+      size: 0.28, map: spriteTex, color: 0xffd166, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false
+    });
+    const centerPoints = new THREE.Points(geo, centerMat);
+    scene.add(centerPoints);
+
+    // Dual-Hand Energy Orbs (Left & Right)
+    const HAND_N = 900;
+    function createHandOrbSystem() {
+      const group = new THREE.Group();
+      group.visible = false;
+      const arr = new Float32Array(HAND_N * 3);
+      const dirs = new Float32Array(HAND_N * 3);
+      for (let i = 0; i < HAND_N; i++) {
+        const r = 1.15 + Math.random() * 0.55;
+        const th = Math.random() * Math.PI * 2, ph = Math.acos(2 * Math.random() - 1);
+        const x = r * Math.sin(ph) * Math.cos(th);
+        const y = r * Math.sin(ph) * Math.sin(th);
+        const z = r * Math.cos(ph);
+        arr[i * 3] = x; arr[i * 3 + 1] = y; arr[i * 3 + 2] = z;
+        const len = Math.max(Math.hypot(x, y, z), 0.01);
+        const spd = 2.8 + Math.random() * 3.8;
+        dirs[i * 3] = (x / len) * spd;
+        dirs[i * 3 + 1] = (y / len) * spd;
+        dirs[i * 3 + 2] = (z / len) * spd;
+      }
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.BufferAttribute(arr, 3));
+      const mat = new THREE.PointsMaterial({
+        size: 0.26, map: spriteTex, color: 0xffc83d, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false
+      });
+      const pts = new THREE.Points(g, mat);
+      const core = new THREE.Mesh(
+        new THREE.SphereGeometry(0.42, 24, 24),
+        new THREE.MeshBasicMaterial({ color: 0xffe066, transparent: true, opacity: 0.9 })
+      );
+      group.add(pts, core);
+      scene.add(group);
+      return {
+        group, pts, g, mat, core, dirs,
+        detected: false, openness: 1, tension: 0, phase: 'TRACKING',
+        targetPos: new THREE.Vector3(), flyTimer: 0, explodeTimer: 0, targetScale: 1
+      };
+    }
+
+    const handOrbs = {
+      left: createHandOrbSystem(),
+      right: createHandOrbSystem()
+    };
 
     let activeShape = 'sphere';
-    document.querySelectorAll('.btn[data-shape]').forEach(btn => {
+    let camActive = false;
+    let camStream = null;
+    let handsInstance = null;
+    let isProcessing = false;
+    let rafId = null;
+    let lastSendTime = 0;
+
+    const btnCamToggle = document.getElementById('btnCamToggle');
+    const pipShell = document.getElementById('pipShell');
+    const btnHidePip = document.getElementById('btnHidePip');
+    const btnShowPip = document.getElementById('btnShowPip');
+    const camVideo = document.getElementById('camVideo');
+    const skeletonCanvas = document.getElementById('skeletonCanvas');
+    const skeletonCtx = skeletonCanvas.getContext('2d');
+    const camBanner = document.getElementById('camBanner');
+    const camBannerText = document.getElementById('camBannerText');
+    const statusPill = document.getElementById('statusPill');
+
+    const leftStateTag = document.getElementById('leftStateTag');
+    const rightStateTag = document.getElementById('rightStateTag');
+    const leftTensionBar = document.getElementById('leftTensionBar');
+    const rightTensionBar = document.getElementById('rightTensionBar');
+
+    function updateHandHud(side) {
+      const orb = handOrbs[side];
+      const tag = side === 'left' ? leftStateTag : rightStateTag;
+      const bar = side === 'left' ? leftTensionBar : rightTensionBar;
+      if (!orb.detected) {
+        tag.textContent = 'Standby';
+        tag.className = 'hand-state-tag';
+        bar.style.width = '0%';
+        return;
+      }
+      const pct = Math.round(orb.tension * 100);
+      bar.style.width = `${pct}%`;
+      if (orb.phase === 'EXPLODING') {
+        tag.textContent = '💥 Burst!';
+        tag.className = 'hand-state-tag exploding';
+      } else if (orb.phase === 'FLYING') {
+        tag.textContent = '🚀 Launching!';
+        tag.className = 'hand-state-tag exploding';
+      } else if (orb.tension > 0.35) {
+        tag.textContent = `🔥 Charging ${pct}%`;
+        tag.className = 'hand-state-tag charging';
+      } else {
+        tag.textContent = '✨ Guiding';
+        tag.className = 'hand-state-tag';
+      }
+    }
+
+    function drawAllSkeletons(allLms) {
+      const w = skeletonCanvas.width;
+      const h = skeletonCanvas.height;
+      skeletonCtx.clearRect(0, 0, w, h);
+      if (!allLms || !allLms.length) return;
+      allLms.forEach((lms, idx) => {
+        skeletonCtx.strokeStyle = idx === 0 ? '#ffe156' : '#ff6584';
+        skeletonCtx.lineWidth = 2.5;
+        for (const [a, b] of HAND_CONNECTIONS) {
+          skeletonCtx.beginPath();
+          skeletonCtx.moveTo(lms[a].x * w, lms[a].y * h);
+          skeletonCtx.lineTo(lms[b].x * w, lms[b].y * h);
+          skeletonCtx.stroke();
+        }
+        for (let i = 0; i < lms.length; i++) {
+          skeletonCtx.beginPath();
+          skeletonCtx.arc(lms[i].x * w, lms[i].y * h, i === 9 ? 5 : 3.2, 0, Math.PI * 2);
+          skeletonCtx.fillStyle = i === 9 ? '#ffffff' : '#fde68a';
+          skeletonCtx.fill();
+        }
+      });
+    }
+
+    function assignHandSlots(results) {
+      const lmsList = (results && results.multiHandLandmarks) || [];
+      const handedness = (results && results.multiHandedness) || [];
+      const assigned = { left: null, right: null };
+
+      lmsList.forEach((lms, idx) => {
+        if (!lms || lms.length < 21) return;
+        const labelRaw = handedness[idx] && handedness[idx].label ? handedness[idx].label : null;
+        // Mirrored webcam: MediaPipe 'Left' corresponds to user's right side of mirrored view
+        let slot = labelRaw === 'Left' ? 'right' : labelRaw === 'Right' ? 'left' : ((1 - lms[9].x) < 0.5 ? 'left' : 'right');
+        if (assigned[slot]) {
+          slot = slot === 'left' ? 'right' : 'left';
+        }
+        assigned[slot] = lms;
+      });
+      return assigned;
+    }
+
+    function handleHandResults(results) {
+      const lmsList = (results && results.multiHandLandmarks) || [];
+      drawAllSkeletons(lmsList);
+      const slots = assignHandSlots(results);
+
+      ['left', 'right'].forEach((side) => {
+        const orb = handOrbs[side];
+        const lms = slots[side];
+        if (!lms) {
+          orb.detected = false;
+          orb.openness = 1;
+          orb.tension = 0;
+          if (orb.phase !== 'EXPLODING') {
+            orb.phase = 'TRACKING';
+            orb.group.visible = false;
+          }
+          updateHandHud(side);
+          return;
+        }
+
+        orb.detected = true;
+        orb.group.visible = true;
+        const palm = lms[9];
+        const mirroredX = 1 - palm.x;
+        orb.targetPos.set((mirroredX - 0.5) * 9.0, (0.5 - palm.y) * 5.6, 0);
+        const palmSize = Math.hypot(lms[12].x - lms[0].x, lms[12].y - lms[0].y);
+        orb.targetScale = 0.72 + Math.max(0, Math.min(1, (palmSize - 0.08) / 0.24)) * 0.55;
+
+        const openness = computePalmOpenness(lms);
+        orb.openness = openness;
+        orb.tension = Math.max(0, Math.min(1, 1 - openness));
+
+        if (openness < 0.30) {
+          if (orb.phase === 'TRACKING') {
+            orb.phase = 'FLYING';
+            orb.flyTimer = 0;
+            orb.explodeTimer = 0;
+            playChime(660);
+          }
+        } else if (orb.phase !== 'TRACKING') {
+          orb.phase = 'TRACKING';
+          orb.flyTimer = 0;
+          orb.explodeTimer = 0;
+          playChime(494);
+        }
+        updateHandHud(side);
+      });
+
+      const anyActive = handOrbs.left.detected || handOrbs.right.detected;
+      centerPoints.visible = !anyActive;
+      if (anyActive) {
+        statusPill.textContent = '🔥 Dual-Hand Orbs active! Clench fist to charge golden → crimson burst!';
+      } else if (camActive) {
+        statusPill.textContent = '👋 Show 1 or 2 hands to spawn Golden-to-Crimson Energy Orbs!';
+      }
+    }
+
+    async function startHandGestures() {
+      camBanner.classList.remove('visible');
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        camBannerText.textContent = 'Camera requires HTTPS or localhost. Touch / Mouse mode is active!';
+        camBanner.classList.add('visible');
+        return;
+      }
+      btnCamToggle.disabled = true;
+      btnCamToggle.textContent = '⏳ Starting Camera...';
+      try {
+        camStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+          audio: false
+        });
+        camVideo.setAttribute('playsinline', '');
+        camVideo.setAttribute('webkit-playsinline', '');
+        camVideo.muted = true;
+        camVideo.autoplay = true;
+        camVideo.srcObject = camStream;
+        await camVideo.play();
+
+        const base = await ensureMediaPipeHands();
+        handsInstance = new window.Hands({ locateFile: (file) => `${base}/${file}` });
+        handsInstance.setOptions({
+          maxNumHands: 2,
+          modelComplexity: 1,
+          minDetectionConfidence: 0.6,
+          minTrackingConfidence: 0.6
+        });
+        handsInstance.onResults(handleHandResults);
+
+        camActive = true;
+        btnCamToggle.textContent = '⏹️ Stop Camera';
+        btnCamToggle.classList.add('active');
+        pipShell.classList.remove('inactive', 'minimized');
+        btnShowPip.classList.remove('visible');
+        statusPill.textContent = '👋 Show 1 or 2 hands to summon Golden-to-Crimson Energy Orbs!';
+        playChime(587);
+        pumpCameraLoop();
+      } catch (err) {
+        console.error('[DragonBall] Camera start failed:', err);
+        stopHandGestures();
+        camBannerText.textContent = `${err.message || 'Camera unavailable.'} Continue with Touch / Mouse mode!`;
+        camBanner.classList.add('visible');
+      } finally {
+        btnCamToggle.disabled = false;
+      }
+    }
+
+    function pumpCameraLoop() {
+      if (!camActive) return;
+      const now = performance.now();
+      if (now - lastSendTime >= 33 && camVideo.readyState >= 2 && camVideo.videoWidth > 0 && !isProcessing && handsInstance) {
+        lastSendTime = now;
+        isProcessing = true;
+        handsInstance.send({ image: camVideo })
+          .catch((e) => console.warn('[DragonBall] Frame skipped:', e))
+          .finally(() => { isProcessing = false; });
+      }
+      rafId = requestAnimationFrame(pumpCameraLoop);
+    }
+
+    function stopHandGestures() {
+      camActive = false;
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+      isProcessing = false;
+      if (camStream) {
+        camStream.getTracks().forEach((t) => t.stop());
+        camStream = null;
+      }
+      if (camVideo.srcObject) camVideo.srcObject = null;
+      if (handsInstance) {
+        try { handsInstance.close(); } catch (_) {}
+        handsInstance = null;
+      }
+      drawAllSkeletons(null);
+      ['left', 'right'].forEach((side) => {
+        const orb = handOrbs[side];
+        orb.detected = false;
+        orb.phase = 'TRACKING';
+        orb.tension = 0;
+        orb.group.visible = false;
+        updateHandHud(side);
+      });
+      centerPoints.visible = true;
+      pipShell.classList.add('inactive');
+      pipShell.classList.remove('minimized');
+      btnShowPip.classList.remove('visible');
+      btnCamToggle.textContent = '✋ Start Hand Gestures';
+      btnCamToggle.classList.remove('active');
+      statusPill.textContent = '✨ Morph 1,600 stars or turn on Dual-Hand Gestures!';
+    }
+
+    btnCamToggle.addEventListener('click', () => {
+      if (camActive) stopHandGestures();
+      else startHandGestures();
+    });
+    btnHidePip.addEventListener('click', () => {
+      pipShell.classList.add('minimized');
+      btnShowPip.classList.add('visible');
+    });
+    btnShowPip.addEventListener('click', () => {
+      pipShell.classList.remove('minimized');
+      btnShowPip.classList.remove('visible');
+    });
+    document.getElementById('btnUseTouchFallback').addEventListener('click', () => {
+      camBanner.classList.remove('visible');
+      stopHandGestures();
+    });
+
+    document.querySelectorAll('.btn[data-shape]').forEach((btn) => {
       btn.addEventListener('click', () => {
         activeShape = btn.dataset.shape;
-        document.querySelectorAll('.btn[data-shape]').forEach(b => b.classList.toggle('active', b === btn));
-        document.getElementById('statusPill').textContent = `✨ Morphing 1,600 particles into ${btn.textContent}!`;
+        document.querySelectorAll('.btn[data-shape]').forEach((b) => b.classList.toggle('active', b === btn));
+        statusPill.textContent = `✨ Morphing particles into ${btn.textContent}!`;
         playChime(activeShape === 'galaxy' ? 587 : activeShape === 'saturn' ? 659 : activeShape === 'cube' ? 523 : 494);
       });
     });
 
-    document.getElementById('btnReset').addEventListener('click', () => { controls.reset(); camera.position.set(0, 2.6, 8.8); playChime(440); });
+    document.getElementById('btnReset').addEventListener('click', () => {
+      controls.reset();
+      camera.position.set(0, 2.2, 9.6);
+      playChime(440);
+    });
 
     const resize = () => {
       const w = Math.max(wrap.clientWidth, 1), h = Math.max(wrap.clientHeight, 1);
@@ -203,15 +656,78 @@
     if (typeof ResizeObserver !== 'undefined') new ResizeObserver(resize).observe(wrap);
     else window.addEventListener('resize', resize);
 
+    const clock = new THREE.Clock();
+    const goldColor = new THREE.Color(0xffd147);
+    const crimsonColor = new THREE.Color(0xff1e4d);
+
+    function updateHandOrb(side, dt) {
+      const orb = handOrbs[side];
+      if (!orb.group.visible) return;
+
+      const c = goldColor.clone().lerp(crimsonColor, orb.tension);
+      orb.mat.color.copy(c);
+      orb.core.material.color.copy(c);
+
+      if (orb.phase === 'FLYING') {
+        orb.flyTimer += dt;
+        orb.group.position.y += dt * 7.5;
+        orb.group.position.x += (side === 'left' ? -1 : 1) * dt * 2.4;
+        if (orb.flyTimer >= 0.35) {
+          orb.phase = 'EXPLODING';
+          orb.explodeTimer = 0;
+          updateHandHud(side);
+          playChime(784);
+        }
+      } else if (orb.phase === 'EXPLODING') {
+        orb.explodeTimer += dt;
+        const arr = orb.g.attributes.position.array;
+        for (let i = 0; i < HAND_N; i++) {
+          arr[i * 3] += orb.dirs[i * 3] * dt * 2.0;
+          arr[i * 3 + 1] += orb.dirs[i * 3 + 1] * dt * 2.0;
+          arr[i * 3 + 2] += orb.dirs[i * 3 + 2] * dt * 2.0;
+        }
+        orb.g.attributes.position.needsUpdate = true;
+        orb.core.scale.lerp(new THREE.Vector3(0.05, 0.05, 0.05), 0.16);
+        if (!orb.detected && orb.explodeTimer > 1.2) {
+          orb.phase = 'TRACKING';
+          orb.group.visible = false;
+          updateHandHud(side);
+        }
+      } else {
+        orb.group.position.lerp(orb.targetPos, 0.16);
+        const s = orb.targetScale * (1 - orb.tension * 0.22);
+        orb.group.scale.lerp(new THREE.Vector3(s, s, s), 0.14);
+        orb.core.scale.setScalar(0.85 + orb.tension * 0.45);
+        const targetShape = shapes[activeShape];
+        const arr = orb.g.attributes.position.array;
+        for (let i = 0; i < HAND_N; i++) {
+          const ti = (i % N) * 3;
+          arr[i * 3] += (targetShape[ti] * 0.48 - arr[i * 3]) * 0.09;
+          arr[i * 3 + 1] += (targetShape[ti + 1] * 0.48 - arr[i * 3 + 1]) * 0.09;
+          arr[i * 3 + 2] += (targetShape[ti + 2] * 0.48 - arr[i * 3 + 2]) * 0.09;
+        }
+        orb.g.attributes.position.needsUpdate = true;
+      }
+      orb.pts.rotation.y += 0.012 + orb.tension * 0.035;
+    }
+
     function animate() {
       requestAnimationFrame(animate);
-      const target = shapes[activeShape];
-      const arr = geo.attributes.position.array;
-      for (let i = 0; i < arr.length; i++) {
-        arr[i] += (target[i] - arr[i]) * 0.065;
+      const dt = Math.min(clock.getDelta(), 0.05);
+
+      if (centerPoints.visible) {
+        const target = shapes[activeShape];
+        const arr = geo.attributes.position.array;
+        for (let i = 0; i < arr.length; i++) {
+          arr[i] += (target[i] - arr[i]) * 0.065;
+        }
+        geo.attributes.position.needsUpdate = true;
+        centerPoints.rotation.y += 0.0045;
       }
-      geo.attributes.position.needsUpdate = true;
-      points.rotation.y += 0.0045;
+
+      updateHandOrb('left', dt);
+      updateHandOrb('right', dt);
+
       controls.update();
       renderer.render(scene, camera);
     }
@@ -220,7 +736,7 @@
     const modal = document.getElementById('pypReflectModal');
     document.getElementById('btnOpenReflect').addEventListener('click', () => { modal.classList.add('open'); playChime(523); });
     document.getElementById('btnCloseReflect').addEventListener('click', () => modal.classList.remove('open'));
-    modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('open'); });
     document.getElementById('btnClaimStamp').addEventListener('click', () => {
       try {
         const raw = localStorage.getItem('ib_pyp_passport');
@@ -233,6 +749,24 @@
         document.getElementById('btnClaimStamp').textContent = '✅ Stamped!';
       } catch (_) {}
     });
+
+    window.__dragonballDebug = {
+      handleHandResults,
+      getHandStates: () => ({
+        left: {
+          detected: handOrbs.left.detected,
+          openness: handOrbs.left.openness,
+          tension: handOrbs.left.tension,
+          phase: handOrbs.left.phase
+        },
+        right: {
+          detected: handOrbs.right.detected,
+          openness: handOrbs.right.openness,
+          tension: handOrbs.right.tension,
+          phase: handOrbs.right.phase
+        }
+      })
+    };
   </script>
 </body>
 </html>

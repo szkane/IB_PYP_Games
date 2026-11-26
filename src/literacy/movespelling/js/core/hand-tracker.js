@@ -1,7 +1,42 @@
 /**
  * HandTracker - MediaPipe Hands Integration
- * Provides hand detection and gesture recognition for the game.
+ * Provides resilient hand detection and gesture recognition for MoveSpell.
  */
+
+let _mpHandsCdnBase = "https://cdn.jsdelivr.net/npm/@mediapipe/hands";
+
+function _loadScript(src) {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = src;
+    script.crossOrigin = "anonymous";
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error(`Failed to load ${src}`));
+    document.head.appendChild(script);
+  });
+}
+
+async function ensureMediaPipeHands() {
+  if (typeof window.Hands === "function") {
+    return _mpHandsCdnBase;
+  }
+  const bases = [
+    "https://cdn.jsdelivr.net/npm/@mediapipe/hands",
+    "https://unpkg.com/@mediapipe/hands",
+  ];
+  for (const base of bases) {
+    try {
+      await _loadScript(`${base}/hands.js`);
+      if (typeof window.Hands === "function") {
+        _mpHandsCdnBase = base;
+        return base;
+      }
+    } catch (_) {}
+  }
+  throw new Error(
+    "Could not load MediaPipe Hands library. Check your network connection or use Touch / Mouse mode."
+  );
+}
 
 class HandTracker {
   constructor() {
@@ -13,7 +48,7 @@ class HandTracker {
 
     // Hand state
     this.isTracking = false;
-    this.isProcessing = false; // 防止 MediaPipe 请求堆积
+    this.isProcessing = false;
     this.currentState = "IDLE"; // 'IDLE' | 'OPEN' | 'FIST'
     this.previousState = "IDLE";
     this.stateChangeTime = 0;
@@ -21,16 +56,16 @@ class HandTracker {
     // Position tracking
     this.handPosition = { x: 0, y: 0 };
     this.smoothedPosition = { x: 0, y: 0 };
-    this.positionHistory = [];
-    this.smoothingFactor = 0.3;
+    this.hasPositioned = false;
+    this.smoothingFactor = 0.35;
 
-    // Gesture detection thresholds
-    this.FIST_THRESHOLD = 0.08;
-    this.OPEN_THRESHOLD = 0.15;
-    this.STATE_DEBOUNCE_MS = 100;
+    // Gesture detection thresholds (palm-normalized ratio: avg(dist(tip, wrist)) / avg(dist(mcp, wrist)))
+    this.FIST_RATIO_THRESHOLD = 1.28;
+    this.OPEN_RATIO_THRESHOLD = 1.52;
+    this.STATE_DEBOUNCE_MS = 90;
 
-    // Frame rate limiting (方案二增强)
-    this.targetFPS = 30; // 降低到 30fps 减少负担
+    // Frame rate limiting (30fps)
+    this.targetFPS = 30;
     this.frameInterval = 1000 / this.targetFPS;
     this.lastFrameTime = 0;
     this.consecutiveErrors = 0;
@@ -43,28 +78,25 @@ class HandTracker {
     this.onHandUpdate = null;
     this.onStateChange = null;
 
-    // Debug mode
-    this.debugMode = false;
+    // Debug / skeleton canvas mode
+    this.debugMode = true;
   }
 
   /**
-   * Initialize MediaPipe Hands and camera
+   * Initialize MediaPipe Hands
    * @param {HTMLVideoElement} videoElement - Video element for camera feed
-   * @param {HTMLCanvasElement} canvasElement - Canvas for debug drawing (optional)
+   * @param {HTMLCanvasElement} canvasElement - Canvas for skeleton drawing (optional)
    */
   async init(videoElement, canvasElement = null) {
-    this.videoElement = videoElement;
-    this.canvasElement = canvasElement;
-
+    if (videoElement) this.videoElement = videoElement;
     if (canvasElement) {
+      this.canvasElement = canvasElement;
       this.canvasCtx = canvasElement.getContext("2d");
     }
 
-    // Initialize MediaPipe Hands
-    this.hands = new Hands({
-      locateFile: (file) => {
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-      },
+    const cdnBase = await ensureMediaPipeHands();
+    this.hands = new window.Hands({
+      locateFile: (file) => `${cdnBase}/${file}`,
     });
 
     this.hands.setOptions({
@@ -75,63 +107,65 @@ class HandTracker {
     });
 
     this.hands.onResults((results) => this.onResults(results));
-
     console.log("[HandTracker] MediaPipe Hands initialized");
   }
 
   /**
-   * Start camera and begin tracking
+   * Start camera directly inside user click handler and begin tracking pump.
+   * Safe to call before or after init().
+   * @param {HTMLVideoElement} [videoElement]
    */
-  async startCamera() {
+  async startCamera(videoElement = null) {
+    if (videoElement) this.videoElement = videoElement;
+    if (!this.videoElement) {
+      throw new Error("Camera video element is missing.");
+    }
+
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      throw new Error(
+        "Camera access requires HTTPS or localhost. Use Touch / Mouse mode or open over HTTPS/localhost."
+      );
+    }
+
     try {
-      // More comprehensive video constraints for mobile compatibility
       const constraints = {
         video: {
           width: { ideal: 1280, max: 1920 },
           height: { ideal: 720, max: 1080 },
           facingMode: "user",
-          // iOS/iPadOS specific optimizations
           aspectRatio: { ideal: 16 / 9 },
         },
-        audio: false, // Explicitly disable audio
+        audio: false,
       };
 
       console.log("[HandTracker] Requesting camera access...");
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
 
-      this.videoElement.srcObject = stream;
-
-      // Set video element attributes for iOS compatibility
       this.videoElement.setAttribute("playsinline", "true");
       this.videoElement.setAttribute("webkit-playsinline", "true");
       this.videoElement.muted = true;
+      this.videoElement.autoplay = true;
+      this.videoElement.srcObject = stream;
 
-      // Ensure video plays (iOS requires explicit play() call)
       try {
         await this.videoElement.play();
-        console.log("[HandTracker] Video playback started");
       } catch (playError) {
         console.warn("[HandTracker] Video play failed, retrying...", playError);
-        // Retry after a short delay
         await new Promise((resolve) => setTimeout(resolve, 100));
         await this.videoElement.play();
       }
 
-      // Start tracking loop
       this.isTracking = true;
-      this.trackLoop();
+      if (this.animationFrameId === null) {
+        this.trackLoop();
+      }
 
       console.log("[HandTracker] Camera started successfully");
-      console.log(
-        "[HandTracker] Stream settings:",
-        stream.getVideoTracks()[0].getSettings()
-      );
       return true;
     } catch (error) {
       console.error("[HandTracker] Camera access error:", error);
 
-      // Provide more specific error messages
-      let errorMessage = "Camera access denied";
+      let errorMessage = error.message || "Camera access denied";
       if (error.name === "NotAllowedError") {
         errorMessage =
           "Camera permission denied. Please allow camera access in your browser settings.";
@@ -145,7 +179,6 @@ class HandTracker {
         errorMessage = "Camera access requires HTTPS or localhost.";
       }
 
-      console.error("[HandTracker]", errorMessage);
       throw new Error(errorMessage);
     }
   }
@@ -154,47 +187,37 @@ class HandTracker {
    * Stop tracking and release camera
    */
   stop() {
-    console.log("[HandTracker] Stopping tracking...");
     this.isTracking = false;
 
-    // Cancel any pending animation frame to prevent memory leak
     if (this.animationFrameId !== null) {
       cancelAnimationFrame(this.animationFrameId);
       this.animationFrameId = null;
-      console.log("[HandTracker] Cancelled animation frame");
     }
 
-    // Reset processing state
     this.isProcessing = false;
     this.consecutiveErrors = 0;
 
-    // Stop camera tracks
     if (this.videoElement && this.videoElement.srcObject) {
       const tracks = this.videoElement.srcObject.getTracks();
       tracks.forEach((track) => track.stop());
       this.videoElement.srcObject = null;
     }
 
-    // Clean up MediaPipe resources
     if (this.hands) {
       try {
         this.hands.close();
-        console.log("[HandTracker] MediaPipe Hands closed");
       } catch (error) {
         console.warn("[HandTracker] Error closing MediaPipe:", error);
       }
+      this.hands = null;
     }
-
-    console.log("[HandTracker] Tracking stopped and resources released");
   }
 
   /**
-   * Main tracking loop
+   * 30fps tracking loop with re-entrancy guard
    */
   async trackLoop() {
-    // Critical: Check if still tracking at the start
     if (!this.isTracking) {
-      console.log("[HandTracker] Track loop stopped");
       this.animationFrameId = null;
       return;
     }
@@ -202,16 +225,19 @@ class HandTracker {
     const now = performance.now();
     const elapsed = now - this.lastFrameTime;
 
-    // 帧率限制：确保不超过目标 FPS
     if (elapsed >= this.frameInterval) {
       this.lastFrameTime = now;
 
-      // 防止请求堆积：只有在上一帧处理完成后才发送新帧
-      if (this.videoElement.readyState >= 2 && !this.isProcessing) {
+      if (
+        this.hands &&
+        this.videoElement &&
+        this.videoElement.readyState >= 2 &&
+        this.videoElement.videoWidth > 0 &&
+        !this.isProcessing
+      ) {
         this.isProcessing = true;
         try {
           await this.hands.send({ image: this.videoElement });
-          // 成功处理，重置错误计数
           this.consecutiveErrors = 0;
         } catch (error) {
           this.consecutiveErrors++;
@@ -219,31 +245,22 @@ class HandTracker {
             `[HandTracker] Error processing frame (${this.consecutiveErrors}/${this.MAX_CONSECUTIVE_ERRORS}):`,
             error
           );
-
-          // 如果连续错误过多，尝试重置处理状态
           if (this.consecutiveErrors >= this.MAX_CONSECUTIVE_ERRORS) {
-            console.warn(
-              "[HandTracker] Too many consecutive errors, resetting processing state"
-            );
-            this.isProcessing = false;
             this.consecutiveErrors = 0;
-            // 可选：触发回调通知外部系统
             if (this.onHandUpdate) {
               this.onHandUpdate({
                 detected: false,
-                state: "ERROR",
+                state: "IDLE",
                 position: this.handPosition,
               });
             }
           }
         } finally {
-          // Always reset processing flag
           this.isProcessing = false;
         }
       }
     }
 
-    // Store the animation frame ID for proper cleanup
     this.animationFrameId = requestAnimationFrame(() => this.trackLoop());
   }
 
@@ -252,46 +269,40 @@ class HandTracker {
    * @param {Object} results - MediaPipe hand detection results
    */
   onResults(results) {
-    // Clear debug canvas if exists
-    if (this.canvasCtx && this.debugMode) {
-      this.canvasCtx.save();
+    if (this.canvasCtx && this.debugMode && this.canvasElement) {
       this.canvasCtx.clearRect(
         0,
         0,
         this.canvasElement.width,
         this.canvasElement.height
       );
-
-      // Mirror the canvas
-      this.canvasCtx.scale(-1, 1);
-      this.canvasCtx.translate(-this.canvasElement.width, 0);
     }
 
-    if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+    if (results && results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
       const landmarks = results.multiHandLandmarks[0];
-
-      // Get palm center (landmark 9 is middle finger base)
       const palmCenter = landmarks[9];
 
-      // Convert to screen coordinates (mirrored)
       const screenX = (1 - palmCenter.x) * window.innerWidth;
       const screenY = palmCenter.y * window.innerHeight;
 
-      // Apply smoothing
-      this.smoothedPosition.x +=
-        (screenX - this.smoothedPosition.x) * this.smoothingFactor;
-      this.smoothedPosition.y +=
-        (screenY - this.smoothedPosition.y) * this.smoothingFactor;
+      // Snap directly when transitioning from IDLE or first detection so cursor doesn't fly from (0,0)
+      if (this.currentState === "IDLE" || !this.hasPositioned) {
+        this.smoothedPosition.x = screenX;
+        this.smoothedPosition.y = screenY;
+        this.hasPositioned = true;
+      } else {
+        this.smoothedPosition.x +=
+          (screenX - this.smoothedPosition.x) * this.smoothingFactor;
+        this.smoothedPosition.y +=
+          (screenY - this.smoothedPosition.y) * this.smoothingFactor;
+      }
 
       this.handPosition = { ...this.smoothedPosition };
 
-      // Detect hand state
       const newState = this.detectHandState(landmarks);
-
-      // Apply debouncing
       const now = Date.now();
       if (newState !== this.currentState) {
-        if (now - this.stateChangeTime > this.STATE_DEBOUNCE_MS) {
+        if (this.currentState === "IDLE" || now - this.stateChangeTime > this.STATE_DEBOUNCE_MS) {
           this.previousState = this.currentState;
           this.currentState = newState;
           this.stateChangeTime = now;
@@ -302,142 +313,101 @@ class HandTracker {
         }
       }
 
-      // Call update callback
       if (this.onHandUpdate) {
         this.onHandUpdate({
           position: this.handPosition,
           state: this.currentState,
-          landmarks: landmarks,
+          landmarks,
+          detected: true,
         });
       }
 
-      // Debug drawing
-      if (this.canvasCtx && this.debugMode) {
+      if (this.canvasCtx && this.debugMode && this.canvasElement) {
         this.drawHandLandmarks(landmarks);
       }
     } else {
-      // No hand detected
+      // No hand detected — immediately notify Phaser scenes so cursor hides
       if (this.currentState !== "IDLE") {
         this.previousState = this.currentState;
         this.currentState = "IDLE";
+        this.stateChangeTime = Date.now();
 
         if (this.onStateChange) {
           this.onStateChange("IDLE", this.previousState);
         }
       }
-    }
 
-    if (this.canvasCtx && this.debugMode) {
-      this.canvasCtx.restore();
+      if (this.onHandUpdate) {
+        this.onHandUpdate({
+          position: this.handPosition,
+          state: "IDLE",
+          detected: false,
+        });
+      }
     }
   }
 
   /**
-   * Detect if the hand is open, closed (fist), or idle
-   * @param {Array} landmarks - The 21 hand keypoints from MediaPipe
-   * @returns {String} 'FIST' | 'OPEN' | 'IDLE'
+   * Scale-invariant palm-normalized extension ratio: avg(dist(tip, wrist)) / avg(dist(mcp, wrist))
+   * Works reliably both when fingers curl to palm center (~1.05) and when tucked toward wrist (<1.0).
+   * @param {Array} landmarks - 21 hand landmarks
+   * @returns {String} 'FIST' | 'OPEN'
    */
   detectHandState(landmarks) {
-    // Key landmark indices:
-    // 0: Wrist
-    // 4: Thumb tip
-    // 8: Index finger tip
-    // 12: Middle finger tip
-    // 16: Ring finger tip
-    // 20: Pinky tip
-    // 5, 9, 13, 17: Finger bases (MCP joints)
-
     const wrist = landmarks[0];
-    const fingerTips = [
-      landmarks[8],
-      landmarks[12],
-      landmarks[16],
-      landmarks[20],
-    ];
-    const fingerBases = [
-      landmarks[5],
-      landmarks[9],
-      landmarks[13],
-      landmarks[17],
-    ];
+    const fingerTips = [landmarks[8], landmarks[12], landmarks[16], landmarks[20]];
+    const fingerBases = [landmarks[5], landmarks[9], landmarks[13], landmarks[17]];
 
-    // Calculate average distance from fingertips to palm center
-    let totalDistance = 0;
-    let totalBaseDistance = 0;
+    let totalTipWristDist = 0;
+    let totalMcpWristDist = 0;
 
     for (let i = 0; i < fingerTips.length; i++) {
       const tip = fingerTips[i];
       const base = fingerBases[i];
 
-      // Distance from tip to base (finger curl measurement)
-      const dx = tip.x - base.x;
-      const dy = tip.y - base.y;
-      const dz = tip.z - base.z;
+      const dx = tip.x - wrist.x;
+      const dy = tip.y - wrist.y;
+      const dz = (tip.z || 0) - (wrist.z || 0);
+      totalTipWristDist += Math.sqrt(dx * dx + dy * dy + dz * dz);
 
-      totalDistance += Math.sqrt(dx * dx + dy * dy + dz * dz);
-
-      // Distance from base to wrist (for normalization)
       const bdx = base.x - wrist.x;
       const bdy = base.y - wrist.y;
-      const bdz = base.z - wrist.z;
-
-      totalBaseDistance += Math.sqrt(bdx * bdx + bdy * bdy + bdz * bdz);
+      const bdz = (base.z || 0) - (wrist.z || 0);
+      totalMcpWristDist += Math.sqrt(bdx * bdx + bdy * bdy + bdz * bdz);
     }
 
-    const avgTipDistance = totalDistance / fingerTips.length;
-    const avgBaseDistance = totalBaseDistance / fingerBases.length;
+    const avgTipWrist = totalTipWristDist / fingerTips.length;
+    const avgMcpWrist = Math.max(totalMcpWristDist / fingerBases.length, 0.001);
+    const extensionRatio = avgTipWrist / avgMcpWrist;
 
-    // Normalize by hand size
-    const normalizedDistance = avgTipDistance / avgBaseDistance;
-
-    // Determine state based on normalized finger extension
-    if (normalizedDistance < 0.5) {
+    if (extensionRatio < this.FIST_RATIO_THRESHOLD) {
       return "FIST";
-    } else if (normalizedDistance > 0.8) {
+    } else if (extensionRatio > this.OPEN_RATIO_THRESHOLD) {
       return "OPEN";
     } else {
-      // In between - return previous stable state
       return this.currentState !== "IDLE" ? this.currentState : "OPEN";
     }
   }
 
   /**
-   * Draw hand landmarks for debugging
+   * Draw hand landmarks on PiP skeleton canvas
    * @param {Array} landmarks - Hand landmarks
    */
   drawHandLandmarks(landmarks) {
     const connections = [
-      [0, 1],
-      [1, 2],
-      [2, 3],
-      [3, 4], // Thumb
-      [0, 5],
-      [5, 6],
-      [6, 7],
-      [7, 8], // Index
-      [0, 9],
-      [9, 10],
-      [10, 11],
-      [11, 12], // Middle
-      [0, 13],
-      [13, 14],
-      [14, 15],
-      [15, 16], // Ring
-      [0, 17],
-      [17, 18],
-      [18, 19],
-      [19, 20], // Pinky
-      [5, 9],
-      [9, 13],
-      [13, 17], // Palm
+      [0, 1], [1, 2], [2, 3], [3, 4],
+      [0, 5], [5, 6], [6, 7], [7, 8],
+      [0, 9], [9, 10], [10, 11], [11, 12],
+      [0, 13], [13, 14], [14, 15], [15, 16],
+      [0, 17], [17, 18], [18, 19], [19, 20],
+      [5, 9], [9, 13], [13, 17],
     ];
 
     const w = this.canvasElement.width;
     const h = this.canvasElement.height;
 
-    // Draw connections
     this.canvasCtx.strokeStyle = "#00f3ff";
-    this.canvasCtx.lineWidth = 2;
+    this.canvasCtx.lineWidth = 2.5;
 
     for (const [start, end] of connections) {
       this.canvasCtx.beginPath();
@@ -446,58 +416,36 @@ class HandTracker {
       this.canvasCtx.stroke();
     }
 
-    // Draw landmarks
     for (let i = 0; i < landmarks.length; i++) {
       const lm = landmarks[i];
       this.canvasCtx.beginPath();
-      this.canvasCtx.arc(lm.x * w, lm.y * h, 5, 0, 2 * Math.PI);
-      this.canvasCtx.fillStyle = i === 9 ? "#ff00ff" : "#00ff88";
+      this.canvasCtx.arc(lm.x * w, lm.y * h, i === 9 ? 5 : 3.5, 0, 2 * Math.PI);
+      this.canvasCtx.fillStyle = i === 9 ? "#ffe156" : "#00ff88";
       this.canvasCtx.fill();
     }
   }
 
-  /**
-   * Enable or disable debug mode
-   * @param {Boolean} enabled - Debug mode state
-   */
   setDebugMode(enabled) {
     this.debugMode = enabled;
   }
 
-  /**
-   * Get current hand state
-   * @returns {String} Current state
-   */
   getState() {
     return this.currentState;
   }
 
-  /**
-   * Get current hand position
-   * @returns {Object} Position {x, y}
-   */
   getPosition() {
     return { ...this.handPosition };
   }
 
-  /**
-   * Check if hand is grabbing (fist)
-   * @returns {Boolean}
-   */
   isGrabbing() {
     return this.currentState === "FIST";
   }
 
-  /**
-   * Check if hand is open
-   * @returns {Boolean}
-   */
   isOpen() {
     return this.currentState === "OPEN";
   }
 }
 
-// Export for module usage
 if (typeof module !== "undefined" && module.exports) {
   module.exports = HandTracker;
 }

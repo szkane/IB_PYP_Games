@@ -3,8 +3,16 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Angle Finder 3D - Geometric Angles Inspector</title>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
   <style>
     :root {
       --bg: #1E1E2E;
@@ -16,30 +24,37 @@
       --blue: #38B6FF;
       --purple: #B388FF;
       --white: #FFFFFF;
-      --border: 3.5px solid var(--ink);
+      --border: 3px solid var(--ink);
       --shadow: 4px 4px 0 var(--ink);
       --shadow-sm: 2px 2px 0 var(--ink);
       --radius: 14px;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      overscroll-behavior: none;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-text-size-adjust: 100%;
     }
 
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: ui-rounded, "SF Pro Rounded", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: var(--bg);
       color: #F3F4F6;
-      min-height: 100vh; min-height: 100dvh;
-      padding: 10px 14px 16px;
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding: max(10px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
       overflow-x: hidden;
     }
 
+    button, a, input { touch-action: manipulation; font-family: inherit; }
+
     .container {
-      max-width: 1320px;
+      max-width: 1360px;
       margin: 0 auto;
+      container-type: inline-size;
+      container-name: finder;
     }
 
     /* Top Nav */
@@ -51,610 +66,267 @@
       margin-bottom: 10px;
       flex-wrap: wrap;
     }
+    .nav-left, .nav-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
     .pyp-map-link {
-      display: inline-flex;
-      align-items: center;
-      background: var(--yellow);
-      color: var(--ink);
-      text-decoration: none;
-      font-weight: 900;
-      font-size: 0.95rem;
-      border: var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 8px 16px;
-      min-height: 44px;
-      cursor: pointer;
-      transition: transform 0.1s ease;
-    }
-
-    .pyp-map-link:active,
-    .pyp-map-link:hover {
-      transform: translate(2px, 2px);
-      box-shadow: var(--shadow-sm);
+      display: inline-flex; align-items: center; background: var(--yellow); color: var(--ink);
+      text-decoration: none; font-weight: 900; font-size: 0.9rem; border: var(--border);
+      border-radius: 12px; box-shadow: var(--shadow-sm); padding: 8px 14px; min-height: 44px; cursor: pointer;
     }
 
     .unit-tag {
-      background: var(--teal);
-      color: var(--ink);
-      border: var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 8px 14px;
-      font-weight: 800;
-      font-size: 0.88rem;
-      min-height: 44px;
-      display: inline-flex;
-      align-items: center;
+      background: var(--teal); color: var(--ink); border: var(--border); border-radius: 12px;
+      box-shadow: var(--shadow-sm); padding: 8px 12px; font-weight: 900; font-size: 0.86rem;
+      min-height: 44px; display: inline-flex; align-items: center;
+    }
+
+    .btn-reflect-pill {
+      display: inline-flex; align-items: center; gap: 6px; background: #86EFAC; color: var(--ink);
+      border: var(--border); border-radius: 12px; box-shadow: var(--shadow-sm); padding: 8px 14px;
+      font-weight: 900; font-size: 0.86rem; min-height: 44px; cursor: pointer;
     }
 
     /* Hero Header */
     .hero-card {
-      background: #2E2E44;
-      border: var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 10px 16px;
-      margin-bottom: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
+      background: #2E2E44; border: var(--border); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 10px 16px; margin-bottom: 10px;
+      display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;
     }
-
-    .hero-title h1 {
-      font-size: clamp(1.15rem, 2.2vw, 1.45rem);
-      font-weight: 900;
-      color: var(--yellow);
-    }
-
-    .hero-title p {
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: #CBD5E1;
-    }
+    .hero-title h1 { font-size: clamp(1.15rem, 2.2vw, 1.45rem); font-weight: 900; color: var(--yellow); }
+    .hero-title p { font-size: 0.84rem; font-weight: 700; color: #CBD5E1; }
 
     .mode-switch {
-      display: inline-flex;
-      gap: 6px;
-      background: #1C1C2A;
-      border: 2.5px solid var(--ink);
-      border-radius: 10px;
-      padding: 4px;
-      box-shadow: var(--shadow-sm);
+      display: inline-flex; gap: 6px; background: #1C1C2A; border: 2.5px solid var(--ink);
+      border-radius: 12px; padding: 4px; box-shadow: var(--shadow-sm);
     }
-
     .mode-pill {
-      font-family: inherit;
-      background: transparent;
-      color: #E5E7EB;
-      border: 2px solid transparent;
-      border-radius: 7px;
-      padding: 6px 12px;
-      font-size: 0.84rem;
-      font-weight: 900;
-      min-height: 38px;
-      cursor: pointer;
-      transition: all 0.1s ease;
+      background: transparent; color: #E5E7EB; border: 2px solid transparent; border-radius: 8px;
+      padding: 6px 14px; font-size: 0.86rem; font-weight: 900; min-height: 44px; cursor: pointer;
     }
-
     .mode-pill.active {
-      background: var(--teal);
-      color: var(--ink);
-      border-color: var(--ink);
-      box-shadow: 2px 2px 0 var(--ink);
+      background: var(--teal); color: var(--ink); border-color: var(--ink); box-shadow: 2px 2px 0 var(--ink);
     }
 
-    /* 3-Column Studio Layout: Left Selector, Center 3D Stage, Right Attributes */
+    /* 3-Column Studio Layout */
     .studio-grid {
       display: grid;
-      grid-template-columns: 225px 1fr 330px;
+      grid-template-columns: 235px 1fr 355px;
       gap: 12px;
       align-items: stretch;
     }
 
     .panel-card {
-      background: var(--card-bg);
-      border: var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 11px 12px;
-      display: flex;
-      flex-direction: column;
+      background: var(--card-bg); border: var(--border); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 12px; display: flex; flex-direction: column; gap: 8px;
     }
 
     .panel-title {
-      font-size: 0.84rem;
-      font-weight: 900;
-      color: var(--teal);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      font-size: 0.82rem; font-weight: 900; color: var(--teal); text-transform: uppercase;
+      letter-spacing: 0.5px; display: flex; align-items: center; justify-content: space-between; gap: 6px;
     }
 
-    /* Left Shape Selection List */
-    .shape-list {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
+    .shape-list { display: flex; flex-direction: column; gap: 6px; }
     .shape-btn {
-      font-family: inherit;
-      background: #1C1C2A;
-      color: #E5E7EB;
-      border: 2px solid #4B5563;
-      border-radius: 10px;
-      padding: 7px 10px;
-      font-size: 0.84rem;
-      font-weight: 800;
-      min-height: 44px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      text-align: left;
-      transition: all 0.1s ease;
+      background: #1C1C2A; color: #E5E7EB; border: 2px solid #4B5563; border-radius: 10px;
+      padding: 7px 10px; font-size: 0.84rem; font-weight: 800; min-height: 46px; cursor: pointer;
+      display: flex; align-items: center; justify-content: space-between; gap: 6px; text-align: left;
     }
-
-    .shape-btn:hover {
-      background: #2D2D44;
-    }
-
     .shape-btn.active {
-      background: var(--yellow);
-      color: var(--ink);
-      border-color: var(--ink);
-      box-shadow: 2px 2px 0 var(--ink);
-      transform: translate(1px, 1px);
+      background: var(--yellow); color: var(--ink); border-color: var(--ink); box-shadow: 2px 2px 0 var(--ink);
     }
+    .shape-check { font-size: 0.88rem; }
 
     /* Center 3D Stage */
     .stage-wrapper {
-      background: #0E0E18;
-      border: var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      min-height: 430px;
-      height: clamp(430px, 64dvh, 570px);
-      position: relative;
-      overflow: hidden;
+      background: #0E0E18; border: var(--border); border-radius: var(--radius);
+      box-shadow: var(--shadow); min-height: 430px; height: clamp(430px, 64dvh, 570px);
+      position: relative; overflow: hidden;
     }
-
-    #angleCanvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-      touch-action: none;
-    }
+    #angleCanvas { width: 100%; height: 100%; display: block; touch-action: none; }
 
     .stage-hud {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      pointer-events: none;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
+      position: absolute; top: 10px; left: 10px; pointer-events: none;
+      display: flex; flex-direction: column; gap: 4px;
     }
-
     .hud-pill {
-      background: rgba(17, 17, 24, 0.85);
-      border: 2px solid #374151;
-      border-radius: 6px;
-      padding: 4px 10px;
-      font-size: 0.75rem;
-      font-weight: 800;
-      color: var(--yellow);
+      background: rgba(17, 17, 24, 0.88); border: 2px solid #374151; border-radius: 8px;
+      padding: 4px 10px; font-size: 0.76rem; font-weight: 800; color: var(--yellow);
     }
 
-    /* Floating Toolbar */
     .stage-toolbar {
-      position: absolute;
-      bottom: 12px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      justify-content: center;
-      background: rgba(17, 17, 26, 0.88);
-      padding: 6px 10px;
-      border-radius: 10px;
-      border: 2px solid #3F3F56;
-      box-shadow: var(--shadow-sm);
+      position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 6px; flex-wrap: wrap; justify-content: center;
+      background: rgba(17, 17, 26, 0.9); padding: 6px 8px; border-radius: 12px;
+      border: 2px solid #3F3F56; max-width: 96%;
     }
-
     .tool-btn {
-      font-family: inherit;
-      background: #2D2D42;
-      color: #FFFFFF;
-      border: 2px solid #4B5563;
-      border-radius: 6px;
-      padding: 6px 12px;
-      font-size: 0.82rem;
-      font-weight: 800;
-      min-height: 44px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.1s ease;
+      background: #2D2D42; color: #FFFFFF; border: 2px solid #4B5563; border-radius: 8px;
+      padding: 6px 10px; font-size: 0.8rem; font-weight: 800; min-height: 44px;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
     }
+    .tool-btn.active { background: var(--teal); color: var(--ink); border-color: var(--ink); }
 
-    .tool-btn:hover {
-      background: #3F3F5C;
+    /* Hinge Slider Box (Explore Mode) */
+    .hinge-box {
+      background: #1C1C2A; border: 2px solid #38B6FF; border-radius: 10px; padding: 9px 10px;
     }
-
-    .tool-btn.active {
-      background: var(--teal);
-      color: var(--ink);
-      border-color: var(--ink);
+    .hinge-box label {
+      display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 900;
+      color: var(--yellow); margin-bottom: 4px;
     }
+    .hinge-box input[type="range"] { width: 100%; min-height: 36px; accent-color: var(--yellow); cursor: pointer; }
 
-    /* Angle Self-Quiz Challenge Box */
-    .quiz-card {
-      background: #1C1C2A;
-      border: 2px solid #3F3F56;
-      border-radius: 10px;
-      padding: 9px 10px;
-      margin-bottom: 8px;
+    /* Attributes & Quiz */
+    .attribute-box, .quiz-card {
+      background: #1C1C2A; border: 2px solid #3F3F56; border-radius: 10px; padding: 9px 10px;
     }
-
-    .quiz-title {
-      font-size: 0.8rem;
-      font-weight: 900;
-      color: var(--yellow);
-      margin-bottom: 4px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .quiz-btns {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
-      margin-bottom: 6px;
-    }
-
-    .quiz-btn {
-      font-family: inherit;
-      background: #2D2D40;
-      color: #E5E7EB;
-      border: 1.5px solid #4B5563;
-      border-radius: 6px;
-      padding: 5px;
-      font-size: 0.76rem;
-      font-weight: 800;
-      min-height: 40px;
-      cursor: pointer;
-      text-align: center;
-    }
-
-    .quiz-btn:active {
-      transform: translate(1px, 1px);
-    }
-
-    .quiz-feedback {
-      font-size: 0.78rem;
-      font-weight: 800;
-      min-height: 20px;
-      line-height: 1.25;
-    }
-
-    /* Right Attributes Panel */
-    .attribute-box {
-      background: #1C1C2A;
-      border: 2px solid #3F3F56;
-      border-radius: 10px;
-      padding: 9px 10px;
-      margin-bottom: 8px;
-    }
-
     .attr-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.81rem;
-      font-weight: 800;
-      margin-bottom: 4px;
-      gap: 6px;
+      display: flex; justify-content: space-between; font-size: 0.81rem; font-weight: 800;
+      margin-bottom: 4px; gap: 6px;
     }
     .attr-row:last-child { margin-bottom: 0; }
+    .attr-row span:last-child { color: var(--teal); text-align: right; }
 
-    .attr-row span:last-child {
-      color: var(--teal);
-      text-align: right;
-    }
-
-    /* Angle Types Visual Keys (compact 2x2 grid for zero vertical scroll) */
     .angle-types-list {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
-      margin-bottom: 8px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
     }
-
     .angle-card {
-      border: 2px solid #3F3F56;
-      border-radius: 8px;
-      padding: 6px 7px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.74rem;
-      font-weight: 800;
-      line-height: 1.2;
+      border: 2px solid #3F3F56; border-radius: 8px; padding: 6px 8px;
+      display: flex; align-items: center; gap: 7px; font-size: 0.74rem; font-weight: 800; line-height: 1.2;
       transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
     }
-
     .angle-card.right { border-color: #38B6FF; background: rgba(56, 182, 255, 0.12); }
     .angle-card.acute { border-color: #4ECDC4; background: rgba(78, 205, 196, 0.12); }
     .angle-card.obtuse { border-color: #FFE156; background: rgba(255, 225, 86, 0.12); }
     .angle-card.straight { border-color: #FF6584; background: rgba(255, 101, 132, 0.12); }
 
-    .angle-badge {
-      font-size: 1.05rem;
-      flex-shrink: 0;
+    .quiz-title {
+      font-size: 0.82rem; font-weight: 900; color: var(--yellow); margin-bottom: 6px;
+      text-transform: uppercase; display: flex; justify-content: space-between; align-items: center;
     }
+    .quiz-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px; }
+    .quiz-btn {
+      background: #2D2D40; color: #E5E7EB; border: 2px solid #4B5563; border-radius: 8px;
+      padding: 6px; font-size: 0.8rem; font-weight: 900; min-height: 44px; cursor: pointer; text-align: center;
+    }
+    .quiz-feedback { font-size: 0.82rem; font-weight: 800; min-height: 24px; line-height: 1.3; }
 
     .inquiry-memo {
-      background: #11111A;
-      border-left: 4px solid var(--yellow);
-      padding: 7px 10px;
-      border-radius: 0 8px 8px 0;
-      font-size: 0.78rem;
-      line-height: 1.3;
-      color: #E5E7EB;
-      margin-top: auto;
+      background: #11111A; border-left: 4px solid var(--yellow); padding: 8px 10px;
+      border-radius: 0 8px 8px 0; font-size: 0.8rem; line-height: 1.35; color: #E5E7EB; margin-top: auto;
     }
 
-    .btn-reflect-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: #DCFCE7;
-      color: var(--ink);
-      border: var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 8px 14px;
-      font-family: inherit;
-      font-weight: 900;
-      font-size: 0.88rem;
-      min-height: 44px;
-      cursor: pointer;
-      transition: transform 0.1s ease;
+    .btn-speaker {
+      display: inline-flex; align-items: center; justify-content: center;
+      background: #FEF08A; color: var(--ink); border: 2px solid var(--ink);
+      box-shadow: 2px 2px 0 var(--ink); border-radius: 10px;
+      min-width: 44px; min-height: 44px; cursor: pointer; font-size: 1rem; flex-shrink: 0;
     }
-    .btn-reflect-pill:active { transform: translate(2px, 2px); box-shadow: var(--shadow-sm); }
+    .btn-speaker.speaking { background: #86EFAC; animation: ttsPulse 0.7s infinite alternate; }
+    @keyframes ttsPulse { from { transform: scale(1); } to { transform: scale(1.08); } }
 
+    /* Unified TTS Dropdown */
+    .tts-dropdown-wrap { position: relative; display: inline-block; user-select: none; }
+    .tts-trigger {
+      display: inline-flex; align-items: center; gap: 6px; background: #FFF;
+      border: var(--border); border-radius: 12px; box-shadow: var(--shadow-sm);
+      padding: 6px 12px; font-size: 0.85rem; font-weight: 800; color: var(--ink);
+      cursor: pointer; min-height: 44px;
+    }
+    .tts-arrow { font-size: 0.75rem; transition: transform 0.15s ease; }
+    .tts-dropdown-wrap.open .tts-arrow { transform: rotate(180deg); }
+    .tts-menu {
+      display: none; position: absolute; top: calc(100% + 6px); right: 0;
+      min-width: 260px; max-width: 320px; max-height: 290px; overflow-y: auto;
+      background: #FFF; border: 3px solid var(--ink); border-radius: 12px;
+      box-shadow: var(--shadow); padding: 6px; z-index: 1000; flex-direction: column; gap: 3px;
+    }
+    .tts-dropdown-wrap.open .tts-menu { display: flex; }
+    .tts-menu-header {
+      font-size: 0.72rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.6px;
+      color: #6B7280; padding: 4px 8px 6px; border-bottom: 2px solid #E5E7EB; margin-bottom: 3px;
+    }
+    .tts-radio-group { display: flex; flex-direction: column; gap: 3px; }
+    .tts-radio-item {
+      display: flex; align-items: center; gap: 8px; padding: 7px 10px;
+      border: 2px solid transparent; border-radius: 8px; background: transparent;
+      cursor: pointer; font-size: 0.82rem; font-weight: 700; color: var(--ink);
+      text-align: left; width: 100%; min-height: 44px;
+    }
+    .tts-radio-item.active { background: #E0F2FE; border-color: var(--ink); font-weight: 800; }
+    .tts-radio-circle {
+      width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--ink);
+      display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; background: #FFF;
+    }
+    .tts-radio-item.active .tts-radio-circle::after {
+      content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--ink);
+    }
+    .tts-item-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+
+    /* Modal */
     .pyp-modal-backdrop {
       position: fixed; inset: 0; z-index: 2000; background: rgba(15, 23, 42, 0.72);
       backdrop-filter: blur(6px); display: none; place-items: center; padding: 16px;
     }
     .pyp-modal-backdrop.open { display: grid; }
     .pyp-modal-card {
-      width: min(540px, 100%); background: #FFFDF0; color: #111111; border: 4px solid #111111;
-      border-radius: 20px; box-shadow: 8px 8px 0 #111111; padding: 20px 22px; display: grid; gap: 12px;
+      width: min(540px, 100%); background: #FFFDF0; color: var(--ink); border: 4px solid var(--ink);
+      border-radius: 20px; box-shadow: 8px 8px 0 var(--ink); padding: 20px 22px; display: grid; gap: 12px;
     }
     .pyp-modal-badge {
       display: inline-flex; align-items: center; gap: 8px; width: fit-content; padding: 6px 14px;
-      background: #FFE156; border: 3px solid #111111; border-radius: 999px; font-weight: 900; font-size: 0.88rem;
+      background: var(--yellow); border: 3px solid var(--ink); border-radius: 999px; font-weight: 900; font-size: 0.88rem;
     }
     .pyp-modal-box {
-      background: #FFFFFF; border: 2.5px solid #111111; border-radius: 12px; padding: 10px 14px;
-      font-size: 0.9rem; line-height: 1.45; font-weight: 700; color: #111111;
+      background: #FFFFFF; border: 2.5px solid var(--ink); border-radius: 12px; padding: 10px 14px;
+      font-size: 0.9rem; line-height: 1.45; font-weight: 700; color: var(--ink);
     }
     .pyp-modal-box strong { display: block; font-size: 0.76rem; text-transform: uppercase; color: #0F766E; margin-bottom: 3px; }
-    .pyp-modal-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+    .pyp-modal-actions { display: flex; gap: 10px; flex-wrap: wrap; }
     .pyp-modal-btn {
-      flex: 1; min-height: 46px; padding: 10px 14px; border: 3px solid #111111; border-radius: 12px;
-      box-shadow: 3px 3px 0 #111111; font: inherit; font-weight: 900; cursor: pointer; text-decoration: none;
-      display: inline-flex; align-items: center; justify-content: center; color: #111111; background: #FFFFFF;
+      flex: 1; min-width: 140px; min-height: 46px; padding: 10px 14px; border: 3px solid var(--ink); border-radius: 12px;
+      box-shadow: 3px 3px 0 var(--ink); font-weight: 900; cursor: pointer; text-decoration: none;
+      display: inline-flex; align-items: center; justify-content: center; color: var(--ink); background: #FFFFFF;
     }
     .pyp-modal-btn.primary { background: #86EFAC; }
 
-    /* Neobrutalism TTS Radio Dropdown */
-    .tts-dropdown-wrap {
-      position: relative;
-      display: inline-block;
-      user-select: none;
-      font-family: inherit;
-    }
-    .tts-trigger {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: #FFF;
-      border: 2.5px solid var(--ink);
-      border-radius: 10px;
-      box-shadow: 3px 3px 0 var(--ink);
-      padding: 6px 12px;
-      font-family: inherit;
-      font-size: 0.85rem;
-      font-weight: 800;
-      color: var(--ink);
-      cursor: pointer;
-      min-height: 38px;
-      transition: transform 0.1s, box-shadow 0.1s;
-    }
-    .tts-trigger:hover {
-      background: #FEF08A;
-      transform: translate(-1px, -1px);
-      box-shadow: 4px 4px 0 var(--ink);
-    }
-    .tts-trigger:active {
-      transform: translate(2px, 2px);
-      box-shadow: 1px 1px 0 var(--ink);
-    }
-    .tts-arrow {
-      font-size: 0.75rem;
-      transition: transform 0.15s ease;
-    }
-    .tts-dropdown-wrap.open .tts-arrow {
-      transform: rotate(180deg);
-    }
-    .tts-menu {
-      display: none;
-      position: absolute;
-      top: calc(100% + 6px);
-      right: 0;
-      min-width: 250px;
-      max-width: 320px;
-      max-height: 290px;
-      overflow-y: auto;
-      background: #FFF;
-      border: 3px solid var(--ink);
-      border-radius: 12px;
-      box-shadow: 4px 4px 0 var(--ink);
-      padding: 6px;
-      z-index: 1000;
-      flex-direction: column;
-      gap: 3px;
-    }
-    .tts-dropdown-wrap.open .tts-menu {
-      display: flex;
-    }
-    .tts-menu-header {
-      font-size: 0.72rem;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      color: #6B7280;
-      padding: 4px 8px 6px;
-      border-bottom: 2px solid #E5E7EB;
-      margin-bottom: 3px;
-    }
-    .tts-radio-group {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-    .tts-radio-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 7px 10px;
-      border: 2px solid transparent;
-      border-radius: 8px;
-      background: transparent;
-      cursor: pointer;
-      font-family: inherit;
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--ink);
-      text-align: left;
-      width: 100%;
-      transition: background 0.1s, border-color 0.1s;
-    }
-    .tts-radio-item:hover {
-      background: #FEF9C3;
-      border-color: var(--ink);
-    }
-    .tts-radio-item.active {
-      background: #E0F2FE;
-      border-color: var(--ink);
-      font-weight: 800;
-    }
-    .tts-radio-circle {
-      width: 15px;
-      height: 15px;
-      border-radius: 50%;
-      border: 2px solid var(--ink);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      background: #FFF;
-    }
-    .tts-radio-item.active .tts-radio-circle::after {
-      content: '';
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--ink);
-    }
-    .tts-item-flag {
-      font-size: 1rem;
-    }
-    .tts-item-name {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      flex: 1;
+    .hidden { display: none !important; }
+
+    @media (hover: hover) and (pointer: fine) {
+      .pyp-map-link:hover, .btn-reflect-pill:hover, .mode-pill:hover, .shape-btn:hover,
+      .tool-btn:hover, .quiz-btn:hover, .tts-trigger:hover, .btn-speaker:hover {
+        transform: translate(-1px, -1px);
+      }
+      .tts-radio-item:hover { background: #FEF9C3; border-color: var(--ink); }
     }
 
-    .btn-speaker {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: #FEF08A;
-      border: 2px solid var(--ink);
-      box-shadow: 2px 2px 0 var(--ink);
-      border-radius: 8px;
-      width: 34px;
-      height: 34px;
-      cursor: pointer;
-      font-size: 1rem;
-      line-height: 1;
-      flex-shrink: 0;
-      transition: transform 0.1s, box-shadow 0.1s, background-color 0.1s;
+    @container finder (max-width: 980px) {
+      .studio-grid { grid-template-columns: 1fr; }
+      .shape-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+      .stage-wrapper { min-height: 360px; height: 380px; }
     }
-    .btn-speaker:hover {
-      background: #FDE047;
-      transform: translate(-1px, -1px);
-      box-shadow: 3px 3px 0 var(--ink);
-    }
-    .btn-speaker:active {
-      transform: translate(2px, 2px);
-      box-shadow: 0 0 0 var(--ink);
-    }
-    .btn-speaker.speaking {
-      background: #86EFAC;
-      animation: ttsPulse 0.7s infinite alternate;
-    }
-    @keyframes ttsPulse {
-      from { transform: scale(1); }
-      to { transform: scale(1.1); }
-    }
-
-    @media (max-width: 820px) {
-      .studio-grid {
-        grid-template-columns: 1fr;
-      }
-      .stage-wrapper {
-        min-height: 360px;
-      }
-    }
-  
-    html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
   </style>
 </head>
 
 <body>
   <div class="container">
     <nav class="nav-bar">
-      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+      <div class="nav-left">
         <a class="pyp-map-link" href="../index.html">← PYP Map</a>
         <span class="unit-tag">📐 Grade 2 · Unit 2: 3D Angle Finder</span>
-        <button type="button" class="btn-reflect-pill" id="btnOpenReflect">💡 Reflect &amp; Stamp</button>
+        <button type="button" class="btn-reflect-pill" id="btnOpenReflect">🏅 Reflect &amp; Stamp</button>
       </div>
-      <div class="tts-dropdown-wrap" id="ttsDropdownWrap">
-        <button type="button" class="tts-trigger" id="ttsTrigger" aria-haspopup="menu" aria-expanded="false" title="Select Voice Accent">
-          <span class="tts-trigger-flag" id="ttsFlag">🇬🇧</span>
-          <span class="tts-trigger-label" id="ttsLabel">Voice</span>
-          <span class="tts-arrow">▾</span>
-        </button>
-        <div class="tts-menu" id="ttsMenu" role="menu">
-          <div class="tts-menu-header">Select Voice Accent</div>
-          <div class="tts-radio-group" id="ttsRadioList" role="radiogroup"></div>
+      <div class="nav-right">
+        <div class="tts-dropdown-wrap" id="ttsDropdownWrap">
+          <button type="button" class="tts-trigger" id="ttsTrigger" aria-haspopup="menu" aria-expanded="false" title="Select Voice Accent">
+            <span id="ttsFlag">🇬🇧</span>
+            <span id="ttsLabel">Voice</span>
+            <span class="tts-arrow">▾</span>
+          </button>
+          <div class="tts-menu" id="ttsMenu" role="menu">
+            <div class="tts-menu-header">Select Voice Accent</div>
+            <div class="tts-radio-group" id="ttsRadioList" role="radiogroup"></div>
+          </div>
         </div>
       </div>
     </nav>
@@ -662,135 +334,111 @@
     <header class="hero-card">
       <div class="hero-title">
         <h1>Angle Finder 3D 📐</h1>
-        <p>Inspect Right, Acute, Obtuse, and Straight angles on geometric and real-world 3D objects.</p>
+        <p>Inspect Right, Acute, Obtuse, and Straight angles on 3D shapes and real-world objects!</p>
       </div>
-      <div class="mode-switch" role="group" aria-label="Study or Quiz Mode">
-        <button type="button" class="mode-pill active" id="btnModeExplore" data-appmode="explore">🔭 Explore</button>
-        <button type="button" class="mode-pill" id="btnModeQuiz" data-appmode="quiz">🕵️ Quiz Mode</button>
+      <div class="mode-switch" role="group" aria-label="Explore or Quiz Mode">
+        <button type="button" class="mode-pill active" id="btnModeExplore" data-appmode="explore">🔭 1. Explore 3D</button>
+        <button type="button" class="mode-pill" id="btnModeQuiz" data-appmode="quiz">🕵️ 2. Angle Quiz</button>
       </div>
     </header>
 
     <main class="studio-grid">
-      <!-- Left Column: Shape & Object Selector -->
       <aside class="panel-card">
-        <div class="panel-title"><span>📦</span> Choose Shape / Object</div>
+        <div class="panel-title"><span>📦 Choose Object</span><span id="quizScoreBadge" style="color:var(--yellow);">⭐ 0 / 7</span></div>
         <div class="shape-list" id="shapeList">
-          <button class="shape-btn active" data-shape="square_prism" type="button">
-            <span>🟦</span> Square Block (Cube)
-          </button>
-          <button class="shape-btn" data-shape="wedge" type="button">
-            <span>📐</span> Triangle Wedge
-          </button>
-          <button class="shape-btn" data-shape="diamond" type="button">
-            <span>💎</span> Minecraft Diamond
-          </button>
-          <button class="shape-btn" data-shape="clock" type="button">
-            <span>🕒</span> Clock at 3:00
-          </button>
-          <button class="shape-btn" data-shape="scissors" type="button">
-            <span>✂️</span> Open Scissors
-          </button>
-          <button class="shape-btn" data-shape="book" type="button">
-            <span>📖</span> Open Book
-          </button>
-          <button class="shape-btn" data-shape="ruler" type="button">
-            <span>📏</span> Flat Ruler
-          </button>
+          <button class="shape-btn active" data-shape="square_prism" type="button"><span>🟦 Cube Block</span><span class="shape-check"></span></button>
+          <button class="shape-btn" data-shape="wedge" type="button"><span>📐 Triangle Wedge</span><span class="shape-check"></span></button>
+          <button class="shape-btn" data-shape="diamond" type="button"><span>💎 Crystal Diamond</span><span class="shape-check"></span></button>
+          <button class="shape-btn" data-shape="clock" type="button"><span>🕒 Wall Clock</span><span class="shape-check"></span></button>
+          <button class="shape-btn" data-shape="scissors" type="button"><span>✂️ Open Scissors</span><span class="shape-check"></span></button>
+          <button class="shape-btn" data-shape="book" type="button"><span>📖 Storybook</span><span class="shape-check"></span></button>
+          <button class="shape-btn" data-shape="ruler" type="button"><span>📏 Wooden Ruler</span><span class="shape-check"></span></button>
         </div>
       </aside>
 
-      <!-- Center Column: 3D Three.js Interactive Stage -->
       <section class="stage-wrapper">
         <canvas id="angleCanvas"></canvas>
         <div class="stage-hud">
-          <div class="hud-pill">🖐️ Drag to rotate 360° | Scroll / pinch to zoom</div>
+          <div class="hud-pill">🖐️ Drag to orbit · Tap glowing corner!</div>
           <div class="hud-pill" id="hudActiveAngle">Angle: Right Angle (90°)</div>
         </div>
-
-        <!-- 3D Stage Floating Controls -->
         <div class="stage-toolbar">
-          <button type="button" class="tool-btn" id="btnToggleSpin">⏸️ Pause Spin</button>
-          <button type="button" class="tool-btn" id="btnToggleGauge">📐 Show 90° Square Gauge</button>
+          <button type="button" class="tool-btn" id="btnToggleSpin">▶️ Auto Spin</button>
+          <button type="button" class="tool-btn" id="btnToggleGauge">📐 90° Square Gauge</button>
           <button type="button" class="tool-btn" id="btnResetView">🔄 Reset View</button>
         </div>
       </section>
 
-      <!-- Right Column: Shape Attributes & Angle Analysis -->
       <aside class="panel-card">
-        <div class="panel-title" style="display: flex; align-items: center; justify-content: space-between;">
-          <div style="display: flex; align-items: center; gap: 8px;"><span>📊</span> Shape & Angle Inspector</div>
+        <div class="panel-title">
+          <span>📊 Angle Inspector</span>
           <button type="button" class="btn-speaker" id="btnSpeakInspector" title="Read shape inspector aloud" aria-label="Read inspector aloud">🔊</button>
         </div>
 
         <div class="attribute-box">
-          <div class="attr-row">
-            <span>Object Name:</span>
-            <span id="attrName">Cube / Square Prism</span>
-          </div>
-          <div class="attr-row">
-            <span>Primary Angles:</span>
-            <span id="attrAngleType">Right Angles (90°)</span>
-          </div>
-          <div class="attr-row">
-            <span>Number of Vertices:</span>
-            <span id="attrVertices">8 Corners</span>
-          </div>
+          <div class="attr-row"><span>Object:</span><span id="attrName">Cube / Square Prism</span></div>
+          <div class="attr-row"><span>Highlighted Angle:</span><span id="attrAngleType">Right Angle (90°)</span></div>
+          <div class="attr-row"><span>Corners / Vertex:</span><span id="attrVertices">8 Corners</span></div>
         </div>
 
-        <div class="panel-title"><span>📏</span> Angle Classification</div>
+        <div class="hinge-box hidden" id="hingeSliderBox">
+          <label for="sliderHinge">
+            <span>🔧 Open / Close Hinge</span>
+            <span id="hingeDegVal">40°</span>
+          </label>
+          <input type="range" id="sliderHinge" min="20" max="165" step="5" value="40" />
+        </div>
+
+        <!-- Crisp Bespoke Inline SVG Angle Classification Keys -->
         <div class="angle-types-list">
           <div class="angle-card right" id="cardRight">
-            <span class="angle-badge">∟</span>
-            <div>
-              <strong>Right (= 90°)</strong>
-              <div style="font-size:0.68rem; color:#CBD5E1;">Square corner</div>
-            </div>
+            <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true">
+              <path d="M6 22 L6 6 M6 22 L22 22" stroke="#38B6FF" stroke-width="3" stroke-linecap="round"/>
+              <rect x="6" y="14" width="8" height="8" fill="none" stroke="#FFE156" stroke-width="2"/>
+            </svg>
+            <div><strong>Right (= 90°)</strong><div style="font-size:0.68rem; color:#CBD5E1;">Square corner</div></div>
           </div>
-
           <div class="angle-card acute" id="cardAcute">
-            <span class="angle-badge">∠</span>
-            <div>
-              <strong>Acute (&lt; 90°)</strong>
-              <div style="font-size:0.68rem; color:#CBD5E1;">Sharp &amp; narrow</div>
-            </div>
+            <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true">
+              <path d="M6 22 L19 7 M6 22 L23 22" stroke="#4ECDC4" stroke-width="3" stroke-linecap="round"/>
+              <path d="M13 22 A7 7 0 0 0 10.5 16.5" fill="none" stroke="#FFE156" stroke-width="2"/>
+            </svg>
+            <div><strong>Acute (&lt; 90°)</strong><div style="font-size:0.68rem; color:#CBD5E1;">Sharp &amp; narrow</div></div>
           </div>
-
           <div class="angle-card obtuse" id="cardObtuse">
-            <span class="angle-badge">⊿</span>
-            <div>
-              <strong>Obtuse (&gt; 90°)</strong>
-              <div style="font-size:0.68rem; color:#CBD5E1;">Wide open</div>
-            </div>
+            <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true">
+              <path d="M12 22 L4 8 M12 22 L25 22" stroke="#FFE156" stroke-width="3" stroke-linecap="round"/>
+              <path d="M18 22 A6 6 0 0 0 9 16.8" fill="none" stroke="#FF6584" stroke-width="2"/>
+            </svg>
+            <div><strong>Obtuse (&gt; 90°)</strong><div style="font-size:0.68rem; color:#CBD5E1;">Wide open</div></div>
           </div>
-
           <div class="angle-card straight" id="cardStraight">
-            <span class="angle-badge">―</span>
-            <div>
-              <strong>Straight (= 180°)</strong>
-              <div style="font-size:0.68rem; color:#CBD5E1;">Flat line</div>
-            </div>
+            <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true">
+              <path d="M3 20 L25 20" stroke="#FF6584" stroke-width="3" stroke-linecap="round"/>
+              <path d="M8 20 A6 6 0 0 1 20 20" fill="none" stroke="#FFE156" stroke-width="2"/>
+              <circle cx="14" cy="20" r="2.5" fill="#FFE156"/>
+            </svg>
+            <div><strong>Straight (= 180°)</strong><div style="font-size:0.68rem; color:#CBD5E1;">Flat line</div></div>
           </div>
         </div>
 
-        <!-- Self-Directed Learning Quiz Module -->
-        <div class="quiz-card">
+        <!-- Quiz Card (ONLY visible in Quiz Mode!) -->
+        <div class="quiz-card hidden" id="quizCard">
           <div class="quiz-title">
             <span>🕵️ Angle Detective Quiz</span>
-            <span id="quizScoreBadge" style="color:var(--teal);">⭐ 0 / 7</span>
+            <span id="quizSolvedProgress" style="color:var(--teal);">0 / 7 Solved</span>
           </div>
-          <div style="font-size:0.76rem; color:#D1D5DB; margin-bottom:6px;">What primary angle is highlighted on this model?</div>
+          <div style="font-size:0.78rem; color:#E5E7EB; margin-bottom:6px;">What angle is glowing on this 3D model?</div>
           <div class="quiz-btns" id="quizBtns">
             <button type="button" class="quiz-btn" data-type="right">Right (90°)</button>
             <button type="button" class="quiz-btn" data-type="acute">Acute (&lt;90°)</button>
             <button type="button" class="quiz-btn" data-type="obtuse">Obtuse (&gt;90°)</button>
             <button type="button" class="quiz-btn" data-type="straight">Straight (180°)</button>
           </div>
-          <div class="quiz-feedback" id="quizFeedback">Tap an angle name to test your understanding!</div>
+          <div class="quiz-feedback" id="quizFeedback">Compare with the 90° Square Gauge, then tap an answer!</div>
         </div>
 
-        <div class="inquiry-memo" id="memoInspector">
-          💡 <strong>Angle Inquiry</strong>: Every corner of a square or rectangle is exactly a <strong>Right Angle</strong> (90 degrees). Use a square sheet of paper to test if a corner matches!
-        </div>
+        <div class="inquiry-memo" id="memoInspector"></div>
       </aside>
     </main>
   </div>
@@ -801,168 +449,274 @@
       <div class="pyp-modal-badge">💡 Learner Profile Stamp: Thinker</div>
       <h2 id="pypModalTitle" style="font-size:1.35rem; font-weight:900;">🌟 IB PYP Reflection &amp; Action</h2>
       <div class="pyp-modal-box">
-        <strong>Key Concept · Form &amp; Geometry</strong>
-        <span>Every 3D object around us holds hidden angles — acute, right (90°), obtuse, and straight (180°). Rotating shapes helps us inspect corners from every side!</span>
+        <strong>Key Concepts · Form &amp; Geometry</strong>
+        <span>Every 3D object holds angles — acute (&lt;90°), right (90°), obtuse (&gt;90°), and straight (180°). Rotating shapes and opening hinges helps us compare corners!</span>
       </div>
       <div class="pyp-modal-box" style="background:#ECFDF5;">
         <strong>🚀 Take Action in Real Life</strong>
         <span>Find one right angle, one acute angle, one obtuse angle, and one straight angle in your classroom or home today!</span>
       </div>
-      <div id="pypStampStatus" style="font-weight:900; font-size:0.88rem; color:#15803D;"></div>
+      <div id="pypStampStatus" style="font-weight:900; font-size:0.88rem; color:#15803D; min-height:20px;"></div>
       <div class="pyp-modal-actions">
-        <button type="button" class="pyp-modal-btn primary" id="btnClaimStamp">💡 Stamp My Passport!</button>
+        <button type="button" class="pyp-modal-btn primary" id="btnClaimStamp">🏅 Claim Passport Stamp</button>
         <a class="pyp-modal-btn" href="../index.html">🗺️ View Passport</a>
         <button type="button" class="pyp-modal-btn" id="btnCloseReflect">Keep Exploring</button>
       </div>
     </div>
   </div>
 
-  <!-- ES Module Import for Three.js & OrbitControls -->
   <script type="module">
-    import * as THREE from 'https://esm.sh/three@0.160.0';
-    import { OrbitControls } from 'https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js';
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-    // Web Audio SoundFX Synthesizer (zero-dependency)
+    // Safe Organic Web Audio (triangle & sine only)
     class SoundFX {
       constructor() { this.ctx = null; }
       init() {
-        if (!this.ctx) {
-          const AC = window.AudioContext || window.webkitAudioContext;
-          this.ctx = new AC();
-        }
-        if (this.ctx.state === 'suspended') this.ctx.resume();
+        try {
+          if (!this.ctx) {
+            const AC = window.AudioContext || window.webkitAudioContext;
+            if (AC) this.ctx = new AC();
+          }
+          if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+        } catch (_) {}
       }
       tone(freq, start, dur, type, vol) {
-        const now = this.ctx.currentTime + start;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = type;
-        osc.frequency.setValueAtTime(freq, now);
-        gain.gain.setValueAtTime(vol, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start(now);
-        osc.stop(now + dur + 0.02);
-      }
-      playClick() { this.init(); this.tone(540, 0, 0.055, 'sine', 0.08); }
-      playCorrect() {
         this.init();
-        [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => this.tone(f, i * 0.065, 0.24, 'triangle', 0.15));
+        if (!this.ctx) return;
+        try {
+          const now = this.ctx.currentTime + start;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, now);
+          gain.gain.setValueAtTime(vol, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + dur + 0.02);
+        } catch (_) {}
       }
-      playBuzz() { this.init(); this.tone(185, 0, 0.2, 'sawtooth', 0.1); }
-      playFanfare() {
-        this.init();
-        [523.25, 659.25, 783.99, 1046.5, 1318.5].forEach((f, i) => this.tone(f, i * 0.08, 0.34, 'triangle', 0.16));
-      }
+      playClick() { this.tone(540, 0, 0.05, 'sine', 0.08); }
+      playSparkle() { this.tone(880, 0, 0.12, 'triangle', 0.11); }
+      playCorrect() { [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => this.tone(f, i * 0.065, 0.24, 'triangle', 0.15)); }
+      playBuzz() { this.tone(250, 0, 0.11, 'triangle', 0.11); this.tone(195, 0.08, 0.15, 'sine', 0.1); }
+      playFanfare() { [523.25, 659.25, 783.99, 1046.5, 1318.5].forEach((f, i) => this.tone(f, i * 0.08, 0.34, 'triangle', 0.16)); }
     }
     const sfx = new SoundFX();
 
-    // Canvas & 3D Renderer Setup
+    function launchConfetti() {
+      const cvs = document.createElement('canvas');
+      cvs.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:3000;';
+      document.body.appendChild(cvs);
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const w = window.innerWidth, h = window.innerHeight;
+      cvs.width = Math.round(w * dpr); cvs.height = Math.round(h * dpr);
+      const ctx = cvs.getContext('2d');
+      ctx.scale(dpr, dpr);
+      const colors = ['#FFE156', '#FF6584', '#4ECDC4', '#38B6FF', '#86EFAC'];
+      const pieces = Array.from({ length: 65 }, () => ({
+        x: Math.random() * w, y: -20 - Math.random() * h * 0.25,
+        vx: (Math.random() - 0.5) * 6, vy: 3 + Math.random() * 5,
+        size: 7 + Math.random() * 6, rot: Math.random() * 6, vr: (Math.random() - 0.5) * 0.2,
+        color: colors[Math.floor(Math.random() * colors.length)]
+      }));
+      let frame = 0;
+      function tick() {
+        frame++;
+        ctx.clearRect(0, 0, w, h);
+        pieces.forEach(p => {
+          p.x += p.vx; p.y += p.vy; p.vy += 0.12; p.rot += p.vr;
+          ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+          ctx.fillStyle = p.color; ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.65);
+          ctx.restore();
+        });
+        if (frame < 105) requestAnimationFrame(tick); else cvs.remove();
+      }
+      requestAnimationFrame(tick);
+    }
+
+    // Renderer & Scene
     const canvas = document.getElementById('angleCanvas');
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.05;
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x0E0E18);
 
     const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth / Math.max(canvas.clientHeight, 1), 0.1, 100);
-    camera.position.set(0, 3, 7);
+    camera.position.set(0, 2.8, 6.8);
 
     const controls = new OrbitControls(camera, canvas);
     controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
+    controls.dampingFactor = 0.06;
 
-    // Bright balanced studio lighting (Hemisphere + Key + Rim)
-    const hemiLight = new THREE.HemisphereLight(0xF0F9FF, 0x334155, 1.25);
+    const hemiLight = new THREE.HemisphereLight(0xF0F9FF, 0x334155, 1.2);
     scene.add(hemiLight);
-
-    const dirLight = new THREE.DirectionalLight(0xFFFFFF, 1.35);
-    dirLight.position.set(5, 10, 7);
+    const dirLight = new THREE.DirectionalLight(0xFFFFFF, 1.45);
+    dirLight.position.set(4, 9, 6);
+    dirLight.castShadow = true;
+    dirLight.shadow.mapSize.width = 1024;
+    dirLight.shadow.mapSize.height = 1024;
+    dirLight.shadow.bias = -0.001;
     scene.add(dirLight);
-
-    const fillLight = new THREE.DirectionalLight(0x7DD3FC, 0.85);
+    const fillLight = new THREE.DirectionalLight(0x7DD3FC, 0.75);
     fillLight.position.set(-6, 4, -5);
     scene.add(fillLight);
 
-    // Grid Floor
+    // Turntable Plinth + Grid Floor
     const grid = new THREE.GridHelper(16, 16, 0x4ECDC4, 0x2A2A3E);
-    grid.position.y = -1.5;
+    grid.position.y = -1.65;
     scene.add(grid);
 
-    // Active Mesh Container (3D angle markers attach inside modelGroup so they rotate cleanly with the solid)
+    const plinth = new THREE.Mesh(
+      new THREE.CylinderGeometry(2.3, 2.5, 0.24, 48),
+      new THREE.MeshStandardMaterial({ color: 0x28283E, roughness: 0.55, metalness: 0.15 })
+    );
+    plinth.position.y = -1.53;
+    plinth.receiveShadow = true;
+    scene.add(plinth);
+
     const modelGroup = new THREE.Group();
     scene.add(modelGroup);
 
+    // Parent 90° Square Corner Gauge inside modelGroup so it rotates cleanly with Auto Spin!
+    const gaugeGroup = new THREE.Group();
+    gaugeGroup.visible = false;
+    const gaugePlane = new THREE.Mesh(
+      new THREE.PlaneGeometry(1.1, 1.1),
+      new THREE.MeshBasicMaterial({ color: 0xFF1744, transparent: true, opacity: 0.42, side: THREE.DoubleSide })
+    );
+    const gaugeOutline = new THREE.LineSegments(
+      new THREE.EdgesGeometry(new THREE.PlaneGeometry(1.1, 1.1)),
+      new THREE.LineBasicMaterial({ color: 0xFFFFFF })
+    );
+    gaugeGroup.add(gaugePlane, gaugeOutline);
+    modelGroup.add(gaugeGroup);
+
+    // Procedural Canvas PBR Textures
+    function makeClockFaceTex() {
+      const c = document.createElement('canvas'); c.width = 512; c.height = 512;
+      const g = c.getContext('2d');
+      g.fillStyle = '#FFFFFF'; g.beginPath(); g.arc(256, 256, 250, 0, Math.PI * 2); g.fill();
+      g.strokeStyle = '#1E293B'; g.lineWidth = 10; g.stroke();
+      g.fillStyle = '#111111'; g.font = 'bold 38px system-ui'; g.textAlign = 'center'; g.textBaseline = 'middle';
+      for (let h = 1; h <= 12; h++) {
+        const a = (h / 12) * Math.PI * 2 - Math.PI / 2;
+        g.fillText(String(h), 256 + Math.cos(a) * 195, 256 + Math.sin(a) * 195);
+        g.strokeStyle = h % 3 === 0 ? '#111111' : '#94A3B8';
+        g.lineWidth = h % 3 === 0 ? 7 : 3;
+        g.beginPath();
+        g.moveTo(256 + Math.cos(a) * 230, 256 + Math.sin(a) * 230);
+        g.lineTo(256 + Math.cos(a) * 245, 256 + Math.sin(a) * 245);
+        g.stroke();
+      }
+      return new THREE.CanvasTexture(c);
+    }
+
+    function makeRulerTex() {
+      const c = document.createElement('canvas'); c.width = 512; c.height = 128;
+      const g = c.getContext('2d');
+      g.fillStyle = '#FFE156'; g.fillRect(0, 0, 512, 128);
+      g.fillStyle = '#111111'; g.font = 'bold 20px system-ui'; g.textAlign = 'center';
+      for (let cm = 0; cm <= 16; cm++) {
+        const x = 16 + (cm / 16) * 480;
+        const h = cm % 2 === 0 ? 44 : 24;
+        g.fillRect(x - 1.5, 0, 3, h);
+        if (cm % 2 === 0 && cm > 0 && cm < 16) g.fillText(`${cm}`, x, 68);
+      }
+      g.fillText('cm', 494, 68);
+      return new THREE.CanvasTexture(c);
+    }
+
+    function makeWoodTex() {
+      const c = document.createElement('canvas'); c.width = 128; c.height = 128;
+      const g = c.getContext('2d');
+      g.fillStyle = '#FACC15'; g.fillRect(0, 0, 128, 128);
+      g.fillStyle = '#EAB308';
+      for (let y = 0; y < 128; y += 12) g.fillRect(0, y, 128, 4);
+      return new THREE.CanvasTexture(c);
+    }
+
+    function makeBookPageTex() {
+      const c = document.createElement('canvas'); c.width = 256; c.height = 256;
+      const g = c.getContext('2d');
+      g.fillStyle = '#FFFDF0'; g.fillRect(0, 0, 256, 256);
+      g.fillStyle = '#94A3B8';
+      for (let y = 32; y < 220; y += 20) g.fillRect(26, y, 204, 4);
+      g.fillStyle = '#FF6584'; g.fillRect(26, 22, 120, 8);
+      return new THREE.CanvasTexture(c);
+    }
+
     const shapesInfo = {
       square_prism: {
-        name: "Square Prism (Cube)",
-        angleType: "Right Angle (90°)",
-        vertices: "8 Corners",
-        memo: "Every face of a cube meets at a sharp 90° square corner. All corners are Right Angles!",
-        activeCategory: "right"
+        name: 'Cube Block', angleType: 'Right Angle (90°)', vertices: '8 Corners',
+        memo: 'Every corner of a cube is a crisp 90° Right Angle!',
+        activeCategory: 'right', gaugePos: [0.45, 0.45, 1.05], gaugeRot: [0, 0, 0]
       },
       wedge: {
-        name: "Right Triangular Wedge",
-        angleType: "Acute (<90°) & Right (90°)",
-        vertices: "6 Corners",
-        memo: "This ramp has one 90° right angle on the floor and two sharp acute angles (<90°) at the ends!",
-        activeCategory: "acute"
+        name: 'Triangle Wedge', angleType: 'Acute Angle (~39°)', vertices: '6 Corners',
+        memo: 'Look at the glowing right tip of this ramp: the top slope and flat base meet at a sharp Acute Angle (<90°)!',
+        activeCategory: 'acute', gaugePos: [0.7, -0.45, 0.96], gaugeRot: [0, 0, 0]
       },
       diamond: {
-        name: "Minecraft Diamond Gem",
-        angleType: "Acute Angles (<90°)",
-        vertices: "6 Points",
-        memo: "The facets of a crystal diamond meet at sharp, pointed acute angles (60°).",
-        activeCategory: "acute"
+        name: 'Crystal Diamond', angleType: 'Acute Angle (60°)', vertices: '6 Points',
+        memo: 'The top crystal point narrows to a sharp 60° Acute Angle (<90°)!',
+        activeCategory: 'acute', gaugePos: [0, 1.1, 0.45], gaugeRot: [0, 0, Math.PI / 4]
       },
       clock: {
-        name: "Wall Clock at 3:00",
-        angleType: "Right Angle (90°)",
-        vertices: "Hands at 12 and 3",
-        memo: "At exactly 3 o'clock, the minute hand (12) and hour hand (3) form a perfect 90° Right Angle!",
-        activeCategory: "right"
+        name: 'Wall Clock', angleType: 'Right Angle (90°)', vertices: 'Hands at 12 & 3',
+        memo: 'At 3:00, the hands form a 90° Right Angle. Try the Hinge slider in Explore Mode to make Acute or Obtuse times!',
+        activeCategory: 'right', hingeDefault: 90, gaugePos: [0.55, 0.55, 0.24], gaugeRot: [0, 0, 0]
       },
       scissors: {
-        name: "Open Scissors",
-        angleType: "Acute Angle (<90°)",
-        vertices: "Blade Pivot Corner",
-        memo: "When scissors are slightly open, the blades form a sharp Acute Angle smaller than 90°.",
-        activeCategory: "acute"
+        name: 'Open Scissors', angleType: 'Acute Angle (40°)', vertices: 'Blade Pivot',
+        memo: 'Slightly open scissor blades form a sharp Acute Angle (<90°). Slide the hinge to open them wider!',
+        activeCategory: 'acute', hingeDefault: 40, gaugePos: [0, 0.55, 0.16], gaugeRot: [0, 0, Math.PI / 4]
       },
       book: {
-        name: "Open Storybook",
-        angleType: "Obtuse Angle (>90°)",
-        vertices: "Spine Angle",
-        memo: "When you open a book wide on a table, the pages open into an Obtuse Angle greater than 90°!",
-        activeCategory: "obtuse"
+        name: 'Open Storybook', angleType: 'Obtuse Angle (130°)', vertices: 'Book Spine',
+        memo: 'Opened wide on a table, the book pages form an Obtuse Angle (>90°).',
+        activeCategory: 'obtuse', hingeDefault: 130, gaugePos: [0, 0, 0.55], gaugeRot: [-Math.PI / 2, 0, Math.PI / 4]
       },
       ruler: {
-        name: "Flat Ruler (Straight Edge)",
-        angleType: "Straight Angle (180°)",
-        vertices: "Flat Line Vertex",
-        memo: "A flat straight ruler opens all the way across in opposite directions to form a 180° Straight Angle!",
-        activeCategory: "straight"
+        name: 'Wooden Ruler', angleType: 'Straight Angle (180°)', vertices: 'Flat Line Vertex',
+        memo: 'A flat ruler opens all the way across in opposite directions to form a 180° Straight Angle!',
+        activeCategory: 'straight', gaugePos: [0, 0.65, 0.2], gaugeRot: [0, 0, 0]
       }
     };
 
-    function disposeGroup(group) {
-      while (group.children.length > 0) {
-        const child = group.children[0];
+    let isSpinning = false;
+    let currentShapeKey = 'square_prism';
+    let appMode = 'explore';
+    let quizRevealed = false;
+    let hingeDeg = 90;
+    const solvedShapes = new Set();
+    const vertexPickTargets = [];
+
+    function classifyDeg(d) {
+      if (d === 90) return 'right';
+      if (d === 180) return 'straight';
+      return d < 90 ? 'acute' : 'obtuse';
+    }
+
+    function disposeContent(group) {
+      vertexPickTargets.length = 0;
+      for (let i = group.children.length - 1; i >= 0; i--) {
+        const child = group.children[i];
+        if (child === gaugeGroup) continue;
         group.remove(child);
         child.traverse(c => {
           if (c.geometry) c.geometry.dispose();
           if (c.material) {
-            if (Array.isArray(c.material)) {
-              c.material.forEach(m => {
-                if (m.map) m.map.dispose();
-                m.dispose();
-              });
-            } else {
-              if (c.material.map) c.material.map.dispose();
-              c.material.dispose();
-            }
+            const mats = Array.isArray(c.material) ? c.material : [c.material];
+            mats.forEach(m => { if (m.map) m.map.dispose(); m.dispose(); });
           }
         });
       }
@@ -972,9 +726,7 @@
       const diff = new THREE.Vector3().subVectors(p2, p1);
       const len = diff.length();
       if (len < 0.001) return;
-      const geo = new THREE.CylinderGeometry(radius, radius, len, 10);
-      const mat = new THREE.MeshBasicMaterial({ color: colorHex });
-      const bar = new THREE.Mesh(geo, mat);
+      const bar = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, len, 10), new THREE.MeshBasicMaterial({ color: colorHex }));
       bar.position.addVectors(p1, p2).multiplyScalar(0.5);
       bar.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), diff.normalize());
       modelGroup.add(bar);
@@ -982,12 +734,21 @@
 
     function add3DArc(points, colorHex, radius = 0.045) {
       const curve = new THREE.CatmullRomCurve3(points);
-      const geo = new THREE.TubeGeometry(curve, 24, radius, 10, false);
-      const mat = new THREE.MeshBasicMaterial({ color: colorHex });
-      modelGroup.add(new THREE.Mesh(geo, mat));
+      modelGroup.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 24, radius, 10, false), new THREE.MeshBasicMaterial({ color: colorHex })));
     }
 
-    function add3DSquareAngleMarker(x, y, z, dx, dy, colorHex = 0xFF1744) {
+    function addVertexRing(x, y, z, colorHex = 0xFFE156) {
+      const ring = new THREE.Mesh(
+        new THREE.TorusGeometry(0.22, 0.04, 12, 24),
+        new THREE.MeshBasicMaterial({ color: colorHex })
+      );
+      ring.position.set(x, y, z);
+      modelGroup.add(ring);
+      vertexPickTargets.push(ring);
+      return ring;
+    }
+
+    function add3DSquareMarker(x, y, z, dx, dy, colorHex = 0xFF1744) {
       const pA = new THREE.Vector3(x + dx, y, z);
       const pB = new THREE.Vector3(x + dx, y + dy, z);
       const pC = new THREE.Vector3(x, y + dy, z);
@@ -995,163 +756,144 @@
       add3DBar(pB, pC, colorHex, 0.045);
     }
 
-    let isSpinning = false; // Stopped by default so children can inspect comfortably!
-    let currentShapeKey = 'square_prism';
-    let appMode = 'explore';
-    let quizRevealed = false;
-    const solvedShapes = new Set();
+    function getActiveCategory(shapeKey) {
+      if (appMode === 'explore' && ['clock', 'scissors', 'book'].includes(shapeKey)) {
+        return classifyDeg(hingeDeg);
+      }
+      return shapesInfo[shapeKey].activeCategory;
+    }
 
     function updateInspectorUI(shapeKey) {
       const info = shapesInfo[shapeKey];
       const hideSpoiler = (appMode === 'quiz' && !quizRevealed);
+      const activeCat = getActiveCategory(shapeKey);
+      const isHingedExplore = (appMode === 'explore' && ['clock', 'scissors', 'book'].includes(shapeKey));
+
+      const catLabel = isHingedExplore
+        ? `${{ right: 'Right Angle', acute: 'Acute Angle', obtuse: 'Obtuse Angle', straight: 'Straight Angle' }[activeCat]} (${hingeDeg}°)`
+        : info.angleType;
 
       document.getElementById('attrName').textContent = info.name;
       document.getElementById('attrVertices').textContent = info.vertices;
-      document.getElementById('attrAngleType').textContent = hideSpoiler ? '??? (Guess below!)' : info.angleType;
-      document.getElementById('hudActiveAngle').textContent = hideSpoiler ? 'Angle: ??? (Inspect in 3D!)' : `Angle: ${info.angleType}`;
+      document.getElementById('attrAngleType').textContent = hideSpoiler ? '??? (Guess in Quiz!)' : catLabel;
+      document.getElementById('hudActiveAngle').textContent = hideSpoiler ? 'Angle: ??? (Compare with 90° Gauge!)' : `Angle: ${catLabel}`;
       document.getElementById('memoInspector').innerHTML = hideSpoiler
-        ? `🕵️ <strong>Quiz Mode</strong>: Rotate the 3D object and compare with the 90° Square Gauge, then pick the angle type above!`
+        ? `🕵️ <strong>Quiz Mode</strong>: Orbit the 3D object, toggle the 90° Square Gauge, and pick which angle is glowing!`
         : `💡 <strong>Angle Inquiry</strong>: ${info.memo}`;
 
-      // Highlight corresponding category card only when revealed / Explore mode
+      const hingeBox = document.getElementById('hingeSliderBox');
+      hingeBox.classList.toggle('hidden', !isHingedExplore);
+
       ['cardRight', 'cardAcute', 'cardObtuse', 'cardStraight'].forEach(id => {
         const el = document.getElementById(id);
-        el.style.transform = 'scale(1)';
-        el.style.boxShadow = 'none';
-        el.style.opacity = hideSpoiler ? '0.85' : '0.6';
+        el.style.transform = 'scale(1)'; el.style.boxShadow = 'none'; el.style.opacity = hideSpoiler ? '0.85' : '0.55';
       });
       if (!hideSpoiler) {
-        const cardMap = {
-          right: 'cardRight',
-          acute: 'cardAcute',
-          obtuse: 'cardObtuse',
-          straight: 'cardStraight'
-        };
-        const activeCard = document.getElementById(cardMap[info.activeCategory]);
+        const cardMap = { right: 'cardRight', acute: 'cardAcute', obtuse: 'cardObtuse', straight: 'cardStraight' };
+        const activeCard = document.getElementById(cardMap[activeCat]);
         if (activeCard) {
           activeCard.style.transform = 'scale(1.03)';
-          activeCard.style.boxShadow = '0 0 10px rgba(78, 205, 196, 0.65)';
+          activeCard.style.boxShadow = '0 0 12px rgba(78, 205, 196, 0.7)';
           activeCard.style.opacity = '1';
         }
       }
     }
 
-    function loadShape(shapeKey) {
-      disposeGroup(modelGroup);
-      modelGroup.rotation.set(0, 0, 0);
-      quizRevealed = false;
+    function buildShapeGeometry(shapeKey, resetRotation = true) {
+      disposeContent(modelGroup);
+      if (resetRotation) modelGroup.rotation.set(0, 0, 0);
+      const info = shapesInfo[shapeKey];
+      gaugeGroup.position.set(...info.gaugePos);
+      gaugeGroup.rotation.set(...info.gaugeRot);
+
+      const hideSquareGiveaway = (appMode === 'quiz' && !quizRevealed);
+      const useHinge = (appMode === 'explore' && ['clock', 'scissors', 'book'].includes(shapeKey)) ? hingeDeg : info.hingeDefault;
 
       if (shapeKey === 'square_prism') {
-        const geo = new THREE.BoxGeometry(2, 2, 2);
-        const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: 0x38B6FF, roughness: 0.35, metalness: 0.1 }));
+        const mesh = new THREE.Mesh(
+          new THREE.BoxGeometry(2, 2, 2),
+          new THREE.MeshStandardMaterial({ color: 0x38B6FF, roughness: 0.35, metalness: 0.1 })
+        );
+        mesh.castShadow = true;
         modelGroup.add(mesh);
-        // 3D Square Corner Angle Marker attached to cube's front top-right corner
-        add3DSquareAngleMarker(1.0, 1.0, 1.04, -0.48, -0.48, 0xFF1744);
+        addVertexRing(1.0, 1.0, 1.04, 0xFFE156);
+        if (!hideSquareGiveaway) add3DSquareMarker(1.0, 1.0, 1.04, -0.48, -0.48, 0xFF1744);
       } else if (shapeKey === 'wedge') {
-        // Triangular prism wedge
         const shape = new THREE.Shape();
-        shape.moveTo(0, 0);
-        shape.lineTo(2.5, 0);
-        shape.lineTo(0, 2);
-        shape.closePath();
-
-        const extrudeSettings = { depth: 1.8, bevelEnabled: false };
-        const geo = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+        shape.moveTo(0, 0); shape.lineTo(2.5, 0); shape.lineTo(0, 2); shape.closePath();
+        const geo = new THREE.ExtrudeGeometry(shape, { depth: 1.8, bevelEnabled: false });
         geo.center();
-        const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: 0xFFE156, roughness: 0.38 }));
+        const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ map: makeWoodTex(), roughness: 0.45 }));
+        mesh.castShadow = true;
         modelGroup.add(mesh);
-
-        // 3D Acute Angle Arc at the sharp right tip (1.25, -1.0, 0.94)
         const arcPts = [];
         for (let i = 0; i <= 10; i++) {
           const a = Math.PI - (i / 10) * Math.atan2(2, 2.5);
-          arcPts.push(new THREE.Vector3(1.25 + 0.55 * Math.cos(a), -1.0 + 0.55 * Math.sin(a), 0.95));
+          arcPts.push(new THREE.Vector3(1.25 + 0.58 * Math.cos(a), -1.0 + 0.58 * Math.sin(a), 0.94));
         }
-        add3DArc(arcPts, 0xFF1744, 0.045);
+        add3DArc(arcPts, 0xFF1744, 0.05);
+        addVertexRing(1.25, -1.0, 0.94, 0xFFE156);
       } else if (shapeKey === 'diamond') {
         const geo = new THREE.OctahedronGeometry(1.65);
         const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({
-          color: 0x22D3EE,
-          emissive: 0x0E7490,
-          emissiveIntensity: 0.45,
-          roughness: 0.18,
-          metalness: 0.35
+          color: 0x22D3EE, emissive: 0x0E7490, emissiveIntensity: 0.45, roughness: 0.18, metalness: 0.35
         }));
+        mesh.castShadow = true;
         modelGroup.add(mesh);
-
-        // Bright facet wireframe edges so diamond sparkles cleanly
-        const edgeMesh = new THREE.LineSegments(
-          new THREE.EdgesGeometry(geo),
-          new THREE.LineBasicMaterial({ color: 0xCFFAFE })
-        );
-        modelGroup.add(edgeMesh);
-
-        // 3D Acute Angle Marker at top apex
+        modelGroup.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({ color: 0xCFFAFE })));
+        // Clean XY apex arc aligned with top vertex (0, 1.65, 0)
         const apexPts = [];
-        for (let i = 0; i <= 10; i++) {
-          const t = i / 10;
-          const ang = -Math.PI / 2 - 0.52 + t * 1.04;
-          apexPts.push(new THREE.Vector3(0.62 * Math.cos(ang), 1.65 + 0.62 * Math.sin(ang), 0.48));
+        const halfAng = Math.atan2(1.65, 1.65);
+        for (let i = 0; i <= 12; i++) {
+          const ang = -Math.PI / 2 - halfAng * 0.72 + (i / 12) * (halfAng * 1.44);
+          apexPts.push(new THREE.Vector3(0.65 * Math.cos(ang), 1.65 + 0.65 * Math.sin(ang), 0.08));
         }
-        add3DArc(apexPts, 0xFFE156, 0.045);
+        add3DArc(apexPts, 0xFFE156, 0.05);
+        addVertexRing(0, 1.65, 0.06, 0xFFE156);
       } else if (shapeKey === 'clock') {
-        // Wall Clock with bold rim, 12 hour marks, and 3:00 hands
-        const faceMesh = new THREE.Mesh(
-          new THREE.CylinderGeometry(1.6, 1.6, 0.2, 32),
-          new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.4 })
-        );
+        const faceMat = new THREE.MeshStandardMaterial({ map: makeClockFaceTex(), roughness: 0.45 });
+        const sideMat = new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.45 });
+        const faceMesh = new THREE.Mesh(new THREE.CylinderGeometry(1.6, 1.6, 0.2, 36), [sideMat, faceMat, sideMat]);
         faceMesh.rotation.x = Math.PI / 2;
+        faceMesh.rotation.y = Math.PI / 2;
+        faceMesh.castShadow = true;
         modelGroup.add(faceMesh);
-
-        const rimMesh = new THREE.Mesh(
-          new THREE.TorusGeometry(1.62, 0.1, 16, 40),
-          new THREE.MeshStandardMaterial({ color: 0x38B6FF, roughness: 0.3, metalness: 0.2 })
-        );
+        const rimMesh = new THREE.Mesh(new THREE.TorusGeometry(1.62, 0.1, 16, 40), new THREE.MeshStandardMaterial({ color: 0x38B6FF, roughness: 0.3, metalness: 0.2 }));
         modelGroup.add(rimMesh);
 
-        const tickMat = new THREE.MeshBasicMaterial({ color: 0x1E293B });
-        for (let h = 0; h < 12; h++) {
-          const a = (h / 12) * Math.PI * 2;
-          const isMajor = (h % 3 === 0);
-          const tick = new THREE.Mesh(
-            new THREE.BoxGeometry(isMajor ? 0.09 : 0.05, isMajor ? 0.24 : 0.14, 0.05),
-            tickMat
-          );
-          tick.position.set(Math.sin(a) * 1.32, Math.cos(a) * 1.32, 0.12);
-          tick.rotation.z = -a;
-          modelGroup.add(tick);
-        }
-
-        // Hands at 12 and 3
         const handMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.4 });
-        const hand12 = new THREE.Mesh(new THREE.BoxGeometry(0.11, 1.15, 0.08), handMat);
+        const hand12 = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1.15, 0.08), handMat);
         hand12.position.set(0, 0.57, 0.15);
-        const hand3 = new THREE.Mesh(new THREE.BoxGeometry(0.92, 0.12, 0.08), handMat);
-        hand3.position.set(0.46, 0, 0.15);
-        const hub = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.11, 0.11, 0.12, 16),
-          new THREE.MeshStandardMaterial({ color: 0xFF6584 })
-        );
-        hub.rotation.x = Math.PI / 2;
-        hub.position.z = 0.17;
-        modelGroup.add(hand12, hand3, hub);
+        const rad = THREE.MathUtils.degToRad(useHinge);
+        const handArm = new THREE.Group();
+        const h2 = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.92, 0.08), handMat);
+        h2.position.y = 0.46;
+        handArm.add(h2);
+        handArm.position.z = 0.15;
+        handArm.rotation.z = -rad;
+        const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.14, 16), new THREE.MeshStandardMaterial({ color: 0xFF6584 }));
+        hub.rotation.x = Math.PI / 2; hub.position.z = 0.17;
+        modelGroup.add(hand12, handArm, hub);
+        addVertexRing(0, 0, 0.22, 0xFFE156);
 
-        // 3D 90° square marker between 12 and 3 hands
-        add3DSquareAngleMarker(0, 0, 0.21, 0.42, 0.42, 0xFF1744);
+        if (useHinge === 90 && !hideSquareGiveaway) {
+          add3DSquareMarker(0, 0, 0.22, 0.42, 0.42, 0xFF1744);
+        } else {
+          const pts = [];
+          for (let i = 0; i <= 14; i++) {
+            const a = Math.PI / 2 - (i / 14) * rad;
+            pts.push(new THREE.Vector3(0.58 * Math.cos(a), 0.58 * Math.sin(a), 0.22));
+          }
+          add3DArc(pts, 0xFF1744, 0.045);
+        }
       } else if (shapeKey === 'scissors') {
-        const bladeMat = new THREE.MeshStandardMaterial({
-          color: 0xE2E8F0,
-          emissive: 0x334155,
-          emissiveIntensity: 0.25,
-          metalness: 0.35,
-          roughness: 0.22
-        });
+        const bladeMat = new THREE.MeshStandardMaterial({ color: 0xE2E8F0, metalness: 0.5, roughness: 0.22 });
         const handleMat = new THREE.MeshStandardMaterial({ color: 0xFF6584, roughness: 0.35 });
-
+        const halfRad = THREE.MathUtils.degToRad(useHinge / 2);
         const makeArm = (angleZ) => {
           const arm = new THREE.Group();
           const blade = new THREE.Mesh(new THREE.BoxGeometry(0.18, 1.85, 0.08), bladeMat);
-          blade.position.set(0, 0.65, 0);
+          blade.position.set(0, 0.65, 0); blade.castShadow = true;
           const stem = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.75, 0.08), handleMat);
           stem.position.set(0, -0.55, 0);
           const loop = new THREE.Mesh(new THREE.TorusGeometry(0.32, 0.075, 12, 24), handleMat);
@@ -1160,89 +902,65 @@
           arm.rotation.z = angleZ;
           return arm;
         };
-
-        const arm1 = makeArm(Math.PI / 7);
-        arm1.position.z = 0.04;
-        const arm2 = makeArm(-Math.PI / 7);
-        arm2.position.z = -0.04;
-        const pivot = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.1, 0.1, 0.22, 16),
-          new THREE.MeshStandardMaterial({ color: 0xFFE156, metalness: 0.3, roughness: 0.3 })
-        );
+        const arm1 = makeArm(halfRad); arm1.position.z = 0.04;
+        const arm2 = makeArm(-halfRad); arm2.position.z = -0.04;
+        const pivot = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.24, 16), new THREE.MeshStandardMaterial({ color: 0xFFE156 }));
         pivot.rotation.x = Math.PI / 2;
         modelGroup.add(arm1, arm2, pivot);
+        addVertexRing(0, 0, 0.14, 0xFFE156);
 
-        // 3D Acute Angle Arc between the open blades
         const scArc = [];
-        for (let i = 0; i <= 10; i++) {
-          const a = Math.PI / 2 - Math.PI / 7 + (i / 10) * (2 * Math.PI / 7);
+        for (let i = 0; i <= 14; i++) {
+          const a = Math.PI / 2 - halfRad + (i / 14) * (2 * halfRad);
           scArc.push(new THREE.Vector3(0.85 * Math.cos(a), 0.85 * Math.sin(a), 0.12));
         }
         add3DArc(scArc, 0x4ECDC4, 0.045);
       } else if (shapeKey === 'book') {
         const coverMat = new THREE.MeshStandardMaterial({ color: 0xFF6584, roughness: 0.45 });
-        const pageMat = new THREE.MeshStandardMaterial({ color: 0xFFFDF0, roughness: 0.55 });
-        const tilt = Math.PI / 7; // ~128° obtuse opening between pages
+        const pageMat = new THREE.MeshStandardMaterial({ map: makeBookPageTex(), roughness: 0.6 });
+        const halfRad = THREE.MathUtils.degToRad(useHinge / 2);
+        const wingTilt = Math.PI / 2 - halfRad;
 
         const leftWing = new THREE.Group();
         const leftCover = new THREE.Mesh(new THREE.BoxGeometry(1.55, 1.95, 0.07), coverMat);
-        leftCover.position.set(-0.77, 0, -0.08);
+        leftCover.position.set(-0.77, 0, -0.08); leftCover.castShadow = true;
         const leftPage = new THREE.Mesh(new THREE.BoxGeometry(1.45, 1.82, 0.12), pageMat);
         leftPage.position.set(-0.74, 0, 0.01);
         leftWing.add(leftCover, leftPage);
-        leftWing.rotation.y = tilt;
+        leftWing.rotation.y = wingTilt;
 
         const rightWing = new THREE.Group();
         const rightCover = new THREE.Mesh(new THREE.BoxGeometry(1.55, 1.95, 0.07), coverMat);
-        rightCover.position.set(0.77, 0, -0.08);
+        rightCover.position.set(0.77, 0, -0.08); rightCover.castShadow = true;
         const rightPage = new THREE.Mesh(new THREE.BoxGeometry(1.45, 1.82, 0.12), pageMat);
         rightPage.position.set(0.74, 0, 0.01);
         rightWing.add(rightCover, rightPage);
-        rightWing.rotation.y = -tilt;
+        rightWing.rotation.y = -wingTilt;
 
         const spine = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 1.96, 14), coverMat);
         spine.position.set(0, 0, -0.06);
         modelGroup.add(leftWing, rightWing, spine);
+        addVertexRing(0, 0, 0.1, 0xFFE156);
 
-        // 3D Obtuse Angle Arc spanning from left page to right page in front of spine
         const bookArc = [];
-        for (let i = 0; i <= 14; i++) {
-          const a = tilt + (i / 14) * (Math.PI - 2 * tilt);
+        for (let i = 0; i <= 16; i++) {
+          const a = wingTilt + (i / 16) * (Math.PI - 2 * wingTilt);
           bookArc.push(new THREE.Vector3(0.85 * Math.cos(a), 0, 0.85 * Math.sin(a)));
         }
         add3DArc(bookArc, 0xFFE156, 0.05);
       } else if (shapeKey === 'ruler') {
-        // 7th Model: Straight Angle (180°) Flat Ruler
-        const rulerBody = new THREE.Mesh(
-          new THREE.BoxGeometry(3.6, 0.18, 0.72),
-          new THREE.MeshStandardMaterial({ color: 0xFFE156, roughness: 0.35, metalness: 0.1 })
-        );
+        const rulerTex = makeRulerTex();
+        const woodSide = new THREE.MeshStandardMaterial({ color: 0xEAB308, roughness: 0.4 });
+        const rulerTop = new THREE.MeshStandardMaterial({ map: rulerTex, roughness: 0.4 });
+        const rulerBody = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.18, 0.78), [woodSide, woodSide, rulerTop, woodSide, woodSide, woodSide]);
+        rulerBody.castShadow = true;
         modelGroup.add(rulerBody);
-
-        const markMat = new THREE.MeshBasicMaterial({ color: 0x111111 });
-        for (let i = -8; i <= 8; i++) {
-          const isMajor = (i % 2 === 0);
-          const tick = new THREE.Mesh(
-            new THREE.BoxGeometry(0.035, 0.02, isMajor ? 0.32 : 0.18),
-            markMat
-          );
-          tick.position.set(i * 0.2, 0.1, isMajor ? 0.18 : 0.25);
-          modelGroup.add(tick);
-        }
-
-        const vertexDot = new THREE.Mesh(
-          new THREE.SphereGeometry(0.12, 16, 16),
-          new THREE.MeshBasicMaterial({ color: 0xFF6584 })
-        );
-        vertexDot.position.set(0, 0.12, 0);
-        modelGroup.add(vertexDot);
-
-        // Opposite 3D rays + 180° semicircular arc
-        add3DBar(new THREE.Vector3(-1.75, 0.12, 0), new THREE.Vector3(1.75, 0.12, 0), 0xFF6584, 0.045);
+        addVertexRing(0, 0.14, 0, 0xFF6584);
+        add3DBar(new THREE.Vector3(-1.75, 0.14, 0), new THREE.Vector3(1.75, 0.14, 0), 0xFF6584, 0.045);
         const straightArc = [];
         for (let i = 0; i <= 18; i++) {
           const a = (i / 18) * Math.PI;
-          straightArc.push(new THREE.Vector3(0.95 * Math.cos(a), 0.12 + 0.95 * Math.sin(a), 0));
+          straightArc.push(new THREE.Vector3(0.95 * Math.cos(a), 0.14 + 0.95 * Math.sin(a), 0));
         }
         add3DArc(straightArc, 0xFF6584, 0.05);
       }
@@ -1250,60 +968,81 @@
       updateInspectorUI(shapeKey);
     }
 
-    // Angle Visual Indicator: 90-degree reference gauge
-    const gaugeGroup = new THREE.Group();
-    gaugeGroup.visible = false;
-    scene.add(gaugeGroup);
+    function loadShape(shapeKey) {
+      currentShapeKey = shapeKey;
+      quizRevealed = solvedShapes.has(shapeKey);
+      const info = shapesInfo[shapeKey];
+      if (info.hingeDefault) {
+        hingeDeg = info.hingeDefault;
+        document.getElementById('sliderHinge').value = hingeDeg;
+        document.getElementById('hingeDegVal').textContent = `${hingeDeg}°`;
+      }
+      buildShapeGeometry(shapeKey, true);
+    }
 
-    // Create a 90-degree transparent protractor / square corner gauge
-    const gaugeMat = new THREE.MeshBasicMaterial({ color: 0xFF1744, transparent: true, opacity: 0.45, side: THREE.DoubleSide });
-    const gaugePlane = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 1.2), gaugeMat);
-    gaugePlane.position.set(0, 0, 1.05);
-
-    const gaugeLineMat = new THREE.LineBasicMaterial({ color: 0xFFFFFF, linewidth: 2 });
-    const gaugeOutline = new THREE.LineSegments(
-      new THREE.EdgesGeometry(new THREE.PlaneGeometry(1.2, 1.2)),
-      gaugeLineMat
-    );
-    gaugeOutline.position.set(0, 0, 1.05);
-    gaugeGroup.add(gaugePlane, gaugeOutline);
-
-    // Initial shape
     loadShape('square_prism');
 
-    // Explore vs Quiz Mode Toggle
+    // Hinge Slider in Explore Mode
+    document.getElementById('sliderHinge').addEventListener('input', (e) => {
+      hingeDeg = parseInt(e.target.value, 10);
+      document.getElementById('hingeDegVal').textContent = `${hingeDeg}°`;
+      buildShapeGeometry(currentShapeKey, false);
+    });
+
+    // Drag-safe (<= 8px) 3D Vertex Raycasting
+    const raycaster = new THREE.Raycaster();
+    const downPt = { x: 0, y: 0 };
+    canvas.addEventListener('pointerdown', (e) => { downPt.x = e.clientX; downPt.y = e.clientY; });
+    canvas.addEventListener('pointerup', (e) => {
+      if (Math.hypot(e.clientX - downPt.x, e.clientY - downPt.y) > 8) return;
+      const rect = canvas.getBoundingClientRect();
+      const ndc = new THREE.Vector2(
+        ((e.clientX - rect.left) / rect.width) * 2 - 1,
+        -((e.clientY - rect.top) / rect.height) * 2 + 1
+      );
+      raycaster.setFromCamera(ndc, camera);
+      const hits = raycaster.intersectObjects(vertexPickTargets, false);
+      if (hits.length > 0) {
+        sfx.playSparkle();
+        const ring = hits[0].object;
+        ring.scale.setScalar(1.38);
+        setTimeout(() => ring.scale.setScalar(1), 220);
+      }
+    });
+
+    // Explore vs Quiz Mode Toggle (Hide Quiz Card in Explore Mode!)
     document.querySelectorAll('.mode-pill').forEach(btn => {
       btn.addEventListener('click', () => {
         sfx.playClick();
         document.querySelectorAll('.mode-pill').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         appMode = btn.dataset.appmode;
-        quizRevealed = false;
-        updateInspectorUI(currentShapeKey);
+        document.getElementById('quizCard').classList.toggle('hidden', appMode !== 'quiz');
+        loadShape(currentShapeKey);
         const fb = document.getElementById('quizFeedback');
-        fb.textContent = appMode === 'quiz'
-          ? '🕵️ Quiz Mode ON! Answers are hidden until you solve them.'
-          : '🔭 Explore Mode ON! Inspect all angle labels freely.';
+        fb.textContent = solvedShapes.has(currentShapeKey)
+          ? `✅ Solved! ${shapesInfo[currentShapeKey].name} is ${shapesInfo[currentShapeKey].angleType}.`
+          : 'Compare with the 90° Square Gauge, then tap an answer!';
         fb.style.color = '#FFE156';
       });
     });
 
-    // Button wiring
+    // Shape Buttons
     document.querySelectorAll('#shapeList .shape-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         sfx.playClick();
         document.querySelectorAll('#shapeList .shape-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        currentShapeKey = btn.dataset.shape;
-        loadShape(currentShapeKey);
-        document.getElementById('quizFeedback').textContent = 'What angle type does this object have?';
-        document.getElementById('quizFeedback').style.color = '#D1D5DB';
+        loadShape(btn.dataset.shape);
+        const fb = document.getElementById('quizFeedback');
+        fb.textContent = solvedShapes.has(currentShapeKey)
+          ? `✅ Already solved! ${shapesInfo[currentShapeKey].name} is ${shapesInfo[currentShapeKey].angleType}.`
+          : 'What angle is glowing on this 3D model?';
+        fb.style.color = '#D1D5DB';
       });
     });
 
-    // Stage Toolbar wiring
     const btnToggleSpin = document.getElementById('btnToggleSpin');
-    btnToggleSpin.textContent = isSpinning ? '⏸️ Pause Spin' : '▶️ Auto Spin';
     btnToggleSpin.addEventListener('click', () => {
       sfx.playClick();
       isSpinning = !isSpinning;
@@ -1320,12 +1059,14 @@
 
     document.getElementById('btnResetView').addEventListener('click', () => {
       sfx.playClick();
-      camera.position.set(0, 3, 7);
-      controls.reset();
+      camera.position.set(0, 2.8, 6.8);
+      controls.target.set(0, 0, 0);
+      controls.update();
       modelGroup.rotation.set(0, 0, 0);
     });
 
-    // Self-Directed Learning Quiz wiring
+    // Quiz Buttons
+    let celebrated7 = false;
     document.querySelectorAll('#quizBtns .quiz-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const chosen = btn.dataset.type;
@@ -1335,106 +1076,86 @@
         if (chosen === info.activeCategory) {
           quizRevealed = true;
           solvedShapes.add(currentShapeKey);
-          document.getElementById('quizScoreBadge').textContent = `⭐ ${solvedShapes.size} / ${Object.keys(shapesInfo).length}`;
-          updateInspectorUI(currentShapeKey);
-          if (solvedShapes.size === Object.keys(shapesInfo).length) {
+          document.getElementById('quizScoreBadge').textContent = `⭐ ${solvedShapes.size} / 7`;
+          document.getElementById('quizSolvedProgress').textContent = `${solvedShapes.size} / 7 Solved`;
+          document.querySelectorAll('#shapeList .shape-btn').forEach(b => {
+            if (solvedShapes.has(b.dataset.shape)) b.querySelector('.shape-check').textContent = '✅';
+          });
+          buildShapeGeometry(currentShapeKey, false);
+          if (solvedShapes.size === 7 && !celebrated7) {
+            celebrated7 = true;
             sfx.playFanfare();
-            feedback.textContent = `🏆 All 7 objects mastered! ${info.name} features ${info.angleType}.`;
+            launchConfetti();
+            feedback.textContent = `🏆 All 7 objects mastered! ${info.name} has ${info.angleType}.`;
+            setTimeout(() => document.getElementById('pypReflectModal').classList.add('open'), 650);
           } else {
             sfx.playCorrect();
-            feedback.textContent = `🎉 Correct! ${info.name} features ${info.angleType}.`;
+            feedback.textContent = `🎉 Correct! ${info.name} has ${info.angleType}.`;
           }
           feedback.style.color = '#34D399';
         } else {
           sfx.playBuzz();
-          feedback.textContent = `❌ Try again! Compare with the 90° square gauge.`;
+          feedback.textContent = `❌ Not quite — toggle the 90° Square Gauge to compare!`;
           feedback.style.color = '#F87171';
         }
       });
     });
 
-    // IB PYP Reflection & Passport Stamp wiring
+    // Modal & Passport Stamp
     const pypModal = document.getElementById('pypReflectModal');
-    const btnOpenReflect = document.getElementById('btnOpenReflect');
-    const btnCloseReflect = document.getElementById('btnCloseReflect');
-    const btnClaimStamp = document.getElementById('btnClaimStamp');
-    const pypStampStatus = document.getElementById('pypStampStatus');
+    document.getElementById('btnOpenReflect').addEventListener('click', () => { sfx.playClick(); pypModal.classList.add('open'); });
+    document.getElementById('btnCloseReflect').addEventListener('click', () => { sfx.playClick(); pypModal.classList.remove('open'); });
+    pypModal.addEventListener('click', (e) => { if (e.target === pypModal) pypModal.classList.remove('open'); });
+    document.getElementById('btnClaimStamp').addEventListener('click', () => {
+      sfx.playFanfare();
+      launchConfetti();
+      try {
+        const raw = localStorage.getItem('ib_pyp_passport');
+        const data = raw ? JSON.parse(raw) : { stamps: [], completed: [] };
+        const stamps = new Set(Array.isArray(data.stamps) ? data.stamps : []);
+        const completed = new Set(Array.isArray(data.completed) ? data.completed : []);
+        stamps.add('Thinker');
+        completed.add('math/g2_angle_finder.html');
+        localStorage.setItem('ib_pyp_passport', JSON.stringify({ stamps: [...stamps], completed: [...completed] }));
+        document.getElementById('pypStampStatus').textContent = '✅ Thinker stamp saved to your IB PYP Passport!';
+        document.getElementById('btnClaimStamp').textContent = '✅ Stamped!';
+      } catch (_) {}
+    });
 
-    if (btnOpenReflect && pypModal) {
-      btnOpenReflect.addEventListener('click', () => {
-        sfx.playClick();
-        pypModal.classList.add('open');
-      });
-    }
-    if (btnCloseReflect && pypModal) {
-      btnCloseReflect.addEventListener('click', () => pypModal.classList.remove('open'));
-    }
-    if (pypModal) {
-      pypModal.addEventListener('click', (e) => {
-        if (e.target === pypModal) pypModal.classList.remove('open');
-      });
-    }
-    if (btnClaimStamp) {
-      btnClaimStamp.addEventListener('click', () => {
-        sfx.playFanfare();
-        try {
-          const raw = localStorage.getItem('ib_pyp_passport');
-          const data = raw ? JSON.parse(raw) : { stamps: [], completed: [] };
-          const stamps = new Set(Array.isArray(data.stamps) ? data.stamps : []);
-          const completed = new Set(Array.isArray(data.completed) ? data.completed : []);
-          stamps.add('Thinker');
-          completed.add('math/g2_angle_finder.html');
-          localStorage.setItem('ib_pyp_passport', JSON.stringify({ stamps: [...stamps], completed: [...completed] }));
-          if (pypStampStatus) pypStampStatus.textContent = '✅ Thinker stamp saved to your IB PYP Passport!';
-          btnClaimStamp.textContent = '✅ Stamped!';
-        } catch (_) {}
-      });
-    }
-
-    // DPR-aware Resize Handling (zero 60fps thrashing)
+    // ResizeObserver & Animate
     function resize() {
-      const width = canvas.clientWidth;
-      const height = canvas.clientHeight;
-      if (width === 0 || height === 0) return;
+      const w = canvas.clientWidth, h = canvas.clientHeight;
+      if (w === 0 || h === 0) return;
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const targetW = Math.round(width * dpr);
-      const targetH = Math.round(height * dpr);
-      if (canvas.width !== targetW || canvas.height !== targetH) {
+      if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
         renderer.setPixelRatio(dpr);
-        renderer.setSize(width, height, false);
-        camera.aspect = width / height;
+        renderer.setSize(w, h, false);
+        camera.aspect = w / h;
         camera.updateProjectionMatrix();
       }
     }
-
     resize();
-    if (typeof ResizeObserver !== 'undefined' && canvas.parentElement) {
-      new ResizeObserver(resize).observe(canvas.parentElement);
-    }
+    if (typeof ResizeObserver !== 'undefined' && canvas.parentElement) new ResizeObserver(resize).observe(canvas.parentElement);
     window.addEventListener('resize', resize);
 
-    // Render Loop
     function animate() {
       requestAnimationFrame(animate);
       controls.update();
-      if (isSpinning) {
-        modelGroup.rotation.y += 0.005;
-      }
+      if (isSpinning) modelGroup.rotation.y += 0.005;
       renderer.render(scene, camera);
     }
-    // ----------------------------------------------------
-    // TTS MANAGER (Neobrutalism Radio Group Dropdown)
-    // ----------------------------------------------------
-    const JOKE_VOICES = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|hysterical|pipe organ|trinoids|whisper|zarvox|fred|junior|kathy|ralph|wobble/i;
-    const TTS_MANAGER = {
-      currentVoiceName: '',
-      wrap: null,
-      trigger: null,
-      menu: null,
-      flag: null,
-      label: null,
-      list: null,
 
+    // Unified TTS Manager
+    const JOKE_VOICES = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|hysterical|pipe organ|trinoids|whisper|zarvox|fred|junior|kathy|ralph|wobble/i;
+    function getVoiceBadge(langRaw) {
+      const lang = (langRaw || '').toLowerCase().replace('_', '-');
+      if (lang.includes('-au')) return { flag: '🇦🇺', region: 'AU' };
+      if (lang.includes('-gb') || lang.includes('en-uk')) return { flag: '🇬🇧', region: 'UK' };
+      if (lang.includes('-us')) return { flag: '🇺🇸', region: 'US' };
+      return { flag: '🌐', region: (lang.split('-')[1] || 'EN').toUpperCase() };
+    }
+    const TTS_MANAGER = {
+      currentVoiceName: '', wrap: null, trigger: null, menu: null, flag: null, label: null, list: null,
       init() {
         this.wrap = document.getElementById('ttsDropdownWrap');
         this.trigger = document.getElementById('ttsTrigger');
@@ -1442,181 +1163,115 @@
         this.flag = document.getElementById('ttsFlag');
         this.label = document.getElementById('ttsLabel');
         this.list = document.getElementById('ttsRadioList');
-
         if (!this.trigger) return;
-
         this.trigger.addEventListener('click', (e) => {
-          e.stopPropagation();
-          this.wrap.classList.toggle('open');
-          this.trigger.setAttribute('aria-expanded', this.wrap.classList.contains('open'));
+          e.stopPropagation(); sfx.playClick();
+          const open = this.wrap.classList.toggle('open');
+          this.trigger.setAttribute('aria-expanded', String(open));
         });
-
         document.addEventListener('click', (e) => {
           if (this.wrap && !this.wrap.contains(e.target)) {
-            this.wrap.classList.remove('open');
-            this.trigger.setAttribute('aria-expanded', 'false');
+            this.wrap.classList.remove('open'); this.trigger.setAttribute('aria-expanded', 'false');
           }
         });
-
-        document.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape' && this.wrap) {
-            this.wrap.classList.remove('open');
-            this.trigger.setAttribute('aria-expanded', 'false');
-          }
-        });
-
         if (window.speechSynthesis) {
           this.populateVoices();
-          if (window.speechSynthesis.onvoiceschanged !== undefined) {
-            window.speechSynthesis.onvoiceschanged = () => this.populateVoices();
-          }
+          if (window.speechSynthesis.onvoiceschanged !== undefined) window.speechSynthesis.onvoiceschanged = () => this.populateVoices();
         }
       },
-
       populateVoices() {
         if (!window.speechSynthesis || !this.list) return;
         const voices = window.speechSynthesis.getVoices();
-        let englishVoices = voices.filter(v => {
-          const lang = (v.lang || '').toLowerCase().replace('_', '-');
-          return lang.startsWith('en') && !JOKE_VOICES.test(v.name);
-        });
-
+        let englishVoices = voices.filter(v => (v.lang || '').toLowerCase().replace('_', '-').startsWith('en') && !JOKE_VOICES.test(v.name));
         if (englishVoices.length === 0) englishVoices = voices.filter(v => !JOKE_VOICES.test(v.name));
         if (englishVoices.length === 0) englishVoices = voices;
         if (englishVoices.length === 0) return;
-
         englishVoices.sort((a, b) => {
-          const aName = a.name;
-          const bName = b.name;
-          const isA_UK_Fem = aName.includes('Google UK English Female') || (aName.includes('UK English') && aName.includes('Female'));
-          const isB_UK_Fem = bName.includes('Google UK English Female') || (bName.includes('UK English') && bName.includes('Female'));
-          if (isA_UK_Fem && !isB_UK_Fem) return -1;
-          if (!isA_UK_Fem && isB_UK_Fem) return 1;
-
-          const isA_US = aName.includes('Google US English') || (aName.includes('US English') && aName.includes('Female'));
-          const isB_US = bName.includes('Google US English') || (bName.includes('US English') && bName.includes('Female'));
-          if (isA_US && !isB_US) return -1;
-          if (!isA_US && isB_US) return 1;
-
-          const aUK = a.lang.toLowerCase().includes('gb');
-          const bUK = b.lang.toLowerCase().includes('gb');
-          if (aUK && !bUK) return -1;
-          if (!aUK && bUK) return 1;
-
-          const aUS = a.lang.toLowerCase().includes('us');
-          const bUS = b.lang.toLowerCase().includes('us');
-          if (aUS && !bUS) return -1;
-          if (!aUS && bUS) return 1;
-
-          return aName.localeCompare(bName);
+          const score = (v) => v.name.includes('Google UK English Female') ? 0 : v.name.includes('Google US English') ? 1 : (v.lang || '').toLowerCase().includes('gb') ? 2 : (v.lang || '').toLowerCase().includes('au') ? 3 : 4;
+          return score(a) - score(b) || a.name.localeCompare(b.name);
         });
-
+        const capped = englishVoices.slice(0, 15);
         const saved = localStorage.getItem('ib_pyp_voice_name');
-        let selected = null;
-        if (saved) selected = englishVoices.find(v => v.name === saved);
-        if (!selected) selected = englishVoices.find(v => v.name.includes('Google UK English Female') || (v.name.includes('UK English') && v.name.includes('Female')));
-        if (!selected) selected = englishVoices.find(v => v.name.includes('Google US English'));
-        if (!selected) selected = englishVoices.find(v => v.lang.toLowerCase().includes('gb'));
-        if (!selected) selected = englishVoices.find(v => v.lang.toLowerCase().includes('us'));
-        if (!selected) selected = englishVoices[0];
-
+        let selected = saved ? capped.find(v => v.name === saved) : null;
+        if (!selected) selected = capped[0];
         this.currentVoiceName = selected ? selected.name : '';
-
-        this.renderMenu(englishVoices);
+        this.renderMenu(capped);
         this.updateTriggerUI(selected);
       },
-
       renderMenu(voices) {
         this.list.innerHTML = '';
         voices.forEach(v => {
-          const isUK = v.lang.toLowerCase().replace('_', '-').includes('gb');
-          const flag = isUK ? '🇬🇧' : '🇺🇸';
-          const region = isUK ? 'UK' : 'US';
+          const { flag, region } = getVoiceBadge(v.lang);
           const isActive = v.name === this.currentVoiceName;
-
           const btn = document.createElement('button');
-          btn.type = 'button';
-          btn.className = `tts-radio-item ${isActive ? 'active' : ''}`;
-          btn.dataset.voice = v.name;
-          btn.setAttribute('role', 'menuitemradio');
+          btn.type = 'button'; btn.className = `tts-radio-item ${isActive ? 'active' : ''}`;
+          btn.dataset.voice = v.name; btn.setAttribute('role', 'menuitemradio');
           btn.setAttribute('aria-checked', isActive ? 'true' : 'false');
-          btn.innerHTML = `
-            <span class="tts-radio-circle"></span>
-            <span class="tts-item-flag">${flag}</span>
-            <span class="tts-item-name">${v.name} (${region})</span>
-          `;
-
+          btn.innerHTML = `<span class="tts-radio-circle"></span><span>${flag}</span><span class="tts-item-name">${v.name} (${region})</span>`;
           btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            sfx.playClick();
-            this.selectVoice(v);
-            this.wrap.classList.remove('open');
-            this.trigger.setAttribute('aria-expanded', 'false');
+            e.stopPropagation(); sfx.playClick(); this.selectVoice(v);
+            this.wrap.classList.remove('open'); this.trigger.setAttribute('aria-expanded', 'false');
           });
-
           this.list.appendChild(btn);
         });
       },
-
       selectVoice(v) {
-        this.currentVoiceName = v.name;
-        localStorage.setItem('ib_pyp_voice_name', v.name);
+        this.currentVoiceName = v.name; localStorage.setItem('ib_pyp_voice_name', v.name);
         this.updateTriggerUI(v);
         this.list.querySelectorAll('.tts-radio-item').forEach(btn => {
           const isMatch = btn.dataset.voice === v.name;
-          btn.classList.toggle('active', isMatch);
-          btn.setAttribute('aria-checked', isMatch ? 'true' : 'false');
+          btn.classList.toggle('active', isMatch); btn.setAttribute('aria-checked', isMatch ? 'true' : 'false');
         });
         if (window.speechSynthesis) window.speechSynthesis.cancel();
       },
-
       updateTriggerUI(v) {
         if (!v) return;
-        const isUK = v.lang.toLowerCase().replace('_', '-').includes('gb');
-        this.flag.textContent = isUK ? '🇬🇧' : '🇺🇸';
+        this.flag.textContent = getVoiceBadge(v.lang).flag;
         let shortName = v.name.replace(/^(Google|Microsoft|Apple)\s+/i, '');
-        if (shortName.length > 14) shortName = shortName.substring(0, 12) + '...';
+        if (shortName.length > 14) shortName = shortName.substring(0, 12) + '…';
         this.label.textContent = shortName;
       },
-
       speak(text, onEnd) {
-        if (!window.speechSynthesis) return;
+        const finish = () => { if (typeof onEnd === 'function') onEnd(); };
+        if (!window.speechSynthesis || !text || !text.trim()) {
+          if (window.speechSynthesis) window.speechSynthesis.cancel();
+          finish(); return;
+        }
         window.speechSynthesis.cancel();
-        if (!text || !text.trim()) return;
-
         const utterance = new SpeechSynthesisUtterance(text);
         const voices = window.speechSynthesis.getVoices();
         const voiceName = this.currentVoiceName || localStorage.getItem('ib_pyp_voice_name');
-        if (voiceName) {
-          const match = voices.find(v => v.name === voiceName);
-          if (match) utterance.voice = match;
-        }
-        utterance.rate = 0.85;
-        if (onEnd) {
-          utterance.onend = onEnd;
-          utterance.onerror = onEnd;
-        }
+        let match = voiceName ? voices.find(v => v.name === voiceName) : null;
+        if (!match) match = voices.find(v => v.default) || voices[0] || null;
+        if (match) utterance.voice = match;
+        utterance.rate = 0.88;
+        utterance.onend = finish;
+        utterance.onerror = finish;
         window.speechSynthesis.speak(utterance);
       }
     };
 
-    // Inspector Voice Button Listener
     const btnSpeakInspector = document.getElementById('btnSpeakInspector');
-    if (btnSpeakInspector) {
-      btnSpeakInspector.addEventListener('click', () => {
-        sfx.playClick();
-        const info = shapesInfo[currentShapeKey];
-        if (!info) return;
-        btnSpeakInspector.classList.add('speaking');
-        const hideSpoiler = (appMode === 'quiz' && !quizRevealed);
-        const textToSpeak = hideSpoiler
-          ? `${info.name}. Number of vertices: ${info.vertices}. Rotate the 3D object and choose which angle is highlighted!`
-          : `${info.name}. Primary angles: ${info.angleType}. Number of vertices: ${info.vertices}. ${info.memo}`;
-        TTS_MANAGER.speak(textToSpeak, () => {
-          btnSpeakInspector.classList.remove('speaking');
-        });
-      });
-    }
+    btnSpeakInspector.addEventListener('click', () => {
+      sfx.playClick();
+      const info = shapesInfo[currentShapeKey];
+      btnSpeakInspector.classList.add('speaking');
+      const hideSpoiler = (appMode === 'quiz' && !quizRevealed);
+      const textToSpeak = hideSpoiler
+        ? `${info.name}. Rotate the 3D object and choose which angle is glowing.`
+        : `${info.name}. ${document.getElementById('attrAngleType').textContent}. ${info.memo}`;
+      TTS_MANAGER.speak(textToSpeak, () => btnSpeakInspector.classList.remove('speaking'));
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const wrap = document.getElementById('ttsDropdownWrap');
+        const trig = document.getElementById('ttsTrigger');
+        if (wrap) wrap.classList.remove('open');
+        if (trig) trig.setAttribute('aria-expanded', 'false');
+        pypModal.classList.remove('open');
+      }
+    });
 
     TTS_MANAGER.init();
     animate();

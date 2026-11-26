@@ -1,28 +1,17 @@
 /**
  * GestureRouter — translates raw MediaPipe landmarks into unified object-control commands.
  *
- * Design (first principles):
- *  - Open palm (openness ≥ 0.6):
- *      • Hand depth (apparent size) → object scale  [farther = bigger]
- *      • Hand X sliding left/right → object Y rotation
- *  - Clenched fist (openness < 0.35, debounced):
- *      • Emits fist:true → scenes explode particles
- *  - Open palm after fist → fist:false → scenes reconstruct
- *  - Camera is NOT moved by gestures; OrbitControls handles mouse.
- *
- * Command emitted each frame:
- *   {
- *     handDepth: number,   // 0.0 (hand very close) → 1.0 (hand far away)
- *     rotateY:   number,   // delta rotation this frame (radians), 0 when fist
- *     fist:      boolean,  // stable debounced fist state
- *     openness:  number,   // 0.0=fist … 1.0=fully open palm
- *   }
- *   or null when no hand detected.
+ * Uses scale-invariant palm-normalized openness so open palms at arm's length
+ * are never misclassified as fists:
+ *   tipDist = sum(|landmarks[t] - landmarks[0]|) for t in [8, 12, 16, 20]
+ *   palmDist = sum(|landmarks[b] - landmarks[0]|) for b in [5, 9, 13, 17]
+ *   ratio = tipDist / max(palmDist, 0.001)
+ *   openness = clamp((ratio - 1.05) / 0.80, 0, 1)
  */
 export class GestureRouter {
   constructor() {
     // Fist state machine
-    this._fistActive  = false;
+    this._fistActive   = false;
     this._fistOnTimer  = 0;
     this._fistOffTimer = 0;
     this._fistOnDelay  = 0.25;  // seconds of closed hand before activating
@@ -33,7 +22,6 @@ export class GestureRouter {
 
   process(results, dt) {
     if (!results || !results.multiHandLandmarks || results.multiHandLandmarks.length === 0) {
-      // Reset state when hand leaves frame
       this._fistActive   = false;
       this._fistOnTimer  = 0;
       this._fistOffTimer = 0;
@@ -42,22 +30,24 @@ export class GestureRouter {
     }
 
     const h = results.multiHandLandmarks[0];
-
-    // ── 1. Openness ─────────────────────────────────────────────────────────
-    // Average distance of 5 fingertips (thumb + 4 fingers) to wrist.
-    // Empirically: ~0.5 when fully fisted, ~1.7 when fully open.
     const wrist = h[0];
-    const tips  = [4, 8, 12, 16, 20];
-    let totalDist = 0;
-    tips.forEach(t => {
-      totalDist += Math.hypot(h[t].x - wrist.x, h[t].y - wrist.y, h[t].z - wrist.z);
-    });
-    const openness = Math.max(0, Math.min(1, (totalDist - 0.5) / 1.2));
 
-    // ── 2. Fist state machine (debounced) ───────────────────────────────────
-    // Hysteresis: require 250 ms hold to activate, 200 ms open to deactivate.
-    // This prevents false triggers from transient tracking noise.
-    const FIST_THRESHOLD = 0.35;
+    // ── 1. Scale-invariant palm-normalized openness ─────────────────────────
+    const tips = [8, 12, 16, 20];
+    const bases = [5, 9, 13, 17];
+    let tipDist = 0;
+    let palmDist = 0;
+    for (let i = 0; i < 4; i++) {
+      const t = h[tips[i]];
+      const b = h[bases[i]];
+      tipDist += Math.hypot(t.x - wrist.x, t.y - wrist.y, (t.z || 0) - (wrist.z || 0));
+      palmDist += Math.hypot(b.x - wrist.x, b.y - wrist.y, (b.z || 0) - (wrist.z || 0));
+    }
+    const ratio = tipDist / Math.max(palmDist, 0.001);
+    const openness = Math.max(0, Math.min(1, (ratio - 1.05) / 0.80));
+
+    // ── 2. Fist state machine (debounced with hysteresis) ───────────────────
+    const FIST_THRESHOLD = 0.30;
     if (openness < FIST_THRESHOLD) {
       this._fistOnTimer  += dt;
       this._fistOffTimer  = 0;
@@ -73,30 +63,22 @@ export class GestureRouter {
     }
 
     // ── 3. Hand depth via apparent size ─────────────────────────────────────
-    // Use wrist→middle-finger-tip distance in screen space as a depth proxy.
-    // When hand is far from camera: small apparent size → larger handSize value
-    // is counter-intuitive, so:
-    //   handSize large (hand close)  → handDepth 0.0 (object shrinks)
-    //   handSize small (hand far)    → handDepth 1.0 (object grows)
-    //
-    // Empirical range: ~0.08 (far) to ~0.38 (very close).
     const handSize = Math.hypot(h[12].x - wrist.x, h[12].y - wrist.y);
-    // Invert: farther hand = higher depth value
     const HAND_NEAR = 0.35;
     const HAND_FAR  = 0.08;
     const handDepth = Math.max(0, Math.min(1,
       (HAND_NEAR - handSize) / (HAND_NEAR - HAND_FAR)
     ));
 
-    // ── 4. Y-axis rotation from palm X slide ────────────────────────────────
-    // Only rotate when open palm (not fist) to avoid conflict.
-    const palmX = h[9].x;  // palm center landmark
+    // ── 4. Y-axis rotation from palm X slide with deadzone ──────────────────
+    const palmX = h[9].x;
     let rotateY = 0;
     if (!this._fistActive && this._prevPalmX !== null) {
       const deltaX = palmX - this._prevPalmX;
-      // Clamp to ±0.05 per frame, scale to a reasonable rotation speed
-      const clamped = Math.max(-0.05, Math.min(0.05, deltaX));
-      rotateY = clamped * 6.0;  // radians per frame at 60fps
+      if (Math.abs(deltaX) >= 0.004) {
+        const clamped = Math.max(-0.05, Math.min(0.05, deltaX));
+        rotateY = clamped * 6.0;
+      }
     }
     this._prevPalmX = palmX;
 

@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Times Table Speed Challenge</title>
   <style>
     :root {
@@ -14,596 +14,334 @@
       --teal: #4ECDC4;
       --blue: #38B6FF;
       --purple: #B388FF;
+      --green: #86EFAC;
       --white: #FFFFFF;
-      --border: 3.5px solid var(--ink);
+      --border: 3px solid var(--ink);
       --shadow: 4px 4px 0 var(--ink);
       --shadow-sm: 2px 2px 0 var(--ink);
       --radius: 14px;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      overscroll-behavior: none;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-text-size-adjust: 100%;
     }
 
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: ui-rounded, "SF Pro Rounded", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: var(--bg);
       background-image:
         radial-gradient(circle at 10% 20%, rgba(255, 101, 132, 0.12) 0%, transparent 25%),
         radial-gradient(circle at 90% 80%, rgba(56, 182, 255, 0.12) 0%, transparent 25%);
       color: var(--ink);
-      min-height: 100vh; min-height: 100dvh;
-      padding: 14px 16px 36px;
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding: max(10px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
     }
+
+    button, a, input { touch-action: manipulation; font-family: inherit; }
 
     .container {
-      max-width: 1120px;
+      max-width: 1340px;
       margin: 0 auto;
+      container-type: inline-size;
+      container-name: times;
     }
 
-    /* Top Nav */
     .nav-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 14px;
-      flex-wrap: wrap;
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 10px; margin-bottom: 10px; flex-wrap: wrap;
     }
+    .nav-left, .nav-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
     .pyp-map-link {
-      display: inline-flex;
-      align-items: center;
-      background: var(--yellow);
-      color: var(--ink);
-      text-decoration: none;
-      font-weight: 900;
-      font-size: 0.95rem;
-      border: var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 8px 16px;
-      min-height: 44px;
-      cursor: pointer;
-      transition: transform 0.1s ease;
+      display: inline-flex; align-items: center; background: var(--yellow); color: var(--ink);
+      text-decoration: none; font-weight: 900; font-size: 0.9rem; border: var(--border);
+      border-radius: 12px; box-shadow: var(--shadow-sm); padding: 8px 14px; min-height: 44px;
     }
-
-    .pyp-map-link:active,
-    .pyp-map-link:hover {
-      transform: translate(2px, 2px);
-      box-shadow: var(--shadow-sm);
-    }
-
     .unit-tag {
-      background: var(--coral);
-      color: var(--white);
-      border: var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 8px 14px;
-      font-weight: 800;
-      font-size: 0.88rem;
-      min-height: 44px;
-      display: inline-flex;
-      align-items: center;
+      background: var(--coral); color: var(--white); border: var(--border); border-radius: 12px;
+      box-shadow: var(--shadow-sm); padding: 8px 12px; font-weight: 900; font-size: 0.86rem;
+      min-height: 44px; display: inline-flex; align-items: center;
     }
-
-    /* Hero Header */
-    .hero-card {
-      background: var(--white);
-      border: var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 14px 18px;
-      margin-bottom: 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
+    .step-switch {
+      display: inline-flex; background: #F3F4F6; border: var(--border); border-radius: 12px;
+      padding: 3px; gap: 4px; box-shadow: var(--shadow-sm);
     }
-
-    .hero-title h1 {
-      font-size: clamp(1.2rem, 2.5vw, 1.6rem);
-      font-weight: 900;
-      margin-bottom: 2px;
+    .mode-pill {
+      border: 2px solid transparent; border-radius: 9px; background: transparent;
+      color: var(--ink); font-weight: 900; font-size: 0.86rem; padding: 6px 12px;
+      min-height: 44px; cursor: pointer;
     }
-
-    .hero-title p {
-      font-size: 0.88rem;
-      font-weight: 700;
-      color: #4B5563;
-    }
-
-    .stat-tray {
-      display: flex;
-      gap: 10px;
-    }
+    .mode-pill.active { background: var(--teal); border-color: var(--ink); box-shadow: 2px 2px 0 var(--ink); }
 
     .stat-badge {
-      border: 2.5px solid var(--ink);
-      border-radius: 10px;
-      padding: 6px 14px;
-      font-weight: 900;
-      font-size: 0.9rem;
-      box-shadow: var(--shadow-sm);
-      min-height: 44px;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--yellow);
+      border: var(--border); border-radius: 12px; padding: 6px 12px; font-weight: 900;
+      font-size: 0.86rem; box-shadow: var(--shadow-sm); min-height: 44px;
+      display: inline-flex; align-items: center; gap: 5px; background: var(--yellow);
+    }
+    .btn-reflect-pill {
+      display: inline-flex; align-items: center; gap: 6px; background: var(--green); color: var(--ink);
+      border: var(--border); border-radius: 12px; box-shadow: var(--shadow-sm);
+      padding: 8px 14px; font-weight: 900; font-size: 0.86rem; min-height: 44px; cursor: pointer;
     }
 
-    /* Multiplier Table Selection Tabs */
-    .table-tabs {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
+    /* Hero + Table Tabs */
+    .hero-card {
+      background: var(--white); border: var(--border); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 10px 16px; margin-bottom: 10px;
+      display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;
     }
+    .hero-card h1 { font-size: clamp(1.15rem, 2.2vw, 1.48rem); font-weight: 900; }
+    .hero-card p { font-size: 0.84rem; font-weight: 700; color: #4B5563; }
 
+    .table-tabs { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
     .tab-btn {
-      font-family: inherit;
-      background: var(--white);
-      color: var(--ink);
-      border: 2.5px solid var(--ink);
-      border-radius: 8px;
-      padding: 6px 12px;
-      font-size: 0.88rem;
-      font-weight: 900;
-      min-height: 40px;
-      cursor: pointer;
-      box-shadow: var(--shadow-sm);
-      transition: all 0.1s ease;
-      white-space: nowrap;
+      background: var(--white); color: var(--ink); border: 2.5px solid var(--ink);
+      border-radius: 10px; padding: 6px 12px; font-size: 0.84rem; font-weight: 900;
+      min-height: 44px; min-width: 44px; cursor: pointer; box-shadow: var(--shadow-sm); white-space: nowrap;
     }
+    .tab-btn.group-btn { background: #FEF08A; }
+    .tab-btn.active { background: var(--teal) !important; transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--ink); }
 
-    .tab-btn.group-btn {
-      background: #FEF08A;
-    }
-
-    .tab-btn.active {
-      background: var(--teal) !important;
-      transform: translate(2px, 2px);
-      box-shadow: 0 0 0;
-    }
-
-    /* Speed Challenge Arena */
-    .arena-card {
-      background: var(--white);
-      border: var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-    }
-
-    /* Progress & Combo Bar */
-    .combo-bar {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.95rem;
-      font-weight: 900;
-      color: #D97706;
-      margin-bottom: 16px;
-    }
-
-    .equation-display {
-      font-family: monospace;
-      font-size: clamp(2.4rem, 6vw, 3.8rem);
-      font-weight: 900;
-      background: #F8FAFC;
-      border: 3.5px solid var(--ink);
-      border-radius: 18px;
-      padding: 16px 36px;
-      box-shadow: var(--shadow);
-      margin-bottom: 24px;
-      letter-spacing: 2px;
-    }
-
-    /* 4 Speed Options */
-    .choices-grid {
+    /* 2-Column Studio Grid */
+    .studio-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 14px;
-      width: 100%;
-      max-width: 500px;
-      margin-bottom: 20px;
+      grid-template-columns: 1.2fr 0.85fr;
+      gap: 12px;
+      align-items: stretch;
     }
 
-    .choice-btn {
-      font-family: monospace;
-      background: var(--white);
-      color: var(--ink);
-      border: 3.5px solid var(--ink);
-      border-radius: 14px;
-      font-size: 2rem;
-      font-weight: 900;
-      padding: 14px 10px;
-      min-height: 68px;
+    .card {
+      background: var(--white); border: var(--border); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 16px; display: flex; flex-direction: column; gap: 12px;
+    }
+
+    /* Step 1: 1-9 Pattern Explorer */
+    .pattern-grid {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      gap: 5px;
+    }
+    .pattern-cell {
+      min-height: 44px; border: 2px solid var(--ink); border-radius: 8px; background: #FFF;
+      font-weight: 900; font-size: 0.86rem; display: flex; align-items: center; justify-content: center;
       cursor: pointer;
-      box-shadow: var(--shadow);
-      transition: all 0.1s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    }
+    .pattern-cell.lit { background: var(--yellow); box-shadow: 2px 2px 0 var(--ink); }
+    .pattern-cell.head { background: #E0F2FE; }
+
+    .trick-card {
+      background: #FFFDE8; border: 2.5px solid var(--ink); border-radius: 12px; padding: 12px;
+      font-size: 0.92rem; font-weight: 800; line-height: 1.45;
     }
 
-    .choice-btn:hover {
-      background: #FFF9D2;
-      transform: translateY(-2px);
+    /* Step 2: Speed Arena */
+    .arena-mode-bar { display: flex; gap: 6px; flex-wrap: wrap; }
+    .speed-bar-track {
+      width: 100%; height: 12px; background: #E5E7EB; border: 2px solid var(--ink);
+      border-radius: 999px; overflow: hidden; display: none;
+    }
+    .speed-bar-track.active { display: block; }
+    .speed-bar-fill { height: 100%; width: 100%; background: var(--coral); transition: width 0.25s linear; }
+
+    .combo-bar {
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
+      font-weight: 900; font-size: 0.9rem;
+    }
+    .combo-flame {
+      background: #FEF3C7; border: 2px solid var(--ink); border-radius: 999px;
+      padding: 4px 12px; color: #B45309;
+    }
+    .combo-flame.hot { background: #FDE047; color: #DC2626; }
+
+    .equation-row { display: flex; align-items: center; justify-content: center; gap: 12px; }
+    .equation-display {
+      font-family: monospace; font-size: clamp(2.1rem, 4.5vw, 3.2rem); font-weight: 900;
+      background: #F8FAFC; border: 3.5px solid var(--ink); border-radius: 16px;
+      padding: 12px 28px; box-shadow: var(--shadow); letter-spacing: 2px;
     }
 
-    .choice-btn:active {
-      transform: translate(2px, 2px);
-      box-shadow: 0 0 0;
+    .choices-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%;
+    }
+    .choice-btn {
+      font-family: monospace; background: var(--white); color: var(--ink);
+      border: 3px solid var(--ink); border-radius: 12px; font-size: 1.75rem; font-weight: 900;
+      padding: 10px; min-height: 60px; cursor: pointer; box-shadow: var(--shadow-sm);
+      display: flex; align-items: center; justify-content: center; gap: 8px; position: relative;
+    }
+    .choice-key-tag {
+      position: absolute; top: 5px; left: 8px; font-size: 0.68rem; font-family: system-ui;
+      color: #6B7280; background: #F3F4F6; border: 1.5px solid #9CA3AF; border-radius: 5px; padding: 1px 5px;
     }
 
     .feedback-banner {
-      font-size: 1rem;
-      font-weight: 800;
-      min-height: 28px;
+      font-size: 0.96rem; font-weight: 800; min-height: 26px; text-align: center;
     }
 
-    .hint-visual-box {
-      display: none;
-      margin-top: 12px;
-      background: #FEF9C3;
-      border: 2.5px solid var(--ink);
-      border-radius: 12px;
-      box-shadow: 3px 3px 0 var(--ink);
-      padding: 12px 16px;
+    /* Side-by-side Auto-Scaling SVG Dot Array Scaffold (<= 170px tall!) */
+    .scaffold-panel {
+      background: #FFFDE8; border: 2.5px solid var(--ink); border-radius: 12px;
+      padding: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+      flex: 1;
+    }
+    .dot-array-svg {
       width: 100%;
-      max-width: 480px;
-      text-align: center;
-    }
-
-    .hint-visual-box.open {
+      max-height: 170px;
+      height: 165px;
+      background: #FFFFFF;
+      border: 2px solid var(--ink);
+      border-radius: 10px;
       display: block;
     }
 
-    .hint-dot-grid {
-      display: inline-flex;
-      flex-direction: column;
-      gap: 6px;
-      margin: 8px 0;
-      align-items: center;
+    .fact-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .fact-chip {
+      padding: 4px 10px; border: 2px solid var(--ink); border-radius: 999px;
+      font-weight: 900; font-size: 0.8rem; background: #DCFCE7;
     }
-
-    .hint-dot-row {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-      background: #FFFFFF;
-      border: 1.5px solid var(--ink);
-      border-radius: 999px;
-      padding: 4px 10px;
-    }
-
-    .hint-dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: var(--blue);
-      border: 1.5px solid var(--ink);
-    }
-
-    .hint-skip-text {
-      font-size: 0.88rem;
-      font-weight: 900;
-      color: #713F12;
-      margin-top: 4px;
-    }
-
-    .pyp-reflect-card {
-      background: #FFFDE8;
-      border: 2.5px solid var(--ink);
-      border-radius: 12px;
-      box-shadow: 3px 3px 0 var(--ink);
-      padding: 14px 16px;
-      margin-bottom: 16px;
-      text-align: left;
-    }
-
-    .pyp-reflect-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--coral);
-      color: var(--white);
-      border: 2px solid var(--ink);
-      border-radius: 999px;
-      padding: 3px 12px;
-      font-size: 0.78rem;
-      font-weight: 900;
-      margin-bottom: 6px;
-    }
-
-    .pyp-stamp-status {
-      font-size: 0.88rem;
-      font-weight: 900;
-      color: #047857;
-      margin-top: 8px;
-      min-height: 20px;
-    }
-
-    /* Win Modal */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(4px);
-      z-index: 100;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-    }
-
-    .modal-card {
-      background: var(--white);
-      border: 4px solid var(--ink);
-      border-radius: 18px;
-      box-shadow: 8px 8px 0 var(--ink);
-      padding: 28px;
-      max-width: 480px;
-      width: 100%;
-      text-align: center;
-    }
-
-    .modal-badge {
-      font-size: 4rem;
-      margin-bottom: 8px;
-    }
-
-    .modal-title {
-      font-size: 1.6rem;
-      font-weight: 900;
-      margin-bottom: 8px;
-    }
-
-    .modal-desc {
-      font-size: 0.98rem;
-      font-weight: 700;
-      color: #4B5563;
-      margin-bottom: 20px;
-      line-height: 1.4;
-    }
-
-    .btn-action-primary {
-      font-family: inherit;
-      background: var(--teal);
-      color: var(--ink);
-      border: var(--border);
-      border-radius: 12px;
-      font-size: 1.05rem;
-      font-weight: 900;
-      padding: 12px 24px;
-      min-height: 50px;
-      cursor: pointer;
-      box-shadow: var(--shadow);
-      width: 100%;
-    }
-
-    .btn-action-primary:active {
-      transform: translate(2px, 2px);
-      box-shadow: var(--shadow-sm);
-    }
-
-    @media (max-width: 820px) {
-      .equation-display {
-        padding: 12px 20px;
-      }
-    }
-
-    /* Neobrutalism TTS Radio Dropdown */
-    .tts-dropdown-wrap {
-      position: relative;
-      display: inline-block;
-      user-select: none;
-      font-family: inherit;
-    }
-    .tts-trigger {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: #FFF;
-      border: 2.5px solid var(--ink);
-      border-radius: 10px;
-      box-shadow: 3px 3px 0 var(--ink);
-      padding: 6px 12px;
-      font-family: inherit;
-      font-size: 0.85rem;
-      font-weight: 800;
-      color: var(--ink);
-      cursor: pointer;
-      min-height: 38px;
-      transition: transform 0.1s, box-shadow 0.1s;
-    }
-    .tts-trigger:hover {
-      background: #FEF08A;
-      transform: translate(-1px, -1px);
-      box-shadow: 4px 4px 0 var(--ink);
-    }
-    .tts-trigger:active {
-      transform: translate(2px, 2px);
-      box-shadow: 1px 1px 0 var(--ink);
-    }
-    .tts-arrow {
-      font-size: 0.75rem;
-      transition: transform 0.15s ease;
-    }
-    .tts-dropdown-wrap.open .tts-arrow {
-      transform: rotate(180deg);
-    }
-    .tts-menu {
-      display: none;
-      position: absolute;
-      top: calc(100% + 6px);
-      right: 0;
-      min-width: 250px;
-      max-width: 320px;
-      max-height: 290px;
-      overflow-y: auto;
-      background: #FFF;
-      border: 3px solid var(--ink);
-      border-radius: 12px;
-      box-shadow: 4px 4px 0 var(--ink);
-      padding: 6px;
-      z-index: 1000;
-      flex-direction: column;
-      gap: 3px;
-    }
-    .tts-dropdown-wrap.open .tts-menu {
-      display: flex;
-    }
-    .tts-menu-header {
-      font-size: 0.72rem;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      color: #6B7280;
-      padding: 4px 8px 6px;
-      border-bottom: 2px solid #E5E7EB;
-      margin-bottom: 3px;
-    }
-    .tts-radio-group {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-    .tts-radio-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 7px 10px;
-      border: 2px solid transparent;
-      border-radius: 8px;
-      background: transparent;
-      cursor: pointer;
-      font-family: inherit;
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--ink);
-      text-align: left;
-      width: 100%;
-      transition: background 0.1s, border-color 0.1s;
-    }
-    .tts-radio-item:hover {
-      background: #FEF9C3;
-      border-color: var(--ink);
-    }
-    .tts-radio-item.active {
-      background: #E0F2FE;
-      border-color: var(--ink);
-      font-weight: 800;
-    }
-    .tts-radio-circle {
-      width: 15px;
-      height: 15px;
-      border-radius: 50%;
-      border: 2px solid var(--ink);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      background: #FFF;
-    }
-    .tts-radio-item.active .tts-radio-circle::after {
-      content: '';
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--ink);
-    }
-    .tts-item-flag {
-      font-size: 1rem;
-    }
-    .tts-item-name {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      flex: 1;
-    }
+    .fact-chip.tricky { background: #FEE2E2; }
 
     .btn-speaker {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: #FEF08A;
-      border: 2px solid var(--ink);
-      box-shadow: 2px 2px 0 var(--ink);
-      border-radius: 8px;
-      width: 40px;
-      height: 40px;
-      cursor: pointer;
-      font-size: 1.15rem;
-      line-height: 1;
-      flex-shrink: 0;
-      transition: transform 0.1s, box-shadow 0.1s, background-color 0.1s;
+      display: inline-flex; align-items: center; justify-content: center;
+      background: #FEF08A; border: 2.5px solid var(--ink); box-shadow: 2px 2px 0 var(--ink);
+      border-radius: 10px; min-width: 44px; min-height: 44px; cursor: pointer;
+      font-size: 1.1rem; flex-shrink: 0;
     }
-    .btn-speaker:hover {
-      background: #FDE047;
-      transform: translate(-1px, -1px);
-      box-shadow: 3px 3px 0 var(--ink);
+    .btn-speaker.speaking { background: var(--green); animation: ttsPulse 0.7s infinite alternate; }
+    @keyframes ttsPulse { from { transform: scale(1); } to { transform: scale(1.08); } }
+
+    /* Unified TTS Dropdown */
+    .tts-dropdown-wrap { position: relative; display: inline-block; user-select: none; }
+    .tts-trigger {
+      display: inline-flex; align-items: center; gap: 6px; background: #FFF;
+      border: var(--border); border-radius: 12px; box-shadow: var(--shadow-sm);
+      padding: 6px 12px; font-size: 0.85rem; font-weight: 800; color: var(--ink);
+      cursor: pointer; min-height: 44px;
     }
-    .btn-speaker:active {
-      transform: translate(2px, 2px);
-      box-shadow: 0 0 0 var(--ink);
+    .tts-arrow { font-size: 0.75rem; transition: transform 0.15s ease; }
+    .tts-dropdown-wrap.open .tts-arrow { transform: rotate(180deg); }
+    .tts-menu {
+      display: none; position: absolute; top: calc(100% + 6px); right: 0;
+      min-width: 260px; max-width: 320px; max-height: 290px; overflow-y: auto;
+      background: #FFF; border: 3px solid var(--ink); border-radius: 12px;
+      box-shadow: var(--shadow); padding: 6px; z-index: 1000; flex-direction: column; gap: 3px;
     }
-    .btn-speaker.speaking {
-      background: #86EFAC;
-      animation: ttsPulse 0.7s infinite alternate;
+    .tts-dropdown-wrap.open .tts-menu { display: flex; }
+    .tts-menu-header {
+      font-size: 0.72rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.6px;
+      color: #6B7280; padding: 4px 8px 6px; border-bottom: 2px solid #E5E7EB; margin-bottom: 3px;
     }
-    @keyframes ttsPulse {
-      from { transform: scale(1); }
-      to { transform: scale(1.1); }
+    .tts-radio-group { display: flex; flex-direction: column; gap: 3px; }
+    .tts-radio-item {
+      display: flex; align-items: center; gap: 8px; padding: 7px 10px;
+      border: 2px solid transparent; border-radius: 8px; background: transparent;
+      cursor: pointer; font-size: 0.82rem; font-weight: 700; color: var(--ink);
+      text-align: left; width: 100%; min-height: 44px;
     }
-  
-    html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
+    .tts-radio-item.active { background: #E0F2FE; border-color: var(--ink); font-weight: 800; }
+    .tts-radio-circle {
+      width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--ink);
+      display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; background: #FFF;
+    }
+    .tts-radio-item.active .tts-radio-circle::after {
+      content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--ink);
+    }
+    .tts-item-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+
+    /* Modal */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.72);
+      backdrop-filter: blur(5px); z-index: 2000; align-items: center; justify-content: center; padding: 16px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-card {
+      background: #FFFDF0; border: 4px solid var(--ink); border-radius: 20px;
+      box-shadow: 8px 8px 0 var(--ink); padding: 22px; max-width: 560px; width: 100%;
+      text-align: center; display: grid; gap: 10px;
+    }
+    .pyp-reflect-badge {
+      display: inline-flex; align-items: center; gap: 6px; background: var(--coral); color: var(--white);
+      border: 2.5px solid var(--ink); border-radius: 999px; padding: 4px 14px;
+      font-size: 0.82rem; font-weight: 900; width: fit-content; margin: 0 auto;
+    }
+    .pyp-modal-box {
+      background: #FFF; border: 2.5px solid var(--ink); border-radius: 12px; padding: 10px 14px;
+      font-size: 0.88rem; line-height: 1.45; font-weight: 700; text-align: left;
+    }
+    .pyp-modal-box strong { display: block; font-size: 0.74rem; text-transform: uppercase; color: #0F766E; margin-bottom: 3px; }
+    .modal-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn-action-primary {
+      flex: 1; min-width: 140px; background: var(--teal); color: var(--ink); border: var(--border);
+      border-radius: 12px; font-size: 0.94rem; font-weight: 900; padding: 10px 14px; min-height: 46px;
+      cursor: pointer; box-shadow: var(--shadow-sm); text-decoration: none;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (hover: hover) and (pointer: fine) {
+      .pyp-map-link:hover, .btn-reflect-pill:hover, .mode-pill:hover, .tab-btn:hover,
+      .choice-btn:hover, .pattern-cell:hover, .btn-action-primary:hover, .tts-trigger:hover, .btn-speaker:hover {
+        transform: translate(-1px, -1px);
+      }
+      .tts-radio-item:hover { background: #FEF9C3; border-color: var(--ink); }
+    }
+
+    @container times (max-width: 920px) {
+      .studio-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 
 <body>
   <div class="container">
     <nav class="nav-bar">
-      <div style="display: flex; align-items: center; gap: 10px;">
+      <div class="nav-left">
         <a class="pyp-map-link" href="../index.html">← PYP Map</a>
-        <span class="unit-tag">⚡ Grade 2 · Times Tables Goal</span>
+        <span class="unit-tag">⚡ Grade 2 · Times Tables</span>
+        <div class="step-switch" role="tablist">
+          <button type="button" class="mode-pill active" id="tabStep1" role="tab" aria-selected="true">1. Pattern Explorer</button>
+          <button type="button" class="mode-pill" id="tabStep2" role="tab" aria-selected="false">2. Speed Arena</button>
+        </div>
       </div>
-      <div class="tts-dropdown-wrap" id="ttsDropdownWrap">
-        <button type="button" class="tts-trigger" id="ttsTrigger" aria-haspopup="menu" aria-expanded="false" title="Select Voice Accent">
-          <span class="tts-trigger-flag" id="ttsFlag">🇬🇧</span>
-          <span class="tts-trigger-label" id="ttsLabel">Voice</span>
-          <span class="tts-arrow">▾</span>
-        </button>
-        <div class="tts-menu" id="ttsMenu" role="menu">
-          <div class="tts-menu-header">Select Voice Accent</div>
-          <div class="tts-radio-group" id="ttsRadioList" role="radiogroup"></div>
+      <div class="nav-right">
+        <div class="stat-badge" id="badgeStreak">🔥 Streak: 0</div>
+        <div class="stat-badge" style="background: var(--teal);" id="badgeScore">⭐ Score: 0</div>
+        <button type="button" class="btn-reflect-pill" id="btnOpenReflect">🏅 Reflect &amp; Stamp</button>
+        <div class="tts-dropdown-wrap" id="ttsDropdownWrap">
+          <button type="button" class="tts-trigger" id="ttsTrigger" aria-haspopup="menu" aria-expanded="false" title="Select Voice Accent">
+            <span id="ttsFlag">🇬🇧</span>
+            <span id="ttsLabel">Voice</span>
+            <span class="tts-arrow">▾</span>
+          </button>
+          <div class="tts-menu" id="ttsMenu" role="menu">
+            <div class="tts-menu-header">Select Voice Accent</div>
+            <div class="tts-radio-group" id="ttsRadioList" role="radiogroup"></div>
+          </div>
         </div>
       </div>
     </nav>
 
     <header class="hero-card">
-      <div class="hero-title">
+      <div>
         <h1>Times Table Speed Challenge ⚡</h1>
-        <p>Master multiplication tables from 1 to 9 by heart!</p>
+        <p id="heroSub">Step 1: Tap any table (×1 to ×9) to discover skip-counting patterns and memory tricks!</p>
       </div>
-      <div class="stat-tray">
-        <div class="stat-badge" id="badgeStreak">🔥 Streak: 0</div>
-        <div class="stat-badge" style="background: var(--teal);" id="badgeScore">⭐ Score: 0</div>
+      <div class="arena-mode-bar hidden" id="arenaModeBar">
+        <button type="button" class="tab-btn active" data-playmode="rocket">🎯 10-Fact Rocket</button>
+        <button type="button" class="tab-btn" data-playmode="zen">🧘 Zen Practice</button>
+        <button type="button" class="tab-btn" data-playmode="sprint">⚡ 60s Turbo Sprint</button>
       </div>
     </header>
 
-    <!-- Table Selection Mode -->
+    <!-- Table Selection Tabs -->
     <div class="table-tabs" id="tableTabs">
-      <button class="tab-btn active" data-tab="all" type="button">All (1–9 Mixed)</button>
+      <button class="tab-btn active" data-tab="all" type="button">All (1–9)</button>
       <button class="tab-btn group-btn" data-tab="2-4" type="button">×2–4</button>
       <button class="tab-btn group-btn" data-tab="5-7" type="button">×5–7</button>
       <button class="tab-btn group-btn" data-tab="8-9" type="button">×8–9</button>
@@ -618,130 +356,642 @@
       <button class="tab-btn" data-tab="9" type="button">×9</button>
     </div>
 
-    <main class="arena-card">
-      <div class="combo-bar">
-        <span>⚡ SPEED DRILL</span>
-        <span id="progressText">Question 1 / 10</span>
-      </div>
-
-      <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 24px;">
-        <div class="equation-display" id="equationBox" style="margin-bottom: 0;">
-          3 × 4 = ?
+    <!-- STEP 1: PATTERN EXPLORER -->
+    <section id="step1View" class="studio-grid">
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <strong style="font-size:1.05rem;" id="patternTitle">🔍 Skip-Count Pattern Board: ×2 Table</strong>
+          <button type="button" class="btn-speaker" id="btnSpeakPattern">🔊 Hear Pattern</button>
         </div>
-        <button type="button" class="btn-speaker" id="btnSpeakEquation" title="Read equation aloud" aria-label="Read equation aloud">🔊</button>
+        <div class="pattern-grid" id="patternGrid"></div>
       </div>
 
-      <div class="choices-grid" id="choicesGrid">
-        <!-- 4 Fast options -->
-      </div>
+      <aside class="card">
+        <strong style="font-size:1.05rem;">💡 Grade 2 Memory Trick</strong>
+        <div class="trick-card" id="patternTrickBox"></div>
+        <div class="trick-card" style="background:#ECFDF5;" id="patternRowPreview"></div>
+        <button type="button" class="btn-action-primary" id="btnGoStep2" style="margin-top:auto;">Launch Step 2 Speed Arena 🚀</button>
+      </aside>
+    </section>
 
-      <div class="feedback-banner" id="feedbackText">Choose the correct product as quickly as you can!</div>
-      <div class="hint-visual-box" id="hintVisualBox" aria-live="polite"></div>
+    <!-- STEP 2: 2-COLUMN ZERO-SCROLL SPEED ARENA -->
+    <main id="step2View" class="studio-grid hidden">
+      <section class="card">
+        <div class="speed-bar-track" id="speedBarTrack"><div class="speed-bar-fill" id="speedBarFill"></div></div>
+        <div class="combo-bar">
+          <span class="combo-flame" id="comboMeter">🔥 Combo ×0</span>
+          <span id="progressText">Question 1 / 10</span>
+        </div>
+
+        <div class="equation-row">
+          <div class="equation-display" id="equationBox">3 × 4 = ?</div>
+          <button type="button" class="btn-speaker" id="btnSpeakEquation" title="Read equation aloud" aria-label="Read equation aloud">🔊</button>
+        </div>
+
+        <div class="choices-grid" id="choicesGrid"></div>
+        <div class="feedback-banner" id="feedbackText">Tap an answer or press keys 1–4!</div>
+      </section>
+
+      <aside class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <strong style="font-size:0.98rem;">👀 Visual Dot Array Scaffold</strong>
+          <span style="font-size:0.8rem; font-weight:800; color:#4B5563;" id="scaffoldStatus">Auto-helps if tricky</span>
+        </div>
+        <div class="scaffold-panel">
+          <svg class="dot-array-svg" id="dotArraySvg" viewBox="0 0 360 170" aria-label="Multiplication dot array helper"></svg>
+          <div style="font-size:0.86rem; font-weight:900; color:#713F12; text-align:center;" id="hintSkipText">
+            Tap a choice! If you miss, the dot array lights up to help you skip-count.
+          </div>
+        </div>
+      </aside>
     </main>
   </div>
 
-  <!-- Win Modal -->
-  <div class="modal-overlay" id="winModal">
+  <!-- STEP 3: CHAMPION REFLECTION & ACTION MODAL -->
+  <div class="modal-overlay" id="winModal" role="dialog" aria-modal="true" aria-labelledby="winTitle">
     <div class="modal-card">
-      <div class="modal-badge">⚡</div>
-      <h2 class="modal-title">Times Table Champion!</h2>
-      <p class="modal-desc" id="winDesc">
-        Incredible speed! You recalled the multiplication facts with swift accuracy. Your times tables mastery badge is unlocked!
-      </p>
-      <div class="pyp-reflect-card">
-        <div class="pyp-reflect-badge">🧭 IB PYP Learner Profile · Risk-Taker</div>
-        <p style="font-size: 0.9rem; font-weight: 700; color: #374151; line-height: 1.45;">
-          <strong>Reflection:</strong> Practicing tricky times tables bravely—even after a wrong guess—builds speed, confidence, and automatic recall!
-        </p>
-        <div class="pyp-stamp-status" id="pypStampStatus"></div>
+      <div class="pyp-reflect-badge">🧭 IB PYP Learner Profile · Risk-Taker</div>
+      <div style="font-size:2.6rem; line-height:1;">⚡</div>
+      <h2 id="winTitle" style="font-size:1.45rem; font-weight:900;">Times Table Champion!</h2>
+      <p id="winDesc" style="font-weight:700; color:#374151;"></p>
+      <div class="pyp-modal-box">
+        <strong>Facts I Mastered</strong>
+        <div class="fact-chips" id="masteredChips"></div>
       </div>
-      <div style="display: flex; flex-direction: column; gap: 10px;">
-        <button class="btn-action-primary" id="btnClaimStamp" type="button" style="background: var(--purple); color: var(--white);">🧭 Stamp My Passport!</button>
+      <div class="pyp-modal-box" style="background:#FFF7ED;">
+        <strong>Tricky Facts to Practice</strong>
+        <div class="fact-chips" id="trickyChips"></div>
+      </div>
+      <div class="pyp-modal-box" style="background:#ECFDF5;">
+        <strong>🚀 Take Action in Real Life</strong>
+        Pick one tricky fact above and teach someone at home your favorite skip-counting trick for it!
+      </div>
+      <div id="pypStampStatus" style="font-weight:900; font-size:0.88rem; color:#047857; min-height:20px;"></div>
+      <div class="modal-actions">
+        <button class="btn-action-primary" id="btnClaimStamp" type="button" style="background:var(--green);">🏅 Claim Passport Stamp</button>
         <button class="btn-action-primary" id="btnRestart" type="button">Play Again 🔄</button>
-        <a class="pyp-map-link" href="../index.html" style="justify-content: center;">🗺️ View Passport on PYP Map</a>
+        <button class="btn-action-primary" id="btnKeepExploring" type="button" style="background:#FFF;">Keep Exploring</button>
       </div>
     </div>
   </div>
 
   <script>
-    // Audio Synthesizer
+    // Safe Organic Web Audio (triangle & sine only)
     class TimesAudio {
       constructor() { this.ctx = null; }
       init() {
-        if (!this.ctx) {
-          const AudioContext = window.AudioContext || window.webkitAudioContext;
-          this.ctx = new AudioContext();
-        }
-        if (this.ctx.state === 'suspended') this.ctx.resume();
+        try {
+          if (!this.ctx) {
+            const AC = window.AudioContext || window.webkitAudioContext;
+            if (AC) this.ctx = new AC();
+          }
+          if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+        } catch (_) {}
       }
-      playCorrect() {
+      tone(freq, delay, dur, type, vol) {
         this.init();
-        const now = this.ctx.currentTime;
-        [523.25, 659.25, 783.99, 1046.5].forEach((freq, idx) => {
+        if (!this.ctx) return;
+        try {
+          const now = this.ctx.currentTime + delay;
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(freq, now + idx * 0.05);
-          gain.gain.setValueAtTime(0.18, now + idx * 0.05);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.05 + 0.18);
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, now);
+          gain.gain.setValueAtTime(vol, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
           osc.connect(gain);
           gain.connect(this.ctx.destination);
-          osc.start(now + idx * 0.05);
-          osc.stop(now + idx * 0.05 + 0.2);
-        });
+          osc.start(now);
+          osc.stop(now + dur + 0.02);
+        } catch (_) {}
       }
-      playBuzz() {
-        this.init();
-        const now = this.ctx.currentTime;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(150, now);
-        gain.gain.setValueAtTime(0.15, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.2);
-      }
-      playClick() {
-        this.init();
-        const now = this.ctx.currentTime;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.frequency.setValueAtTime(520, now);
-        gain.gain.setValueAtTime(0.08, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.06);
-      }
+      playClick() { this.tone(520, 0, 0.05, 'sine', 0.08); }
+      playCorrect() { [523.25, 659.25, 783.99, 1046.5].forEach((f, idx) => this.tone(f, idx * 0.055, 0.2, 'triangle', 0.16)); }
+      playBuzz() { this.tone(250, 0, 0.1, 'triangle', 0.11); this.tone(195, 0.08, 0.14, 'sine', 0.1); }
     }
     const audio = new TimesAudio();
 
+    function launchConfetti() {
+      const cvs = document.createElement('canvas');
+      cvs.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:3000;';
+      document.body.appendChild(cvs);
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const w = window.innerWidth, h = window.innerHeight;
+      cvs.width = Math.round(w * dpr); cvs.height = Math.round(h * dpr);
+      const ctx = cvs.getContext('2d');
+      ctx.scale(dpr, dpr);
+      const colors = ['#FFE156', '#FF6584', '#4ECDC4', '#38B6FF', '#86EFAC'];
+      const pieces = Array.from({ length: 65 }, () => ({
+        x: Math.random() * w, y: -20 - Math.random() * h * 0.25,
+        vx: (Math.random() - 0.5) * 6, vy: 3 + Math.random() * 5,
+        size: 7 + Math.random() * 6, rot: Math.random() * 6, vr: (Math.random() - 0.5) * 0.2,
+        color: colors[Math.floor(Math.random() * colors.length)]
+      }));
+      let frame = 0;
+      function tick() {
+        frame++;
+        ctx.clearRect(0, 0, w, h);
+        pieces.forEach(p => {
+          p.x += p.vx; p.y += p.vy; p.vy += 0.12; p.rot += p.vr;
+          ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+          ctx.fillStyle = p.color; ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.65);
+          ctx.restore();
+        });
+        if (frame < 105) requestAnimationFrame(tick); else cvs.remove();
+      }
+      requestAnimationFrame(tick);
+    }
+
+    // Unified TTS Manager
+    const JOKE_VOICES = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|hysterical|pipe organ|trinoids|whisper|zarvox|fred|junior|kathy|ralph|wobble/i;
+    function getVoiceBadge(langRaw) {
+      const lang = (langRaw || '').toLowerCase().replace('_', '-');
+      if (lang.includes('-au')) return { flag: '🇦🇺', region: 'AU' };
+      if (lang.includes('-gb') || lang.includes('en-uk')) return { flag: '🇬🇧', region: 'UK' };
+      if (lang.includes('-us')) return { flag: '🇺🇸', region: 'US' };
+      return { flag: '🌐', region: (lang.split('-')[1] || 'EN').toUpperCase() };
+    }
+    const TTS_MANAGER = {
+      currentVoiceName: '', wrap: null, trigger: null, menu: null, flag: null, label: null, list: null,
+      init() {
+        this.wrap = document.getElementById('ttsDropdownWrap');
+        this.trigger = document.getElementById('ttsTrigger');
+        this.menu = document.getElementById('ttsMenu');
+        this.flag = document.getElementById('ttsFlag');
+        this.label = document.getElementById('ttsLabel');
+        this.list = document.getElementById('ttsRadioList');
+        if (!this.trigger) return;
+        this.trigger.addEventListener('click', (e) => {
+          e.stopPropagation(); audio.playClick();
+          const open = this.wrap.classList.toggle('open');
+          this.trigger.setAttribute('aria-expanded', String(open));
+        });
+        document.addEventListener('click', (e) => {
+          if (this.wrap && !this.wrap.contains(e.target)) {
+            this.wrap.classList.remove('open'); this.trigger.setAttribute('aria-expanded', 'false');
+          }
+        });
+        if (window.speechSynthesis) {
+          this.populateVoices();
+          if (window.speechSynthesis.onvoiceschanged !== undefined) window.speechSynthesis.onvoiceschanged = () => this.populateVoices();
+        }
+      },
+      populateVoices() {
+        if (!window.speechSynthesis || !this.list) return;
+        const voices = window.speechSynthesis.getVoices();
+        let englishVoices = voices.filter(v => (v.lang || '').toLowerCase().replace('_', '-').startsWith('en') && !JOKE_VOICES.test(v.name));
+        if (englishVoices.length === 0) englishVoices = voices.filter(v => !JOKE_VOICES.test(v.name));
+        if (englishVoices.length === 0) englishVoices = voices;
+        if (englishVoices.length === 0) return;
+        englishVoices.sort((a, b) => {
+          const score = (v) => v.name.includes('Google UK English Female') ? 0 : v.name.includes('Google US English') ? 1 : (v.lang || '').toLowerCase().includes('gb') ? 2 : (v.lang || '').toLowerCase().includes('au') ? 3 : 4;
+          return score(a) - score(b) || a.name.localeCompare(b.name);
+        });
+        const capped = englishVoices.slice(0, 15);
+        const saved = localStorage.getItem('ib_pyp_voice_name');
+        let selected = saved ? capped.find(v => v.name === saved) : null;
+        if (!selected) selected = capped[0];
+        this.currentVoiceName = selected ? selected.name : '';
+        this.renderMenu(capped);
+        this.updateTriggerUI(selected);
+      },
+      renderMenu(voices) {
+        this.list.innerHTML = '';
+        voices.forEach(v => {
+          const { flag, region } = getVoiceBadge(v.lang);
+          const isActive = v.name === this.currentVoiceName;
+          const btn = document.createElement('button');
+          btn.type = 'button'; btn.className = `tts-radio-item ${isActive ? 'active' : ''}`;
+          btn.dataset.voice = v.name; btn.setAttribute('role', 'menuitemradio');
+          btn.setAttribute('aria-checked', isActive ? 'true' : 'false');
+          btn.innerHTML = `<span class="tts-radio-circle"></span><span>${flag}</span><span class="tts-item-name">${v.name} (${region})</span>`;
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation(); audio.playClick(); this.selectVoice(v);
+            this.wrap.classList.remove('open'); this.trigger.setAttribute('aria-expanded', 'false');
+          });
+          this.list.appendChild(btn);
+        });
+      },
+      selectVoice(v) {
+        this.currentVoiceName = v.name; localStorage.setItem('ib_pyp_voice_name', v.name);
+        this.updateTriggerUI(v);
+        this.list.querySelectorAll('.tts-radio-item').forEach(btn => {
+          const isMatch = btn.dataset.voice === v.name;
+          btn.classList.toggle('active', isMatch); btn.setAttribute('aria-checked', isMatch ? 'true' : 'false');
+        });
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
+      },
+      updateTriggerUI(v) {
+        if (!v) return;
+        this.flag.textContent = getVoiceBadge(v.lang).flag;
+        let shortName = v.name.replace(/^(Google|Microsoft|Apple)\s+/i, '');
+        if (shortName.length > 14) shortName = shortName.substring(0, 12) + '…';
+        this.label.textContent = shortName;
+      },
+      speak(text, onEnd) {
+        const finish = () => { if (typeof onEnd === 'function') onEnd(); };
+        if (!window.speechSynthesis || !text || !text.trim()) {
+          if (window.speechSynthesis) window.speechSynthesis.cancel();
+          finish(); return;
+        }
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        const voices = window.speechSynthesis.getVoices();
+        const voiceName = this.currentVoiceName || localStorage.getItem('ib_pyp_voice_name');
+        let match = voiceName ? voices.find(v => v.name === voiceName) : null;
+        if (!match) match = voices.find(v => v.default) || voices[0] || null;
+        if (match) utterance.voice = match;
+        utterance.rate = 0.88;
+        utterance.onend = finish;
+        utterance.onerror = finish;
+        window.speechSynthesis.speak(utterance);
+      }
+    };
+
+    // ----------------------------------------------------
+    // STEP 1: 1-9 PATTERN EXPLORER
+    // ----------------------------------------------------
+    const TABLE_TRICKS = {
+      1: '×1 Identity Rule: Any number times 1 stays itself! (1 × 7 = 7)',
+      2: '×2 Doubles Rule: Multiplying by 2 just doubles the number! Every answer is even (2, 4, 6, 8, 10...).',
+      3: '×3 Skip-Count: Count by 3s! Tip: the digits of every ×3 answer add up to 3, 6, or 9.',
+      4: '×4 Double-Double: Double the number, then double it again! (4 × 6: double 6 = 12, double 12 = 24).',
+      5: '×5 Clock Hand Trick: Every ×5 answer ends in 5 or 0, just like minutes around a clock!',
+      6: '×6 Five-Plus-One: Multiply by 5, then add one more group! (6 × 4 = 5×4 + 4 = 24).',
+      7: '×7 Break-Apart: Split 7 into 5 + 2! (7 × 4 = 5×4 + 2×4 = 20 + 8 = 28).',
+      8: '×8 Double-Double-Double: Double three times! (8 × 3: 6 ➔ 12 ➔ 24).',
+      9: '×9 Finger & Tens Trick: As tens go up (1,2,3...), ones go down (8,7,6...), and the digits always add to 9!'
+    };
+    let patternBase = 2;
+
+    function getActiveTableNumForPattern() {
+      if (['1','2','3','4','5','6','7','8','9'].includes(selectedTable)) return parseInt(selectedTable, 10);
+      if (selectedTable === '2-4') return 3;
+      if (selectedTable === '5-7') return 5;
+      if (selectedTable === '8-9') return 9;
+      return patternBase;
+    }
+
+    function renderPatternExplorer() {
+      patternBase = getActiveTableNumForPattern();
+      const grid = document.getElementById('patternGrid');
+      grid.innerHTML = '';
+      document.getElementById('patternTitle').textContent = `🔍 Skip-Count Pattern Board: ×${patternBase} Table`;
+      document.getElementById('patternTrickBox').textContent = TABLE_TRICKS[patternBase];
+      const seq = Array.from({ length: 10 }, (_, i) => (i + 1) * patternBase);
+      document.getElementById('patternRowPreview').textContent = `Skip-count ×${patternBase}: ${seq.join(', ')}`;
+
+      // Render 1..90 grid highlighting multiples of patternBase
+      const maxCell = 90;
+      const litSet = new Set(seq);
+      for (let n = 1; n <= maxCell; n++) {
+        const cell = document.createElement('button');
+        cell.type = 'button';
+        cell.className = `pattern-cell ${litSet.has(n) ? 'lit' : ''}`;
+        cell.textContent = String(n);
+        cell.addEventListener('click', () => {
+          audio.playClick();
+          if (litSet.has(n)) {
+            const k = n / patternBase;
+            TTS_MANAGER.speak(`${k} times ${patternBase} equals ${n}`);
+          }
+        });
+        grid.appendChild(cell);
+      }
+    }
+
+    document.getElementById('btnSpeakPattern').addEventListener('click', () => {
+      audio.playClick();
+      const b = document.getElementById('btnSpeakPattern');
+      b.classList.add('speaking');
+      TTS_MANAGER.speak(TABLE_TRICKS[patternBase], () => b.classList.remove('speaking'));
+    });
+
+    // ----------------------------------------------------
+    // STEP 2: SPEED ARENA (Zen, 10-Fact Rocket, 60s Turbo Sprint)
+    // ----------------------------------------------------
+    let currentStep = 1;
     let selectedTable = 'all';
-    let questionCount = 0;
-    const maxQuestions = 10;
+    let playMode = 'rocket'; // 'rocket' | 'zen' | 'sprint'
+    let deck = [];
+    let deckIdx = 0;
     let score = 0;
     let streak = 0;
     let bestStreak = 0;
     let firstTryCorrect = 0;
+    let totalAttempted = 0;
     let currentHadWrong = false;
     let isTransitioning = false;
     let nextQuestionTimer = null;
-    let hasUserInteracted = false;
+    let sprintTimerId = null;
+    let sprintSecondsLeft = 60;
     let currentProblem = null;
+    const masteredFacts = new Set();
+    const trickyFacts = new Set();
 
-    const JOKE_VOICES = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|hysterical|pipe organ|trinoids|whisper|zarvox|fred|junior|kathy|ralph|wobble/i;
-
-    function markUserInteraction() {
-      hasUserInteracted = true;
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
     }
-    document.addEventListener('pointerdown', markUserInteraction, { once: true });
-    document.addEventListener('keydown', markUserInteraction, { once: true });
 
-    function recordPassportStamp(silent) {
+    function getAllowedTables() {
+      if (selectedTable === 'all') return [1,2,3,4,5,6,7,8,9];
+      if (selectedTable === '2-4') return [2,3,4];
+      if (selectedTable === '5-7') return [5,6,7];
+      if (selectedTable === '8-9') return [8,9];
+      return [parseInt(selectedTable, 10)];
+    }
+
+    function buildDeck() {
+      const tables = getAllowedTables();
+      const pool = [];
+      tables.forEach(t => {
+        for (let m = 1; m <= 10; m++) {
+          // Include both orientations (a×b and b×a)
+          const flip = Math.random() < 0.5;
+          const a = flip ? m : t;
+          const b = flip ? t : m;
+          pool.push({ a, b, answer: a * b });
+        }
+      });
+      deck = shuffle(pool);
+      deckIdx = 0;
+    }
+
+    function makeOptions(a, b, answer) {
+      const set = new Set([answer]);
+      let guard = 0;
+      while (set.size < 4 && guard < 40) {
+        guard++;
+        const step = Math.max(2, Math.min(a, b));
+        const delta = (Math.random() < 0.5 ? 1 : -1) * step * (Math.random() < 0.6 ? 1 : 2);
+        const cand = answer + delta;
+        if (cand > 0 && cand !== answer) set.add(cand);
+        else set.add(answer + guard);
+      }
+      return shuffle(Array.from(set));
+    }
+
+    // Auto-scaling SVG Dot Array Scaffold (<= 170px tall, handles 9x10 effortlessly!)
+    function renderDotArraySVG(a, b, revealRows) {
+      const svg = document.getElementById('dotArraySvg');
+      const W = 360, H = 170;
+      const padX = 24, padY = 14, labelW = 42;
+      const availW = W - padX - labelW - 12;
+      const availH = H - padY * 2;
+      const cellW = availW / Math.max(1, b);
+      const cellH = availH / Math.max(1, a);
+      const r = Math.max(3.2, Math.min(8.5, Math.min(cellW, cellH) * 0.34));
+
+      let out = '';
+      for (let row = 0; row < a; row++) {
+        const cy = padY + (row + 0.5) * cellH;
+        const isLit = row < revealRows;
+        out += `<rect x="${padX - 6}" y="${(cy - cellH * 0.42).toFixed(1)}" width="${(availW + 12).toFixed(1)}" height="${(cellH * 0.84).toFixed(1)}" rx="6" fill="${isLit ? '#FEF08A' : '#F8FAFC'}" stroke="${isLit ? '#111' : '#CBD5E1'}" stroke-width="1.2"/>`;
+        for (let col = 0; col < b; col++) {
+          const cx = padX + (col + 0.5) * cellW;
+          out += `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${r.toFixed(1)}" fill="${isLit ? '#38B6FF' : '#94A3B8'}" stroke="#111" stroke-width="1"/>`;
+        }
+        if (isLit) {
+          out += `<text x="${W - 10}" y="${(cy + 4).toFixed(1)}" font-size="11" font-weight="900" text-anchor="end" fill="#B45309">${(row + 1) * b}</text>`;
+        }
+      }
+      svg.innerHTML = out;
+    }
+
+    function updateHUD() {
+      document.getElementById('badgeScore').textContent = `⭐ Score: ${score}`;
+      document.getElementById('badgeStreak').textContent = `🔥 Streak: ${streak}`;
+      const meter = document.getElementById('comboMeter');
+      meter.textContent = streak >= 5 ? `⚡ Combo ×${streak}!` : `🔥 Combo ×${streak}`;
+      meter.classList.toggle('hot', streak >= 3);
+    }
+
+    function stopSprintTimer() {
+      if (sprintTimerId) { clearInterval(sprintTimerId); sprintTimerId = null; }
+    }
+
+    function startSprintTimer() {
+      stopSprintTimer();
+      sprintSecondsLeft = 60;
+      const bar = document.getElementById('speedBarTrack');
+      const fill = document.getElementById('speedBarFill');
+      bar.classList.add('active');
+      fill.style.width = '100%';
+      sprintTimerId = setInterval(() => {
+        sprintSecondsLeft--;
+        fill.style.width = `${Math.max(0, (sprintSecondsLeft / 60) * 100)}%`;
+        document.getElementById('progressText').textContent = `⏱️ ${sprintSecondsLeft}s left`;
+        if (sprintSecondsLeft <= 0) {
+          stopSprintTimer();
+          openWinModal();
+        }
+      }, 1000);
+    }
+
+    function renderQuestion() {
+      if (nextQuestionTimer) { clearTimeout(nextQuestionTimer); nextQuestionTimer = null; }
+      isTransitioning = false;
+      currentHadWrong = false;
+
+      if (playMode === 'rocket' && totalAttempted >= 10) {
+        openWinModal();
+        return;
+      }
+
+      if (deckIdx >= deck.length) buildDeck();
+      const base = deck[deckIdx++];
+      currentProblem = { ...base, options: makeOptions(base.a, base.b, base.answer) };
+
+      updateHUD();
+      if (playMode === 'rocket') {
+        document.getElementById('progressText').textContent = `Rocket ${totalAttempted + 1} / 10`;
+      } else if (playMode === 'zen') {
+        document.getElementById('progressText').textContent = `🧘 Zen · ${totalAttempted} solved`;
+      } else {
+        document.getElementById('progressText').textContent = `⏱️ ${sprintSecondsLeft}s left`;
+      }
+
+      document.getElementById('equationBox').textContent = `${currentProblem.a} × ${currentProblem.b} = ?`;
+      renderDotArraySVG(currentProblem.a, currentProblem.b, 0);
+      document.getElementById('scaffoldStatus').textContent = `${currentProblem.a} rows × ${currentProblem.b} dots`;
+      document.getElementById('hintSkipText').textContent = 'Tap an answer! Missing lights up the dot array to help.';
+
+      const grid = document.getElementById('choicesGrid');
+      grid.innerHTML = '';
+      currentProblem.options.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.type = 'button';
+        btn.innerHTML = `<span class="choice-key-tag">${i + 1}</span><span>${opt}</span>`;
+        btn.addEventListener('click', () => handleAnswer(opt, btn));
+        grid.appendChild(btn);
+      });
+
+      const fb = document.getElementById('feedbackText');
+      fb.textContent = 'Tap an answer or press keys 1–4!';
+      fb.style.color = '#4B5563';
+    }
+
+    function handleAnswer(chosen, btnEl) {
+      if (isTransitioning || btnEl.disabled) return;
+      const fb = document.getElementById('feedbackText');
+      const factStr = `${currentProblem.a}×${currentProblem.b}=${currentProblem.answer}`;
+
+      if (chosen === currentProblem.answer) {
+        isTransitioning = true;
+        document.querySelectorAll('#choicesGrid .choice-btn').forEach(b => { b.disabled = true; });
+        audio.playCorrect();
+        totalAttempted++;
+
+        if (!currentHadWrong) {
+          firstTryCorrect++;
+          streak++;
+          if (streak > bestStreak) bestStreak = streak;
+          score += (10 + streak * 2);
+          masteredFacts.add(factStr);
+          trickyFacts.delete(factStr);
+        } else {
+          score += 5;
+        }
+        updateHUD();
+        renderDotArraySVG(currentProblem.a, currentProblem.b, currentProblem.a);
+        fb.textContent = `🎯 Correct! ${currentProblem.a} × ${currentProblem.b} = ${currentProblem.answer}`;
+        fb.style.color = '#059669';
+        btnEl.style.background = '#86EFAC';
+
+        nextQuestionTimer = setTimeout(() => renderQuestion(), 1000);
+      } else {
+        audio.playBuzz();
+        currentHadWrong = true;
+        streak = 0;
+        trickyFacts.add(factStr);
+        // Spaced re-queueing of missed fact 2-3 turns later!
+        if (deckIdx + 2 < deck.length) {
+          deck.splice(deckIdx + 2, 0, { a: currentProblem.a, b: currentProblem.b, answer: currentProblem.answer });
+        }
+        btnEl.disabled = true;
+        btnEl.style.opacity = '0.35';
+        updateHUD();
+
+        // Light up dot array scaffold!
+        renderDotArraySVG(currentProblem.a, currentProblem.b, currentProblem.a);
+        const skipSeq = Array.from({ length: Math.min(3, currentProblem.a) }, (_, i) => (i + 1) * currentProblem.b).join(', ');
+        document.getElementById('hintSkipText').textContent = `Skip-count ${currentProblem.a} rows of ${currentProblem.b}: ${skipSeq}...`;
+        fb.textContent = `Not quite! Check the dot array on the right, then try again!`;
+        fb.style.color = '#DC2626';
+      }
+    }
+
+    // Keyboard 1-4 shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const wrap = document.getElementById('ttsDropdownWrap');
+        const trig = document.getElementById('ttsTrigger');
+        if (wrap) wrap.classList.remove('open');
+        if (trig) trig.setAttribute('aria-expanded', 'false');
+        document.getElementById('winModal').classList.remove('open');
+        return;
+      }
+      if (currentStep !== 2 || document.getElementById('winModal').classList.contains('open')) return;
+      const idx = ['1', '2', '3', '4'].indexOf(e.key);
+      if (idx >= 0) {
+        const btns = document.querySelectorAll('#choicesGrid .choice-btn');
+        if (btns[idx] && !btns[idx].disabled) btns[idx].click();
+      }
+    });
+
+    function resetArena() {
+      stopSprintTimer();
+      if (nextQuestionTimer) { clearTimeout(nextQuestionTimer); nextQuestionTimer = null; }
+      isTransitioning = false;
+      totalAttempted = 0;
+      firstTryCorrect = 0;
+      streak = 0;
+      bestStreak = 0;
+      buildDeck();
+      document.getElementById('speedBarTrack').classList.toggle('active', playMode === 'sprint');
+      if (playMode === 'sprint') startSprintTimer();
+      renderQuestion();
+    }
+
+    function switchStep(step) {
+      currentStep = step;
+      if (window.speechSynthesis) window.speechSynthesis.cancel();
+      document.getElementById('tabStep1').classList.toggle('active', step === 1);
+      document.getElementById('tabStep2').classList.toggle('active', step === 2);
+      document.getElementById('step1View').classList.toggle('hidden', step !== 1);
+      document.getElementById('step2View').classList.toggle('hidden', step !== 2);
+      document.getElementById('arenaModeBar').classList.toggle('hidden', step !== 2);
+      document.getElementById('heroSub').textContent = step === 1
+        ? 'Step 1: Tap any table (×1 to ×9) to discover skip-counting patterns and memory tricks!'
+        : 'Step 2: Choose Zen Practice, 10-Fact Rocket, or 60s Turbo Sprint!';
+      if (step === 1) { stopSprintTimer(); renderPatternExplorer(); }
+      else resetArena();
+    }
+    document.getElementById('tabStep1').addEventListener('click', () => { audio.playClick(); switchStep(1); });
+    document.getElementById('tabStep2').addEventListener('click', () => { audio.playClick(); switchStep(2); });
+    document.getElementById('btnGoStep2').addEventListener('click', () => { audio.playClick(); switchStep(2); });
+
+    document.querySelectorAll('#tableTabs .tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        audio.playClick();
+        document.querySelectorAll('#tableTabs .tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedTable = btn.dataset.tab;
+        if (currentStep === 1) renderPatternExplorer();
+        else resetArena();
+      });
+    });
+
+    document.querySelectorAll('#arenaModeBar .tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        audio.playClick();
+        document.querySelectorAll('#arenaModeBar .tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        playMode = btn.dataset.playmode;
+        resetArena();
+      });
+    });
+
+    document.getElementById('btnSpeakEquation').addEventListener('click', () => {
+      if (!currentProblem) return;
+      audio.playClick();
+      const b = document.getElementById('btnSpeakEquation');
+      b.classList.add('speaking');
+      TTS_MANAGER.speak(`${currentProblem.a} times ${currentProblem.b} equals what?`, () => b.classList.remove('speaking'));
+    });
+
+    // Step 3 Champion Modal
+    const winModal = document.getElementById('winModal');
+    function openWinModal() {
+      stopSprintTimer();
+      audio.playCorrect();
+      launchConfetti();
+      document.getElementById('winDesc').textContent = `Score: ${score} ⭐ · First-Try Accuracy: ${firstTryCorrect}/${Math.max(1, totalAttempted)} · Peak Streak: ${bestStreak}!`;
+      const mWrap = document.getElementById('masteredChips');
+      const tWrap = document.getElementById('trickyChips');
+      mWrap.innerHTML = masteredFacts.size ? [...masteredFacts].slice(0, 12).map(f => `<span class="fact-chip">${f}</span>`).join('') : '<span style="font-size:0.84rem; color:#6B7280;">Solve facts in Step 2 to collect mastered facts!</span>';
+      tWrap.innerHTML = trickyFacts.size ? [...trickyFacts].slice(0, 10).map(f => `<span class="fact-chip tricky">${f}</span>`).join('') : '<span style="font-size:0.84rem; color:#047857;">None yet — clean streak!</span>';
+      winModal.classList.add('open');
+    }
+
+    document.getElementById('btnOpenReflect').addEventListener('click', () => { audio.playClick(); openWinModal(); });
+    document.getElementById('btnKeepExploring').addEventListener('click', () => { audio.playClick(); winModal.classList.remove('open'); });
+    winModal.addEventListener('click', (e) => { if (e.target === winModal) winModal.classList.remove('open'); });
+    document.getElementById('btnRestart').addEventListener('click', () => {
+      audio.playClick();
+      winModal.classList.remove('open');
+      score = 0;
+      switchStep(2);
+    });
+    document.getElementById('btnClaimStamp').addEventListener('click', () => {
+      audio.playCorrect();
+      launchConfetti();
       try {
         const raw = localStorage.getItem('ib_pyp_passport');
         const data = raw ? JSON.parse(raw) : { stamps: [], completed: [] };
@@ -750,431 +1000,13 @@
         stamps.add('Risk-Taker');
         completed.add('math/g2_times_table_challenge.html');
         localStorage.setItem('ib_pyp_passport', JSON.stringify({ stamps: [...stamps], completed: [...completed] }));
-        if (!silent) {
-          const status = document.getElementById('pypStampStatus');
-          const claimBtn = document.getElementById('btnClaimStamp');
-          if (status) status.textContent = '✅ Risk-Taker stamp saved to your IB PYP Passport!';
-          if (claimBtn) claimBtn.textContent = '✅ Stamped!';
-        }
+        document.getElementById('pypStampStatus').textContent = '✅ Risk-Taker stamp saved to your IB PYP Passport!';
+        document.getElementById('btnClaimStamp').textContent = '✅ Stamped!';
       } catch (_) {}
-    }
-
-    function randomInt(min, max) {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-
-    function generateProblem() {
-      let num1;
-      if (selectedTable === 'all') {
-        const allowed = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-        num1 = allowed[Math.floor(Math.random() * allowed.length)];
-      } else if (selectedTable === '2-4') {
-        const allowed = [2, 3, 4];
-        num1 = allowed[Math.floor(Math.random() * allowed.length)];
-      } else if (selectedTable === '5-7') {
-        const allowed = [5, 6, 7];
-        num1 = allowed[Math.floor(Math.random() * allowed.length)];
-      } else if (selectedTable === '8-9' || selectedTable === '8-10') {
-        const allowed = [8, 9];
-        num1 = allowed[Math.floor(Math.random() * allowed.length)];
-      } else {
-        num1 = parseInt(selectedTable, 10);
-      }
-      const num2 = randomInt(1, 10);
-
-      // Put the smaller number first: e.g. 4 × 8, 7 × 9, 3 × 8
-      const a = Math.min(num1, num2);
-      const b = Math.max(num1, num2);
-      const answer = a * b;
-
-      // Generate 3 plausible distractor choices
-      const optionsSet = new Set([answer]);
-      while (optionsSet.size < 4) {
-        const delta = (Math.random() < 0.5 ? 1 : -1) * (a > 1 ? a : randomInt(1, 3)) * (Math.random() < 0.5 ? 1 : 2);
-        const cand = answer + delta;
-        if (cand > 0 && cand !== answer) {
-          optionsSet.add(cand);
-        } else {
-          optionsSet.add(answer + randomInt(2, 6));
-        }
-      }
-
-      const options = Array.from(optionsSet).sort(() => Math.random() - 0.5);
-      return { a, b, answer, options };
-    }
-
-    // ----------------------------------------------------
-    // TTS MANAGER (Neobrutalism Radio Group Dropdown)
-    // ----------------------------------------------------
-    const TTS_MANAGER = {
-      currentVoiceName: '',
-      wrap: null,
-      trigger: null,
-      menu: null,
-      flag: null,
-      label: null,
-      list: null,
-
-      init() {
-        this.wrap = document.getElementById('ttsDropdownWrap');
-        this.trigger = document.getElementById('ttsTrigger');
-        this.menu = document.getElementById('ttsMenu');
-        this.flag = document.getElementById('ttsFlag');
-        this.label = document.getElementById('ttsLabel');
-        this.list = document.getElementById('ttsRadioList');
-
-        if (!this.trigger) return;
-
-        this.trigger.addEventListener('click', (e) => {
-          e.stopPropagation();
-          audio.playClick();
-          this.wrap.classList.toggle('open');
-          this.trigger.setAttribute('aria-expanded', this.wrap.classList.contains('open'));
-        });
-
-        document.addEventListener('click', (e) => {
-          if (this.wrap && !this.wrap.contains(e.target)) {
-            this.wrap.classList.remove('open');
-            this.trigger.setAttribute('aria-expanded', 'false');
-          }
-        });
-
-        document.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape' && this.wrap) {
-            this.wrap.classList.remove('open');
-            this.trigger.setAttribute('aria-expanded', 'false');
-          }
-        });
-
-        if (window.speechSynthesis) {
-          this.populateVoices();
-          if (window.speechSynthesis.onvoiceschanged !== undefined) {
-            window.speechSynthesis.onvoiceschanged = () => this.populateVoices();
-          }
-        }
-      },
-
-      populateVoices() {
-        if (!window.speechSynthesis || !this.list) return;
-        const voices = window.speechSynthesis.getVoices();
-        let englishVoices = voices.filter(v => {
-          const lang = v.lang.toLowerCase().replace('_', '-');
-          return lang.startsWith('en') && !JOKE_VOICES.test(v.name);
-        });
-
-        if (englishVoices.length === 0) englishVoices = voices.filter(v => !JOKE_VOICES.test(v.name));
-        if (englishVoices.length === 0) englishVoices = voices;
-        if (englishVoices.length === 0) return;
-
-        englishVoices.sort((a, b) => {
-          const aName = a.name;
-          const bName = b.name;
-          const isA_UK_Fem = aName.includes('Google UK English Female') || (aName.includes('UK English') && aName.includes('Female'));
-          const isB_UK_Fem = bName.includes('Google UK English Female') || (bName.includes('UK English') && bName.includes('Female'));
-          if (isA_UK_Fem && !isB_UK_Fem) return -1;
-          if (!isA_UK_Fem && isB_UK_Fem) return 1;
-
-          const isA_US = aName.includes('Google US English') || (aName.includes('US English') && aName.includes('Female'));
-          const isB_US = bName.includes('Google US English') || (bName.includes('US English') && bName.includes('Female'));
-          if (isA_US && !isB_US) return -1;
-          if (!isA_US && isB_US) return 1;
-
-          const aUK = a.lang.toLowerCase().includes('gb');
-          const bUK = b.lang.toLowerCase().includes('gb');
-          if (aUK && !bUK) return -1;
-          if (!aUK && bUK) return 1;
-
-          const aUS = a.lang.toLowerCase().includes('us');
-          const bUS = b.lang.toLowerCase().includes('us');
-          if (aUS && !bUS) return -1;
-          if (!aUS && bUS) return 1;
-
-          return aName.localeCompare(bName);
-        });
-
-        const saved = localStorage.getItem('ib_pyp_voice_name');
-        let selected = null;
-        if (saved) selected = englishVoices.find(v => v.name === saved);
-        if (!selected) selected = englishVoices.find(v => v.name.includes('Google UK English Female') || (v.name.includes('UK English') && v.name.includes('Female')));
-        if (!selected) selected = englishVoices.find(v => v.name.includes('Google US English'));
-        if (!selected) selected = englishVoices.find(v => v.lang.toLowerCase().includes('gb'));
-        if (!selected) selected = englishVoices.find(v => v.lang.toLowerCase().includes('us'));
-        if (!selected) selected = englishVoices[0];
-
-        this.currentVoiceName = selected ? selected.name : '';
-
-        this.renderMenu(englishVoices);
-        this.updateTriggerUI(selected);
-      },
-
-      renderMenu(voices) {
-        this.list.innerHTML = '';
-        voices.forEach(v => {
-          const isUK = v.lang.toLowerCase().replace('_', '-').includes('gb');
-          const flag = isUK ? '🇬🇧' : '🇺🇸';
-          const region = isUK ? 'UK' : 'US';
-          const isActive = v.name === this.currentVoiceName;
-
-          const btn = document.createElement('button');
-          btn.type = 'button';
-          btn.className = `tts-radio-item ${isActive ? 'active' : ''}`;
-          btn.setAttribute('role', 'menuitemradio');
-          btn.setAttribute('aria-checked', isActive ? 'true' : 'false');
-          btn.innerHTML = `
-            <span class="tts-radio-circle"></span>
-            <span class="tts-item-flag">${flag}</span>
-            <span class="tts-item-name">${v.name} (${region})</span>
-          `;
-
-          btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            audio.playClick();
-            this.selectVoice(v);
-            this.wrap.classList.remove('open');
-            this.trigger.setAttribute('aria-expanded', 'false');
-          });
-
-          this.list.appendChild(btn);
-        });
-      },
-
-      selectVoice(v) {
-        this.currentVoiceName = v.name;
-        localStorage.setItem('ib_pyp_voice_name', v.name);
-        this.updateTriggerUI(v);
-        this.list.querySelectorAll('.tts-radio-item').forEach(btn => {
-          const isMatch = btn.querySelector('.tts-item-name').textContent.includes(v.name);
-          btn.classList.toggle('active', isMatch);
-          btn.setAttribute('aria-checked', isMatch ? 'true' : 'false');
-        });
-        if (window.speechSynthesis) window.speechSynthesis.cancel();
-      },
-
-      updateTriggerUI(v) {
-        if (!v) return;
-        const isUK = v.lang.toLowerCase().replace('_', '-').includes('gb');
-        this.flag.textContent = isUK ? '🇬🇧' : '🇺🇸';
-        let shortName = v.name.replace(/^(Google|Microsoft|Apple)\s+/i, '');
-        if (shortName.length > 14) shortName = shortName.substring(0, 12) + '...';
-        this.label.textContent = shortName;
-      },
-
-      speak(text, onEnd) {
-        if (!window.speechSynthesis) {
-          if (onEnd) onEnd();
-          return;
-        }
-        window.speechSynthesis.cancel();
-        if (!text || !text.trim()) {
-          if (onEnd) onEnd();
-          return;
-        }
-
-        const utterance = new SpeechSynthesisUtterance(text);
-        const voices = window.speechSynthesis.getVoices();
-        const voiceName = this.currentVoiceName || localStorage.getItem('ib_pyp_voice_name');
-        if (voiceName) {
-          const match = voices.find(v => v.name === voiceName);
-          if (match) utterance.voice = match;
-        }
-        utterance.rate = 0.85;
-        if (onEnd) {
-          utterance.onend = onEnd;
-          utterance.onerror = onEnd;
-        }
-        window.speechSynthesis.speak(utterance);
-      }
-    };
-
-    function speakCurrentEquation() {
-      if (!currentProblem) return;
-      const btnSpeak = document.getElementById('btnSpeakEquation');
-      if (btnSpeak) btnSpeak.classList.add('speaking');
-      const textToSpeak = `${currentProblem.a} times ${currentProblem.b} equals what?`;
-      TTS_MANAGER.speak(textToSpeak, () => {
-        if (btnSpeak) btnSpeak.classList.remove('speaking');
-      });
-    }
-
-    const btnSpeakEquation = document.getElementById('btnSpeakEquation');
-    if (btnSpeakEquation) {
-      btnSpeakEquation.addEventListener('click', () => {
-        hasUserInteracted = true;
-        audio.playClick();
-        speakCurrentEquation();
-      });
-    }
-
-    function buildHintVisual(a, b) {
-      let rowsHtml = '';
-      for (let r = 0; r < a; r++) {
-        let dots = '';
-        for (let c = 0; c < b; c++) {
-          dots += '<span class="hint-dot"></span>';
-        }
-        rowsHtml += `<div class="hint-dot-row">${dots}</div>`;
-      }
-      // Show a skip-counting starter without revealing the final product
-      const skipSteps = [];
-      const revealCount = Math.max(1, Math.min(2, a - 1));
-      for (let i = 1; i <= revealCount; i++) {
-        skipSteps.push(i * b);
-      }
-      const skipHint = a === 1
-        ? `1 group of ${b} — count the dots!`
-        : `Skip-count ${a} rows of ${b}: ${skipSteps.join(', ')}, ...`;
-
-      return `
-        <div style="font-size:0.86rem; font-weight:900; color:#111;">👀 Visual Hint: ${a} groups of ${b}</div>
-        <div class="hint-dot-grid">${rowsHtml}</div>
-        <div class="hint-skip-text">${skipHint}</div>
-      `;
-    }
-
-    function renderQuestion() {
-      if (nextQuestionTimer) {
-        clearTimeout(nextQuestionTimer);
-        nextQuestionTimer = null;
-      }
-      isTransitioning = false;
-      currentHadWrong = false;
-
-      if (questionCount >= maxQuestions) {
-        document.getElementById('winModal').style.display = 'flex';
-        document.getElementById('winDesc').textContent = `Final Score: ${score} points · First-Try Accuracy: ${firstTryCorrect}/${maxQuestions} · Peak Streak: ${bestStreak}! Keep practicing daily to master all facts!`;
-        recordPassportStamp(true);
-        const status = document.getElementById('pypStampStatus');
-        const claimBtn = document.getElementById('btnClaimStamp');
-        if (status) status.textContent = '✨ Tap "Stamp My Passport!" to celebrate your Risk-Taker badge!';
-        if (claimBtn) claimBtn.textContent = '🧭 Stamp My Passport!';
-        return;
-      }
-
-      questionCount++;
-      document.getElementById('progressText').textContent = `Question ${questionCount} / ${maxQuestions}`;
-      document.getElementById('badgeScore').textContent = `⭐ Score: ${score}`;
-      document.getElementById('badgeStreak').textContent = `🔥 Streak: ${streak}`;
-
-      currentProblem = generateProblem();
-      document.getElementById('equationBox').textContent = `${currentProblem.a} × ${currentProblem.b} = ?`;
-
-      // Guard auto-TTS until after first user interaction so speaker never stalls on load
-      if (hasUserInteracted) {
-        speakCurrentEquation();
-      } else {
-        const btnSpeak = document.getElementById('btnSpeakEquation');
-        if (btnSpeak) btnSpeak.classList.remove('speaking');
-      }
-
-      const hintBox = document.getElementById('hintVisualBox');
-      if (hintBox) {
-        hintBox.classList.remove('open');
-        hintBox.innerHTML = '';
-      }
-
-      const grid = document.getElementById('choicesGrid');
-      grid.innerHTML = '';
-      currentProblem.options.forEach(opt => {
-        const btn = document.createElement('button');
-        btn.className = 'choice-btn';
-        btn.type = 'button';
-        btn.textContent = opt;
-        btn.addEventListener('click', () => handleAnswer(opt, btn));
-        grid.appendChild(btn);
-      });
-
-      const feedback = document.getElementById('feedbackText');
-      feedback.textContent = 'Speed counts! Tap the right answer.';
-      feedback.style.color = '#4B5563';
-    }
-
-    function handleAnswer(chosen, btnEl) {
-      if (isTransitioning || btnEl.disabled) return;
-      hasUserInteracted = true;
-      const feedback = document.getElementById('feedbackText');
-
-      if (chosen === currentProblem.answer) {
-        isTransitioning = true;
-        document.querySelectorAll('#choicesGrid .choice-btn').forEach(b => { b.disabled = true; });
-        audio.playCorrect();
-
-        if (!currentHadWrong) {
-          firstTryCorrect++;
-          streak++;
-          if (streak > bestStreak) bestStreak = streak;
-          score += (10 + streak * 2);
-        } else {
-          score += 5;
-        }
-
-        document.getElementById('badgeScore').textContent = `⭐ Score: ${score}`;
-        document.getElementById('badgeStreak').textContent = `🔥 Streak: ${streak}`;
-        feedback.textContent = `🎯 Correct! ${currentProblem.a} × ${currentProblem.b} = ${currentProblem.answer}`;
-        feedback.style.color = '#059669';
-        btnEl.style.background = '#86EFAC';
-
-        nextQuestionTimer = setTimeout(() => {
-          renderQuestion();
-        }, 600);
-      } else {
-        audio.playBuzz();
-        currentHadWrong = true;
-        streak = 0;
-        btnEl.disabled = true;
-        document.getElementById('badgeStreak').textContent = `🔥 Streak: ${streak}`;
-        feedback.textContent = `❌ Not quite! Use the dot array below to count ${currentProblem.a} groups of ${currentProblem.b}, then try again!`;
-        feedback.style.color = '#DC2626';
-        btnEl.style.opacity = '0.35';
-
-        const hintBox = document.getElementById('hintVisualBox');
-        if (hintBox && !hintBox.classList.contains('open')) {
-          hintBox.innerHTML = buildHintVisual(currentProblem.a, currentProblem.b);
-          hintBox.classList.add('open');
-        }
-      }
-    }
-
-    function resetSession() {
-      if (nextQuestionTimer) {
-        clearTimeout(nextQuestionTimer);
-        nextQuestionTimer = null;
-      }
-      isTransitioning = false;
-      questionCount = 0;
-      score = 0;
-      streak = 0;
-      bestStreak = 0;
-      firstTryCorrect = 0;
-      currentHadWrong = false;
-      renderQuestion();
-    }
-
-    // Tabs
-    document.querySelectorAll('#tableTabs .tab-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        hasUserInteracted = true;
-        audio.playClick();
-        document.querySelectorAll('#tableTabs .tab-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        selectedTable = btn.dataset.tab;
-        resetSession();
-      });
-    });
-
-    document.getElementById('btnClaimStamp').addEventListener('click', () => {
-      audio.playCorrect();
-      recordPassportStamp(false);
-    });
-
-    document.getElementById('btnRestart').addEventListener('click', () => {
-      hasUserInteracted = true;
-      audio.playClick();
-      document.getElementById('winModal').style.display = 'none';
-      resetSession();
     });
 
     TTS_MANAGER.init();
-    renderQuestion();
+    renderPatternExplorer();
   </script>
 </body>
 

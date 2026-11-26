@@ -3,8 +3,16 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Light & Shadow Master 3D - Minecraft Optics Lab</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Light &amp; Shadow Master 3D - Minecraft Optics Lab</title>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
   <style>
     :root {
       --bg: #1A1A24;
@@ -16,30 +24,37 @@
       --blue: #38B6FF;
       --purple: #B388FF;
       --white: #FFFFFF;
-      --border: 3.5px solid var(--ink);
+      --border: 3px solid var(--ink);
       --shadow: 4px 4px 0 var(--ink);
       --shadow-sm: 2px 2px 0 var(--ink);
       --radius: 14px;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      overscroll-behavior: none;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-text-size-adjust: 100%;
     }
 
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: ui-rounded, "SF Pro Rounded", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: var(--bg);
       color: #F3F4F6;
-      min-height: 100vh; min-height: 100dvh;
-      padding: 12px 16px 28px;
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding: max(10px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
       overflow-x: hidden;
     }
 
+    button, a, input { touch-action: manipulation; font-family: inherit; }
+
     .container {
-      max-width: 1320px;
+      max-width: 1360px;
       margin: 0 auto;
+      container-type: inline-size;
+      container-name: lab;
     }
 
     /* Top Nav */
@@ -47,8 +62,15 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 12px;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .nav-left, .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
       flex-wrap: wrap;
     }
 
@@ -59,34 +81,43 @@
       color: var(--ink);
       text-decoration: none;
       font-weight: 900;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       border: var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 8px 16px;
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+      padding: 8px 14px;
       min-height: 44px;
       cursor: pointer;
-      transition: transform 0.1s ease;
-    }
-
-    .pyp-map-link:active,
-    .pyp-map-link:hover {
-      transform: translate(2px, 2px);
-      box-shadow: var(--shadow-sm);
     }
 
     .unit-tag {
       background: var(--teal);
       color: var(--ink);
       border: var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 8px 14px;
-      font-weight: 800;
-      font-size: 0.88rem;
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+      padding: 8px 12px;
+      font-weight: 900;
+      font-size: 0.86rem;
       min-height: 44px;
       display: inline-flex;
       align-items: center;
+    }
+
+    .btn-reflect-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #86EFAC;
+      color: var(--ink);
+      border: var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+      padding: 8px 14px;
+      font-weight: 900;
+      font-size: 0.86rem;
+      min-height: 44px;
+      cursor: pointer;
     }
 
     /* Compact Header */
@@ -95,63 +126,77 @@
       border: var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 12px 18px;
-      margin-bottom: 14px;
+      padding: 10px 16px;
+      margin-bottom: 10px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       flex-wrap: wrap;
     }
 
-    .hero-title h1 {
-      font-size: clamp(1.2rem, 2.5vw, 1.55rem);
-      font-weight: 900;
-      color: var(--yellow);
-    }
+    .hero-title h1 { font-size: clamp(1.15rem, 2.2vw, 1.48rem); font-weight: 900; color: var(--yellow); }
+    .hero-title p { font-size: 0.84rem; font-weight: 700; color: #CBD5E1; }
 
-    .hero-title p {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: #9CA3AF;
-    }
-
-    .mode-pills {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
+    .mode-pills { display: flex; gap: 8px; flex-wrap: wrap; }
 
     .mode-btn {
-      font-family: inherit;
       background: #1E1E2E;
       color: #E5E7EB;
       border: 2px solid #4B5563;
-      border-radius: 8px;
+      border-radius: 10px;
       padding: 6px 14px;
       font-size: 0.86rem;
-      font-weight: 800;
+      font-weight: 900;
       min-height: 44px;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      transition: all 0.1s ease;
     }
 
     .mode-btn.active {
       background: var(--teal);
       color: var(--ink);
-      border: 2px solid var(--ink);
+      border: 2.5px solid var(--ink);
       box-shadow: var(--shadow-sm);
-      transform: translate(1px, 1px);
+    }
+
+    /* Missions Bar (Zero Numeric Spoilers) */
+    .missions-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .mission-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #1E1E2E;
+      color: #E5E7EB;
+      border: 2px solid #4B5563;
+      border-radius: 999px;
+      padding: 6px 14px;
+      min-height: 44px;
+      font-size: 0.82rem;
+      font-weight: 800;
+    }
+
+    .mission-chip.done {
+      background: #DCFCE7;
+      color: #111111;
+      border-color: #111111;
+      box-shadow: 2px 2px 0 #111111;
     }
 
     /* 3D Stage & Control Deck Layout */
     .stage-layout {
       display: grid;
-      grid-template-columns: 1fr 340px;
-      gap: 14px;
+      grid-template-columns: 1fr 370px;
+      gap: 12px;
+      align-items: stretch;
     }
 
     .stage-wrapper {
@@ -159,7 +204,7 @@
       border: var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      height: clamp(380px, 56dvh, 620px);
+      height: clamp(390px, 60dvh, 560px);
       position: relative;
       overflow: hidden;
     }
@@ -174,7 +219,7 @@
     .stage-overlay {
       position: absolute;
       top: 10px;
-      left: 12px;
+      left: 10px;
       pointer-events: none;
       display: flex;
       flex-direction: column;
@@ -182,13 +227,50 @@
     }
 
     .overlay-chip {
-      background: rgba(17, 17, 24, 0.85);
+      background: rgba(17, 17, 24, 0.86);
       border: 2px solid #374151;
-      border-radius: 6px;
+      border-radius: 8px;
       padding: 4px 10px;
-      font-size: 0.76rem;
+      font-size: 0.78rem;
       font-weight: 800;
       color: var(--yellow);
+    }
+
+    .stage-toolbar {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: center;
+      background: rgba(17, 17, 26, 0.88);
+      border: 2px solid #3F3F56;
+      border-radius: 12px;
+      padding: 5px 8px;
+      max-width: 96%;
+    }
+
+    .cam-btn {
+      background: #2D2D42;
+      color: #FFFFFF;
+      border: 2px solid #4B5563;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      min-height: 44px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .cam-btn.active {
+      background: var(--teal);
+      color: var(--ink);
+      border-color: var(--ink);
     }
 
     /* Right Control Panel */
@@ -197,26 +279,27 @@
       border: var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 16px;
+      padding: 12px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 10px;
+      justify-content: space-between;
     }
 
     .panel-block {
       background: #1C1C28;
       border: 2px solid #3F3F56;
       border-radius: 10px;
-      padding: 12px;
+      padding: 10px;
     }
 
     .panel-block-title {
-      font-size: 0.88rem;
+      font-size: 0.82rem;
       font-weight: 900;
       color: var(--teal);
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       display: flex;
       align-items: center;
       gap: 6px;
@@ -225,49 +308,46 @@
     .slider-row {
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      margin-bottom: 8px;
+      gap: 4px;
+      margin-bottom: 6px;
     }
-
+    .slider-row:last-child { margin-bottom: 0; }
     .slider-row label {
       display: flex;
       justify-content: space-between;
       font-size: 0.82rem;
       font-weight: 700;
-      color: #D1D5DB;
+      color: #E5E7EB;
     }
-
     input[type="range"] {
       width: 100%;
-      height: 8px;
+      min-height: 36px;
       accent-color: var(--teal);
       cursor: pointer;
     }
 
-    /* Minecraft Items Grid */
-    .item-select-grid {
+    .item-select-grid, .material-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
+      gap: 6px;
     }
 
-    .mc-item-btn {
-      font-family: inherit;
+    .mc-item-btn, .mat-btn {
       background: #2D2D40;
       color: #E5E7EB;
       border: 2px solid #4B5563;
       border-radius: 8px;
-      padding: 8px 4px;
-      font-size: 0.8rem;
+      padding: 6px 4px;
+      font-size: 0.78rem;
       font-weight: 800;
-      min-height: 48px;
+      min-height: 46px;
       cursor: pointer;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 2px;
-      transition: all 0.1s ease;
+      text-align: center;
     }
 
     .mc-item-btn.active {
@@ -275,42 +355,19 @@
       color: var(--ink);
       border-color: var(--ink);
       box-shadow: 2px 2px 0 var(--ink);
-      transform: translate(1px, 1px);
-    }
-
-    /* Material Select */
-    .material-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
-    }
-
-    .mat-btn {
-      font-family: inherit;
-      background: #2D2D40;
-      color: #D1D5DB;
-      border: 1.5px solid #4B5563;
-      border-radius: 6px;
-      font-size: 0.78rem;
-      font-weight: 800;
-      min-height: 44px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
 
     .mat-btn.active {
       background: var(--coral);
       color: var(--white);
       border-color: var(--ink);
+      box-shadow: 2px 2px 0 var(--ink);
     }
 
-    /* Science Observation Memo */
     .observation-memo {
       background: #11111A;
       border-left: 4px solid var(--yellow);
-      padding: 8px 12px;
+      padding: 8px 10px;
       border-radius: 0 8px 8px 0;
       font-size: 0.82rem;
       line-height: 1.35;
@@ -322,108 +379,24 @@
     }
 
     .btn-speaker {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: #FEF08A;
-      color: var(--ink);
-      border: 2px solid var(--ink);
-      box-shadow: 2px 2px 0 var(--ink);
-      border-radius: 8px;
-      width: 34px;
-      height: 34px;
-      cursor: pointer;
-      font-size: 1rem;
-      line-height: 1;
-      flex-shrink: 0;
-      transition: transform 0.1s, box-shadow 0.1s, background-color 0.1s;
+      display: inline-flex; align-items: center; justify-content: center;
+      background: #FEF08A; color: var(--ink); border: 2px solid var(--ink);
+      box-shadow: 2px 2px 0 var(--ink); border-radius: 10px;
+      min-width: 44px; min-height: 44px; cursor: pointer; font-size: 1rem; flex-shrink: 0;
     }
-    .btn-speaker:hover { background: #FDE047; transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--ink); }
-    .btn-speaker:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--ink); }
     .btn-speaker.speaking { background: #86EFAC; animation: ttsPulse 0.7s infinite alternate; }
-    @keyframes ttsPulse { from { transform: scale(1); } to { transform: scale(1.1); } }
-
-    .missions-bar {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 12px;
-    }
-    .mission-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: #1E1E2E;
-      color: #D1D5DB;
-      border: 2px solid #4B5563;
-      border-radius: 999px;
-      padding: 5px 12px;
-      font-size: 0.78rem;
-      font-weight: 800;
-      transition: all 0.15s ease;
-    }
-    .mission-chip.done {
-      background: #DCFCE7;
-      color: #111111;
-      border-color: #111111;
-      box-shadow: 2px 2px 0 #111111;
-    }
-
-    .btn-reflect-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: #DCFCE7;
-      color: var(--ink);
-      border: var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 8px 14px;
-      font-family: inherit;
-      font-weight: 900;
-      font-size: 0.88rem;
-      min-height: 44px;
-      cursor: pointer;
-      transition: transform 0.1s ease;
-    }
-    .btn-reflect-pill:active { transform: translate(2px, 2px); box-shadow: var(--shadow-sm); }
-
-    .pyp-modal-backdrop {
-      position: fixed; inset: 0; z-index: 2000; background: rgba(15, 23, 42, 0.72);
-      backdrop-filter: blur(6px); display: none; place-items: center; padding: 16px;
-    }
-    .pyp-modal-backdrop.open { display: grid; }
-    .pyp-modal-card {
-      width: min(540px, 100%); background: #FFFDF0; color: #111111; border: 4px solid #111111;
-      border-radius: 20px; box-shadow: 8px 8px 0 #111111; padding: 20px 22px; display: grid; gap: 12px;
-    }
-    .pyp-modal-badge {
-      display: inline-flex; align-items: center; gap: 8px; width: fit-content; padding: 6px 14px;
-      background: #FFE156; border: 3px solid #111111; border-radius: 999px; font-weight: 900; font-size: 0.88rem;
-    }
-    .pyp-modal-box {
-      background: #FFFFFF; border: 2.5px solid #111111; border-radius: 12px; padding: 10px 14px;
-      font-size: 0.9rem; line-height: 1.45; font-weight: 700; color: #111111;
-    }
-    .pyp-modal-box strong { display: block; font-size: 0.76rem; text-transform: uppercase; color: #0F766E; margin-bottom: 3px; }
-    .pyp-modal-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
-    .pyp-modal-btn {
-      flex: 1; min-height: 46px; padding: 10px 14px; border: 3px solid #111111; border-radius: 12px;
-      box-shadow: 3px 3px 0 #111111; font: inherit; font-weight: 900; cursor: pointer; text-decoration: none;
-      display: inline-flex; align-items: center; justify-content: center; color: #111111; background: #FFFFFF;
-    }
-    .pyp-modal-btn.primary { background: #86EFAC; }
+    @keyframes ttsPulse { from { transform: scale(1); } to { transform: scale(1.08); } }
 
     .action-btn {
-      font-family: inherit;
       background: var(--yellow);
       color: var(--ink);
       border: 2.5px solid var(--ink);
-      border-radius: 8px;
+      border-radius: 10px;
       padding: 10px;
-      font-size: 0.92rem;
+      font-size: 0.9rem;
       font-weight: 900;
       min-height: 46px;
+      width: 100%;
       cursor: pointer;
       box-shadow: var(--shadow-sm);
       display: flex;
@@ -432,179 +405,115 @@
       gap: 6px;
     }
 
-    .action-btn:active {
-      transform: translate(2px, 2px);
-      box-shadow: 0 0 0;
-    }
-
-    @media (max-width: 820px) {
-      .stage-layout {
-        grid-template-columns: 1fr;
-      }
-      .stage-wrapper {
-        height: 380px;
-      }
-    }
-
-    /* Neobrutalism TTS Radio Dropdown */
-    .tts-dropdown-wrap {
-      position: relative;
-      display: inline-block;
-      user-select: none;
-      font-family: inherit;
-    }
+    /* Unified TTS Dropdown */
+    .tts-dropdown-wrap { position: relative; display: inline-block; user-select: none; }
     .tts-trigger {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: #FFF;
-      border: 2.5px solid var(--ink);
-      border-radius: 10px;
-      box-shadow: 3px 3px 0 var(--ink);
-      padding: 6px 12px;
-      font-family: inherit;
-      font-size: 0.85rem;
-      font-weight: 800;
-      color: var(--ink);
-      cursor: pointer;
-      min-height: 38px;
-      transition: transform 0.1s, box-shadow 0.1s;
+      display: inline-flex; align-items: center; gap: 6px; background: #FFF;
+      border: var(--border); border-radius: 12px; box-shadow: var(--shadow-sm);
+      padding: 6px 12px; font-size: 0.85rem; font-weight: 800; color: var(--ink);
+      cursor: pointer; min-height: 44px;
     }
-    .tts-trigger:hover {
-      background: #FEF08A;
-      transform: translate(-1px, -1px);
-      box-shadow: 4px 4px 0 var(--ink);
-    }
-    .tts-trigger:active {
-      transform: translate(2px, 2px);
-      box-shadow: 1px 1px 0 var(--ink);
-    }
-    .tts-arrow {
-      font-size: 0.75rem;
-      transition: transform 0.15s ease;
-    }
-    .tts-dropdown-wrap.open .tts-arrow {
-      transform: rotate(180deg);
-    }
+    .tts-arrow { font-size: 0.75rem; transition: transform 0.15s ease; }
+    .tts-dropdown-wrap.open .tts-arrow { transform: rotate(180deg); }
     .tts-menu {
-      display: none;
-      position: absolute;
-      top: calc(100% + 6px);
-      right: 0;
-      min-width: 250px;
-      max-width: 320px;
-      max-height: 290px;
-      overflow-y: auto;
-      background: #FFF;
-      border: 3px solid var(--ink);
-      border-radius: 12px;
-      box-shadow: 4px 4px 0 var(--ink);
-      padding: 6px;
-      z-index: 1000;
-      flex-direction: column;
-      gap: 3px;
+      display: none; position: absolute; top: calc(100% + 6px); right: 0;
+      min-width: 260px; max-width: 320px; max-height: 290px; overflow-y: auto;
+      background: #FFF; border: 3px solid var(--ink); border-radius: 12px;
+      box-shadow: var(--shadow); padding: 6px; z-index: 1000;
+      flex-direction: column; gap: 3px;
     }
-    .tts-dropdown-wrap.open .tts-menu {
-      display: flex;
-    }
+    .tts-dropdown-wrap.open .tts-menu { display: flex; }
     .tts-menu-header {
-      font-size: 0.72rem;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      color: #6B7280;
-      padding: 4px 8px 6px;
-      border-bottom: 2px solid #E5E7EB;
-      margin-bottom: 3px;
+      font-size: 0.72rem; font-weight: 900; text-transform: uppercase;
+      letter-spacing: 0.6px; color: #6B7280; padding: 4px 8px 6px;
+      border-bottom: 2px solid #E5E7EB; margin-bottom: 3px;
     }
-    .tts-radio-group {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
+    .tts-radio-group { display: flex; flex-direction: column; gap: 3px; }
     .tts-radio-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 7px 10px;
-      border: 2px solid transparent;
-      border-radius: 8px;
-      background: transparent;
-      cursor: pointer;
-      font-family: inherit;
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--ink);
-      text-align: left;
-      width: 100%;
-      transition: background 0.1s, border-color 0.1s;
+      display: flex; align-items: center; gap: 8px; padding: 7px 10px;
+      border: 2px solid transparent; border-radius: 8px; background: transparent;
+      cursor: pointer; font-size: 0.82rem; font-weight: 700; color: var(--ink);
+      text-align: left; width: 100%; min-height: 44px;
     }
-    .tts-radio-item:hover {
-      background: #FEF9C3;
-      border-color: var(--ink);
-    }
-    .tts-radio-item.active {
-      background: #E0F2FE;
-      border-color: var(--ink);
-      font-weight: 800;
-    }
+    .tts-radio-item.active { background: #E0F2FE; border-color: var(--ink); font-weight: 800; }
     .tts-radio-circle {
-      width: 15px;
-      height: 15px;
-      border-radius: 50%;
-      border: 2px solid var(--ink);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      background: #FFF;
+      width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--ink);
+      display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; background: #FFF;
     }
     .tts-radio-item.active .tts-radio-circle::after {
-      content: '';
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--ink);
+      content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--ink);
     }
-    .tts-item-flag {
-      font-size: 1rem;
+    .tts-item-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+
+    /* Modal */
+    .pyp-modal-backdrop {
+      position: fixed; inset: 0; z-index: 2000; background: rgba(15, 23, 42, 0.72);
+      backdrop-filter: blur(6px); display: none; place-items: center; padding: 16px;
     }
-    .tts-item-name {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      flex: 1;
+    .pyp-modal-backdrop.open { display: grid; }
+    .pyp-modal-card {
+      width: min(540px, 100%); background: #FFFDF0; color: var(--ink); border: 4px solid var(--ink);
+      border-radius: 20px; box-shadow: 8px 8px 0 var(--ink); padding: 20px 22px; display: grid; gap: 12px;
     }
-  
-    html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
+    .pyp-modal-badge {
+      display: inline-flex; align-items: center; gap: 8px; width: fit-content; padding: 6px 14px;
+      background: var(--yellow); border: 3px solid var(--ink); border-radius: 999px; font-weight: 900; font-size: 0.88rem;
+    }
+    .pyp-modal-box {
+      background: #FFFFFF; border: 2.5px solid var(--ink); border-radius: 12px; padding: 10px 14px;
+      font-size: 0.9rem; line-height: 1.45; font-weight: 700; color: var(--ink);
+    }
+    .pyp-modal-box strong { display: block; font-size: 0.76rem; text-transform: uppercase; color: #0F766E; margin-bottom: 3px; }
+    .pyp-modal-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+    .pyp-modal-btn {
+      flex: 1; min-width: 140px; min-height: 46px; padding: 10px 14px; border: 3px solid var(--ink); border-radius: 12px;
+      box-shadow: 3px 3px 0 var(--ink); font-weight: 900; cursor: pointer; text-decoration: none;
+      display: inline-flex; align-items: center; justify-content: center; color: var(--ink); background: #FFFFFF;
+    }
+    .pyp-modal-btn.primary { background: #86EFAC; }
+
+    @media (hover: hover) and (pointer: fine) {
+      .pyp-map-link:hover, .btn-reflect-pill:hover, .mode-btn:hover, .cam-btn:hover,
+      .mc-item-btn:hover, .mat-btn:hover, .action-btn:hover, .tts-trigger:hover, .btn-speaker:hover {
+        transform: translate(-1px, -1px);
+      }
+      .tts-radio-item:hover { background: #FEF9C3; border-color: var(--ink); }
+    }
+
+    @container lab (max-width: 960px) {
+      .stage-layout { grid-template-columns: 1fr; }
+      .stage-wrapper { height: 390px; }
+    }
   </style>
 </head>
 
 <body>
   <div class="container">
     <nav class="nav-bar">
-      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+      <div class="nav-left">
         <a class="pyp-map-link" href="../index.html">← PYP Map</a>
         <span class="unit-tag">💡 Grade 2 · Unit 2: Science 3D</span>
-        <button type="button" class="btn-reflect-pill" id="btnOpenReflect">🔍 Reflect &amp; Stamp</button>
+        <button type="button" class="btn-reflect-pill" id="btnOpenReflect">🏅 Reflect &amp; Stamp</button>
       </div>
-      <div class="tts-dropdown-wrap" id="ttsDropdownWrap">
-        <button type="button" class="tts-trigger" id="ttsTrigger" aria-haspopup="menu" aria-expanded="false" title="Select Voice Accent">
-          <span class="tts-trigger-flag" id="ttsFlag">🇬🇧</span>
-          <span class="tts-trigger-label" id="ttsLabel">Voice</span>
-          <span class="tts-arrow">▾</span>
-        </button>
-        <div class="tts-menu" id="ttsMenu" role="menu">
-          <div class="tts-menu-header">Select Voice Accent</div>
-          <div class="tts-radio-group" id="ttsRadioList" role="radiogroup"></div>
+      <div class="nav-right">
+        <div class="tts-dropdown-wrap" id="ttsDropdownWrap">
+          <button type="button" class="tts-trigger" id="ttsTrigger" aria-haspopup="menu" aria-expanded="false" title="Select Voice Accent">
+            <span id="ttsFlag">🇬🇧</span>
+            <span id="ttsLabel">Voice</span>
+            <span class="tts-arrow">▾</span>
+          </button>
+          <div class="tts-menu" id="ttsMenu" role="menu">
+            <div class="tts-menu-header">Select Voice Accent</div>
+            <div class="tts-radio-group" id="ttsRadioList" role="radiogroup"></div>
+          </div>
         </div>
       </div>
     </nav>
 
     <header class="hero-card">
       <div class="hero-title">
-        <h1>Light & Shadow Master 3D 🔦</h1>
-        <p>Investigate linear light propagation, shadow formation, and mirror reflection.</p>
+        <h1>Light &amp; Shadow Master 3D 🔦</h1>
+        <p>See how light travels in straight lines, makes shadows grow, and bounces off mirrors!</p>
       </div>
 
       <div class="mode-pills" id="modePills">
@@ -614,59 +523,54 @@
     </header>
 
     <div class="missions-bar" aria-label="Inquiry Missions">
-      <span class="mission-chip" id="missionGiantShadow">⬜ Mission 1: Make a Giant Shadow (&le; 3.4 m)</span>
-      <span class="mission-chip" id="missionMaterial">⬜ Mission 2: Test Translucent or Transparent</span>
-      <span class="mission-chip" id="missionBeacon">⬜ Mission 3: Energize the Redstone Beacon (45°)</span>
+      <span class="mission-chip" id="missionGiantShadow">⬜ Mission 1: Make a Giant Shadow</span>
+      <span class="mission-chip" id="missionMaterial">⬜ Mission 2: Test Material Opacity</span>
+      <span class="mission-chip" id="missionBeacon">⬜ Mission 3: Energize the Redstone Beacon</span>
     </div>
 
     <main class="stage-layout">
-      <!-- 3D Interactive WebGL Stage -->
       <section class="stage-wrapper">
         <canvas id="webglCanvas"></canvas>
         <div class="stage-overlay">
-          <div class="overlay-chip">🖐️ Drag in 3D to rotate view</div>
-          <div class="overlay-chip" id="chipLightStatus">Light: Minecraft Torch (Point Source)</div>
+          <div class="overlay-chip">🖐️ Drag to orbit · Tap Torch/Block/Beacon</div>
+          <div class="overlay-chip" id="chipLightStatus">Light: Minecraft Torch (Bright Point)</div>
+        </div>
+        <div class="stage-toolbar">
+          <button type="button" class="cam-btn active" id="btnToggleRays">✨ Light Rays: ON</button>
+          <button type="button" class="cam-btn" id="btnCamFront">📷 Front</button>
+          <button type="button" class="cam-btn" id="btnCamTop">🦅 Top-Down</button>
+          <button type="button" class="cam-btn" id="btnCamReset">🔄 Reset View</button>
         </div>
       </section>
 
-      <!-- Right Control Deck -->
       <aside class="controls-deck">
-        <!-- Block 1: Shadow Distance Rig (Shadow Mode) -->
         <div class="panel-block" id="blockShadowControls">
-          <div class="panel-block-title">📏 Distance & Light Rig</div>
+          <div class="panel-block-title">📏 Distance &amp; Torch Height</div>
           <div class="slider-row">
-            <label>
-              <span>Object Distance to Light</span>
-              <span id="distVal">5.0 m</span>
+            <label for="sliderDistance">
+              <span>Torch Distance to Block</span>
+              <span id="distVal">4.0 m</span>
             </label>
-            <input type="range" id="sliderDistance" min="2" max="10" step="0.2" value="5" />
+            <input type="range" id="sliderDistance" min="2.0" max="8.0" step="0.2" value="4.0" />
           </div>
           <div class="slider-row">
-            <label>
-              <span>Light Elevation Height</span>
-              <span id="heightVal">4.0 m</span>
+            <label for="sliderHeight">
+              <span>Torch Height</span>
+              <span id="heightVal">1.6 m</span>
             </label>
-            <input type="range" id="sliderHeight" min="2" max="8" step="0.2" value="4" />
+            <input type="range" id="sliderHeight" min="0.8" max="3.8" step="0.2" value="1.6" />
           </div>
         </div>
 
-        <!-- Block 2: Minecraft Obstacle Selection -->
         <div class="panel-block" id="blockMinecraftItems">
           <div class="panel-block-title">🧱 Minecraft Object</div>
           <div class="item-select-grid" id="itemGrid">
-            <button class="mc-item-btn active" data-item="creeper" type="button">
-              <span>🧟</span> Creeper Block
-            </button>
-            <button class="mc-item-btn" data-item="sword" type="button">
-              <span>🗡️</span> Diamond Sword
-            </button>
-            <button class="mc-item-btn" data-item="lamp" type="button">
-              <span>🏮</span> Redstone Lamp
-            </button>
+            <button class="mc-item-btn active" data-item="creeper" type="button"><span>🧟</span>Creeper</button>
+            <button class="mc-item-btn" data-item="sword" type="button"><span>🗡️</span>Sword</button>
+            <button class="mc-item-btn" data-item="window" type="button"><span>🪟</span>Window Grid</button>
           </div>
         </div>
 
-        <!-- Block 3: Material Transparency -->
         <div class="panel-block" id="blockMaterialControls">
           <div class="panel-block-title">🛡️ Material Opacity</div>
           <div class="material-grid" id="materialGrid">
@@ -676,32 +580,27 @@
           </div>
         </div>
 
-        <!-- Block 4: Mirror Angle (Reflection Mode) -->
         <div class="panel-block" id="blockReflectionControls" style="display: none;">
-          <div class="panel-block-title">🪞 Law of Reflection: Mirror Angle</div>
+          <div class="panel-block-title">🪞 Mirror Bounce Angle</div>
           <div class="slider-row">
-            <label>
-              <span>Mirror Angle</span>
+            <label for="sliderMirrorAngle">
+              <span>Mirror Angle (θ<sub>i</sub> = θ<sub>r</sub>)</span>
               <span id="mirrorAngleVal" style="color:var(--teal); font-weight:900;">25°</span>
             </label>
             <input type="range" id="sliderMirrorAngle" min="15" max="75" step="1" value="25" />
           </div>
 
-          <!-- Real-time Guidance Box -->
-          <div id="reflectionStatusBox" style="background:#FFFDE8; color: var(--ink); border:2px solid var(--ink); border-radius:10px; padding:10px; margin-top:10px; box-shadow:2px 2px 0 var(--ink);">
-            <div style="font-size:0.75rem; font-weight:900; text-transform:uppercase; color:#374151; margin-bottom:4px;">Reflection Target Guidance</div>
-            <div id="reflectionStatusText" style="font-size:0.88rem; font-weight:800; line-height:1.4; color: var(--ink);">
-              ➡️ Laser aiming too far right (25°)! Slide to the right toward 45° to hit the Beacon!
-            </div>
+          <div id="reflectionStatusBox" style="background:#FFFDE8; color: var(--ink); border:2px solid var(--ink); border-radius:10px; padding:10px; margin-top:8px; box-shadow:2px 2px 0 var(--ink);">
+            <div style="font-size:0.74rem; font-weight:900; text-transform:uppercase; color:#374151; margin-bottom:4px;">Laser Aiming Guide</div>
+            <div id="reflectionStatusText" style="font-size:0.86rem; font-weight:800; line-height:1.35;"></div>
           </div>
 
-          <button class="action-btn" id="btnFireBeam" type="button" style="margin-top:12px;">⚡ Test Redstone Laser Pulse</button>
+          <button class="action-btn" id="btnFireBeam" type="button" style="margin-top:10px;">⚡ Pulse Redstone Laser</button>
         </div>
 
-        <!-- Inquiry Science Observation -->
         <div class="observation-memo">
           <div id="memoText">
-            🔍 <strong>Science Law</strong>: Light travels in straight lines. When an opaque block blocks the rays, a dark shadow forms on the back wall. Moving closer to the light source makes the shadow <strong>BIGGER</strong>!
+            🔍 <strong>Science Idea</strong>: Light travels in straight lines! Move the torch closer to make the shadow grow taller on the back ruler wall.
           </div>
           <button type="button" class="btn-speaker" id="btnSpeakMemo" title="Read observation aloud" aria-label="Read science observation aloud">🔊</button>
         </div>
@@ -715,130 +614,228 @@
       <div class="pyp-modal-badge">🔍 Learner Profile Stamp: Inquirer</div>
       <h2 id="pypModalTitle" style="font-size:1.35rem; font-weight:900;">🌟 IB PYP Reflection &amp; Action</h2>
       <div class="pyp-modal-box">
-        <strong>Key Concept · Causation &amp; Function</strong>
-        <span>Light travels in straight lines. Opaque objects block light to cast shadows, while smooth mirrors reflect light so the angle of incidence equals the angle of reflection (θ<sub>i</sub> = θ<sub>r</sub>).</span>
+        <strong>Key Concepts · Causation &amp; Function</strong>
+        <span>Light travels in straight lines. Solid objects block light to cast shadows, tinted glass lets soft glowing light pass through, and mirrors bounce light at equal angles!</span>
       </div>
       <div class="pyp-modal-box" style="background:#ECFDF5;">
         <strong>🚀 Take Action in Real Life</strong>
-        <span>Try shining a flashlight on your hand near a wall, then move closer to the flashlight — watch how your shadow grows!</span>
+        <span>Shine a flashlight on your hand near a wall, then move your hand closer to the flashlight — watch how big your shadow grows!</span>
       </div>
-      <div id="pypStampStatus" style="font-weight:900; font-size:0.88rem; color:#15803D;"></div>
+      <div id="pypStampStatus" style="font-weight:900; font-size:0.88rem; color:#15803D; min-height:20px;"></div>
       <div class="pyp-modal-actions">
-        <button type="button" class="pyp-modal-btn primary" id="btnClaimStamp">🔍 Stamp My Passport!</button>
+        <button type="button" class="pyp-modal-btn primary" id="btnClaimStamp">🏅 Claim Passport Stamp</button>
         <a class="pyp-modal-btn" href="../index.html">🗺️ View Passport</a>
         <button type="button" class="pyp-modal-btn" id="btnCloseReflect">Keep Exploring</button>
       </div>
     </div>
   </div>
 
-  <!-- ES Module Import of Three.js & OrbitControls -->
   <script type="module">
-    import * as THREE from 'https://esm.sh/three@0.160.0';
-    import { OrbitControls } from 'https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js';
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-    // Synthesized Audio for zero-dependency feedback
+    // Safe Organic Web Audio (triangle & sine only)
     class ScienceAudio {
       constructor() { this.ctx = null; }
       init() {
-        if (!this.ctx) {
-          const AudioContext = window.AudioContext || window.webkitAudioContext;
-          this.ctx = new AudioContext();
-        }
-        if (this.ctx.state === 'suspended') this.ctx.resume();
+        try {
+          if (!this.ctx) {
+            const AC = window.AudioContext || window.webkitAudioContext;
+            if (AC) this.ctx = new AC();
+          }
+          if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+        } catch (_) {}
       }
-      playTorch() {
+      tone(freq, delay, dur, type, vol) {
         this.init();
-        const now = this.ctx.currentTime;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.frequency.setValueAtTime(400, now);
-        osc.frequency.exponentialRampToValueAtTime(800, now + 0.15);
-        gain.gain.setValueAtTime(0.12, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.2);
-      }
-      playLaser() {
-        this.init();
-        const now = this.ctx.currentTime;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(950, now);
-        osc.frequency.linearRampToValueAtTime(320, now + 0.25);
-        gain.gain.setValueAtTime(0.15, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.3);
-      }
-      playHitChime() {
-        this.init();
-        const now = this.ctx.currentTime;
-        [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+        if (!this.ctx) return;
+        try {
+          const now = this.ctx.currentTime + delay;
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(freq, now + idx * 0.08);
-          gain.gain.setValueAtTime(0.18, now + idx * 0.08);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.3);
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, now);
+          gain.gain.setValueAtTime(vol, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
           osc.connect(gain);
           gain.connect(this.ctx.destination);
-          osc.start(now + idx * 0.08);
-          osc.stop(now + idx * 0.08 + 0.35);
-        });
+          osc.start(now);
+          osc.stop(now + dur + 0.02);
+        } catch (_) {}
+      }
+      playClick() { this.tone(540, 0, 0.05, 'sine', 0.08); }
+      playTorch() { this.tone(480, 0, 0.09, 'triangle', 0.1); }
+      playLaser() {
+        this.tone(820, 0, 0.12, 'triangle', 0.1);
+        this.tone(560, 0.08, 0.14, 'sine', 0.08);
+      }
+      playHitChime() {
+        [523.25, 659.25, 783.99, 1046.5].forEach((f, idx) => this.tone(f, idx * 0.08, 0.3, 'triangle', 0.16));
       }
     }
     const audio = new ScienceAudio();
 
-    // Scene setup
+    function launchConfetti() {
+      const cvs = document.createElement('canvas');
+      cvs.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:3000;';
+      document.body.appendChild(cvs);
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const w = window.innerWidth, h = window.innerHeight;
+      cvs.width = Math.round(w * dpr); cvs.height = Math.round(h * dpr);
+      const ctx = cvs.getContext('2d');
+      ctx.scale(dpr, dpr);
+      const colors = ['#FFE156', '#FF6584', '#4ECDC4', '#38B6FF', '#86EFAC'];
+      const pieces = Array.from({ length: 65 }, () => ({
+        x: Math.random() * w, y: -20 - Math.random() * h * 0.25,
+        vx: (Math.random() - 0.5) * 6, vy: 3 + Math.random() * 5,
+        size: 7 + Math.random() * 6, rot: Math.random() * 6, vr: (Math.random() - 0.5) * 0.2,
+        color: colors[Math.floor(Math.random() * colors.length)]
+      }));
+      let frame = 0;
+      function tick() {
+        frame++;
+        ctx.clearRect(0, 0, w, h);
+        pieces.forEach(p => {
+          p.x += p.vx; p.y += p.vy; p.vy += 0.12; p.rot += p.vr;
+          ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+          ctx.fillStyle = p.color; ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.65);
+          ctx.restore();
+        });
+        if (frame < 105) requestAnimationFrame(tick); else cvs.remove();
+      }
+      requestAnimationFrame(tick);
+    }
+
+    // Scene setup with ACESFilmicToneMapping
     const canvas = document.getElementById('webglCanvas');
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.05;
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x0E0E18);
 
-    const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
-    camera.position.set(0, 7, 16);
+    const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth / Math.max(canvas.clientHeight, 1), 0.1, 100);
+    camera.position.set(5.5, 4.6, 10.5);
 
     const controls = new OrbitControls(camera, canvas);
     controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    controls.maxPolarAngle = Math.PI / 2 - 0.02; // Don't go below floor
+    controls.dampingFactor = 0.06;
+    controls.maxPolarAngle = Math.PI / 2 - 0.02;
+    controls.target.set(0, 1.4, -1.5);
 
-    // Environment: Floor & Projection Back Wall
-    const floorGeo = new THREE.PlaneGeometry(30, 30);
-    const floorMat = new THREE.MeshStandardMaterial({ color: 0x1E1E2C, roughness: 0.8 });
-    const floor = new THREE.Mesh(floorGeo, floorMat);
+    // Cached Procedural Canvas PBR Textures
+    const texCache = {};
+    function getCreeperTex() {
+      if (texCache.creeper) return texCache.creeper;
+      const c = document.createElement('canvas'); c.width = 64; c.height = 64;
+      const g = c.getContext('2d');
+      for (let i = 0; i < 64; i += 8) {
+        for (let j = 0; j < 64; j += 8) {
+          const s = ((i * 7 + j * 13) % 36);
+          g.fillStyle = `rgb(${32 + s}, ${125 + s}, ${44 + s})`;
+          g.fillRect(i, j, 8, 8);
+        }
+      }
+      const t = new THREE.CanvasTexture(c);
+      t.magFilter = THREE.NearestFilter;
+      return (texCache.creeper = t);
+    }
+
+    function getWoodTex() {
+      if (texCache.wood) return texCache.wood;
+      const c = document.createElement('canvas'); c.width = 64; c.height = 64;
+      const g = c.getContext('2d');
+      g.fillStyle = '#8B5A2B'; g.fillRect(0, 0, 64, 64);
+      g.fillStyle = '#6E451E';
+      for (let y = 0; y < 64; y += 8) g.fillRect(0, y, 64, 2);
+      g.fillStyle = '#A06D3B';
+      for (let y = 4; y < 64; y += 16) g.fillRect(0, y, 64, 3);
+      const t = new THREE.CanvasTexture(c);
+      t.magFilter = THREE.NearestFilter;
+      return (texCache.wood = t);
+    }
+
+    function getStainedGlassTex() {
+      if (texCache.glass) return texCache.glass;
+      const c = document.createElement('canvas'); c.width = 128; c.height = 128;
+      const g = c.getContext('2d');
+      const grad = g.createRadialGradient(64, 64, 8, 64, 64, 60);
+      grad.addColorStop(0, 'rgba(78, 205, 196, 0.72)');
+      grad.addColorStop(0.65, 'rgba(56, 182, 255, 0.42)');
+      grad.addColorStop(1, 'rgba(56, 182, 255, 0)');
+      g.fillStyle = grad;
+      g.fillRect(0, 0, 128, 128);
+      return (texCache.glass = new THREE.CanvasTexture(c));
+    }
+
+    function getWallRulerTex() {
+      if (texCache.wall) return texCache.wall;
+      const c = document.createElement('canvas'); c.width = 1024; c.height = 512;
+      const g = c.getContext('2d');
+      g.fillStyle = '#F3F4FA'; g.fillRect(0, 0, 1024, 512);
+      // 1m, 2m, 3m, 4m, 5m height lines (wall is 6m tall -> y=0..6m mapped bottom to top)
+      for (let m = 1; m <= 5; m++) {
+        const y = 512 - (m / 6) * 512;
+        g.strokeStyle = '#94A3B8';
+        g.lineWidth = 3;
+        g.setLineDash([12, 8]);
+        g.beginPath(); g.moveTo(0, y); g.lineTo(1024, y); g.stroke();
+        g.setLineDash([]);
+        g.fillStyle = '#1E293B';
+        g.fillRect(14, y - 20, 74, 30);
+        g.fillStyle = '#FFE156';
+        g.font = 'bold 20px system-ui';
+        g.fillText(`${m} m`, 26, y + 2);
+        g.fillStyle = '#1E293B';
+        g.fillRect(936, y - 20, 74, 30);
+        g.fillStyle = '#FFE156';
+        g.fillText(`${m} m`, 948, y + 2);
+      }
+      const t = new THREE.CanvasTexture(c);
+      return (texCache.wall = t);
+    }
+
+    // Floor & Grid
+    const floor = new THREE.Mesh(
+      new THREE.PlaneGeometry(30, 30),
+      new THREE.MeshStandardMaterial({ color: 0x1E1E2C, roughness: 0.85 })
+    );
     floor.rotation.x = -Math.PI / 2;
     floor.receiveShadow = true;
     scene.add(floor);
 
-    // Grid on floor for measurement
     const grid = new THREE.GridHelper(30, 30, 0x4ECDC4, 0x2A2A3E);
     grid.position.y = 0.01;
     scene.add(grid);
 
-    // Back projection wall where shadow lands
-    const wallGeo = new THREE.BoxGeometry(18, 10, 0.5);
-    const wallMat = new THREE.MeshStandardMaterial({ color: 0xEEEEF5, roughness: 0.5 });
-    const backWall = new THREE.Mesh(wallGeo, wallMat);
-    backWall.position.set(0, 5, -8);
+    // Back Projection Wall closer at z = -5.5 with Height Ruler Texture (16m wide x 6m tall)
+    const WALL_Z = -5.5;
+    const backWall = new THREE.Mesh(
+      new THREE.BoxGeometry(16, 6, 0.4),
+      new THREE.MeshStandardMaterial({ map: getWallRulerTex(), roughness: 0.65 })
+    );
+    backWall.position.set(0, 3, WALL_Z);
     backWall.receiveShadow = true;
     scene.add(backWall);
 
-    // Ambient fill light (dim so shadow pops)
-    const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.25);
+    // Soft tinted projection patch for Translucent Glass mode
+    const tintedPatch = new THREE.Mesh(
+      new THREE.PlaneGeometry(3.2, 3.2),
+      new THREE.MeshBasicMaterial({ map: getStainedGlassTex(), transparent: true, opacity: 0.85, depthWrite: false })
+    );
+    tintedPatch.position.set(0, 1.5, WALL_Z + 0.22);
+    tintedPatch.visible = false;
+    scene.add(tintedPatch);
+
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.28);
     scene.add(ambientLight);
 
-    // Dedicated Reflection Mode lighting (bright, clear mirror & lab visibility)
     const reflectionHemiLight = new THREE.HemisphereLight(0xE0F2FE, 0x334155, 1.35);
     reflectionHemiLight.visible = false;
     scene.add(reflectionHemiLight);
@@ -848,59 +845,44 @@
     reflectionDirLight.visible = false;
     scene.add(reflectionDirLight);
 
-    // Torch Light (SpotLight that casts crisp shadow)
-    const torchLight = new THREE.SpotLight(0xFFDD66, 150, 40, Math.PI / 4, 0.35, 1.2);
-    torchLight.position.set(0, 4, 8);
+    // Torch SpotLight (lowered default height y = 1.6m, aligned z = dist, shadow bias)
+    const torchLight = new THREE.SpotLight(0xFFDD77, 145, 32, Math.PI / 4, 0.3, 1.15);
+    torchLight.position.set(0, 1.6, 4.0);
     torchLight.target.position.set(0, 1.0, 0);
     torchLight.castShadow = true;
     torchLight.shadow.mapSize.width = 1024;
     torchLight.shadow.mapSize.height = 1024;
     torchLight.shadow.camera.near = 0.5;
-    torchLight.shadow.camera.far = 30;
+    torchLight.shadow.camera.far = 24;
+    torchLight.shadow.bias = -0.001;
     scene.add(torchLight);
     scene.add(torchLight.target);
 
-    // Torch Visual Mesh (Minecraft style torch)
     const torchGroup = new THREE.Group();
     const torchStick = new THREE.Mesh(
-      new THREE.BoxGeometry(0.3, 1.2, 0.3),
-      new THREE.MeshStandardMaterial({ color: 0x8B5A2B })
+      new THREE.BoxGeometry(0.28, 1.1, 0.28),
+      new THREE.MeshStandardMaterial({ map: getWoodTex() })
     );
     const torchFlame = new THREE.Mesh(
-      new THREE.BoxGeometry(0.4, 0.4, 0.4),
+      new THREE.BoxGeometry(0.38, 0.38, 0.38),
       new THREE.MeshBasicMaterial({ color: 0xFFB300 })
     );
-    torchFlame.position.y = 0.65;
+    torchFlame.position.y = 0.62;
     torchGroup.add(torchStick, torchFlame);
     torchGroup.position.copy(torchLight.position);
+    torchGroup.userData = { pickId: 'torch' };
     scene.add(torchGroup);
 
-    // Interactive Minecraft Target Object
+    // Straight-line light-ray guidelines
+    const rayLinesGroup = new THREE.Group();
+    scene.add(rayLinesGroup);
+    let showLightRays = true;
+
     let currentItem = 'creeper';
     let currentMaterialMode = 'opaque';
     const itemGroup = new THREE.Group();
+    itemGroup.userData = { pickId: 'object' };
     scene.add(itemGroup);
-
-    // Cached procedural Creeper texture so pixels never jitter on material toggle
-    let cachedCreeperTex = null;
-    function getCreeperTexture() {
-      if (cachedCreeperTex) return cachedCreeperTex;
-      const cvsCreeper = document.createElement('canvas');
-      cvsCreeper.width = 64; cvsCreeper.height = 64;
-      const ctxC = cvsCreeper.getContext('2d');
-      ctxC.fillStyle = '#388E3C';
-      ctxC.fillRect(0, 0, 64, 64);
-      for (let i = 0; i < 64; i += 8) {
-        for (let j = 0; j < 64; j += 8) {
-          const greenShade = ((i * 7 + j * 13) % 40);
-          ctxC.fillStyle = `rgb(${30 + greenShade}, ${110 + greenShade}, ${40 + greenShade})`;
-          ctxC.fillRect(i, j, 8, 8);
-        }
-      }
-      cachedCreeperTex = new THREE.CanvasTexture(cvsCreeper);
-      cachedCreeperTex.magFilter = THREE.NearestFilter;
-      return cachedCreeperTex;
-    }
 
     function clearGroup(group) {
       while (group.children.length > 0) {
@@ -909,139 +891,113 @@
         child.traverse(c => {
           if (c.geometry) c.geometry.dispose();
           if (c.material) {
-            if (Array.isArray(c.material)) {
-              c.material.forEach(m => {
-                if (m.map && m.map !== cachedCreeperTex) m.map.dispose();
-                m.dispose();
-              });
-            } else {
-              if (c.material.map && c.material.map !== cachedCreeperTex) c.material.map.dispose();
-              c.material.dispose();
-            }
+            const mats = Array.isArray(c.material) ? c.material : [c.material];
+            mats.forEach(m => m.dispose());
           }
         });
       }
     }
 
-    function applyMaterialLighting() {
-      if (currentMaterialMode === 'translucent') {
-        ambientLight.intensity = 0.65;
-        torchLight.intensity = 110;
-      } else if (currentMaterialMode === 'transparent') {
-        ambientLight.intensity = 0.35;
-        torchLight.intensity = 150;
-      } else {
-        ambientLight.intensity = 0.25;
-        torchLight.intensity = 150;
+    function getObjectCorners() {
+      if (currentItem === 'sword') {
+        return [
+          new THREE.Vector3(-0.55, 1.05, 0),
+          new THREE.Vector3(0.55, 1.05, 0),
+          new THREE.Vector3(0, 3.0, 0),
+          new THREE.Vector3(0, 0.3, 0)
+        ];
       }
+      if (currentItem === 'window') {
+        return [
+          new THREE.Vector3(-0.9, 1.8, 0),
+          new THREE.Vector3(0.9, 1.8, 0),
+          new THREE.Vector3(-0.9, 0.1, 0),
+          new THREE.Vector3(0.9, 0.1, 0)
+        ];
+      }
+      return [
+        new THREE.Vector3(-0.8, 1.6, 0),
+        new THREE.Vector3(0.8, 1.6, 0),
+        new THREE.Vector3(-0.8, 0.05, 0),
+        new THREE.Vector3(0.8, 0.05, 0)
+      ];
+    }
+
+    function updateLightRaysAndPatch() {
+      clearGroup(rayLinesGroup);
+      const tPos = torchLight.position.clone();
+      const targetWallZ = WALL_Z + 0.22;
+
+      if (currentMaterialMode === 'translucent') {
+        // Compute projected center & scale for stained glass patch
+        const objCenterY = currentItem === 'sword' ? 1.5 : 0.85;
+        const scaleFactor = (tPos.z - targetWallZ) / Math.max(0.5, tPos.z);
+        const py = tPos.y + scaleFactor * (objCenterY - tPos.y);
+        tintedPatch.position.set(0, Math.max(0.8, Math.min(4.8, py)), targetWallZ);
+        tintedPatch.scale.setScalar(Math.min(2.4, Math.max(0.8, scaleFactor * 0.7)));
+        tintedPatch.visible = true;
+      } else {
+        tintedPatch.visible = false;
+      }
+
+      if (!showLightRays) return;
+      const corners = getObjectCorners();
+      const rayMat = new THREE.LineBasicMaterial({ color: 0xFFE156, transparent: true, opacity: 0.72 });
+      corners.forEach(c => {
+        const dir = new THREE.Vector3().subVectors(c, tPos);
+        if (Math.abs(dir.z) < 0.05) return;
+        const t = (targetWallZ - tPos.z) / dir.z;
+        const hit = tPos.clone().addScaledVector(dir, t);
+        hit.y = Math.max(0.05, hit.y);
+        const geo = new THREE.BufferGeometry().setFromPoints([tPos, hit]);
+        rayLinesGroup.add(new THREE.Line(geo, rayMat));
+      });
     }
 
     function createMinecraftBlock(type, opacity = 1.0, transparent = false) {
       clearGroup(itemGroup);
-      applyMaterialLighting();
-
+      ambientLight.intensity = 0.28;
+      torchLight.intensity = 145;
       const shouldCastShadow = (currentMaterialMode !== 'transparent');
 
       if (type === 'sword') {
-        // Minecraft Diamond Sword standing upright in 3D
         const swordGroup = new THREE.Group();
-
-        // Sword Blade (Diamond cyan with dark border)
         const bladeMat = new THREE.MeshStandardMaterial({
-          color: 0x00F0FF,
-          roughness: transparent ? 0.1 : 0.25,
-          metalness: transparent ? 0.1 : 0.4,
-          transparent,
-          opacity
+          color: 0x00F0FF, roughness: transparent ? 0.15 : 0.28, metalness: 0.35, transparent, opacity
         });
-        const blade = new THREE.Mesh(new THREE.BoxGeometry(0.35, 2.0, 0.12), bladeMat);
-        blade.position.y = 1.3;
-        blade.castShadow = shouldCastShadow;
-        blade.receiveShadow = true;
-        swordGroup.add(blade);
-
-        // Sword Tip
-        const tipGeo = new THREE.ConeGeometry(0.25, 0.4, 4);
-        const tip = new THREE.Mesh(tipGeo, bladeMat);
-        tip.position.y = 2.45;
-        tip.rotation.y = Math.PI / 4;
-        tip.castShadow = shouldCastShadow;
-        swordGroup.add(tip);
-
-        // Crossguard (Gold / dark oak cross)
-        const guardMat = new THREE.MeshStandardMaterial({
-          color: 0x5C3818,
-          roughness: 0.6,
-          transparent,
-          opacity
-        });
-        const guard = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.22, 0.2), guardMat);
-        guard.position.y = 0.28;
-        guard.castShadow = shouldCastShadow;
-        swordGroup.add(guard);
-
-        // Hilt Handle (Wood)
+        const blade = new THREE.Mesh(new THREE.BoxGeometry(0.34, 1.9, 0.14), bladeMat);
+        blade.position.y = 1.25; blade.castShadow = shouldCastShadow;
+        const tip = new THREE.Mesh(new THREE.ConeGeometry(0.24, 0.4, 4), bladeMat);
+        tip.position.y = 2.4; tip.rotation.y = Math.PI / 4; tip.castShadow = shouldCastShadow;
+        const guardMat = new THREE.MeshStandardMaterial({ map: getWoodTex(), transparent, opacity });
+        const guard = new THREE.Mesh(new THREE.BoxGeometry(1.15, 0.22, 0.22), guardMat);
+        guard.position.y = 0.28; guard.castShadow = shouldCastShadow;
         const hilt = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.55, 0.18), guardMat);
-        hilt.position.y = -0.1;
-        hilt.castShadow = shouldCastShadow;
-        swordGroup.add(hilt);
-
-        // Pommel
-        const pommelMat = new THREE.MeshStandardMaterial({
-          color: 0x00E5FF,
-          transparent,
-          opacity
-        });
-        const pommel = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.2, 0.2), pommelMat);
-        pommel.position.y = -0.45;
-        pommel.castShadow = shouldCastShadow;
-        swordGroup.add(pommel);
-
-        swordGroup.position.y = 0.8;
+        hilt.position.y = -0.1; hilt.castShadow = shouldCastShadow;
+        swordGroup.add(blade, tip, guard, hilt);
+        swordGroup.position.y = 0.65;
         itemGroup.add(swordGroup);
-      } else if (type === 'lamp') {
-        // Minecraft Redstone Lamp Block
-        const cvsLamp = document.createElement('canvas');
-        cvsLamp.width = 64; cvsLamp.height = 64;
-        const ctxL = cvsLamp.getContext('2d');
-        // Brown wood-framed lamp border
-        ctxL.fillStyle = '#4A2A0C';
-        ctxL.fillRect(0, 0, 64, 64);
-        // Amber glowing grid pattern
-        ctxL.fillStyle = '#D97706';
-        ctxL.fillRect(6, 6, 52, 52);
-        // Redstone coil wires
-        ctxL.fillStyle = '#FF4500';
-        ctxL.fillRect(14, 14, 36, 6);
-        ctxL.fillRect(14, 29, 36, 6);
-        ctxL.fillRect(14, 44, 36, 6);
-        ctxL.fillRect(29, 14, 6, 36);
-
-        const lampTex = new THREE.CanvasTexture(cvsLamp);
-        lampTex.magFilter = THREE.NearestFilter;
-
-        const lampMat = new THREE.MeshStandardMaterial({
-          map: lampTex,
-          emissive: currentMaterialMode === 'transparent' ? 0x221105 : 0x78350F,
-          roughness: transparent ? 0.1 : 0.5,
-          transparent,
-          opacity
+      } else if (type === 'window') {
+        // Distinct 3x3 Perforated Wooden Window / Fence Frame (casts real grid shadow!)
+        const frameMat = new THREE.MeshStandardMaterial({ map: getWoodTex(), roughness: 0.6, transparent, opacity });
+        const bars = [
+          [0, 1.7, 0, 1.8, 0.22, 0.22],
+          [0, 0.15, 0, 1.8, 0.22, 0.22],
+          [0, 0.92, 0, 1.8, 0.16, 0.18],
+          [-0.79, 0.92, 0, 0.22, 1.75, 0.22],
+          [0.79, 0.92, 0, 0.22, 1.75, 0.22],
+          [0, 0.92, 0, 0.16, 1.75, 0.18]
+        ];
+        bars.forEach(([x, y, z, w, h, d]) => {
+          const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), frameMat);
+          m.position.set(x, y, z);
+          m.castShadow = shouldCastShadow;
+          m.receiveShadow = true;
+          itemGroup.add(m);
         });
-
-        const lampMesh = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.6, 1.6), lampMat);
-        lampMesh.position.y = 0.8;
-        lampMesh.castShadow = shouldCastShadow;
-        lampMesh.receiveShadow = true;
-        itemGroup.add(lampMesh);
       } else {
-        // Creeper block (cached deterministic texture)
-        const creeperTex = getCreeperTexture();
-
         const mat = new THREE.MeshStandardMaterial({
-          map: creeperTex,
-          roughness: transparent ? 0.1 : 0.5,
-          transparent,
-          opacity
+          map: getCreeperTex(), roughness: transparent ? 0.15 : 0.5, transparent, opacity
         });
         const mesh = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.6, 1.6), mat);
         mesh.position.y = 0.8;
@@ -1049,34 +1005,24 @@
         mesh.receiveShadow = true;
         itemGroup.add(mesh);
 
-        // Pixel face
-        const faceMat = new THREE.MeshBasicMaterial({
-          color: 0x111111,
-          transparent,
-          opacity: Math.min(1.0, opacity * 1.5)
-        });
+        const faceMat = new THREE.MeshBasicMaterial({ color: 0x111111, transparent, opacity: Math.min(1, opacity * 1.4) });
         const eye1 = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.3), faceMat);
         eye1.position.set(-0.35, 1.1, 0.81);
-        const eye2 = eye1.clone();
-        eye2.position.x = 0.35;
+        const eye2 = eye1.clone(); eye2.position.x = 0.35;
         const mouth = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.6), faceMat);
         mouth.position.set(0, 0.7, 0.81);
-        eye1.castShadow = shouldCastShadow;
-        eye2.castShadow = shouldCastShadow;
-        mouth.castShadow = shouldCastShadow;
         itemGroup.add(eye1, eye2, mouth);
       }
+      updateLightRaysAndPatch();
     }
 
     createMinecraftBlock('creeper');
-    itemGroup.position.set(0, 0, 0); // initial center position
 
-    // Laser & Mirror setup for Reflection mode
+    // Reflection Mode Scene
     const reflectionGroup = new THREE.Group();
     reflectionGroup.visible = false;
     scene.add(reflectionGroup);
 
-    // 1. Laser Emitter (Minecraft Dispenser at left: -6.5, 1.2, 0)
     const dispenserGroup = new THREE.Group();
     const dispenserBody = new THREE.Mesh(
       new THREE.BoxGeometry(1.4, 1.4, 1.4),
@@ -1092,21 +1038,16 @@
     dispenserGroup.position.set(-6.5, 1.2, 0);
     reflectionGroup.add(dispenserGroup);
 
-    // 2. Mirror Assembly at center (0, 0, 0)
     const mirrorGroup = new THREE.Group();
-    mirrorGroup.position.set(0, 0, 0);
     reflectionGroup.add(mirrorGroup);
-
-    // Floor Protractor Arc / Compass Ring around mirror
     const floorRing = new THREE.Mesh(
-      new THREE.RingGeometry(1.6, 1.75, 32),
+      new THREE.RingGeometry(1.75, 1.9, 36),
       new THREE.MeshBasicMaterial({ color: 0x4ECDC4, side: THREE.DoubleSide })
     );
     floorRing.rotation.x = -Math.PI / 2;
     floorRing.position.y = 0.02;
     reflectionGroup.add(floorRing);
 
-    // Stand Pedestal
     const mirrorStand = new THREE.Mesh(
       new THREE.CylinderGeometry(0.6, 0.7, 0.3, 16),
       new THREE.MeshStandardMaterial({ color: 0x4B5563, roughness: 0.45, metalness: 0.25 })
@@ -1114,16 +1055,10 @@
     mirrorStand.position.y = 0.15;
     mirrorGroup.add(mirrorStand);
 
-    // Rotating Mirror Frame & Crisp Reflective Glass
-    const mirrorGeo = new THREE.BoxGeometry(2.8, 2.0, 0.2);
-    const mirrorMat = new THREE.MeshStandardMaterial({
-      color: 0xBAE6FD,
-      emissive: 0x1E3A5F,
-      emissiveIntensity: 0.3,
-      metalness: 0.4,
-      roughness: 0.18
-    });
-    const mirrorMesh = new THREE.Mesh(mirrorGeo, mirrorMat);
+    const mirrorMesh = new THREE.Mesh(
+      new THREE.BoxGeometry(2.8, 2.0, 0.2),
+      new THREE.MeshStandardMaterial({ color: 0xBAE6FD, emissive: 0x1E3A5F, emissiveIntensity: 0.3, metalness: 0.4, roughness: 0.18 })
+    );
     mirrorMesh.position.set(0, 1.2, 0);
     const mirrorBorder = new THREE.Mesh(
       new THREE.BoxGeometry(2.96, 2.16, 0.14),
@@ -1133,83 +1068,34 @@
     mirrorMesh.add(mirrorBorder);
     mirrorGroup.add(mirrorMesh);
 
-    // Normal Line Helper (yellow dashed line perpendicular to mirror face)
-    const normalGeo = new THREE.BufferGeometry().setFromPoints([
-      new THREE.Vector3(0, 0, 0),
-      new THREE.Vector3(0, 0, 2.0)
-    ]);
-    const normalMat = new THREE.LineDashedMaterial({
-      color: 0xFFD700,
-      dashSize: 0.3,
-      gapSize: 0.2
-    });
-    const normalHelper = new THREE.Line(normalGeo, normalMat);
+    const normalGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 2.6)]);
+    const normalHelper = new THREE.Line(normalGeo, new THREE.LineDashedMaterial({ color: 0xFFD700, dashSize: 0.25, gapSize: 0.15 }));
     normalHelper.computeLineDistances();
     mirrorMesh.add(normalHelper);
 
-    // 3. Target Beacon at North (0, 0, 6)
     const targetBeaconGroup = new THREE.Group();
     targetBeaconGroup.position.set(0, 0, 6);
+    targetBeaconGroup.userData = { pickId: 'beacon' };
     reflectionGroup.add(targetBeaconGroup);
 
-    // Obsidian base
-    const baseMesh = new THREE.Mesh(
-      new THREE.BoxGeometry(1.8, 0.6, 1.8),
-      new THREE.MeshStandardMaterial({ color: 0x3B2D54, roughness: 0.6, metalness: 0.15 })
-    );
+    const baseMesh = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.6, 1.8), new THREE.MeshStandardMaterial({ color: 0x3B2D54, roughness: 0.6 }));
     baseMesh.position.y = 0.3;
-    targetBeaconGroup.add(baseMesh);
-
-    // Glass enclosure
-    const glassMesh = new THREE.Mesh(
-      new THREE.BoxGeometry(1.5, 1.5, 1.5),
-      new THREE.MeshStandardMaterial({
-        color: 0x88EEFF,
-        transparent: true,
-        opacity: 0.35,
-        roughness: 0.1
-      })
-    );
+    const glassMesh = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.5, 1.5), new THREE.MeshStandardMaterial({ color: 0x88EEFF, transparent: true, opacity: 0.35, roughness: 0.1 }));
     glassMesh.position.y = 1.35;
-    targetBeaconGroup.add(glassMesh);
-
-    // Hovering Redstone Crystal (Octahedron)
-    const targetCrystal = new THREE.Mesh(
-      new THREE.OctahedronGeometry(0.55),
-      new THREE.MeshStandardMaterial({
-        color: 0xFF1744,
-        emissive: 0x770011,
-        roughness: 0.2
-      })
-    );
+    const targetCrystal = new THREE.Mesh(new THREE.OctahedronGeometry(0.55), new THREE.MeshStandardMaterial({ color: 0xFF1744, emissive: 0x770011, roughness: 0.2 }));
     targetCrystal.position.y = 1.35;
-    targetBeaconGroup.add(targetCrystal);
-
-    // Vertical Sky Light Beam (energized on hit)
-    const skyBeam = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.35, 0.35, 20, 16),
-      new THREE.MeshBasicMaterial({
-        color: 0x00FF88,
-        transparent: true,
-        opacity: 0.55,
-        side: THREE.DoubleSide
-      })
-    );
-    skyBeam.position.y = 10;
-    skyBeam.visible = false;
-    targetBeaconGroup.add(skyBeam);
-
-    // Beacon Point Light
+    const skyBeam = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 20, 16), new THREE.MeshBasicMaterial({ color: 0x00FF88, transparent: true, opacity: 0.55, side: THREE.DoubleSide }));
+    skyBeam.position.y = 10; skyBeam.visible = false;
     const beaconLight = new THREE.PointLight(0x00FF88, 0, 10);
     beaconLight.position.y = 1.5;
-    targetBeaconGroup.add(beaconLight);
+    targetBeaconGroup.add(baseMesh, glassMesh, targetCrystal, skyBeam, beaconLight);
 
-    // 4. Laser Rays container (Glowing 3D CylinderGeometry beams)
     const laserGroup = new THREE.Group();
     reflectionGroup.add(laserGroup);
 
     let isTargetHit = false;
     const completedMissions = { giantShadow: false, material: false, beacon: false };
+    let celebratedAll = false;
 
     function completeMission(key, chipId, label) {
       if (completedMissions[key]) return;
@@ -1219,6 +1105,14 @@
         chip.classList.add('done');
         chip.textContent = `✅ ${label}`;
       }
+      if (!celebratedAll && completedMissions.giantShadow && completedMissions.material && completedMissions.beacon) {
+        celebratedAll = true;
+        audio.playHitChime();
+        launchConfetti();
+        setTimeout(() => {
+          document.getElementById('pypReflectModal').classList.add('open');
+        }, 700);
+      }
     }
 
     function addLaserBeamSegment(pStart, pEnd, colorHex) {
@@ -1226,155 +1120,155 @@
       const len = diff.length();
       if (len < 0.001) return;
       const mid = new THREE.Vector3().addVectors(pStart, pEnd).multiplyScalar(0.5);
-      const quat = new THREE.Quaternion().setFromUnitVectors(
-        new THREE.Vector3(0, 1, 0),
-        diff.clone().normalize()
-      );
+      const quat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), diff.clone().normalize());
 
-      const coreGeo = new THREE.CylinderGeometry(0.05, 0.05, len, 12);
-      const coreMat = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
-      const coreMesh = new THREE.Mesh(coreGeo, coreMat);
-      coreMesh.position.copy(mid);
-      coreMesh.quaternion.copy(quat);
-
-      const glowGeo = new THREE.CylinderGeometry(0.14, 0.14, len, 12);
-      const glowMat = new THREE.MeshBasicMaterial({
-        color: colorHex,
-        transparent: true,
-        opacity: 0.5
-      });
-      const glowMesh = new THREE.Mesh(glowGeo, glowMat);
-      glowMesh.position.copy(mid);
-      glowMesh.quaternion.copy(quat);
-
+      const coreMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, len, 12), new THREE.MeshBasicMaterial({ color: 0xFFFFFF }));
+      coreMesh.position.copy(mid); coreMesh.quaternion.copy(quat);
+      const glowMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, len, 12), new THREE.MeshBasicMaterial({ color: colorHex, transparent: true, opacity: 0.5 }));
+      glowMesh.position.copy(mid); glowMesh.quaternion.copy(quat);
       laserGroup.add(coreMesh, glowMesh);
     }
 
+    function addFloorAngleArc(startRad, endRad, radius, colorHex) {
+      const pts = [];
+      for (let i = 0; i <= 20; i++) {
+        const a = startRad + (i / 20) * (endRad - startRad);
+        pts.push(new THREE.Vector3(Math.cos(a) * radius, 0.05, Math.sin(a) * radius));
+      }
+      const curve = new THREE.CatmullRomCurve3(pts);
+      const mesh = new THREE.Mesh(
+        new THREE.TubeGeometry(curve, 20, 0.045, 8, false),
+        new THREE.MeshBasicMaterial({ color: colorHex })
+      );
+      laserGroup.add(mesh);
+    }
+
     function updateLaser(mirrorAngleDeg) {
-      // Properly dispose previous laser geometries AND materials
       clearGroup(laserGroup);
+      const angleRad = THREE.MathUtils.degToRad(mirrorAngleDeg);
+      mirrorMesh.rotation.y = -angleRad;
 
-      // Rotate mirror around Y (physical angle)
-      const rad = -THREE.MathUtils.degToRad(mirrorAngleDeg);
-      mirrorMesh.rotation.y = rad;
-
-      // Incident ray points: Emitter (-6.5, 1.2, 0) to Mirror (0, 1.2, 0)
       const pEmitter = new THREE.Vector3(-6.5, 1.2, 0);
       const pMirror = new THREE.Vector3(0, 1.2, 0);
-
-      // Hit range: exactly 45° with friendly tolerance (42° - 48°)
-      const hit = (mirrorAngleDeg >= 42 && mirrorAngleDeg <= 48);
-      const laserColor = hit ? 0x00FFAA : 0xFF1744;
-
-      // Draw Incident Glowing 3D Laser Beam (West to Center)
-      addLaserBeamSegment(pEmitter, pMirror, laserColor);
-
-      // Reflected ray direction in X-Z plane: (cos(2*angle), 0, sin(2*angle))
-      const angleRad = THREE.MathUtils.degToRad(mirrorAngleDeg);
       const reflX = Math.cos(2 * angleRad);
       const reflZ = Math.sin(2 * angleRad);
       const reflectedDir = new THREE.Vector3(reflX, 0, reflZ).normalize();
 
-      let pEnd;
-      if (hit) {
-        // Direct strike into Redstone Crystal center!
-        pEnd = new THREE.Vector3(0, 1.35, 6);
-      } else {
-        // Shoots off into the room distance
-        pEnd = pMirror.clone().add(reflectedDir.clone().multiplyScalar(12));
-      }
+      // True geometric intersection check against Beacon at (0, 1.2, 6)
+      const hit = Math.abs(mirrorAngleDeg - 45) <= 3;
+      const laserColor = hit ? 0x00FFAA : 0xFF1744;
 
-      // Draw Reflected Glowing 3D Laser Beam (Center to target or distance)
+      addLaserBeamSegment(pEmitter, pMirror, laserColor);
+
+      // True optical ray termination (never snap beam away from true 2*theta geometry!)
+      const distToBeaconPlane = 6 / Math.max(0.15, reflZ);
+      const rayLen = hit ? distToBeaconPlane : 11;
+      const pEnd = pMirror.clone().addScaledVector(reflectedDir, rayLen);
       addLaserBeamSegment(pMirror, pEnd, laserColor);
 
-      // Glowing bounce spark sphere at mirror point
-      const sparkMesh = new THREE.Mesh(
-        new THREE.SphereGeometry(0.18, 12, 12),
-        new THREE.MeshBasicMaterial({ color: laserColor })
-      );
+      // Glowing 3D floor angle arcs for true θi and θr around the mirror normal
+      // Incident ray comes from -X (angle Math.PI), normal points toward angle (Math.PI/2 + angleRad)
+      const normalAngle = Math.PI - angleRad;
+      const reflAngle = Math.PI - 2 * angleRad;
+      addFloorAngleArc(normalAngle, Math.PI, 1.45, 0xFFE156); // θi (yellow)
+      addFloorAngleArc(reflAngle, normalAngle, 1.25, 0x38B6FF); // θr (blue)
+
+      const sparkMesh = new THREE.Mesh(new THREE.SphereGeometry(0.18, 12, 12), new THREE.MeshBasicMaterial({ color: laserColor }));
       sparkMesh.position.copy(pMirror);
       laserGroup.add(sparkMesh);
 
-      // Update UI guidance and Target Beacon state
       const statusText = document.getElementById('reflectionStatusText');
       const statusBox = document.getElementById('reflectionStatusBox');
-
       if (hit) {
         targetCrystal.material.color.setHex(0x00FF88);
         targetCrystal.material.emissive.setHex(0x00AA44);
         skyBeam.visible = true;
         beaconLight.intensity = 3.5;
-
-        completeMission('beacon', 'missionBeacon', 'Mission 3: Energized the Redstone Beacon (45°)');
-
-        if (!isTargetHit) {
-          audio.playHitChime();
-          isTargetHit = true;
-        }
-
-        if (statusText && statusBox) {
-          statusText.innerHTML = `🎯 <strong>PERFECT HIT (${mirrorAngleDeg}°)!</strong><br>Angle of Incidence (45°) = Angle of Reflection (45°)! The 90° bounce activates the Redstone Beacon! ⚡`;
-          statusBox.style.background = '#DCFCE7';
-          statusBox.style.borderColor = '#16A34A';
-        }
+        completeMission('beacon', 'missionBeacon', 'Mission 3: Energized the Redstone Beacon');
+        if (!isTargetHit) { audio.playHitChime(); isTargetHit = true; }
+        statusText.innerHTML = `🎯 <strong>BULLSEYE (${mirrorAngleDeg}°)!</strong><br>Yellow θ<sub>i</sub> = ${mirrorAngleDeg}° and Blue θ<sub>r</sub> = ${mirrorAngleDeg}°! The laser hits the Beacon! ⚡`;
+        statusBox.style.background = '#DCFCE7';
+        statusBox.style.borderColor = '#16A34A';
       } else {
         isTargetHit = false;
         targetCrystal.material.color.setHex(0xFF1744);
         targetCrystal.material.emissive.setHex(0x770011);
         skyBeam.visible = false;
         beaconLight.intensity = 0;
-
-        if (statusText && statusBox) {
-          if (mirrorAngleDeg < 42) {
-            statusText.innerHTML = `➡️ <strong>Laser aiming too far right (${mirrorAngleDeg}°)!</strong><br>Slide to the right to increase mirror angle toward 45°.`;
-          } else {
-            statusText.innerHTML = `⬅️ <strong>Laser aiming too far left (${mirrorAngleDeg}°)!</strong><br>Slide to the left to decrease mirror angle toward 45°.`;
-          }
-          statusBox.style.background = '#FFFDE8';
-          statusBox.style.borderColor = '#111111';
-        }
+        statusText.innerHTML = mirrorAngleDeg < 45
+          ? `➡️ <strong>Aiming too far right (θ<sub>i</sub> = ${mirrorAngleDeg}°, θ<sub>r</sub> = ${mirrorAngleDeg}°).</strong><br>Increase the mirror angle to turn the beam toward the Beacon!`
+          : `⬅️ <strong>Aiming too far left (θ<sub>i</sub> = ${mirrorAngleDeg}°, θ<sub>r</sub> = ${mirrorAngleDeg}°).</strong><br>Decrease the mirror angle to turn the beam toward the Beacon!`;
+        statusBox.style.background = '#FFFDE8';
+        statusBox.style.borderColor = '#111111';
       }
     }
 
     updateLaser(25);
 
-    // DPR-aware Resize Handling (zero 60fps thrashing)
+    // Drag-safe (<= 8px) 3D Raycasting on Torch, Object, and Beacon
+    const raycaster = new THREE.Raycaster();
+    const pointerDownPos = { x: 0, y: 0 };
+    canvas.addEventListener('pointerdown', (e) => {
+      pointerDownPos.x = e.clientX;
+      pointerDownPos.y = e.clientY;
+    });
+    canvas.addEventListener('pointerup', (e) => {
+      const dx = e.clientX - pointerDownPos.x;
+      const dy = e.clientY - pointerDownPos.y;
+      if (Math.hypot(dx, dy) > 8) return;
+      const rect = canvas.getBoundingClientRect();
+      const ndc = new THREE.Vector2(
+        ((e.clientX - rect.left) / rect.width) * 2 - 1,
+        -((e.clientY - rect.top) / rect.height) * 2 + 1
+      );
+      raycaster.setFromCamera(ndc, camera);
+      const targets = reflectionGroup.visible ? [targetBeaconGroup, mirrorGroup] : [torchGroup, itemGroup];
+      const hits = raycaster.intersectObjects(targets, true);
+      if (hits.length > 0) {
+        audio.playTorch();
+        let obj = hits[0].object;
+        while (obj && !obj.userData?.pickId) obj = obj.parent;
+        const id = obj?.userData?.pickId;
+        if (id === 'torch') {
+          memoText.innerHTML = `🔦 <strong>Minecraft Torch</strong>: Light shoots out in straight rays! Use the Distance slider to move me closer or farther.`;
+        } else if (id === 'object') {
+          memoText.innerHTML = `🧱 <strong>${currentItem.toUpperCase()}</strong>: I block light rays based on my opacity (${currentMaterialMode})!`;
+        } else if (id === 'beacon') {
+          memoText.innerHTML = `💎 <strong>Redstone Beacon</strong>: Bounce the laser beam off the mirror straight into my crystal!`;
+        }
+      }
+    });
+
+    // ResizeObserver
     function resize() {
       const width = canvas.clientWidth;
       const height = canvas.clientHeight;
       if (width === 0 || height === 0) return;
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const targetW = Math.round(width * dpr);
-      const targetH = Math.round(height * dpr);
-      if (canvas.width !== targetW || canvas.height !== targetH) {
+      if (canvas.width !== Math.round(width * dpr) || canvas.height !== Math.round(height * dpr)) {
         renderer.setPixelRatio(dpr);
         renderer.setSize(width, height, false);
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
       }
     }
-
     resize();
     if (typeof ResizeObserver !== 'undefined' && canvas.parentElement) {
       new ResizeObserver(resize).observe(canvas.parentElement);
     }
     window.addEventListener('resize', resize);
 
-    // Animation Loop
     function animate() {
       requestAnimationFrame(animate);
       controls.update();
-
-      // Gentle flame pulse
       const time = Date.now() * 0.005;
-      torchFlame.scale.set(1 + Math.sin(time) * 0.1, 1 + Math.cos(time * 1.5) * 0.15, 1 + Math.sin(time) * 0.1);
+      torchFlame.scale.set(1 + Math.sin(time) * 0.08, 1 + Math.cos(time * 1.5) * 0.12, 1 + Math.sin(time) * 0.08);
       targetCrystal.rotation.y += isTargetHit ? 0.06 : 0.02;
-
       renderer.render(scene, camera);
     }
     animate();
 
-    // DOM Controls wiring
+    // DOM Controls
     const sliderDistance = document.getElementById('sliderDistance');
     const sliderHeight = document.getElementById('sliderHeight');
     const distVal = document.getElementById('distVal');
@@ -1384,125 +1278,136 @@
     function updateShadowSetup() {
       const dist = parseFloat(sliderDistance.value);
       const h = parseFloat(sliderHeight.value);
-
       distVal.textContent = `${dist.toFixed(1)} m`;
       heightVal.textContent = `${h.toFixed(1)} m`;
 
-      // Moving torch closer to the object
-      torchLight.position.set(0, h, dist + 2);
+      // Accurate z = dist alignment
+      torchLight.position.set(0, h, dist);
       torchGroup.position.copy(torchLight.position);
-      torchLight.target.position.set(0, 1.0, 0);
+      torchLight.target.position.set(0, 0.9, 0);
+      updateLightRaysAndPatch();
 
-      if (dist <= 3.4) {
+      if (dist <= 3.2) {
         completeMission('giantShadow', 'missionGiantShadow', 'Mission 1: Made a Giant Shadow!');
       }
 
       memoText.innerHTML = `
-        🔍 <strong>Shadow Observation</strong>: Distance = ${dist.toFixed(1)}m. 
-        ${dist < 4 ? '<strong>Huge Shadow!</strong> When the object is very close to the light source, it blocks more light rays, projecting a larger shadow!' : 'Moving the block further away from the light makes the shadow smaller and sharper.'}
+        🔍 <strong>Shadow Observation</strong>: Distance = ${dist.toFixed(1)} m, Height = ${h.toFixed(1)} m.
+        ${dist <= 3.2 ? '<strong>Giant Shadow!</strong> The block is super close to the torch, so it blocks more rays and casts a huge shadow on the ruler wall!' : 'Move the torch closer to make the shadow grow taller on the back ruler wall.'}
       `;
     }
-
     sliderDistance.addEventListener('input', updateShadowSetup);
     sliderHeight.addEventListener('input', updateShadowSetup);
+    updateShadowSetup();
 
-    // Minecraft Item Switcher
+    // Camera Presets
+    document.getElementById('btnToggleRays').addEventListener('click', (e) => {
+      audio.playClick();
+      showLightRays = !showLightRays;
+      e.currentTarget.classList.toggle('active', showLightRays);
+      e.currentTarget.textContent = showLightRays ? '✨ Light Rays: ON' : '✨ Light Rays: OFF';
+      updateLightRaysAndPatch();
+    });
+
+    function setCameraView(modeName) {
+      audio.playClick();
+      const isRefl = reflectionGroup.visible;
+      if (modeName === 'top') {
+        controls.target.set(0, 0.8, isRefl ? 2.5 : -1.0);
+        camera.position.set(0, 14, 2.8);
+      } else if (modeName === 'front') {
+        controls.target.set(0, 1.4, isRefl ? 2.0 : -1.5);
+        camera.position.set(0, 3.2, 11.5);
+      } else {
+        if (isRefl) {
+          controls.target.set(0, 1.2, 2.5);
+          camera.position.set(0, 9.5, 13.5);
+        } else {
+          controls.target.set(0, 1.4, -1.5);
+          camera.position.set(5.5, 4.6, 10.5);
+        }
+      }
+    }
+    document.getElementById('btnCamFront').addEventListener('click', () => setCameraView('front'));
+    document.getElementById('btnCamTop').addEventListener('click', () => setCameraView('top'));
+    document.getElementById('btnCamReset').addEventListener('click', () => setCameraView('reset'));
+
     document.querySelectorAll('#itemGrid .mc-item-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('#itemGrid .mc-item-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         currentItem = btn.dataset.item;
         audio.playTorch();
-
-        const opacity = currentMaterialMode === 'opaque' ? 1.0 : (currentMaterialMode === 'translucent' ? 0.45 : 0.15);
-        const transparent = currentMaterialMode !== 'opaque';
-        createMinecraftBlock(currentItem, opacity, transparent);
+        const opacity = currentMaterialMode === 'opaque' ? 1.0 : (currentMaterialMode === 'translucent' ? 0.5 : 0.16);
+        createMinecraftBlock(currentItem, opacity, currentMaterialMode !== 'opaque');
       });
     });
 
-    // Material Switcher
     document.querySelectorAll('#materialGrid .mat-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('#materialGrid .mat-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         currentMaterialMode = btn.dataset.mat;
         audio.playTorch();
-
-        let opacity = 1.0;
-        let transparent = false;
-        let speakText = "Opaque. Blocks all light rays completely, creating a crisp, dark shadow.";
+        let opacity = 1.0, speakText = 'Opaque. Blocks all light rays and makes a dark shadow.';
         if (currentMaterialMode === 'translucent') {
-          opacity = 0.45;
-          transparent = true;
-          speakText = "Translucent. Some light passes through, casting a dim, soft shadow.";
-          memoText.innerHTML = `🛡️ <strong>Translucent Material</strong>: Some light passes through, casting a dim, soft shadow.`;
+          opacity = 0.5;
+          speakText = 'Translucent. Lets some glowing tinted light pass through and makes a soft shadow.';
+          memoText.innerHTML = `🛡️ <strong>Translucent Material</strong>: Some tinted light passes through onto the wall, making a soft shadow!`;
           completeMission('material', 'missionMaterial', 'Mission 2: Tested Material Opacity!');
         } else if (currentMaterialMode === 'transparent') {
-          opacity = 0.15;
-          transparent = true;
-          speakText = "Transparent. Almost all light travels right through. No visible shadow forms.";
-          memoText.innerHTML = `🛡️ <strong>Transparent Material</strong>: Almost all light travels right through! No visible shadow forms.`;
+          opacity = 0.16;
+          speakText = 'Transparent. Clear glass lets almost all light pass right through with no dark shadow.';
+          memoText.innerHTML = `🛡️ <strong>Transparent Material</strong>: Almost all light passes straight through — no dark shadow!`;
           completeMission('material', 'missionMaterial', 'Mission 2: Tested Material Opacity!');
         } else {
-          memoText.innerHTML = `🛡️ <strong>Opaque Material</strong>: Blocks all light rays completely, creating a crisp, dark shadow.`;
+          memoText.innerHTML = `🛡️ <strong>Opaque Material</strong>: Blocks all light rays completely, casting a dark shadow!`;
         }
-
         TTS_MANAGER.speak(speakText);
-        createMinecraftBlock(currentItem, opacity, transparent);
+        createMinecraftBlock(currentItem, opacity, currentMaterialMode !== 'opaque');
       });
     });
 
-    // Mode Switcher (Shadow Lab vs. Mirror Reflection)
+    const sliderMirrorAngle = document.getElementById('sliderMirrorAngle');
+    const mirrorAngleVal = document.getElementById('mirrorAngleVal');
+
     document.querySelectorAll('#modePills .mode-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('#modePills .mode-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         const mode = btn.dataset.mode;
         audio.playLaser();
-
         if (mode === 'shadow') {
-          itemGroup.visible = true;
-          torchLight.visible = true;
-          torchGroup.visible = true;
-          backWall.visible = true;
-          reflectionGroup.visible = false;
-          reflectionHemiLight.visible = false;
-          reflectionDirLight.visible = false;
-          applyMaterialLighting();
-          controls.target.set(0, 1, 0);
-          camera.position.set(0, 7, 16);
+          itemGroup.visible = true; torchLight.visible = true; torchGroup.visible = true;
+          backWall.visible = true; rayLinesGroup.visible = true;
+          reflectionGroup.visible = false; reflectionHemiLight.visible = false; reflectionDirLight.visible = false;
+          ambientLight.intensity = 0.28;
+          document.getElementById('btnToggleRays').style.display = 'inline-flex';
           document.getElementById('blockShadowControls').style.display = 'block';
           document.getElementById('blockMinecraftItems').style.display = 'block';
           document.getElementById('blockMaterialControls').style.display = 'block';
           document.getElementById('blockReflectionControls').style.display = 'none';
-          document.getElementById('chipLightStatus').textContent = 'Light: Minecraft Torch (Point Source)';
+          document.getElementById('chipLightStatus').textContent = 'Light: Minecraft Torch (Bright Point)';
+          setCameraView('reset');
           updateShadowSetup();
         } else {
-          itemGroup.visible = false;
-          torchLight.visible = false;
-          torchGroup.visible = false;
-          backWall.visible = false;
-          reflectionGroup.visible = true;
-          reflectionHemiLight.visible = true;
-          reflectionDirLight.visible = true;
+          itemGroup.visible = false; torchLight.visible = false; torchGroup.visible = false;
+          backWall.visible = false; rayLinesGroup.visible = false; tintedPatch.visible = false;
+          reflectionGroup.visible = true; reflectionHemiLight.visible = true; reflectionDirLight.visible = true;
           ambientLight.intensity = 0.55;
-          controls.target.set(0, 1.2, 2.5);
-          camera.position.set(0, 10, 15);
+          document.getElementById('btnToggleRays').style.display = 'none';
           document.getElementById('blockShadowControls').style.display = 'none';
           document.getElementById('blockMinecraftItems').style.display = 'none';
           document.getElementById('blockMaterialControls').style.display = 'none';
           document.getElementById('blockReflectionControls').style.display = 'block';
           document.getElementById('chipLightStatus').textContent = 'Light: Redstone Laser Beam';
-          memoText.innerHTML = `🪞 <strong>Law of Reflection</strong>: Light bounces off a mirror so Angle of Incidence equals Angle of Reflection (θ<sub>i</sub> = θ<sub>r</sub>). Rotate the mirror to 45° to reflect the laser 90° North into the Beacon!`;
-          const angle = parseInt(sliderMirrorAngle.value, 10);
-          updateLaser(angle);
+          memoText.innerHTML = `🪞 <strong>Mirror Bounce Rule</strong>: Light bounces off a mirror at the exact same angle it arrives! Turn the mirror until the beam strikes the Redstone Beacon.`;
+          setCameraView('reset');
+          updateLaser(parseInt(sliderMirrorAngle.value, 10));
         }
       });
     });
 
-    // Mirror Angle Slider
-    const sliderMirrorAngle = document.getElementById('sliderMirrorAngle');
-    const mirrorAngleVal = document.getElementById('mirrorAngleVal');
     sliderMirrorAngle.addEventListener('input', () => {
       const angle = parseInt(sliderMirrorAngle.value, 10);
       mirrorAngleVal.textContent = `${angle}°`;
@@ -1513,74 +1418,59 @@
       audio.playLaser();
       const angle = parseInt(sliderMirrorAngle.value, 10);
       updateLaser(angle);
-      if (angle >= 42 && angle <= 48) {
-        audio.playHitChime();
-      }
+      if (Math.abs(angle - 45) <= 3) audio.playHitChime();
     });
 
-    // Speaker button for Science Observation Memo
     const btnSpeakMemo = document.getElementById('btnSpeakMemo');
-    if (btnSpeakMemo) {
-      btnSpeakMemo.addEventListener('click', () => {
-        audio.init();
-        const text = (memoText.textContent || '').replace(/θi\s*=\s*θr/gi, 'angle of incidence equals angle of reflection').trim();
-        if (!text) return;
-        btnSpeakMemo.classList.add('speaking');
-        TTS_MANAGER.speak(text, () => btnSpeakMemo.classList.remove('speaking'));
-      });
-    }
+    btnSpeakMemo.addEventListener('click', () => {
+      audio.playClick();
+      const text = (memoText.textContent || '').trim();
+      btnSpeakMemo.classList.add('speaking');
+      TTS_MANAGER.speak(text, () => btnSpeakMemo.classList.remove('speaking'));
+    });
 
-    // IB PYP Reflection & Passport Stamp wiring
+    // Modal & Passport Stamp
     const pypModal = document.getElementById('pypReflectModal');
-    const btnOpenReflect = document.getElementById('btnOpenReflect');
-    const btnCloseReflect = document.getElementById('btnCloseReflect');
-    const btnClaimStamp = document.getElementById('btnClaimStamp');
-    const pypStampStatus = document.getElementById('pypStampStatus');
+    document.getElementById('btnOpenReflect').addEventListener('click', () => {
+      audio.playClick();
+      pypModal.classList.add('open');
+    });
+    document.getElementById('btnCloseReflect').addEventListener('click', () => {
+      audio.playClick();
+      pypModal.classList.remove('open');
+    });
+    pypModal.addEventListener('click', (e) => {
+      if (e.target === pypModal) pypModal.classList.remove('open');
+    });
+    document.getElementById('btnClaimStamp').addEventListener('click', () => {
+      audio.playHitChime();
+      launchConfetti();
+      try {
+        const raw = localStorage.getItem('ib_pyp_passport');
+        const data = raw ? JSON.parse(raw) : { stamps: [], completed: [] };
+        const stamps = new Set(Array.isArray(data.stamps) ? data.stamps : []);
+        const completed = new Set(Array.isArray(data.completed) ? data.completed : []);
+        stamps.add('Inquirer');
+        completed.add('science/g2_light_shadow_master.html');
+        localStorage.setItem('ib_pyp_passport', JSON.stringify({ stamps: [...stamps], completed: [...completed] }));
+        document.getElementById('pypStampStatus').textContent = '✅ Inquirer stamp saved to your IB PYP Passport!';
+        document.getElementById('btnClaimStamp').textContent = '✅ Stamped!';
+      } catch (_) {}
+    });
 
-    if (btnOpenReflect && pypModal) {
-      btnOpenReflect.addEventListener('click', () => {
-        audio.playTorch();
-        pypModal.classList.add('open');
-      });
-    }
-    if (btnCloseReflect && pypModal) {
-      btnCloseReflect.addEventListener('click', () => pypModal.classList.remove('open'));
-    }
-    if (pypModal) {
-      pypModal.addEventListener('click', (e) => {
-        if (e.target === pypModal) pypModal.classList.remove('open');
-      });
-    }
-    if (btnClaimStamp) {
-      btnClaimStamp.addEventListener('click', () => {
-        audio.playHitChime();
-        try {
-          const raw = localStorage.getItem('ib_pyp_passport');
-          const data = raw ? JSON.parse(raw) : { stamps: [], completed: [] };
-          const stamps = new Set(Array.isArray(data.stamps) ? data.stamps : []);
-          const completed = new Set(Array.isArray(data.completed) ? data.completed : []);
-          stamps.add('Inquirer');
-          completed.add('science/g2_light_shadow_master.html');
-          localStorage.setItem('ib_pyp_passport', JSON.stringify({ stamps: [...stamps], completed: [...completed] }));
-          if (pypStampStatus) pypStampStatus.textContent = '✅ Inquirer stamp saved to your IB PYP Passport!';
-          btnClaimStamp.textContent = '✅ Stamped!';
-        } catch (_) {}
-      });
-    }
-
-    // ----------------------------------------------------
-    // TTS MANAGER (Neobrutalism Radio Group Dropdown)
-    // ----------------------------------------------------
+    // Unified TTS Manager
     const JOKE_VOICES = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|hysterical|pipe organ|trinoids|whisper|zarvox|fred|junior|kathy|ralph|wobble/i;
+    function getVoiceBadge(langRaw) {
+      const lang = (langRaw || '').toLowerCase().replace('_', '-');
+      if (lang.includes('-au')) return { flag: '🇦🇺', region: 'AU' };
+      if (lang.includes('-gb') || lang.includes('en-uk')) return { flag: '🇬🇧', region: 'UK' };
+      if (lang.includes('-us')) return { flag: '🇺🇸', region: 'US' };
+      return { flag: '🌐', region: (lang.split('-')[1] || 'EN').toUpperCase() };
+    }
+
     const TTS_MANAGER = {
       currentVoiceName: '',
-      wrap: null,
-      trigger: null,
-      menu: null,
-      flag: null,
-      label: null,
-      list: null,
-
+      wrap: null, trigger: null, menu: null, flag: null, label: null, list: null,
       init() {
         this.wrap = document.getElementById('ttsDropdownWrap');
         this.trigger = document.getElementById('ttsTrigger');
@@ -1588,30 +1478,20 @@
         this.flag = document.getElementById('ttsFlag');
         this.label = document.getElementById('ttsLabel');
         this.list = document.getElementById('ttsRadioList');
-
         if (!this.trigger) return;
 
         this.trigger.addEventListener('click', (e) => {
           e.stopPropagation();
-          audio.playTorch();
-          this.wrap.classList.toggle('open');
-          this.trigger.setAttribute('aria-expanded', this.wrap.classList.contains('open'));
+          audio.playClick();
+          const open = this.wrap.classList.toggle('open');
+          this.trigger.setAttribute('aria-expanded', String(open));
         });
-
         document.addEventListener('click', (e) => {
           if (this.wrap && !this.wrap.contains(e.target)) {
             this.wrap.classList.remove('open');
             this.trigger.setAttribute('aria-expanded', 'false');
           }
         });
-
-        document.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape' && this.wrap) {
-            this.wrap.classList.remove('open');
-            this.trigger.setAttribute('aria-expanded', 'false');
-          }
-        });
-
         if (window.speechSynthesis) {
           this.populateVoices();
           if (window.speechSynthesis.onvoiceschanged !== undefined) {
@@ -1619,92 +1499,48 @@
           }
         }
       },
-
       populateVoices() {
         if (!window.speechSynthesis || !this.list) return;
         const voices = window.speechSynthesis.getVoices();
-        let englishVoices = voices.filter(v => {
-          const lang = (v.lang || '').toLowerCase().replace('_', '-');
-          return lang.startsWith('en') && !JOKE_VOICES.test(v.name);
-        });
-
+        let englishVoices = voices.filter(v => (v.lang || '').toLowerCase().replace('_', '-').startsWith('en') && !JOKE_VOICES.test(v.name));
         if (englishVoices.length === 0) englishVoices = voices.filter(v => !JOKE_VOICES.test(v.name));
         if (englishVoices.length === 0) englishVoices = voices;
         if (englishVoices.length === 0) return;
 
         englishVoices.sort((a, b) => {
-          const aName = a.name;
-          const bName = b.name;
-          const isA_UK_Fem = aName.includes('Google UK English Female') || (aName.includes('UK English') && aName.includes('Female'));
-          const isB_UK_Fem = bName.includes('Google UK English Female') || (bName.includes('UK English') && bName.includes('Female'));
-          if (isA_UK_Fem && !isB_UK_Fem) return -1;
-          if (!isA_UK_Fem && isB_UK_Fem) return 1;
-
-          const isA_US = aName.includes('Google US English') || (aName.includes('US English') && aName.includes('Female'));
-          const isB_US = bName.includes('Google US English') || (bName.includes('US English') && bName.includes('Female'));
-          if (isA_US && !isB_US) return -1;
-          if (!isA_US && isB_US) return 1;
-
-          const aUK = a.lang.toLowerCase().includes('gb');
-          const bUK = b.lang.toLowerCase().includes('gb');
-          if (aUK && !bUK) return -1;
-          if (!aUK && bUK) return 1;
-
-          const aUS = a.lang.toLowerCase().includes('us');
-          const bUS = b.lang.toLowerCase().includes('us');
-          if (aUS && !bUS) return -1;
-          if (!aUS && bUS) return 1;
-
-          return aName.localeCompare(bName);
+          const score = (v) => v.name.includes('Google UK English Female') ? 0 : v.name.includes('Google US English') ? 1 : (v.lang || '').toLowerCase().includes('gb') ? 2 : (v.lang || '').toLowerCase().includes('au') ? 3 : 4;
+          return score(a) - score(b) || a.name.localeCompare(b.name);
         });
-
+        const capped = englishVoices.slice(0, 15);
         const saved = localStorage.getItem('ib_pyp_voice_name');
-        let selected = null;
-        if (saved) selected = englishVoices.find(v => v.name === saved);
-        if (!selected) selected = englishVoices.find(v => v.name.includes('Google UK English Female') || (v.name.includes('UK English') && v.name.includes('Female')));
-        if (!selected) selected = englishVoices.find(v => v.name.includes('Google US English'));
-        if (!selected) selected = englishVoices.find(v => v.lang.toLowerCase().includes('gb'));
-        if (!selected) selected = englishVoices.find(v => v.lang.toLowerCase().includes('us'));
-        if (!selected) selected = englishVoices[0];
-
+        let selected = saved ? capped.find(v => v.name === saved) : null;
+        if (!selected) selected = capped[0];
         this.currentVoiceName = selected ? selected.name : '';
-
-        this.renderMenu(englishVoices);
+        this.renderMenu(capped);
         this.updateTriggerUI(selected);
       },
-
       renderMenu(voices) {
         this.list.innerHTML = '';
         voices.forEach(v => {
-          const isUK = v.lang.toLowerCase().replace('_', '-').includes('gb');
-          const flag = isUK ? '🇬🇧' : '🇺🇸';
-          const region = isUK ? 'UK' : 'US';
+          const { flag, region } = getVoiceBadge(v.lang);
           const isActive = v.name === this.currentVoiceName;
-
           const btn = document.createElement('button');
           btn.type = 'button';
           btn.className = `tts-radio-item ${isActive ? 'active' : ''}`;
           btn.dataset.voice = v.name;
           btn.setAttribute('role', 'menuitemradio');
           btn.setAttribute('aria-checked', isActive ? 'true' : 'false');
-          btn.innerHTML = `
-            <span class="tts-radio-circle"></span>
-            <span class="tts-item-flag">${flag}</span>
-            <span class="tts-item-name">${v.name} (${region})</span>
-          `;
-
+          btn.innerHTML = `<span class="tts-radio-circle"></span><span>${flag}</span><span class="tts-item-name">${v.name} (${region})</span>`;
           btn.addEventListener('click', (e) => {
             e.stopPropagation();
-            audio.playTorch();
+            audio.playClick();
             this.selectVoice(v);
             this.wrap.classList.remove('open');
             this.trigger.setAttribute('aria-expanded', 'false');
           });
-
           this.list.appendChild(btn);
         });
       },
-
       selectVoice(v) {
         this.currentVoiceName = v.name;
         localStorage.setItem('ib_pyp_voice_name', v.name);
@@ -1716,36 +1552,43 @@
         });
         if (window.speechSynthesis) window.speechSynthesis.cancel();
       },
-
       updateTriggerUI(v) {
         if (!v) return;
-        const isUK = v.lang.toLowerCase().replace('_', '-').includes('gb');
-        this.flag.textContent = isUK ? '🇬🇧' : '🇺🇸';
+        this.flag.textContent = getVoiceBadge(v.lang).flag;
         let shortName = v.name.replace(/^(Google|Microsoft|Apple)\s+/i, '');
-        if (shortName.length > 14) shortName = shortName.substring(0, 12) + '...';
+        if (shortName.length > 14) shortName = shortName.substring(0, 12) + '…';
         this.label.textContent = shortName;
       },
-
       speak(text, onEnd) {
-        if (!window.speechSynthesis) return;
+        const finish = () => { if (typeof onEnd === 'function') onEnd(); };
+        if (!window.speechSynthesis || !text || !text.trim()) {
+          if (window.speechSynthesis) window.speechSynthesis.cancel();
+          finish();
+          return;
+        }
         window.speechSynthesis.cancel();
-        if (!text || !text.trim()) return;
-
         const utterance = new SpeechSynthesisUtterance(text);
         const voices = window.speechSynthesis.getVoices();
         const voiceName = this.currentVoiceName || localStorage.getItem('ib_pyp_voice_name');
-        if (voiceName) {
-          const match = voices.find(v => v.name === voiceName);
-          if (match) utterance.voice = match;
-        }
-        utterance.rate = 0.85;
-        if (onEnd) {
-          utterance.onend = onEnd;
-          utterance.onerror = onEnd;
-        }
+        let match = voiceName ? voices.find(v => v.name === voiceName) : null;
+        if (!match) match = voices.find(v => v.default) || voices[0] || null;
+        if (match) utterance.voice = match;
+        utterance.rate = 0.88;
+        utterance.onend = finish;
+        utterance.onerror = finish;
         window.speechSynthesis.speak(utterance);
       }
     };
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const wrap = document.getElementById('ttsDropdownWrap');
+        const trig = document.getElementById('ttsTrigger');
+        if (wrap) wrap.classList.remove('open');
+        if (trig) trig.setAttribute('aria-expanded', 'false');
+        pypModal.classList.remove('open');
+      }
+    });
 
     TTS_MANAGER.init();
   </script>

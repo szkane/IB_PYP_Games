@@ -73,7 +73,12 @@ class SetupScene extends Phaser.Scene {
     // Create hand cursor
     this.handCursor = this.add.circle(0, 0, 30, 0x00f3ff, 0.5);
     this.handCursor.setStrokeStyle(3, 0x00f3ff);
+    this.handCursor.setDepth(100);
     this.handCursor.setVisible(false);
+
+    // Glowing hover-dwell progress ring around hand cursor
+    this.dwellRing = this.add.graphics();
+    this.dwellRing.setDepth(101);
     
     // Listen for hand updates from game manager
     this.game.events.on('handUpdate', this.onHandUpdate, this);
@@ -711,7 +716,15 @@ class SetupScene extends Phaser.Scene {
     
     // Update cursor position
     this.handCursor.setPosition(position.x, position.y);
-    this.handCursor.setVisible(state !== 'IDLE');
+    const isVisible = state !== 'IDLE' && data.detected !== false;
+    this.handCursor.setVisible(isVisible);
+
+    if (!isVisible) {
+      this.hoverTarget = null;
+      this.hoverStartTime = 0;
+      if (this.dwellRing) this.dwellRing.clear();
+      return;
+    }
     
     // Update cursor appearance based on state (gold/green project palette)
     if (state === 'FIST') {
@@ -881,14 +894,35 @@ class SetupScene extends Phaser.Scene {
   }
   
   update() {
+    if (this.dwellRing) {
+      this.dwellRing.clear();
+    }
     // Update hover progress visualization
-    if (this.hoverTarget && this.hoverStartTime > 0) {
+    if (this.hoverTarget && this.hoverStartTime > 0 && this.handCursor && this.handCursor.visible) {
       const progress = Math.min((this.time.now - this.hoverStartTime) / this.hoverDuration, 1);
-      
+
       // Visual feedback - scale up slightly
       this.hoverTarget.setScale(1 + progress * 0.1);
-      
-      // Could add progress ring here
+
+      // Draw glowing circular hover-dwell progress ring around handCursor
+      if (this.dwellRing && progress > 0) {
+        const cx = this.handCursor.x;
+        const cy = this.handCursor.y;
+        const radius = 38;
+        this.dwellRing.lineStyle(6, 0xffe156, 0.25);
+        this.dwellRing.strokeCircle(cx, cy, radius);
+        this.dwellRing.lineStyle(6, 0x00ff88, 0.95);
+        this.dwellRing.beginPath();
+        this.dwellRing.arc(
+          cx,
+          cy,
+          radius,
+          Phaser.Math.DegToRad(-90),
+          Phaser.Math.DegToRad(-90 + progress * 360),
+          false
+        );
+        this.dwellRing.strokePath();
+      }
     }
   }
   

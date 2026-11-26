@@ -11,6 +11,10 @@ async function fetchWordData() {
   return response.json();
 }
 
+window.__moveSpellDebug = {
+  handTracker: () => handTracker
+};
+
 document.addEventListener('DOMContentLoaded', () => {
   console.log('[MoveSpell] Initializing...');
 
@@ -29,11 +33,9 @@ document.addEventListener('DOMContentLoaded', () => {
       loadingScreen.classList.remove('fade-out', 'hidden');
       loadingScreen.querySelector('.loading-text').textContent = 'Preparing Touch & Mouse mode...';
 
-      try {
-        await audioManager.unlockAudio();
-      } catch (err) {
+      audioManager.unlockAudio().catch((err) => {
         console.error('[MoveSpell] Audio unlock failed (non-critical):', err);
-      }
+      });
 
       try {
         loadingScreen.querySelector('.loading-text').textContent = 'Loading vocabulary...';
@@ -55,22 +57,32 @@ document.addEventListener('DOMContentLoaded', () => {
       loadingScreen.classList.remove('fade-out', 'hidden');
       loadingScreen.querySelector('.loading-text').textContent = 'Starting camera...';
 
-      try {
-        await audioManager.unlockAudio();
-      } catch (err) {
+      // Trigger audio unlock synchronously without awaiting so Safari user activation stays intact for getUserMedia
+      audioManager.unlockAudio().catch((err) => {
         console.error('[MoveSpell] Audio unlock failed (non-critical):', err);
-      }
+      });
 
       try {
         handTracker = new HandTracker();
         const videoElement = document.getElementById('camera-video');
         const previewElement = document.getElementById('camera-preview');
+        const skeletonCanvas = document.getElementById('camera-skeleton');
+        const cameraPip = document.getElementById('camera-pip');
 
-        await handTracker.init(videoElement, null);
-        await handTracker.startCamera();
+        // Call getUserMedia FIRST inside the click handler
+        await handTracker.startCamera(videoElement);
+        await handTracker.init(videoElement, skeletonCanvas);
 
-        previewElement.srcObject = videoElement.srcObject;
-        previewElement.play();
+        if (previewElement && videoElement.srcObject) {
+          previewElement.srcObject = videoElement.srcObject;
+          if (cameraPip && !cameraPip.classList.contains('inactive')) {
+            previewElement.play().catch(() => {});
+          }
+        }
+        if (cameraPip) {
+          cameraPip.classList.remove('inactive', 'collapsed');
+          if (previewElement) previewElement.play().catch(() => {});
+        }
 
         loadingScreen.querySelector('.loading-text').textContent = 'Loading vocabulary...';
         const wordData = await fetchWordData();
@@ -78,6 +90,10 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingScreen.querySelector('.loading-text').textContent = 'Starting game...';
         initGame(wordData, { playMode: 'camera' });
       } catch (cameraError) {
+        if (handTracker) {
+          handTracker.stop();
+          handTracker = null;
+        }
         permissionOverlay.classList.remove('hidden');
         loadingScreen.style.display = 'none';
 
@@ -135,9 +151,43 @@ function initGame(wordData, { playMode = 'touch' } = {}) {
   game.registry.set('handTracker', handTracker);
   game.registry.set('playMode', playMode);
 
-  // Only emit hand events when camera tracking is active — Phaser scenes render the single clean cursor
+  const statusPill = document.getElementById('hand-status-pill');
+  const camToggleBtn = document.getElementById('cam-preview-toggle');
+  const cameraPip = document.getElementById('camera-pip');
+  const previewElement = document.getElementById('camera-preview');
+
+  function toggleCamPreview() {
+    if (!cameraPip || !handTracker) return;
+    const isCollapsed = cameraPip.classList.toggle('collapsed');
+    handTracker.setDebugMode(!isCollapsed);
+    if (!isCollapsed && previewElement) {
+      previewElement.play().catch(() => {});
+    }
+    if (camToggleBtn) {
+      camToggleBtn.textContent = isCollapsed ? '📷 Cam Preview' : '📷 Hide Cam';
+    }
+  }
+
   if (playMode === 'camera' && handTracker) {
+    if (statusPill) statusPill.classList.remove('hidden');
+    if (camToggleBtn) {
+      camToggleBtn.classList.remove('hidden');
+      camToggleBtn.addEventListener('click', toggleCamPreview);
+    }
+
     handTracker.onHandUpdate = (data) => {
+      if (statusPill) {
+        if (!data || data.state === 'IDLE' || data.detected === false) {
+          statusPill.textContent = '👋 Show Hand to Play';
+          statusPill.className = 'hand-status-pill';
+        } else if (data.state === 'FIST') {
+          statusPill.textContent = '✊ Grabbing!';
+          statusPill.className = 'hand-status-pill grabbing';
+        } else {
+          statusPill.textContent = '🖐️ Open · Move Cursor';
+          statusPill.className = 'hand-status-pill open';
+        }
+      }
       game.events.emit('handUpdate', data);
     };
 
@@ -147,11 +197,7 @@ function initGame(wordData, { playMode = 'touch' } = {}) {
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'd' || e.key === 'D') {
-        const preview = document.getElementById('camera-preview');
-        if (preview) {
-          preview.classList.toggle('hidden');
-          handTracker.setDebugMode(!preview.classList.contains('hidden'));
-        }
+        toggleCamPreview();
       }
     });
   }
@@ -169,9 +215,6 @@ function initGame(wordData, { playMode = 'touch' } = {}) {
   console.log(`[MoveSpell] Game started in ${playMode} mode!`);
 }
 
-/**
- * Create a simple particle texture if not already loaded
- */
 function createParticleTexture(game) {
   const graphics = game.make.graphics();
   graphics.fillStyle(0xffffff);
